@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;scrollbar-width:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{margin:0;background:#05070A}
+  a{color:#A8CBEF;text-decoration:none}
+  a:hover{color:#c8ddf6}
+  ::selection{background:rgba(111,160,214,.3)}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#05070A;padding:60px 24px 90px;font-family:'Manrope',system-ui,sans-serif;color:#E8EDF3">
+
+  <div style="position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:5px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:5px;backdrop-filter:blur(12px)">
+    <button style="{{ tabDesktopStyle }}" onClick="{{ setDesktop }}">Desktop</button>
+    <button style="{{ tabMobileStyle }}" onClick="{{ setMobile }}">Mobile</button>
+  </div>
+
+  <div style="{{ outerStyle }}">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">{{ frameLabel }}</div>
+    <div style="{{ frameStyle }}">
+
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+      <div style="width:104px;flex:none;background:#05070A;border-right:1px solid rgba(168,203,239,.06);display:flex;flex-direction:column;align-items:center;padding:24px 0;gap:10px">
+        <div style="width:64px;height:64px;border-radius:19px;background:#6FA0D6;display:grid;place-items:center;color:#06121f;margin-bottom:16px">{{ icPlus }}</div>
+        <a href="VeyrArc Today.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}">{{ icHome }}</a>
+        <a href="VeyrArc Tracker.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}">{{ icChecklist }}</a>
+        <a href="VeyrArc Calendar.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}">{{ icCal }}</a>
+        <a href="VeyrArc Training.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}">{{ icTarget }}</a>
+        <a href="VeyrArc Profile.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}">{{ icPerson }}</a>
+      </div>
+      </sc-if>
+
+      <div style="{{ scrollStyle }}">
+        <div style="{{ fadeStyle }}">
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <sc-if value="{{ langOpen }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ closeLang }}" style="width:44px;height:44px;flex:none;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.75);cursor:pointer;padding:0">{{ icBack }}</button>
+          </sc-if>
+          <sc-if value="{{ langClosed }}" hint-placeholder-val="{{ true }}">
+            <a href="VeyrArc Today.dc.html" style="width:44px;height:44px;flex:none;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.75)">{{ icBack }}</a>
+          </sc-if>
+          <div style="font:800 28px/1.1 'Manrope';white-space:nowrap">{{ headerTitle }}</div>
+        </div>
+
+        <sc-if value="{{ langOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:22px;max-width:560px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;overflow:hidden">
+          <sc-for list="{{ langOptions }}" as="lo" hint-placeholder-count="2">
+            <button onClick="{{ lo.onClick }}" style="width:100%;min-height:56px;display:flex;align-items:center;gap:14px;padding:0 18px;background:transparent;border:none;border-top:1px solid rgba(168,203,239,.06);color:#E8EDF3;cursor:pointer;text-align:left">
+              <span style="{{ lo.radioStyle }}">{{ lo.dotEl }}</span>
+              <span style="flex:1;font:600 15px 'Manrope'">{{ lo.label }}</span>
+              <span style="font:500 12px 'Manrope';color:rgba(232,237,243,.4)">{{ lo.native }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="margin-top:10px;max-width:560px;font:400 12px/1.5 'Manrope';color:rgba(232,237,243,.45);padding:0 4px">{{ t.langHint }}</div>
+        </sc-if>
+
+        <sc-if value="{{ langClosed }}" hint-placeholder-val="{{ true }}">
+        <div style="{{ bodyStyle }}">
+
+          <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:4px;position:sticky;top:0">
+            <sc-for list="{{ groupMenu }}" as="gm" hint-placeholder-count="6">
+              <button onClick="{{ gm.onClick }}" style="{{ gm.style }}">{{ gm.label }}</button>
+            </sc-for>
+          </div>
+          </sc-if>
+
+          <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+
+            <sc-if value="{{ show.account }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="{{ groupTitleStyle }}">{{ t.account }}</div>
+              <button style="width:100%;display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;color:#E8EDF3;cursor:pointer;text-align:left">
+                <span style="width:52px;height:52px;flex:none;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 16px 'Manrope'">AP</span>
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font:700 16px 'Manrope'">Анна Петрова</span>
+                  <span style="display:block;font:500 12.5px 'Manrope';color:rgba(232,237,243,.5);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">anna.petrova@gmail.com</span>
+                </span>
+                <span style="color:rgba(232,237,243,.4)">{{ icChevron }}</span>
+              </button>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ show.app }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="{{ groupTitleStyle }}">{{ t.app }}</div>
+              <div style="background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;overflow:hidden">
+                <button onClick="{{ openLang }}" style="{{ rowBtnStyle }}">
+                  <span style="{{ rowIconStyle }}">{{ icGlobe }}</span>
+                  <span style="flex:1;font:600 14.5px 'Manrope'">{{ t.language }}</span>
+                  <span style="font:500 13px 'Manrope';color:rgba(232,237,243,.5)">{{ t.langName }}</span>
+                  <span style="color:rgba(232,237,243,.35)">{{ icChevron }}</span>
+                </button>
+                <div style="{{ rowStyle }}">
+                  <span style="{{ rowIconStyle }}">{{ icMoon }}</span>
+                  <span style="flex:1;font:600 14.5px 'Manrope'">{{ t.theme }}</span>
+                  <span style="font:500 13px 'Manrope';color:rgba(232,237,243,.5)">{{ t.themeDark }}</span>
+                </div>
+                <div style="{{ rowStyle }}">
+                  <span style="{{ rowIconStyle }}">{{ icDrop }}</span>
+                  <span style="flex:1;font:600 14.5px 'Manrope';min-width:0">{{ t.units }}</span>
+                  <div style="display:flex;gap:3px;background:rgba(5,7,10,.7);border:1px solid rgba(168,203,239,.1);border-radius:999px;padding:3px;flex:none">
+                    <button onClick="{{ setMl }}" style="{{ unitMlStyle }}">{{ t.ml }}</button>
+                    <button onClick="{{ setOz }}" style="{{ unitOzStyle }}">{{ t.oz }}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ show.notif }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="{{ groupTitleStyle }}">{{ t.notifications }}</div>
+              <div style="background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;overflow:hidden">
+                <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="4">
+                  <button onClick="{{ n.onClick }}" style="{{ rowBtnStyle }}">
+                    <span style="flex:1;min-width:0">
+                      <span style="display:block;font:600 14.5px 'Manrope'">{{ n.title }}</span>
+                      <span style="display:block;font:400 12px/1.4 'Manrope';color:rgba(232,237,243,.45);margin-top:3px">{{ n.desc }}</span>
+                    </span>
+                    <span style="{{ n.trackStyle }}"><span style="{{ n.knobStyle }}"></span></span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ show.pro }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="{{ groupTitleStyle }}">VeyrArc Pro</div>
+              <div style="background:linear-gradient(160deg,rgba(232,183,94,.12),rgba(13,17,22,.9) 60%);border:1px solid rgba(232,183,94,.25);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <span style="width:42px;height:42px;flex:none;border-radius:13px;background:rgba(232,183,94,.16);border:1px solid rgba(232,183,94,.3);display:grid;place-items:center;color:#E8B75E">{{ icCrown }}</span>
+                  <span style="flex:1;min-width:0">
+                    <span style="display:block;font:700 15px 'Manrope';color:#f2e2c4">{{ t.proActive }}</span>
+                    <span style="display:block;font:500 12px 'Manrope';color:rgba(232,237,243,.55);margin-top:3px;white-space:nowrap">{{ t.renews }} · <span style="font-family:'JetBrains Mono',monospace">{{ t.renewDate }}</span></span>
+                  </span>
+                  <span style="font:700 9px 'JetBrains Mono',monospace;letter-spacing:.14em;color:#241a06;background:#E8B75E;border-radius:999px;padding:5px 10px">PRO</span>
+                </div>
+                <button style="min-height:44px;border-radius:999px;border:1px solid rgba(232,183,94,.35);background:transparent;color:#E8B75E;font:700 13px 'Manrope';cursor:pointer">{{ t.manage }}</button>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ show.arc }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="{{ groupTitleStyle }}">{{ t.arc }}</div>
+              <div style="background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;overflow:hidden">
+                <button onClick="{{ toggleArchive }}" style="{{ rowBtnStyle }}">
+                  <span style="{{ rowIconStyle }}">{{ icArchive }}</span>
+                  <span style="flex:1;font:600 14.5px 'Manrope'">{{ t.archive }}</span>
+                  <span style="{{ archiveChevronStyle }}">{{ icChevron }}</span>
+                </button>
+                <sc-if value="{{ archiveOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:4px 18px 16px;display:flex;flex-direction:column;gap:10px">
+                  <sc-for list="{{ arcs }}" as="a" hint-placeholder-count="2">
+                    <div style="background:rgba(255,255,255,.035);border:1px solid rgba(168,203,239,.08);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px">
+                      <span style="flex:1;min-width:0">
+                        <span style="display:block;font:700 13.5px 'Manrope'">{{ a.name }}</span>
+                        <span style="display:block;font:500 11.5px 'JetBrains Mono',monospace;color:rgba(232,237,243,.45);margin-top:3px;white-space:nowrap">{{ a.dates }}</span>
+                      </span>
+                      <span style="text-align:right;flex:none">
+                        <span style="display:block;font:700 16px 'JetBrains Mono',monospace;color:#A8CBEF">{{ a.pct }}</span>
+                        <span style="display:block;font:600 9px 'Manrope';color:rgba(232,237,243,.4)">{{ a.label }}</span>
+                      </span>
+                    </div>
+                  </sc-for>
+                  <a href="VeyrArc Profile.dc.html" style="font:700 12.5px 'Manrope';color:#A8CBEF;display:flex;align-items:center;gap:6px;min-height:36px">{{ t.compare }} {{ icChevronSm }}</a>
+                </div>
+                </sc-if>
+                <button onClick="{{ askNewArc }}" style="{{ rowBtnStyle }}">
+                  <span style="{{ rowIconStyle }}">{{ icSnow }}</span>
+                  <span style="flex:1;font:600 14.5px 'Manrope'">{{ t.newArc }}</span>
+                  <span style="color:rgba(232,237,243,.35)">{{ icChevron }}</span>
+                </button>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ show.data }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="{{ groupTitleStyle }}">{{ t.data }}</div>
+              <div style="background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;overflow:hidden">
+                <button style="{{ rowBtnStyle }}">
+                  <span style="{{ rowIconStyle }}">{{ icDownload }}</span>
+                  <span style="flex:1;font:600 14.5px 'Manrope'">{{ t.export }}</span>
+                  <span style="color:rgba(232,237,243,.35)">{{ icChevron }}</span>
+                </button>
+                <button onClick="{{ askDelete }}" style="{{ rowBtnStyle }}">
+                  <span style="{{ rowIconDangerStyle }}">{{ icTrash }}</span>
+                  <span style="flex:1;font:600 14.5px 'Manrope';color:#E5645A">{{ t.del }}</span>
+                </button>
+              </div>
+              <div style="margin-top:14px;text-align:center;font:500 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.28)">VeyrArc 1.4.0</div>
+            </div>
+            </sc-if>
+
+          </div>
+        </div>
+        </sc-if>
+
+        </div>
+      </div>
+
+      <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(3,5,8,.72);backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px;z-index:20">
+        <div style="width:100%;max-width:360px;background:#0d1116;border:1px solid rgba(168,203,239,.14);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:10px">
+          <div style="font:800 18px 'Manrope'">{{ modalTitle }}</div>
+          <div style="font:400 13px/1.55 'Manrope';color:rgba(232,237,243,.6)">{{ modalBody }}</div>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <button onClick="{{ closeModal }}" style="flex:1;min-height:46px;border-radius:999px;border:none;background:rgba(255,255,255,.07);color:#E8EDF3;font:700 13px 'Manrope';cursor:pointer">{{ t.cancel }}</button>
+            <button onClick="{{ closeModal }}" style="{{ modalConfirmStyle }}">{{ modalConfirm }}</button>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:980},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  DICT = {
+    ru: {
+      title: 'Настройки', account: 'Аккаунт', app: 'Приложение', language: 'Язык', langName: 'Русский', theme: 'Тема', themeDark: 'Тёмная',
+      units: 'Объём воды', ml: 'мл', oz: 'oz', notifications: 'Уведомления',
+      n1: 'Напоминания о привычках', n1d: 'Если к вечеру привычка не отмечена', n2: 'Итог дня', n2d: 'Короткая сводка в конце дня',
+      n3: 'Pomodoro', n3d: 'Когда сессия фокуса завершена', n4: 'VeyrArc', n4d: 'Начало и завершение арки',
+      proActive: 'Подписка активна', renews: 'Продление', renewDate: '12 окт. 2026', manage: 'Управлять подпиской',
+      arc: 'Арка', archive: 'Архив Arc', newArc: 'Начать новую Arc', compare: 'Сравнить в профиле', completed: 'выполнено', current: 'сейчас',
+      data: 'Данные', export: 'Экспортировать данные', del: 'Удалить аккаунт', cancel: 'Отмена',
+      newArcTitle: 'Начать новую Arc?', newArcBody: 'Текущая арка (день 14 из 90) будет завершена досрочно и попадёт в архив. Привычки сохранятся, счётчики дней начнутся заново.', newArcOk: 'Начать',
+      delTitle: 'Удалить аккаунт?', delBody: 'Все привычки, отказы, цели, записи дневника и история Arc будут удалены без возможности восстановления. Подписку Pro нужно отменить отдельно в магазине приложений.', delOk: 'Удалить',
+      langHint: 'Язык применяется сразу ко всем экранам: подписи, даты, дни недели и формы чисел.',
+      arc1: 'Arc 1', arc2: 'Arc 2', arc1d: '1 июн. – 29 авг.', arc2d: '9 сент. – 7 дек.',
+    },
+    en: {
+      title: 'Settings', account: 'Account', app: 'App', language: 'Language', langName: 'English', theme: 'Theme', themeDark: 'Dark',
+      units: 'Water volume', ml: 'ml', oz: 'oz', notifications: 'Notifications',
+      n1: 'Habit reminders', n1d: "If a habit isn't checked by evening", n2: 'Daily summary', n2d: 'A short recap at the end of the day',
+      n3: 'Pomodoro', n3d: 'When a focus session ends', n4: 'VeyrArc', n4d: 'Arc start and finish',
+      proActive: 'Subscription active', renews: 'Renews', renewDate: 'Oct 12, 2026', manage: 'Manage subscription',
+      arc: 'Arc', archive: 'Arc archive', newArc: 'Start a new Arc', compare: 'Compare in profile', completed: 'completed', current: 'now',
+      data: 'Data', export: 'Export data', del: 'Delete account', cancel: 'Cancel',
+      newArcTitle: 'Start a new Arc?', newArcBody: 'Your current arc (day 14 of 90) will end early and move to the archive. Habits are kept; day counters restart.', newArcOk: 'Start',
+      delTitle: 'Delete account?', delBody: 'All habits, quits, goals, journal entries and Arc history will be permanently deleted. Cancel your Pro subscription separately in the app store.', delOk: 'Delete',
+      langHint: 'Language applies instantly to every screen: labels, dates, weekdays and plural forms.',
+      arc1: 'Arc 1', arc2: 'Arc 2', arc1d: 'Jun 1 – Aug 29', arc2d: 'Sep 9 – Dec 7',
+    },
+  };
+
+  state = {
+    device: (this.props && this.props.startView) || 'desktop',
+    lang: (() => { try { return localStorage.getItem('ww.lang') || 'ru'; } catch (e) { return 'ru'; } })(),
+    fading: false, langOpen: false, group: 'account', unit: 'ml',
+    notif: { n1: true, n2: true, n3: true, n4: false },
+    archiveOpen: false, modal: null,
+  };
+
+  e(t, p, c) { return React.createElement(t, p, c); }
+  svg(kids, o) { o = o || {}; return this.e('svg', { width: o.size || 20, height: o.size || 20, viewBox: '0 0 24 24', fill: 'none', stroke: o.color || 'currentColor', strokeWidth: o.sw || 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' }, kids.map((k, i) => React.cloneElement(k, { key: i }))); }
+  icon(name, o) {
+    const P = (d) => this.e('path', { d }), C = (a) => this.e('circle', a);
+    switch (name) {
+      case 'plus': return this.svg([P('M12 6v12'), P('M6 12h12')], { size: 22, sw: 2 });
+      case 'home': return this.svg([P('M3.5 11 12 3.5l8.5 7.5'), P('M5.5 9.5V20.5h13V9.5')], { size: 24 });
+      case 'checklist': return this.svg([P('M10 6.5h10'), P('M10 12h10'), P('M10 17.5h10'), P('M4 6l1 1 1.8-2'), P('M4 11.5l1 1 1.8-2'), P('M4 17l1 1 1.8-2')], { size: 24 });
+      case 'cal': return this.svg([this.e('rect', { x: 4, y: 5.5, width: 16, height: 14.5, rx: 3 }), P('M4 10h16'), P('M8.5 3.5v3.5'), P('M15.5 3.5v3.5')], { size: 24 });
+      case 'target': return this.svg([C({ cx: 12, cy: 12, r: 8 }), C({ cx: 12, cy: 12, r: 4.6 }), C({ cx: 12, cy: 12, r: 1.2 })], { size: 24 });
+      case 'person': return this.svg([C({ cx: 12, cy: 8, r: 4 }), P('M4.5 20a7.5 7.5 0 0 1 15 0')], { size: 24 });
+      case 'back': return this.svg([P('M15 6l-6 6 6 6')], { size: 18, sw: 2 });
+      case 'chevron': return this.svg([P('M9 6l6 6-6 6')], o || { size: 16, sw: 2 });
+      case 'globe': return this.svg([C({ cx: 12, cy: 12, r: 8.5 }), P('M3.5 12h17'), P('M12 3.5c2.5 2.6 3.6 5.4 3.6 8.5S14.5 17.9 12 20.5C9.5 17.9 8.4 15.1 8.4 12S9.5 6.1 12 3.5z')], { size: 18 });
+      case 'moon': return this.svg([P('M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z')], { size: 18 });
+      case 'drop': return this.svg([P('M12 3.5s6 6 6 10.5a6 6 0 1 1-12 0C6 9.5 12 3.5 12 3.5z')], { size: 18 });
+      case 'crown': return this.svg([P('M4 8l4 4 4-6 4 6 4-4-1.5 10h-13z')], { size: 19 });
+      case 'archive': return this.svg([this.e('rect', { x: 3.5, y: 4.5, width: 17, height: 4.5, rx: 1.5 }), P('M5 9v9.5a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V9'), P('M10 13h4')], { size: 18 });
+      case 'snow': return this.svg([P('M12 3v18'), P('M4.2 7.5l15.6 9'), P('M4.2 16.5l15.6-9'), P('M9.5 4.5 12 6l2.5-1.5'), P('M9.5 19.5 12 18l2.5 1.5')], { size: 18 });
+      case 'download': return this.svg([P('M12 4v11'), P('M7.5 10.5 12 15l4.5-4.5'), P('M5 19.5h14')], { size: 18 });
+      case 'trash': return this.svg([P('M5 7h14'), P('M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7'), P('M6.5 7l.8 12.2a1 1 0 0 0 1 .8h7.4a1 1 0 0 0 1-.8L17.5 7')], { size: 18 });
+      default: return null;
+    }
+  }
+
+  setLang(l) {
+    if (l === this.state.lang) return;
+    this.setState({ fading: true });
+    setTimeout(() => { try { localStorage.setItem('ww.lang', l); } catch (e) {} this.setState({ lang: l, fading: false }); }, 150);
+  }
+
+  renderVals() {
+    const isD = this.state.device === 'desktop';
+    const t = this.DICT[this.state.lang];
+    const switchOn = 'background:#6FA0D6;color:#06121f;border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const switchOff = 'background:transparent;color:rgba(232,237,243,.55);border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const segOn = 'border:none;border-radius:999px;min-width:44px;height:30px;padding:0 12px;font:700 12px "Manrope";cursor:pointer;background:#6FA0D6;color:#06121f';
+    const segOff = 'border:none;border-radius:999px;min-width:44px;height:30px;padding:0 12px;font:700 12px "Manrope";cursor:pointer;background:transparent;color:rgba(232,237,243,.55)';
+    const groups = [['account', t.account], ['app', t.app], ['notif', t.notifications], ['pro', 'VeyrArc Pro'], ['arc', t.arc], ['data', t.data]];
+    const show = {};
+    groups.forEach(([id]) => { show[id] = !isD || this.state.group === id; });
+
+    const notifs = ['n1', 'n2', 'n3', 'n4'].map(k => {
+      const on = this.state.notif[k];
+      return {
+        title: t[k], desc: t[k + 'd'],
+        onClick: () => this.setState(s => ({ notif: Object.assign({}, s.notif, { [k]: !s.notif[k] }) })),
+        trackStyle: 'width:46px;height:28px;flex:none;border-radius:999px;position:relative;transition:background-color .2s;background:' + (on ? '#6FA0D6' : 'rgba(255,255,255,.12)'),
+        knobStyle: 'position:absolute;top:3px;left:' + (on ? '21px' : '3px') + ';width:22px;height:22px;border-radius:50%;background:' + (on ? '#06121f' : '#E8EDF3') + ';transition:left .2s ease',
+      };
+    });
+
+    const langOptions = [['ru', 'Русский', 'Russian'], ['en', 'English', 'Английский']].map(([id, label, other]) => {
+      const sel = this.state.lang === id;
+      return {
+        label, native: this.state.lang === 'ru' ? (id === 'ru' ? '' : 'Английский') : (id === 'en' ? '' : 'Russian'),
+        onClick: () => this.setLang(id),
+        radioStyle: 'width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;box-sizing:border-box;border:' + (sel ? '2px solid #6FA0D6' : '1.5px solid rgba(168,203,239,.3)'),
+        dotEl: sel ? this.e('span', { style: { width: 10, height: 10, borderRadius: '50%', background: '#6FA0D6' } }) : null,
+      };
+    });
+
+    const modal = this.state.modal;
+    const rowBase = 'width:100%;min-height:58px;display:flex;align-items:center;gap:14px;padding:12px 18px;background:transparent;border:none;border-top:1px solid rgba(168,203,239,.06);color:#E8EDF3;text-align:left;';
+
+    return {
+      isDesktop: isD, isMobile: !isD, t, show,
+      setDesktop: () => this.setState({ device: 'desktop' }), setMobile: () => this.setState({ device: 'mobile' }),
+      tabDesktopStyle: isD ? switchOn : switchOff, tabMobileStyle: isD ? switchOff : switchOn,
+      frameLabel: isD ? 'DESKTOP · 1280 × 832' : 'MOBILE · 390 × 844',
+      outerStyle: isD ? 'max-width:1280px;margin:0 auto' : 'max-width:390px;margin:0 auto',
+      frameStyle: 'position:relative;display:flex;background:#05070A;border:1px solid rgba(168,203,239,.08);overflow:hidden;' + (isD ? 'border-radius:24px;min-height:832px' : 'border-radius:34px;height:812px'),
+      scrollStyle: 'flex:1;min-width:0;overflow-y:auto;' + (isD ? 'padding:34px 36px 40px' : 'padding:22px 18px 30px'),
+      fadeStyle: 'transition:opacity .15s ease;opacity:' + (this.state.fading ? 0 : 1),
+      bodyStyle: isD ? 'margin-top:26px;display:grid;grid-template-columns:220px minmax(0,640px);gap:28px;align-items:start' : 'margin-top:22px',
+      headerTitle: this.state.langOpen ? t.language : t.title,
+      langOpen: this.state.langOpen, langClosed: !this.state.langOpen,
+      openLang: () => this.setState({ langOpen: true }), closeLang: () => this.setState({ langOpen: false }),
+      langOptions,
+      groupMenu: groups.map(([id, label]) => ({ label, onClick: () => this.setState({ group: id }),
+        style: 'text-align:left;min-height:44px;padding:0 16px;border-radius:14px;border:none;cursor:pointer;font:600 14px "Manrope";' + (this.state.group === id ? 'background:rgba(111,160,214,.16);color:#E8EDF3' : 'background:transparent;color:rgba(232,237,243,.55)') })),
+      groupTitleStyle: 'font:700 10px "JetBrains Mono",monospace;letter-spacing:.2em;color:rgba(232,237,243,.4);text-transform:uppercase;margin:0 4px 10px',
+      rowBtnStyle: rowBase + 'cursor:pointer',
+      rowStyle: rowBase,
+      rowIconStyle: 'width:34px;height:34px;flex:none;border-radius:11px;background:rgba(111,160,214,.12);color:#A8CBEF;display:grid;place-items:center',
+      rowIconDangerStyle: 'width:34px;height:34px;flex:none;border-radius:11px;background:rgba(229,100,90,.12);color:#E5645A;display:grid;place-items:center',
+      unitMlStyle: this.state.unit === 'ml' ? segOn : segOff, unitOzStyle: this.state.unit === 'oz' ? segOn : segOff,
+      setMl: () => this.setState({ unit: 'ml' }), setOz: () => this.setState({ unit: 'oz' }),
+      notifs,
+      archiveOpen: this.state.archiveOpen, toggleArchive: () => this.setState(s => ({ archiveOpen: !s.archiveOpen })),
+      archiveChevronStyle: 'color:rgba(232,237,243,.35);display:grid;transition:transform .2s;transform:rotate(' + (this.state.archiveOpen ? 90 : 0) + 'deg)',
+      arcs: [{ name: t.arc1, dates: t.arc1d, pct: '78%', label: t.completed }, { name: t.arc2, dates: t.arc2d, pct: '16%', label: t.current }],
+      askNewArc: () => this.setState({ modal: 'arc' }), askDelete: () => this.setState({ modal: 'del' }),
+      modalOpen: !!modal, closeModal: () => this.setState({ modal: null }),
+      modalTitle: modal === 'del' ? t.delTitle : t.newArcTitle, modalBody: modal === 'del' ? t.delBody : t.newArcBody,
+      modalConfirm: modal === 'del' ? t.delOk : t.newArcOk,
+      modalConfirmStyle: 'flex:1;white-space:nowrap;min-height:46px;border-radius:999px;border:none;font:700 13px "Manrope";cursor:pointer;' + (modal === 'del' ? 'background:#E5645A;color:#1a0605' : 'background:#6FA0D6;color:#06121f'),
+      icPlus: this.icon('plus'), icHome: this.icon('home'), icChecklist: this.icon('checklist'), icCal: this.icon('cal'), icTarget: this.icon('target'), icPerson: this.icon('person'),
+      icBack: this.icon('back'), icChevron: this.icon('chevron'), icChevronSm: this.icon('chevron', { size: 13, sw: 2.2 }),
+      icGlobe: this.icon('globe'), icMoon: this.icon('moon'), icDrop: this.icon('drop'), icCrown: this.icon('crown'), icArchive: this.icon('archive'), icSnow: this.icon('snow'), icDownload: this.icon('download'), icTrash: this.icon('trash'),
+      railItemStyle: 'width:68px;height:48px;border-radius:16px;display:grid;place-items:center;color:rgba(232,237,243,.42);transition:background-color .2s ease',
+      railItemHoverStyle: 'background:rgba(168,203,239,.07);color:rgba(232,237,243,.8)',
+    };
+  }
+}
+
+</script>
+</body>
+</html>

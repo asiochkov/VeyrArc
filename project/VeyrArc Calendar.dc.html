@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<script src="./i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;scrollbar-width:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{margin:0;background:#05070A}
+  a{color:#A8CBEF;text-decoration:none}
+  a:hover{color:#c8ddf6}
+  ::selection{background:rgba(111,160,214,.3)}
+  .wk-scroll::-webkit-scrollbar{width:8px;height:8px}
+  .wk-scroll::-webkit-scrollbar-thumb{background:rgba(168,203,239,.14);border-radius:8px}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#05070A;padding:60px 24px 90px;font-family:'Manrope',system-ui,sans-serif;color:#E8EDF3">
+
+  <div style="position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:5px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:5px;backdrop-filter:blur(12px)">
+    <button style="{{ tabDesktopStyle }}" onClick="{{ setDesktop }}">Desktop</button>
+    <button style="{{ tabMobileStyle }}" onClick="{{ setMobile }}">Mobile</button>
+  </div>
+
+  <!-- ============ DESKTOP ============ -->
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1280px;margin:0 auto">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">DESKTOP · 1280 × 832</div>
+    <div style="display:flex;background:#05070A;border:1px solid rgba(168,203,239,.08);border-radius:24px;overflow:hidden;min-height:832px">
+
+      <!-- rail -->
+      <div style="width:104px;flex:none;background:#05070A;border-right:1px solid rgba(168,203,239,.06);display:flex;flex-direction:column;align-items:center;padding:24px 0;gap:10px">
+        <button style="width:64px;height:64px;border-radius:19px;background:#6FA0D6;border:none;display:grid;place-items:center;color:#06121f;cursor:pointer;margin-bottom:16px">{{ icPlus }}</button>
+        <a href="VeyrArc Today.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icHome }}</span></a>
+        <a href="VeyrArc Tracker.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icChecklist }}</span></a>
+        <div style="{{ railActiveStyle }}">
+          <span style="{{ railIconActiveStyle }}">{{ icCal }}</span>
+          <span style="{{ railLabelStyle }}">Календарь</span>
+        </div>
+        <a href="VeyrArc Training.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icTarget }}</span></a>
+        <a href="VeyrArc Profile.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icPerson }}</span></a>
+      </div>
+
+      <!-- sidebar -->
+      <div style="width:296px;flex:none;border-right:1px solid rgba(168,203,239,.06);padding:26px 22px;display:flex;flex-direction:column;gap:22px;overflow-y:auto">
+        <!-- mini calendar -->
+        <div>
+          <div style="margin-bottom:14px">
+            <div style="font:700 15px 'Manrope'">Сентябрь</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px">
+            <sc-for list="{{ weekdays }}" as="w" hint-placeholder-count="7">
+              <div style="text-align:center;font:600 10px 'JetBrains Mono',monospace;color:rgba(232,237,243,.32);padding:2px 0">{{ w }}</div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+            <sc-for list="{{ miniCells }}" as="c" hint-placeholder-count="35">
+              <div style="{{ c.style }}">{{ c.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- upcoming -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+            <div style="font:700 14px 'Manrope'">Ближайшие события</div>
+            <a href="#" style="font:600 11px 'Manrope';color:#A8CBEF">Все</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ upcoming }}" as="u" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(168,203,239,.07)">
+                <span style="{{ u.boxStyle }}">{{ u.checkEl }}</span>
+                <span style="flex:1;min-width:0;font:500 13px 'Manrope';color:rgba(232,237,243,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.name }}</span>
+                <span style="font:600 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.42);flex:none">{{ u.time }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- time breakdown -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+            <div style="font:700 14px 'Manrope'">Распределение</div>
+            <a href="#" style="font:600 11px 'Manrope';color:#A8CBEF">Все</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ breakdown }}" as="b" hint-placeholder-count="4">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span style="font:500 12px 'Manrope';color:rgba(232,237,243,.7)">{{ b.label }}</span>
+                  <span style="font:600 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.42)">{{ b.hrs }}</span>
+                </div>
+                <div style="height:6px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden">
+                  <div style="{{ b.barStyle }}"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- main -->
+      <div style="flex:1;min-width:0;padding:26px 30px 30px;position:relative;display:flex;flex-direction:column">
+        <!-- header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <div style="display:flex;align-items:baseline;gap:12px;min-width:0">
+            <div style="font:800 22px/1.15 'Manrope';letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Сентябрь</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex:none">
+            <div style="display:flex;gap:4px;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.08);border-radius:999px;padding:4px">
+              <button onClick="{{ setMonth }}" style="{{ vMonthStyle }}">Месяц</button>
+              <button onClick="{{ setWeek }}" style="{{ vWeekStyle }}">Неделя</button>
+              <button onClick="{{ setDay }}" style="{{ vDayStyle }}">День</button>
+            </div>
+            <button style-after="content:'';position:absolute;inset:-4px" style="position:relative;width:36px;height:36px;flex:none;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.6);cursor:pointer;padding:0">{{ icSearch }}</button>
+            <button style-after="content:'';position:absolute;inset:-4px" style="position:relative;width:36px;height:36px;flex:none;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.6);cursor:pointer;padding:0">{{ icBell }}</button>
+            <div style="width:36px;height:36px;flex:none;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 12px 'Manrope'">AP</div>
+          </div>
+        </div>
+
+        <!-- WEEK -->
+        <sc-if value="{{ weekView }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:20px">
+          <div style="display:flex;gap:8px;padding-left:56px">
+            <sc-for list="{{ days }}" as="day" hint-placeholder-count="7">
+              <div style="{{ day.headStyle }}">{{ day.dow }} {{ day.date }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <div class="wk-scroll" style="margin-top:12px;flex:1;overflow-y:auto;display:flex">
+          <div style="width:56px;flex:none;display:flex;flex-direction:column">
+            <div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.32);margin-bottom:8px">GMT +4</div>
+            <sc-for list="{{ hours }}" as="hr" hint-placeholder-count="8">
+              <div style="height:64px;font:600 10px 'JetBrains Mono',monospace;color:rgba(232,237,243,.35);transform:translateY(-6px)">{{ hr }}</div>
+            </sc-for>
+          </div>
+          <div style="flex:1;display:flex;gap:8px;position:relative">
+            <div style="{{ nowLineStyle }}"><span style="{{ nowDotStyle }}"></span><span style="{{ nowPillStyle }}">{{ nowLabel }}</span></div>
+            <sc-for list="{{ days }}" as="day" hint-placeholder-count="7">
+              <div style="{{ day.colStyle }}" onClick="{{ day.onColClick }}">
+                <sc-for list="{{ day.events }}" as="ev" hint-placeholder-count="0">
+                  <div onPointerDown="{{ ev.onDragStart }}" onClick="{{ ev.onClick }}" style="{{ ev.style }}">
+                    <div style="font:700 12px 'Manrope';color:#fff;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">{{ ev.title }}</div>
+                    <span style="{{ ev.gripStyle }}"></span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- DAY -->
+        <sc-if value="{{ dayView }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:20px;padding-left:56px">
+          <div style="{{ selDayHeadStyle }}">{{ selDayLabel }}</div>
+        </div>
+        <div class="wk-scroll" style="margin-top:12px;flex:1;overflow-y:auto;display:flex">
+          <div style="width:56px;flex:none;display:flex;flex-direction:column">
+            <div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.32);margin-bottom:8px">GMT +4</div>
+            <sc-for list="{{ hours }}" as="hr" hint-placeholder-count="8">
+              <div style="height:64px;font:600 10px 'JetBrains Mono',monospace;color:rgba(232,237,243,.35);transform:translateY(-6px)">{{ hr }}</div>
+            </sc-for>
+          </div>
+          <div style="{{ colStyle }}" onClick="{{ onDayColClick }}">
+            <div style="{{ nowLineStyle }}"><span style="{{ nowDotStyle }}"></span><span style="{{ nowPillStyle }}">{{ nowLabel }}</span></div>
+            <sc-for list="{{ selDayEvents }}" as="ev" hint-placeholder-count="0">
+              <div onPointerDown="{{ ev.onDragStart }}" onClick="{{ ev.onClick }}" style="{{ ev.styleWide }}">
+                <div style="font:700 13px 'Manrope';color:#fff;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">{{ ev.title }}</div>
+                <span style="{{ ev.gripStyle }}"></span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- MONTH -->
+        <sc-if value="{{ monthView }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:20px;flex:1;display:flex;flex-direction:column">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px">
+            <sc-for list="{{ weekdaysFull }}" as="w" hint-placeholder-count="7">
+              <div style="font:700 11px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.4);padding:0 4px">{{ w }}</div>
+            </sc-for>
+          </div>
+          <div style="flex:1;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:8px">
+            <sc-for list="{{ monthCells }}" as="c" hint-placeholder-count="35">
+              <div style="{{ c.cellStyle }}">
+                <div style="{{ c.numStyle }}">{{ c.label }}</div>
+                <div style="{{ c.dotsStyle }}">{{ c.dotsEl }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- popover -->
+        <sc-if value="{{ popoverShown }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;top:150px;right:34px;width:300px;background:#0C1015;border:1px solid rgba(168,203,239,.16);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.5);padding:20px;z-index:20">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="font:700 17px 'Manrope';color:#F3F6FA">{{ pop.title }}</div>
+            <button style-after="content:'';position:absolute;inset:-7px" style="position:relative;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.55);cursor:pointer;padding:0">{{ icPencil }}</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;margin-top:14px;color:rgba(232,237,243,.75)">
+            <span style="color:#6FA0D6">{{ icCalSm }}</span>
+            <span style="font:600 13px 'Manrope'">{{ pop.date }}</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <div style="flex:1;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.1);border-radius:11px;padding:7px 8px 7px 12px">
+              <div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4)">НАЧАЛО</div><div style="font:700 14px 'JetBrains Mono',monospace;color:#F3F6FA;margin-top:1px">{{ pop.start }}</div></div>
+              <div style="display:flex;flex-direction:column;gap:3px"><button onClick="{{ pop.startUp }}" style="{{ stepBtnStyle }}">+</button><button onClick="{{ pop.startDown }}" style="{{ stepBtnStyle }}">−</button></div>
+            </div>
+            <div style="flex:1;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.1);border-radius:11px;padding:7px 8px 7px 12px">
+              <div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4)">КОНЕЦ</div><div style="font:700 14px 'JetBrains Mono',monospace;color:#F3F6FA;margin-top:1px">{{ pop.end }}</div></div>
+              <div style="display:flex;flex-direction:column;gap:3px"><button onClick="{{ pop.endUp }}" style="{{ stepBtnStyle }}">+</button><button onClick="{{ pop.endDown }}" style="{{ stepBtnStyle }}">−</button></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;font:600 10px 'JetBrains Mono',monospace;color:#8fc2ff"><span style="width:6px;height:6px;border-radius:50%;background:#8fc2ff;box-shadow:0 0 8px 1px rgba(127,194,255,.8)"></span>{{ pop.dur }} · перетащи блок, чтобы сдвинуть</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
+            <span style="{{ pop.tagStyle }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ pop.tagHue }};display:inline-block;margin-right:7px"></span>{{ pop.tag }}</span>
+          </div>
+          <div style="margin-top:14px">
+            <div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.14em;color:rgba(232,237,243,.4);margin-bottom:7px">ЗАМЕТКА</div>
+            <textarea value="{{ pop.note }}" onChange="{{ pop.onNote }}" placeholder="Что нужно подготовить или помнить…" style="width:100%;min-height:64px;resize:none;background:rgba(255,255,255,.04);border:1px solid rgba(168,203,239,.12);border-radius:12px;padding:11px 12px;font:500 12px/1.5 'Manrope';color:#E8EDF3;outline:none"></textarea>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- create popover -->
+        <sc-if value="{{ creatingShown }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:150px;right:34px;width:300px;background:#0C1015;border:1px solid rgba(168,203,239,.16);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.5);padding:20px;z-index:20">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="font:700 11px 'JetBrains Mono',monospace;letter-spacing:.14em;color:rgba(232,237,243,.4)">НОВАЯ ЗАДАЧА</div>
+            <button onClick="{{ create.onCancel }}" style-after="content:'';position:absolute;inset:-7px" style="position:relative;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.55);cursor:pointer;padding:0;font:600 14px 'Manrope'">✕</button>
+          </div>
+          <input value="{{ create.title }}" onChange="{{ create.onTitle }}" placeholder="Название задачи" style="width:100%;margin-top:12px;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.14);border-radius:11px;padding:11px 12px;font:700 15px 'Manrope';color:#F3F6FA;outline:none"/>
+          <div style="display:flex;align-items:center;gap:9px;margin-top:14px;color:rgba(232,237,243,.75)">
+            <span style="color:#6FA0D6">{{ icCalSm }}</span>
+            <span style="font:600 13px 'Manrope'">{{ create.date }}</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <div style="flex:1;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.1);border-radius:11px;padding:7px 8px 7px 12px">
+              <div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4)">НАЧАЛО</div><div style="font:700 14px 'JetBrains Mono',monospace;color:#F3F6FA;margin-top:1px">{{ create.start }}</div></div>
+              <div style="display:flex;flex-direction:column;gap:3px"><button onClick="{{ create.startUp }}" style="{{ stepBtnStyle }}">+</button><button onClick="{{ create.startDown }}" style="{{ stepBtnStyle }}">−</button></div>
+            </div>
+            <div style="flex:1;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.1);border-radius:11px;padding:7px 8px 7px 12px">
+              <div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4)">КОНЕЦ</div><div style="font:700 14px 'JetBrains Mono',monospace;color:#F3F6FA;margin-top:1px">{{ create.end }}</div></div>
+              <div style="display:flex;flex-direction:column;gap:3px"><button onClick="{{ create.endUp }}" style="{{ stepBtnStyle }}">+</button><button onClick="{{ create.endDown }}" style="{{ stepBtnStyle }}">−</button></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
+            <sc-for list="{{ create.cats }}" as="ct" hint-placeholder-count="4">
+              <button onClick="{{ ct.onClick }}" style="{{ ct.style }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ ct.hue }};display:inline-block;margin-right:7px"></span>{{ ct.label }}</button>
+            </sc-for>
+          </div>
+          <button onClick="{{ create.onSave }}" style="width:100%;margin-top:16px;background:#6FA0D6;color:#06121f;border:none;border-radius:12px;padding:12px 0;font:700 13px 'Manrope';cursor:pointer">Создать задачу</button>
+        </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ MOBILE ============ -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;justify-content:center">
+  <div style="width:100%;max-width:390px">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">MOBILE · 390 × 844</div>
+    <div style="background:#05070A;border:1px solid rgba(168,203,239,.08);border-radius:34px;overflow:hidden;height:812px;display:flex;flex-direction:column">
+
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:22px 18px 14px">
+
+        <!-- header -->
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:12px">
+            <a href="VeyrArc Today.dc.html" style="width:38px;height:38px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.7)">{{ icBack }}</a>
+            <div>
+              <div style="font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.34)">VEYRARC</div>
+              <div style="font:800 22px/1.1 'Manrope';margin-top:5px">Планер</div>
+            </div>
+          </div>
+          <div style="width:38px;height:38px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 12px 'Manrope'">AP</div>
+        </div>
+
+        <!-- date + chevron -->
+        <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <button onClick="{{ toggleMonth }}" style="display:flex;align-items:center;gap:8px;background:transparent;border:none;color:#F3F6FA;cursor:pointer;padding:0;font:700 20px 'Manrope'">
+              Сентябрь <span style="{{ monthChevStyle }}">{{ icChevDown }}</span>
+            </button>
+            <div style="font:400 12px 'Manrope';color:rgba(232,237,243,.45);margin-top:4px">Всего 3 задачи на сегодня</div>
+          </div>
+          <button onClick="{{ addTask }}" style="width:40px;height:40px;border-radius:13px;background:#6FA0D6;color:#06121f;border:none;display:grid;place-items:center;cursor:pointer">{{ icPlus }}</button>
+        </div>
+
+        <!-- collapsible month -->
+        <sc-if value="{{ monthOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);border-radius:20px;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font:700 14px 'Manrope'">Сентябрь</div>
+            <div style="display:flex;gap:6px">
+              <button style-after="content:'';position:absolute;inset:-8px" style="position:relative;width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.6);cursor:pointer;padding:0">{{ icChevLeft }}</button>
+              <button style-after="content:'';position:absolute;inset:-8px" style="position:relative;width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.6);cursor:pointer;padding:0">{{ icChevRight }}</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px">
+            <sc-for list="{{ weekdays }}" as="w" hint-placeholder-count="7">
+              <div style="text-align:center;font:600 10px 'JetBrains Mono',monospace;color:rgba(232,237,243,.32)">{{ w }}</div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+            <sc-for list="{{ mobileCells }}" as="c" hint-placeholder-count="35">
+              <div style="{{ c.style }}">{{ c.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- day selector -->
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <sc-for list="{{ selector }}" as="s" hint-placeholder-count="7">
+            <button onClick="{{ s.onClick }}" style="{{ s.style }}">
+              <span style="{{ s.numStyle }}">{{ s.num }}</span>
+              <span style="{{ s.dowStyle }}">{{ s.dow }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <!-- timeline -->
+        <div style="margin-top:20px;font:700 15px 'Manrope';margin-bottom:6px">Расписание</div>
+        <div style="display:flex">
+          <div style="width:48px;flex:none;display:flex;flex-direction:column;padding-top:2px">
+            <sc-for list="{{ hours }}" as="hr" hint-placeholder-count="8">
+              <div style="height:66px;font:600 10px 'JetBrains Mono',monospace;color:rgba(232,237,243,.35)">{{ hr }}</div>
+            </sc-for>
+          </div>
+          <div style="flex:1;position:relative;background:repeating-linear-gradient(to bottom,transparent,transparent 65px,rgba(168,203,239,.06) 65px,rgba(168,203,239,.06) 66px);height:990px">
+            <sc-for list="{{ mobileEvents }}" as="ev" hint-placeholder-count="0">
+              <div style="{{ ev.styleWide }}">
+                <div style="font:700 13px 'Manrope';color:#fff;line-height:1.2">{{ ev.title }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- distribution -->
+        <div style="margin-top:24px;font:700 15px 'Manrope';margin-bottom:10px">Твой прогресс</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <sc-for list="{{ mobileStats }}" as="st" hint-placeholder-count="3">
+            <div style="{{ st.cardStyle }}">
+              <div style="{{ st.iconWrapStyle }}">{{ st.iconEl }}</div>
+              <div style="font:700 28px 'JetBrains Mono',monospace;margin-top:14px;color:#F3F6FA">{{ st.value }}</div>
+              <div style="font:600 12px 'Manrope';color:rgba(232,237,243,.55);margin-top:3px">{{ st.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+
+      <!-- bottom nav -->
+      <div style="flex:none;display:flex;justify-content:space-around;align-items:center;background:rgba(9,12,16,.96);border-top:1px solid rgba(168,203,239,.1);padding:10px 8px 14px;backdrop-filter:blur(12px)">
+        <a href="VeyrArc Today.dc.html" style="{{ barItemStyle }}">{{ icHome }}</a>
+        <a href="VeyrArc Tracker.dc.html" style="{{ barItemStyle }}">{{ icChecklist }}</a>
+        <div style="{{ barActiveStyle }}">
+          <span style="{{ barIconActiveStyle }}">{{ icCal }}</span>
+          <span style="{{ barLabelStyle }}">Календарь</span>
+        </div>
+        <a href="VeyrArc Training.dc.html" style="{{ barItemStyle }}">{{ icTarget }}</a>
+        <a href="VeyrArc Profile.dc.html" style="{{ barItemStyle }}">{{ icPerson }}</a>
+      </div>
+
+    </div>
+  </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:980},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    device: (this.props && this.props.startView) || 'desktop',
+    navReady: false,
+    calView: 'week',
+    selEvent: 'meet',
+    selDay: 1,
+    monthOpen: false,
+    now: Date.now(),
+    drag: null,
+    notes: {},
+    events: [
+      { id: 'e1',  d: 0, s: 8,  e: 8.83, t: 'Созвон с клиентом', c: 'blue', a: 2 },
+      { id: 'e2',  d: 0, s: 10, e: 11,   t: 'Тест сценариев', c: 'green', a: 2 },
+      { id: 'e3',  d: 1, s: 8,  e: 10,   t: 'Подготовка презентации', c: 'green', a: 3 },
+      { id: 'e4',  d: 1, s: 11, e: 12,   t: 'Дизайн-ревью', c: 'purple', a: 2 },
+      { id: 'e5',  d: 1, s: 13, e: 14,   t: 'Синк с разработкой', c: 'red', a: 2 },
+      { id: 'e6',  d: 2, s: 8,  e: 8.83, t: 'Созвон с клиентом', c: 'blue', a: 2 },
+      { id: 'e7',  d: 2, s: 9,  e: 10,   t: 'Подготовка к встрече', c: 'red', a: 2 },
+      { id: 'e8',  d: 3, s: 8,  e: 9,    t: 'Ретро команды', c: 'green', a: 3 },
+      { id: 'e9',  d: 3, s: 13, e: 14.5, t: 'Веду воркшоп', c: 'red', a: 2 },
+      { id: 'meet',d: 4, s: 11, e: 12,   t: 'Встреча с командой', c: 'blue', a: 4, n: 'Собрать статусы по спринту, принести макеты главного экрана.' },
+      { id: 'e11', d: 4, s: 8,  e: 8.83, t: 'Созвон с клиентом', c: 'blue', a: 2 },
+      { id: 'e12', d: 4, s: 14, e: 15,   t: 'Анимации интерфейса', c: 'green', a: 2 },
+      { id: 'e13', d: 5, s: 9,  e: 10,   t: 'Работа над дизайн-системой', c: 'green', a: 2 },
+      { id: 'e14', d: 6, s: 8,  e: 8.83, t: 'Созвон с клиентом', c: 'blue', a: 2 },
+    ],
+  };
+
+  COL = { blue: '#4E86BE', green: '#43A483', red: '#C25749', purple: '#8670C4' };
+  ROW = 64;
+  H0 = 7;
+  H1 = 21;
+
+  SPRING = 'cubic-bezier(.34,1.56,.64,1)';
+  componentDidMount() {
+    setTimeout(() => this.setState({ navReady: true }), 500);
+    this._t = setInterval(() => this.setState({ now: Date.now() }), 30000);
+    this._onMove = (ev) => {
+      const d = this.state.drag; if (!d) return;
+      const dh = (ev.clientY - d.y0) / this.ROW;
+      let snap = Math.round(dh * 4) / 4;
+      const len = d.e - d.s;
+      let ns = d.s + snap;
+      if (ns < this.H0) ns = this.H0;
+      if (ns + len > this.H1) ns = this.H1 - len;
+      this.setState(st => ({ events: st.events.map(x => x.id === d.id ? { ...x, s: ns, e: ns + len } : x) }));
+    };
+    this._onUp = () => {
+      this.setState({ drag: null });
+      window.removeEventListener('pointermove', this._onMove);
+      window.removeEventListener('pointerup', this._onUp);
+    };
+  }
+  componentWillUnmount() { clearInterval(this._t); }
+
+  startDrag(id, ev) {
+    ev.preventDefault();
+    const e0 = this.state.events.find(x => x.id === id);
+    this.setState({ selEvent: id, drag: { id, y0: ev.clientY, s: e0.s, e: e0.e } });
+    window.addEventListener('pointermove', this._onMove);
+    window.addEventListener('pointerup', this._onUp);
+  }
+
+  nudge(id, field, delta) {
+    this.setState(st => ({ events: st.events.map(x => {
+      if (x.id !== id) return x;
+      if (field === 's') { const ns = Math.max(this.H0, Math.min(x.e - 0.25, x.s + delta)); return { ...x, s: ns }; }
+      const ne = Math.min(this.H1, Math.max(x.s + 0.25, x.e + delta)); return { ...x, e: ne };
+    }) }));
+  }
+  onColumnClick(dayIndex, e) {
+    if (e.target !== e.currentTarget) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    let hr = Math.round((this.H0 + y / this.ROW) * 4) / 4;
+    hr = Math.max(this.H0, Math.min(this.H1 - 0.5, hr));
+    this.setState({ creating: { d: dayIndex, s: hr, e: Math.min(hr + 1, this.H1), t: '', c: 'blue' }, selEvent: null });
+  }
+  nudgeCreating(field, delta) {
+    this.setState(st => {
+      const c = st.creating; if (!c) return {};
+      if (field === 's') { const ns = Math.max(this.H0, Math.min(c.e - 0.25, c.s + delta)); return { creating: { ...c, s: ns } }; }
+      const ne = Math.min(this.H1, Math.max(c.s + 0.25, c.e + delta)); return { creating: { ...c, e: ne } };
+    });
+  }
+  e(t, p, c) { return React.createElement(t, p, c); }
+  svg(kids, o) {
+    o = o || {};
+    return this.e('svg', { width: o.size || 18, height: o.size || 18, viewBox: '0 0 24 24', fill: 'none', stroke: o.color || 'currentColor', strokeWidth: o.sw || 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' }, kids.map((k, i) => React.cloneElement(k, { key: i })));
+  }
+  p(d) { return this.e('path', { d: d }); }
+  icon(name, o) {
+    const P = this.p.bind(this), C = (a) => this.e('circle', a);
+    switch (name) {
+      case 'back': return this.svg([P('M15 6l-6 6 6 6')], { size: 18, sw: 2 });
+      case 'chevL': return this.svg([P('M15 6l-6 6 6 6')], { size: 15, sw: 2 });
+      case 'chevR': return this.svg([P('M9 6l6 6-6 6')], { size: 15, sw: 2 });
+      case 'chevD': return this.svg([P('M6 9l6 6 6-6')], { size: 18, sw: 2 });
+      case 'chevDsm': return this.svg([P('M6 9l6 6 6-6')], { size: 13, sw: 2 });
+      case 'plus': return this.svg([P('M12 6v12'), P('M6 12h12')], { size: 22, sw: 2 });
+      case 'home': return this.svg([P('M3.5 11 12 3.5l8.5 7.5'), P('M5.5 9.5V20.5h13V9.5')], { size: 24 });
+      case 'checklist': return this.svg([P('M10 6.5h10'), P('M10 12h10'), P('M10 17.5h10'), P('M4 6l1 1 1.8-2'), P('M4 11.5l1 1 1.8-2'), P('M4 17l1 1 1.8-2')], { size: 24 });
+      case 'cal': return this.svg([this.e('rect', { x: 4, y: 5.5, width: 16, height: 14.5, rx: 3 }), P('M4 10h16'), P('M8.5 3.5v3.5'), P('M15.5 3.5v3.5')], { size: 24 });
+      case 'calSm': return this.svg([this.e('rect', { x: 4, y: 5.5, width: 16, height: 14.5, rx: 3 }), P('M4 10h16'), P('M8.5 3.5v3.5'), P('M15.5 3.5v3.5')], { size: 16 });
+      case 'tune': return this.svg([P('M4 8.5h8'), P('M17 8.5h3'), C({ cx: 14.5, cy: 8.5, r: 2.2 }), P('M4 15.5h3'), P('M12 15.5h8'), C({ cx: 9.5, cy: 15.5, r: 2.2 })], { size: 24 });
+      case 'person': return this.svg([C({ cx: 12, cy: 8, r: 4 }), P('M4.5 20a7.5 7.5 0 0 1 15 0')], { size: 24 });
+      case 'search': return this.svg([C({ cx: 11, cy: 11, r: 6.5 }), P('M20 20l-4.3-4.3')], { size: 18 });
+      case 'bell': return this.svg([P('M18 8.5a6 6 0 1 0-12 0c0 6-2 7.5-2 7.5h16s-2-1.5-2-7.5z'), P('M10.5 20a2 2 0 0 0 3 0')], { size: 18 });
+      case 'video': return this.svg([this.e('rect', { x: 3, y: 6.5, width: 12, height: 11, rx: 2.5 }), P('M15 10l6-3.5v11L15 14')], { size: 16 });
+      case 'pin': return this.svg([P('M12 21s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10z'), C({ cx: 12, cy: 11, r: 2.2 })], { size: 16 });
+      case 'gym': return this.svg([P('M4 9.5v5'), P('M7 7.5v9'), P('M17 7.5v9'), P('M20 9.5v5'), P('M7 12h10')], { size: 24 });
+      case 'pencil': return this.svg([P('M4 20l4-1 10-10-3-3L5 16z'), P('M14 6l3 3')], { size: 15 });
+      case 'check': return this.svg([P('M5 12.5l4 4 10-10')], { size: 11, sw: 3 });
+      case 'flame': return this.svg([P('M12 2.5c1.4 2.6 4.6 5.1 4.6 9.1a4.6 4.6 0 1 1-9.2 0c0-1.3.4-2.4 1-3.3.2 1.1.9 2 1.7 1.6-.6-2.1.1-4.8 1.9-7.4z')], { size: 20 });
+      case 'target': return this.svg([C({ cx: 12, cy: 12, r: 8 }), C({ cx: 12, cy: 12, r: 4.6 }), C({ cx: 12, cy: 12, r: 1.2 })], { size: 20 });
+      default: return null;
+    }
+  }
+
+  fmt(x) { const h = Math.floor(x); const m = Math.round((x - h) * 60); return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'); }
+
+  monthGrid(sz) {
+    const sel = 12, today = 11;
+    const cells = [];
+    const base = 'display:grid;place-items:center;aspect-ratio:1;font:600 ' + (sz > 32 ? 13 : 12) + 'px "Manrope";border-radius:' + (sz > 32 ? 11 : 9) + 'px;cursor:pointer;';
+    for (let n = 1; n <= 30; n++) {
+      let st = base;
+      if (n === sel) st += 'background:#6FA0D6;color:#06121f';
+      else if (n === today) st += 'background:transparent;border:1.5px solid #6FA0D6;color:#A8CBEF';
+      else st += 'color:rgba(232,237,243,.72)';
+      cells.push({ label: String(n), style: st });
+    }
+    let nx = 1;
+    while (cells.length < 35) { cells.push({ label: String(nx++), style: base + 'color:rgba(232,237,243,.18);cursor:default' }); }
+    return cells;
+  }
+
+  renderVals() {
+    const isD = this.state.device === 'desktop';
+    const view = this.state.calView;
+    const switchOn = 'background:#6FA0D6;color:#06121f;border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const switchOff = 'background:transparent;color:rgba(232,237,243,.55);border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const vOn = 'background:#6FA0D6;color:#06121f;border:none;border-radius:999px;padding:7px 13px;font:600 12px "Manrope";cursor:pointer;white-space:nowrap';
+    const vOff = 'background:transparent;color:rgba(232,237,243,.55);border:none;border-radius:999px;padding:7px 13px;font:600 12px "Manrope";cursor:pointer;white-space:nowrap';
+
+    const dayMeta = [
+      { dow: 'Пн', date: 11 }, { dow: 'Вт', date: 12 }, { dow: 'Ср', date: 13 }, { dow: 'Чт', date: 14 },
+      { dow: 'Пт', date: 15 }, { dow: 'Сб', date: 16 }, { dow: 'Вс', date: 17 },
+    ];
+
+    const evStyle = (ev, wide) => {
+      const top = (ev.s - this.H0) * this.ROW + 2;
+      const h = (ev.e - ev.s) * this.ROW - 5;
+      const sel = ev.id === this.state.selEvent;
+      let s = 'position:absolute;left:' + (wide ? '4px' : '4px') + ';right:4px;top:' + top + 'px;height:' + h + 'px;background:' + this.COL[ev.c] + ';border-radius:12px;padding:8px 10px;overflow:hidden;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.22);';
+      if (sel) s += 'outline:2px solid #E8EDF3;outline-offset:1px;';
+      return s;
+    };
+
+    const mkEv = (ev, wide) => ({
+      id: ev.id, title: ev.t, time: this.fmt(ev.s) + ' – ' + this.fmt(ev.e),
+      style: evStyle(ev, false), styleWide: evStyle(ev, true),
+      gripStyle: 'position:absolute;left:50%;bottom:3px;transform:translateX(-50%);width:22px;height:3px;border-radius:3px;background:rgba(255,255,255,.4)'
+        + (ev.id === this.state.selEvent ? '' : ';opacity:0'),
+      onClick: (e) => { e.stopPropagation(); this.setState({ selEvent: ev.id, creating: null }); },
+      onDragStart: (e) => this.startDrag(ev.id, e),
+    });
+
+    const colBg = 'flex:1;position:relative;border-radius:8px;cursor:pointer;background:repeating-linear-gradient(to bottom,transparent,transparent 63px,rgba(168,203,239,.06) 63px,rgba(168,203,239,.06) 64px)';
+    const colBgToday = 'flex:1;position:relative;border-radius:8px;cursor:pointer;background:repeating-linear-gradient(to bottom,rgba(111,160,214,.09),rgba(111,160,214,.09) 63px,rgba(111,160,214,.14) 63px,rgba(111,160,214,.14) 64px)';
+    const days = dayMeta.map((d, i) => ({
+      dow: d.dow, date: d.date,
+      headStyle: 'flex:1;text-align:center;border-radius:13px;padding:11px 4px;font:700 13px "Manrope";'
+        + (i === 1 ? 'background:rgba(111,160,214,.16);border:1px solid rgba(168,203,239,.35);color:#A8CBEF' : 'background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.08);color:#E8EDF3'),
+      colStyle: i === 1 ? colBgToday : colBg,
+      onColClick: (e) => this.onColumnClick(i, e),
+      events: this.state.events.filter(ev => ev.d === i).map(ev => mkEv(ev)),
+    }));
+
+    const selDayEvents = this.state.events.filter(ev => ev.d === this.state.selDay).map(ev => mkEv(ev, true));
+    const selMeta = dayMeta[this.state.selDay];
+
+    const hours = Array.from({ length: this.H1 - this.H0 + 1 }, (_, i) => String(this.H0 + i).padStart(2, '0') + ':00');
+
+    const upcoming = [
+      { name: 'Презентация проекта', time: '08:30', done: true, c: '#5FBF9B' },
+      { name: 'Дизайн-ревью', time: '11:40', done: false, c: '#9B87D6' },
+      { name: 'Обед', time: '12:00', done: false, c: '#E8A54B' },
+      { name: 'Воркшоп', time: '13:00', done: false, c: '#D96A5B' },
+    ].map(u => ({
+      name: u.name, time: u.time,
+      boxStyle: 'width:18px;height:18px;flex:none;border-radius:6px;display:grid;place-items:center;'
+        + (u.done ? 'background:#5FBF9B;color:#06121f' : 'background:transparent;border:1.5px solid rgba(168,203,239,.3)'),
+      checkEl: u.done ? this.icon('check') : null,
+    }));
+
+    const breakdown = [
+      { label: 'Встречи', hrs: '6ч', c: '#5B9BD5', w: 78 },
+      { label: 'Проекты', hrs: '4ч', c: '#5FBF9B', w: 55 },
+      { label: 'События', hrs: '2ч', c: '#E8A54B', w: 34 },
+      { label: 'Ревью', hrs: '1ч', c: '#9B87D6', w: 22 },
+    ].map(b => ({ label: b.label, hrs: b.hrs, barStyle: 'height:100%;width:' + b.w + '%;border-radius:4px;background:' + b.c }));
+
+    const monthCells = this.monthGrid(40).map((c, i) => {
+      const dayIdx = c.label && !c.style.includes('.18') ? [11, 12, 13, 14, 15, 16, 17].indexOf(parseInt(c.label, 10)) : -1;
+      const evs = dayIdx >= 0 ? this.state.events.filter(ev => ev.d === dayIdx) : [];
+      const dots = evs.slice(0, 4).map((ev, k) => this.e('span', { key: k, style: { width: 6, height: 6, borderRadius: '50%', background: this.COL[ev.c] } }));
+      const isSel = c.label === '12' && !c.style.includes('.18');
+      const greyed = c.style.includes('.18');
+      return {
+        label: c.label,
+        cellStyle: 'border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;'
+          + (isSel ? 'background:rgba(111,160,214,.14);border:1px solid rgba(168,203,239,.3)' : 'background:rgba(13,17,22,.6);border:1px solid rgba(168,203,239,.07)'),
+        numStyle: 'font:700 14px "Manrope";' + (greyed ? 'color:rgba(232,237,243,.22)' : isSel ? 'color:#A8CBEF' : 'color:#E8EDF3'),
+        dotsStyle: 'display:flex;gap:4px;flex-wrap:wrap',
+        dotsEl: this.e('div', { style: { display: 'flex', gap: 4 } }, dots),
+      };
+    });
+
+    const selector = dayMeta.map((d, i) => {
+      const on = i === this.state.selDay;
+      return {
+        num: d.date, dow: d.dow,
+        style: 'flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;border-radius:16px;padding:12px 0;cursor:pointer;border:none;'
+          + (on ? 'background:#6FA0D6' : 'background:rgba(13,17,22,.85)'),
+        numStyle: 'font:700 17px "Manrope";color:' + (on ? '#06121f' : '#E8EDF3'),
+        dowStyle: 'font:600 10px "JetBrains Mono",monospace;color:' + (on ? 'rgba(6,18,31,.65)' : 'rgba(232,237,243,.4)'),
+        onClick: () => this.setState({ selDay: i }),
+      };
+    });
+
+    const mobileStats = [
+      { value: '82%', label: 'Привычки выполнены сегодня', hue: '#5FBF9B', icon: 'check', span: 2 },
+      { value: '12', label: 'Дней подряд', hue: '#E8A54B', icon: 'flame', span: 1 },
+      { value: '3', label: 'Дня до цели', hue: '#9B87D6', icon: 'target', span: 1 },
+    ].map(s => ({
+      value: s.value, label: s.label,
+      cardStyle: 'grid-column:span ' + s.span + ';background:' + s.hue + '1c;border:1px solid ' + s.hue + '40;border-radius:22px;padding:22px 20px;display:flex;flex-direction:column',
+      iconWrapStyle: 'width:44px;height:44px;border-radius:13px;background:' + s.hue + '2e;color:' + s.hue + ';display:grid;place-items:center',
+      iconEl: this.icon(s.icon),
+    }));
+
+    const mobileEvents = this.state.events.filter(ev => ev.d === this.state.selDay).map(ev => {
+      const top = (ev.s - this.H0) * 66 + 2;
+      const h = (ev.e - ev.s) * 66 - 6;
+      return {
+        title: ev.t,
+        styleWide: 'position:absolute;left:0;right:6px;top:' + top + 'px;height:' + h + 'px;background:' + this.COL[ev.c] + ';border-radius:14px;padding:10px 12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)',
+      };
+    });
+
+    const popEv = this.state.events.find(ev => ev.id === this.state.selEvent) || this.state.events.find(ev => ev.id === 'meet');
+    const durH = popEv.e - popEv.s;
+    const durTxt = (Math.floor(durH) ? Math.floor(durH) + 'ч ' : '') + (Math.round((durH % 1) * 60) ? Math.round((durH % 1) * 60) + 'м' : '').trim();
+    const catByColor = { blue: { tag: 'Встреча', hue: '#5B9BD5' }, green: { tag: 'Работа', hue: '#5FBF9B' }, red: { tag: 'Дедлайн', hue: '#D96A5B' }, purple: { tag: 'Ревью', hue: '#9B87D6' } };
+    const cat = catByColor[popEv.c] || catByColor.blue;
+    const notes = this.state.notes || {};
+    const pop = {
+      title: popEv.t,
+      date: '',
+      start: this.fmt(popEv.s), end: this.fmt(popEv.e),
+      dur: (durTxt || '0м').trim(),
+      tag: cat.tag, tagHue: cat.hue,
+      tagStyle: 'display:inline-flex;align-items:center;font:600 11px "Manrope";color:' + cat.hue + ';background:' + cat.hue + '28;border-radius:999px;padding:5px 12px',
+      note: notes[popEv.id] != null ? notes[popEv.id] : (popEv.n || ''),
+      onNote: (e) => { const v = e.target.value; this.setState(st => ({ notes: { ...(st.notes || {}), [popEv.id]: v } })); },
+      startUp: () => this.nudge(popEv.id, 's', 0.25),
+      startDown: () => this.nudge(popEv.id, 's', -0.25),
+      endUp: () => this.nudge(popEv.id, 'e', 0.25),
+      endDown: () => this.nudge(popEv.id, 'e', -0.25),
+    };
+
+    const creating = this.state.creating;
+    const creatingShown = !!creating && view !== 'month';
+    let create = null;
+    if (creating) {
+      create = {
+        title: creating.t,
+        date: '',
+        start: this.fmt(creating.s), end: this.fmt(creating.e),
+        onTitle: (e) => { const v = e.target.value; this.setState(st => ({ creating: { ...st.creating, t: v } })); },
+        onCancel: () => this.setState({ creating: null }),
+        onSave: () => {
+          const c = this.state.creating; if (!c) return;
+          const item = { id: 'n' + Date.now(), d: c.d, s: c.s, e: c.e, t: (c.t || '').trim() || 'Новая задача', c: c.c };
+          this.setState(st => ({ events: [...st.events, item], creating: null, selEvent: item.id }));
+        },
+        startUp: () => this.nudgeCreating('s', 0.25),
+        startDown: () => this.nudgeCreating('s', -0.25),
+        endUp: () => this.nudgeCreating('e', 0.25),
+        endDown: () => this.nudgeCreating('e', -0.25),
+        cats: ['blue', 'green', 'red', 'purple'].map(k => ({
+          label: catByColor[k].tag, hue: catByColor[k].hue,
+          style: 'display:inline-flex;align-items:center;font:600 11px "Manrope";cursor:pointer;border:none;border-radius:999px;padding:5px 12px;'
+            + (creating.c === k ? ('color:' + catByColor[k].hue + ';background:' + catByColor[k].hue + '28') : 'color:rgba(232,237,243,.5);background:rgba(255,255,255,.05)'),
+          onClick: () => this.setState(st => ({ creating: { ...st.creating, c: k } })),
+        })),
+      };
+    }
+
+    const nd = new Date(this.state.now);
+    const nowH = Math.min(this.H1, Math.max(this.H0, nd.getHours() + nd.getMinutes() / 60));
+    const nowTop = (nowH - this.H0) * this.ROW;
+    const nowLabel = String(nd.getHours()).padStart(2, '0') + ':' + String(nd.getMinutes()).padStart(2, '0');
+
+    return {
+      isDesktop: isD, isMobile: !isD,
+      setDesktop: () => this.setState({ device: 'desktop' }),
+      setMobile: () => this.setState({ device: 'mobile' }),
+      tabDesktopStyle: isD ? switchOn : switchOff,
+      tabMobileStyle: isD ? switchOff : switchOn,
+      weekView: view === 'week', dayView: view === 'day', monthView: view === 'month',
+      setWeek: () => this.setState({ calView: 'week' }),
+      setDay: () => this.setState({ calView: 'day' }),
+      setMonth: () => this.setState({ calView: 'month' }),
+      vWeekStyle: view === 'week' ? vOn : vOff,
+      vDayStyle: view === 'day' ? vOn : vOff,
+      vMonthStyle: view === 'month' ? vOn : vOff,
+      popoverShown: view !== 'month',
+      stepBtnStyle: 'width:22px;height:16px;border-radius:5px;background:rgba(168,203,239,.14);border:none;color:#c8ddf6;font:700 12px "Manrope";line-height:1;cursor:pointer;padding:0;display:grid;place-items:center',
+      nowLineStyle: 'position:absolute;left:0;right:4px;top:' + nowTop + 'px;height:2px;background:#8fc2ff;box-shadow:0 0 10px 1px rgba(127,194,255,.7);z-index:15;pointer-events:none',
+      nowDotStyle: 'position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:#8fc2ff;box-shadow:0 0 8px 1px rgba(127,194,255,.9)',
+      nowPillStyle: 'position:absolute;left:-52px;top:-8px;font:700 9px "JetBrains Mono",monospace;color:#8fc2ff;background:rgba(9,18,28,.9);border:1px solid rgba(127,194,255,.4);border-radius:6px;padding:2px 5px',
+      nowLabel,
+      days, hours, colStyle: colBg, onDayColClick: (e) => this.onColumnClick(this.state.selDay, e),
+      selDayEvents, selDayLabel: selMeta.dow + ' ' + selMeta.date,
+      selDayHeadStyle: 'display:inline-block;text-align:center;border-radius:13px;padding:11px 24px;font:700 13px "Manrope";background:#F3F6FA;color:#06121f',
+      weekdays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+      weekdaysFull: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+      miniCells: this.monthGrid(30), monthCells, mobileCells: this.monthGrid(38),
+      upcoming, breakdown, selector, mobileEvents,
+      monthOpen: this.state.monthOpen,
+      toggleMonth: () => this.setState(s => ({ monthOpen: !s.monthOpen })),
+      monthChevStyle: 'display:inline-grid;place-items:center;transition:transform .2s;transform:rotate(' + (this.state.monthOpen ? 180 : 0) + 'deg);color:rgba(232,237,243,.5)',
+      addTask: () => this.addTask(),
+      pop, creatingShown, create, mobileStats,
+      icBack: this.icon('back'), icPlus: this.icon('plus'),
+      icHome: this.icon('home'), icChecklist: this.icon('checklist'), icCal: this.icon('cal'), icCalSm: this.icon('calSm'),
+      icTune: this.icon('tune'), icPerson: this.icon('person'),
+      icChevLeft: this.icon('chevL'), icChevRight: this.icon('chevR'), icChevDown: this.icon('chevD'), icChevDownSm: this.icon('chevDsm'),
+      icSearch: this.icon('search'), icBell: this.icon('bell'), icVideo: this.icon('video'), icPencil: this.icon('pencil'),
+      icPin: this.icon('pin'), icFlame: this.icon('flame'), icTarget: this.icon('target'),
+
+      railItemStyle: 'width:68px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:rgba(232,237,243,.42);cursor:pointer;overflow:hidden;transition:background-color .2s ease',
+      railItemHoverStyle: 'background:rgba(168,203,239,.07);color:rgba(232,237,243,.8)',
+      railIconIdleStyle: 'display:grid;place-items:center;width:100%;height:100%',
+      railActiveStyle: 'width:68px;height:' + (this.state.navReady ? '66px' : '48px') + ';border-radius:16px;background:' + (this.state.navReady ? 'linear-gradient(180deg,#f0b565,#E8A54B)' : 'rgba(232,165,75,.5)') + ';display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:11px;gap:4px;cursor:pointer;overflow:hidden;transition:height .38s ' + this.SPRING + ', background-color .38s ' + this.SPRING,
+      railIconActiveStyle: 'display:grid;place-items:center;color:#06121f;transition:color .26s ease',
+      railLabelStyle: 'font:700 9px "JetBrains Mono",monospace;color:#06121f;opacity:' + (this.state.navReady ? 1 : 0) + ';transform:translateY(' + (this.state.navReady ? '0' : '-4px') + ');transition:opacity .22s ease .13s, transform .22s ease .13s',
+      barItemStyle: 'width:56px;height:48px;display:grid;place-items:center;color:rgba(232,237,243,.42);border-radius:24px;flex:none',
+      barActiveStyle: 'height:48px;flex:none;width:' + (this.state.navReady ? '128px' : '48px') + ';border-radius:24px;background:' + (this.state.navReady ? '#E8A54B' : 'rgba(232,165,75,.5)') + ';display:flex;align-items:center;justify-content:flex-start;padding-left:12px;gap:8px;cursor:pointer;overflow:hidden;transition:width .38s ' + this.SPRING + ', background-color .38s ' + this.SPRING,
+      barIconActiveStyle: 'display:grid;place-items:center;color:#06121f;flex:none;transition:color .26s ease',
+      barLabelStyle: 'font:700 12px "Manrope";color:#06121f;white-space:nowrap;opacity:' + (this.state.navReady ? 1 : 0) + ';transform:translateX(' + (this.state.navReady ? '0' : '-6px') + ');transition:opacity .22s ease .13s, transform .22s ease .13s',
+    };
+  }
+
+  addTask() {
+    const d = this.state.selDay;
+    const used = this.state.events.filter(ev => ev.d === d).map(ev => ev.s);
+    let s = 12; while (used.indexOf(s) >= 0 && s < this.H1 - 1) s++;
+    const item = { id: 't' + Date.now(), d, s, e: Math.min(s + 1, this.H1), t: 'Новая задача', c: 'purple' };
+    this.setState(st => ({ events: [...st.events, item], selEvent: item.id }));
+  }
+}
+</script>
+</body>
+</html>

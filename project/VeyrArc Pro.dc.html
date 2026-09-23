@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<script src="./i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;scrollbar-width:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{margin:0;background:#05070A}
+  a{color:#A8CBEF;text-decoration:none}
+  a:hover{color:#c8ddf6}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#05070A;padding:60px 24px 90px;font-family:'Manrope',system-ui,sans-serif;color:#E8EDF3">
+
+  <div style="position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:5px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:5px;backdrop-filter:blur(12px)">
+    <button style="{{ tabDesktopStyle }}" onClick="{{ setDesktop }}">Desktop</button>
+    <button style="{{ tabMobileStyle }}" onClick="{{ setMobile }}">Mobile</button>
+  </div>
+
+  <div style="{{ outerStyle }}">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">{{ frameLabel }}</div>
+    <div style="{{ frameStyle }}">
+      <div style="position:absolute;left:50%;top:-120px;transform:translateX(-50%);width:520px;height:380px;background:radial-gradient(closest-side,rgba(232,183,94,.28),rgba(232,183,94,.08) 60%,transparent);pointer-events:none"></div>
+
+      <div style="{{ cardStyle }}">
+        <a href="VeyrArc Today.dc.html" style="position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);display:grid;place-items:center;color:rgba(232,237,243,.7)">{{ icClose }}</a>
+
+        <div style="width:60px;height:60px;border-radius:18px;background:linear-gradient(160deg,#f0c877,#d9a94f);display:grid;place-items:center;color:#241a06;box-shadow:0 12px 30px rgba(232,183,94,.3)">{{ icCrown }}</div>
+        <div style="font:800 30px/1.1 'Manrope';color:#f2e2c4;margin-top:18px;text-align:center">VeyrArc Pro</div>
+        <div style="font:500 14px/1.5 'Manrope';color:rgba(232,237,243,.6);margin-top:8px;text-align:center">Разморозь весь потенциал своей арки</div>
+
+        <div style="width:100%;margin-top:24px;display:flex;flex-direction:column;gap:4px">
+          <sc-for list="{{ perks }}" as="p" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:14px;padding:11px 4px">
+              <span style="width:36px;height:36px;flex:none;border-radius:11px;background:rgba(232,183,94,.12);border:1px solid rgba(232,183,94,.22);color:#E8B75E;display:grid;place-items:center">{{ p.iconEl }}</span>
+              <span style="font:600 14px/1.4 'Manrope';color:#E8EDF3">{{ p.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="width:100%;margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button onClick="{{ pickMonth }}" style="{{ monthStyle }}">
+            <span style="display:block;font:700 13px 'Manrope'">Помесячно</span>
+            <span style="display:block;font:500 11px 'Manrope';color:rgba(232,237,243,.5);margin-top:4px">оплата каждый месяц</span>
+          </button>
+          <button onClick="{{ pickYear }}" style="{{ yearStyle }}">
+            <span style="position:absolute;top:-10px;right:12px;font:700 10px 'JetBrains Mono',monospace;background:#E8B75E;color:#241a06;border-radius:999px;padding:4px 9px">−30%</span>
+            <span style="display:block;font:700 13px 'Manrope'">На год</span>
+            <span style="display:block;font:500 11px 'Manrope';color:rgba(232,237,243,.5);margin-top:4px">выгоднее на 30%</span>
+          </button>
+        </div>
+
+        <button style="width:100%;margin-top:20px;min-height:54px;border:none;border-radius:999px;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;font:800 15px 'Manrope';cursor:pointer;box-shadow:0 10px 26px rgba(232,183,94,.28)">Оформить Pro</button>
+        <div style="margin-top:12px;font:500 12px 'Manrope';color:rgba(232,237,243,.45);text-align:center">Отменить можно в любой момент в настройках.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:980},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;mobile&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { device: (this.props && this.props.startView) || 'mobile', plan: 'year' };
+  e(t, p, c) { return React.createElement(t, p, c); }
+  svg(kids, o) { o = o || {}; return this.e('svg', { width: o.size || 18, height: o.size || 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: o.sw || 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }, kids.map((k, i) => React.cloneElement(k, { key: i }))); }
+  renderVals() {
+    const P = (d) => this.e('path', { d }), C = (a) => this.e('circle', a);
+    const isD = this.state.device === 'desktop';
+    const switchOn = 'background:#6FA0D6;color:#06121f;border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const switchOff = 'background:transparent;color:rgba(232,237,243,.55);border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const plan = (on) => 'position:relative;text-align:left;padding:16px;border-radius:18px;cursor:pointer;color:#E8EDF3;' + (on ? 'background:rgba(232,183,94,.12);border:2px solid #E8B75E' : 'background:rgba(255,255,255,.04);border:2px solid rgba(168,203,239,.12)');
+    const perks = [
+      [[P('M12 5v14'), P('M5 12h14')], 'Безлимит привычек (без ограничения в 5)'],
+      [[P('M4 19V9'), P('M10 19V5'), P('M16 19v-7'), P('M22 19H2')], 'Полная история и сравнение всех Arc'],
+      [[C({ cx: 6, cy: 7, r: 2.5 }), C({ cx: 18, cy: 17, r: 2.5 }), P('M8 9l8 6')], 'Корреляции и аналитика настроения и привычек'],
+      [[P('M12 3v18'), P('M4.2 7.5l15.6 9'), P('M4.2 16.5l15.6-9')], '2 заморозки стрика в неделю вместо 1'],
+      [[P('M5 4h14v16l-7-4-7 4z')], 'Полный VeyrArc Recap по завершении арки'],
+    ].map(([k, text]) => ({ iconEl: this.svg(k), text }));
+    return {
+      setDesktop: () => this.setState({ device: 'desktop' }), setMobile: () => this.setState({ device: 'mobile' }),
+      tabDesktopStyle: isD ? switchOn : switchOff, tabMobileStyle: isD ? switchOff : switchOn,
+      frameLabel: isD ? 'DESKTOP · 1280 × 832' : 'MOBILE · 390 × 844',
+      outerStyle: isD ? 'max-width:1280px;margin:0 auto' : 'max-width:390px;margin:0 auto',
+      frameStyle: 'position:relative;overflow:hidden;background:' + (isD ? 'rgba(3,5,8,.9)' : '#05070A') + ';border:1px solid rgba(168,203,239,.08);display:flex;justify-content:center;' + (isD ? 'border-radius:24px;min-height:832px;align-items:center;padding:40px' : 'border-radius:34px;height:812px;overflow-y:auto'),
+      cardStyle: 'position:relative;width:100%;display:flex;flex-direction:column;align-items:center;' + (isD ? 'max-width:460px;background:#0d1116;border:1px solid rgba(232,183,94,.22);border-radius:28px;padding:40px 32px 28px;box-shadow:0 30px 80px rgba(0,0,0,.6)' : 'padding:56px 22px 28px'),
+      perks,
+      pickMonth: () => this.setState({ plan: 'month' }), pickYear: () => this.setState({ plan: 'year' }),
+      monthStyle: plan(this.state.plan === 'month'), yearStyle: plan(this.state.plan === 'year'),
+      icClose: this.svg([P('M6 6l12 12'), P('M18 6L6 18')], { size: 18, sw: 2 }),
+      icCrown: this.svg([P('M4 8l4 4 4-6 4 6 4-4-1.5 10h-13z')], { size: 28, sw: 1.8 }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

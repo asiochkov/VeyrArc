@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<script src="./i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;scrollbar-width:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{margin:0;background:#05070A}
+  a{color:#A8CBEF;text-decoration:none}
+  a:hover{color:#c8ddf6}
+  input::placeholder{color:rgba(232,237,243,.32)}
+  ::selection{background:rgba(111,160,214,.3)}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#05070A;padding:60px 24px 90px;font-family:'Manrope',system-ui,sans-serif;color:#E8EDF3">
+
+  <div style="position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:5px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:5px;backdrop-filter:blur(12px)">
+    <button style="{{ tabDesktopStyle }}" onClick="{{ setDesktop }}">Desktop</button>
+    <button style="{{ tabMobileStyle }}" onClick="{{ setMobile }}">Mobile</button>
+  </div>
+
+  <!-- ============ DESKTOP ============ -->
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1280px;margin:0 auto">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">DESKTOP · 1280 × 832</div>
+    <div style="display:flex;background:#05070A;border:1px solid rgba(168,203,239,.08);border-radius:24px;overflow:hidden;min-height:832px">
+
+      <!-- rail -->
+      <div style="width:104px;flex:none;background:#05070A;border-right:1px solid rgba(168,203,239,.06);display:flex;flex-direction:column;align-items:center;padding:24px 0;gap:10px">
+        <button onClick="{{ startAdd }}" style="width:64px;height:64px;border-radius:19px;background:#6FA0D6;border:none;display:grid;place-items:center;color:#06121f;cursor:pointer;margin-bottom:16px">{{ icPlus }}</button>
+        <a href="VeyrArc Today.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icHome }}</span></a>
+        <div style="{{ railActiveStyle }}">
+          <span style="{{ railIconActiveStyle }}">{{ icChecklist }}</span>
+          <span style="{{ railLabelStyle }}">Привычки</span>
+        </div>
+        <a href="VeyrArc Calendar.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icCal }}</span></a>
+        <a href="VeyrArc Training.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icTarget }}</span></a>
+        <a href="VeyrArc Profile.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icPerson }}</span></a>
+      </div>
+
+      <!-- content -->
+      <div style="flex:1;padding:34px 36px 40px;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.26em;color:rgba(232,237,243,.34);white-space:nowrap">VEYRARC · ДЕНЬ 14</div>
+            <div style="font:800 34px/1 'Manrope';letter-spacing:-.01em;margin-top:10px">Трекер</div>
+          </div>
+          <div style="width:38px;height:38px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 12px 'Manrope'">AP</div>
+        </div>
+
+        <!-- segmented toggle -->
+        <div style="margin-top:22px;max-width:340px;display:flex;gap:5px;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.08);border-radius:999px;padding:5px">
+          <button onClick="{{ showHabits }}" style="{{ segHabitsStyle }}">Привычки</button>
+          <button onClick="{{ showRefusals }}" style="{{ segRefusalsStyle }}">Отказы</button>
+        </div>
+
+        <!-- habits desktop -->
+        <sc-if value="{{ habitsView }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ noHabits }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:18px;background:rgba(13,17,22,.85);border:1.5px dashed rgba(168,203,239,.2);border-radius:20px;padding:28px 20px;text-align:center"><div style="font:700 16px 'Manrope'">Пока нет привычек</div><div style="font:400 13px/1.5 'Manrope';color:rgba(232,237,243,.5);margin-top:6px">Нажми «+», чтобы добавить первую</div></div>
+        </sc-if>
+        <sc-if value="{{ allDoneToday }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:18px;display:flex;align-items:center;gap:12px;background:linear-gradient(160deg,rgba(111,160,214,.18),rgba(13,17,22,.9) 70%);border:1px solid rgba(111,160,214,.3);border-radius:18px;padding:14px 18px"><span style="width:32px;height:32px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;flex:none">{{ icCheck }}</span><div><div style="font:700 14px 'Manrope'">Всё на сегодня выполнено</div><div style="font:400 12px 'Manrope';color:rgba(232,237,243,.55)">Серия продолжается — до завтра</div></div></div>
+        </sc-if>
+        <div style="margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start">
+          <sc-for list="{{ habits }}" as="h" hint-placeholder-count="4">
+            <div style="{{ h.cardStyle }}">
+              <div onClick="{{ h.toggleExpand }}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div style="{{ h.iconWrapStyle }}">{{ h.iconEl }}</div>
+                  <div style="min-width:0">
+                    <div style="font:700 16px 'Manrope';color:#F3F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ h.name }}</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                      <span style="{{ h.flameStyle }}">{{ h.flameEl }}</span>
+                      <span style="font:700 12px 'JetBrains Mono',monospace;color:{{ h.hue }}">{{ h.streak }}</span>
+                      <span style="font:400 11px 'Manrope';color:rgba(232,237,243,.4);white-space:nowrap">{{ h.cadence }}</span>
+                      <sc-if value="{{ h.required }}" hint-placeholder-val="{{ false }}"><span style="font:600 9.5px 'Manrope';color:#A8CBEF;background:rgba(111,160,214,.14);border-radius:999px;padding:2px 7px;white-space:nowrap">в стрике</span></sc-if>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex:none">
+                  <button onClick="{{ h.onDelete }}" style="{{ delBtnStyle }}">{{ icTrash }}</button>
+                  <div style="{{ h.chevronStyle }}">{{ icChevron }}</div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:16px">
+                <sc-for list="{{ h.week }}" as="d" hint-placeholder-count="7">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+                    <button onClick="{{ d.onClick }}" style="{{ d.dotStyle }}">{{ d.markEl }}</button>
+                    <span style="{{ d.labelStyle }}">{{ d.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ h.expanded }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(168,203,239,.09)">
+                <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+                  <div><div style="font:700 18px 'JetBrains Mono',monospace;color:#F3F6FA">{{ h.rate }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:3px">ВЫПОЛНЕНО</div></div>
+                  <div><div style="font:700 18px 'JetBrains Mono',monospace;color:#F3F6FA">{{ h.best }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:3px">ЛУЧШИЙ</div></div>
+                  <div><div style="font:700 18px 'JetBrains Mono',monospace;color:#F3F6FA">{{ h.total }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:3px">ВСЕГО</div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:5px">
+                  <sc-for list="{{ h.grid }}" as="g" hint-placeholder-count="84">
+                    <div style="{{ g }}"></div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;margin-top:14px;font:400 10px 'Manrope';color:rgba(232,237,243,.45)">
+                  <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:{{ h.hue }}"></span>выполнено</span>
+                  <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:{{ missColor }}"></span>пропуск</span>
+                  <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:rgba(255,255,255,.07)"></span>—</span>
+                </div>
+              </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px;max-width:520px">
+          <sc-if value="{{ composerOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:8px;align-items:center;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.16);border-radius:18px;padding:10px 12px">
+            <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onDraftKey }}" placeholder="Название привычки" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:#E8EDF3;font:600 15px 'Manrope'">
+            <button onClick="{{ confirmAdd }}" style="{{ addConfirmStyle }}">Добавить</button>
+            <button onClick="{{ cancelAdd }}" style="background:transparent;border:none;color:rgba(232,237,243,.5);font:400 24px/1 'Manrope';cursor:pointer;width:30px;flex:none">×</button>
+          </div>
+          <button onClick="{{ toggleDraftRequired }}" style="margin-top:8px;min-height:44px;display:flex;align-items:center;gap:10px;background:transparent;border:none;padding:0 4px;cursor:pointer;color:rgba(232,237,243,.75);font:600 13px 'Manrope'"><span style="{{ draftTrackStyle }}"><span style="{{ draftKnobStyle }}"></span></span><span>Обязательна для стрика</span></button>
+          </sc-if>
+          <sc-if value="{{ composerClosed }}" hint-placeholder-val="{{ true }}">
+          
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- refusals desktop -->
+        <sc-if value="{{ refusalsView }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:18px">
+          <div style="font:400 13px/1.5 'Manrope';color:rgba(232,237,243,.5);margin-bottom:14px">От чего ты держишься. Таймер идёт с последнего срыва — не обнуляй его.</div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start">
+            <sc-for list="{{ refusals }}" as="r" hint-placeholder-count="3">
+              <div style="{{ r.cardStyle }}">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                  <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                    <div style="{{ r.iconWrapStyle }}">{{ r.iconEl }}</div>
+                    <div style="min-width:0">
+                      <div style="font:700 16px 'Manrope';color:#F3F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div>
+                      <div style="font:400 11px 'Manrope';color:rgba(232,237,243,.45);margin-top:2px;white-space:nowrap;font-size:clamp(10px,2.6vw,11px)">с {{ r.since }}</div>
+                    </div>
+                  </div>
+                  <button onClick="{{ r.onDelete }}" style="{{ delBtnStyle }}">{{ icTrash }}</button>
+                </div>
+                <div style="margin-top:16px;display:flex;align-items:baseline;gap:8px;justify-content:center">
+                  <div style="text-align:center"><div style="font:700 26px/1 'JetBrains Mono',monospace;color:#F3F6FA;font-variant-numeric:tabular-nums;font-feature-settings:'tnum';min-width:3ch;text-align:right;white-space:nowrap;transition:none">{{ r.days }}</div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:4px">ДНЕЙ</div></div>
+                  <div style="font:700 22px 'JetBrains Mono',monospace;color:rgba(232,237,243,.25);align-self:flex-start">·</div>
+                  <div style="text-align:center"><div style="font:700 26px/1 'JetBrains Mono',monospace;color:#F3F6FA;font-variant-numeric:tabular-nums;font-feature-settings:'tnum';display:flex;width:8ch;white-space:nowrap;transition:none"><span style="width:2ch;text-align:center">{{ r.hh }}</span><span style="width:1ch;text-align:center">:</span><span style="width:2ch;text-align:center">{{ r.mm }}</span><span style="width:1ch;text-align:center">:</span><span style="width:2ch;text-align:center">{{ r.ss }}</span></div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:4px">Ч : М : С</div></div>
+                </div>
+                <div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(168,203,239,.09)">
+                  <button onClick="{{ r.toggleGoalMenu }}" style="display:flex;align-items:center;gap:6px;min-height:32px;margin:-6px 0 4px;padding:0;background:transparent;border:none;cursor:pointer;font:600 9px 'JetBrains Mono',monospace;letter-spacing:.16em;color:rgba(232,237,243,.55);white-space:nowrap">БЛИЖАЙШАЯ ЦЕЛЬ · {{ r.nextGoal }} ДНЕЙ <span style="font-size:11px;color:{{ r.hue }}">▾</span></button>
+                <sc-if value="{{ r.goalMenuOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:6px;margin-bottom:12px;background:rgba(5,7,10,.7);border:1px solid rgba(168,203,239,.14);border-radius:14px;padding:6px">
+                  <sc-for list="{{ r.goalOptions }}" as="go" hint-placeholder-count="5"><button onClick="{{ go.onClick }}" style="{{ go.style }}">{{ go.label }}</button></sc-for>
+                </div>
+                </sc-if>
+                  <div style="height:7px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden">
+                    <div style="{{ r.barStyle }}"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;margin-top:10px">
+                    <sc-for list="{{ r.milestones }}" as="m" hint-placeholder-count="4">
+                      <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+                        <div style="{{ m.dotStyle }}">{{ m.markEl }}</div>
+                        <span style="{{ m.labelStyle }}">{{ m.label }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:14px;max-width:520px">
+            <sc-if value="{{ composerOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:8px;align-items:center;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.16);border-radius:18px;padding:10px 12px">
+              <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onDraftKey }}" placeholder="От чего отказываешься" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:#E8EDF3;font:600 15px 'Manrope'">
+              <button onClick="{{ confirmAdd }}" style="{{ addConfirmStyle }}">Добавить</button>
+              <button onClick="{{ cancelAdd }}" style="background:transparent;border:none;color:rgba(232,237,243,.5);font:400 24px/1 'Manrope';cursor:pointer;width:30px;flex:none">×</button>
+            </div>
+            </sc-if>
+            <sc-if value="{{ composerClosed }}" hint-placeholder-val="{{ true }}">
+            
+            </sc-if>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ MOBILE ============ -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;justify-content:center">
+  <div style="width:100%;max-width:390px">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">MOBILE · 390 × 844</div>
+    <div style="background:#05070A;border:1px solid rgba(168,203,239,.08);border-radius:34px;overflow:hidden;height:812px;display:flex;flex-direction:column;position:relative">
+
+      <div ref="{{ scrollRef }}" style="flex:1;min-height:0;overflow-y:auto;padding:22px 18px 90px">
+
+        <!-- header -->
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:12px">
+            <a href="VeyrArc Today.dc.html" style="width:44px;height:44px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.7)">{{ icBack }}</a>
+            <div>
+              <div style="font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.34);white-space:nowrap">VEYRARC · ДЕНЬ 14</div>
+              <div style="font:800 22px/1.1 'Manrope';margin-top:5px">Трекер</div>
+            </div>
+          </div>
+          <div style="width:38px;height:38px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 12px 'Manrope'">AP</div>
+        </div>
+
+        <!-- segmented toggle -->
+        <div style="margin-top:18px;display:flex;gap:5px;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.08);border-radius:999px;padding:5px">
+          <button onClick="{{ showHabits }}" style="{{ segHabitsStyle }}">Привычки</button>
+          <button onClick="{{ showRefusals }}" style="{{ segRefusalsStyle }}">Отказы</button>
+        </div>
+
+        <!-- HABITS -->
+        <sc-if value="{{ habitsView }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ noHabits }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px;background:rgba(13,17,22,.85);border:1.5px dashed rgba(168,203,239,.2);border-radius:20px;padding:28px 20px;text-align:center"><div style="font:700 16px 'Manrope'">Пока нет привычек</div><div style="font:400 13px/1.5 'Manrope';color:rgba(232,237,243,.5);margin-top:6px">Нажми «+», чтобы добавить первую</div></div>
+        </sc-if>
+        <sc-if value="{{ allDoneToday }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px;display:flex;align-items:center;gap:12px;background:linear-gradient(160deg,rgba(111,160,214,.18),rgba(13,17,22,.9) 70%);border:1px solid rgba(111,160,214,.3);border-radius:18px;padding:14px 18px"><span style="width:32px;height:32px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;flex:none">{{ icCheck }}</span><div><div style="font:700 14px 'Manrope'">Всё на сегодня выполнено</div><div style="font:400 12px 'Manrope';color:rgba(232,237,243,.55)">Серия продолжается — до завтра</div></div></div>
+        </sc-if>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ habits }}" as="h" hint-placeholder-count="4">
+            <div style="{{ h.cardStyle }}">
+              <div onClick="{{ h.toggleExpand }}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div style="{{ h.iconWrapStyle }}">{{ h.iconEl }}</div>
+                  <div style="min-width:0">
+                    <div style="font:700 16px 'Manrope';color:#F3F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ h.name }}</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                      <span style="{{ h.flameStyle }}">{{ h.flameEl }}</span>
+                      <span style="font:700 12px 'JetBrains Mono',monospace;color:{{ h.hue }}">{{ h.streak }}</span>
+                      <span style="font:400 11px 'Manrope';color:rgba(232,237,243,.4);white-space:nowrap">{{ h.cadence }}</span>
+                      <sc-if value="{{ h.required }}" hint-placeholder-val="{{ false }}"><span style="font:600 9.5px 'Manrope';color:#A8CBEF;background:rgba(111,160,214,.14);border-radius:999px;padding:2px 7px;white-space:nowrap">в стрике</span></sc-if>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex:none">
+                  <button onClick="{{ h.onDelete }}" style="{{ delBtnStyle }}">{{ icTrash }}</button>
+                  <div style="{{ h.chevronStyle }}">{{ icChevron }}</div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:16px">
+                <sc-for list="{{ h.week }}" as="d" hint-placeholder-count="7">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+                    <button onClick="{{ d.onClick }}" style="{{ d.dotStyle }}">{{ d.markEl }}</button>
+                    <span style="{{ d.labelStyle }}">{{ d.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ h.expanded }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(168,203,239,.09)">
+                <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+                  <div><div style="font:700 18px 'JetBrains Mono',monospace;color:#F3F6FA">{{ h.rate }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:3px">ВЫПОЛНЕНО</div></div>
+                  <div><div style="font:700 18px 'JetBrains Mono',monospace;color:#F3F6FA">{{ h.best }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:3px">ЛУЧШИЙ</div></div>
+                  <div><div style="font:700 18px 'JetBrains Mono',monospace;color:#F3F6FA">{{ h.total }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:3px">ВСЕГО</div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px">
+                  <sc-for list="{{ h.grid }}" as="g" hint-placeholder-count="84">
+                    <div style="{{ g }}"></div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;margin-top:14px;font:400 10px 'Manrope';color:rgba(232,237,243,.45)">
+                  <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:{{ h.hue }}"></span>выполнено</span>
+                  <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:{{ missColor }}"></span>пропуск</span>
+                  <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:rgba(255,255,255,.07)"></span>—</span>
+                </div>
+              </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ composerOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:8px;align-items:center;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.16);border-radius:18px;padding:10px 12px">
+            <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onDraftKey }}" placeholder="Название привычки" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:#E8EDF3;font:600 15px 'Manrope'">
+            <button onClick="{{ confirmAdd }}" style="{{ addConfirmStyle }}">Добавить</button>
+            <button onClick="{{ cancelAdd }}" style="background:transparent;border:none;color:rgba(232,237,243,.5);font:400 24px/1 'Manrope';cursor:pointer;width:30px;flex:none">×</button>
+          </div>
+          <button onClick="{{ toggleDraftRequired }}" style="margin-top:8px;min-height:44px;display:flex;align-items:center;gap:10px;background:transparent;border:none;padding:0 4px;cursor:pointer;color:rgba(232,237,243,.75);font:600 13px 'Manrope'"><span style="{{ draftTrackStyle }}"><span style="{{ draftKnobStyle }}"></span></span><span>Обязательна для стрика</span></button>
+          </sc-if>
+          <sc-if value="{{ composerClosed }}" hint-placeholder-val="{{ true }}">
+          
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- REFUSALS -->
+        <sc-if value="{{ refusalsView }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="font:400 12px/1.5 'Manrope';color:rgba(232,237,243,.5);padding:0 2px">От чего ты держишься. Таймер идёт с последнего срыва — не обнуляй его.</div>
+          <sc-for list="{{ refusals }}" as="r" hint-placeholder-count="3">
+            <div style="{{ r.cardStyle }}">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div style="{{ r.iconWrapStyle }}">{{ r.iconEl }}</div>
+                  <div style="min-width:0">
+                    <div style="font:700 16px 'Manrope';color:#F3F6FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div>
+                    <div style="font:400 11px 'Manrope';color:rgba(232,237,243,.45);margin-top:2px;white-space:nowrap;font-size:clamp(10px,2.6vw,11px)">с {{ r.since }}</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:8px;flex:none">
+                  <div style="text-align:right">
+                    <div style="font:700 13px 'JetBrains Mono',monospace;color:{{ r.hue }}">{{ r.saved }}</div>
+                    <div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.4);margin-top:2px">{{ r.savedLabel }}</div>
+                  </div>
+                  <button onClick="{{ r.onDelete }}" style="{{ delBtnStyle }}">{{ icTrash }}</button>
+                </div>
+              </div>
+              <div style="margin-top:16px;display:flex;align-items:baseline;gap:10px;justify-content:center">
+                <div style="text-align:center"><div style="font:700 34px/1 'JetBrains Mono',monospace;color:#F3F6FA;font-variant-numeric:tabular-nums;font-feature-settings:'tnum';min-width:3ch;text-align:right;white-space:nowrap;transition:none">{{ r.days }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:4px">ДНЕЙ</div></div>
+                <div style="font:700 30px 'JetBrains Mono',monospace;color:rgba(232,237,243,.25);align-self:flex-start">·</div>
+                <div style="text-align:center"><div style="font:700 34px/1 'JetBrains Mono',monospace;color:#F3F6FA;font-variant-numeric:tabular-nums;font-feature-settings:'tnum';display:flex;width:8ch;white-space:nowrap;transition:none"><span style="width:2ch;text-align:center">{{ r.hh }}</span><span style="width:1ch;text-align:center">:</span><span style="width:2ch;text-align:center">{{ r.mm }}</span><span style="width:1ch;text-align:center">:</span><span style="width:2ch;text-align:center">{{ r.ss }}</span></div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:4px">Ч : М : С</div></div>
+              </div>
+              <div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(168,203,239,.09)">
+                <button onClick="{{ r.toggleGoalMenu }}" style="display:flex;align-items:center;gap:6px;min-height:32px;margin:-6px 0 4px;padding:0;background:transparent;border:none;cursor:pointer;font:600 9px 'JetBrains Mono',monospace;letter-spacing:.16em;color:rgba(232,237,243,.55);white-space:nowrap">БЛИЖАЙШАЯ ЦЕЛЬ · {{ r.nextGoal }} ДНЕЙ <span style="font-size:11px;color:{{ r.hue }}">▾</span></button>
+                <sc-if value="{{ r.goalMenuOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:6px;margin-bottom:12px;background:rgba(5,7,10,.7);border:1px solid rgba(168,203,239,.14);border-radius:14px;padding:6px">
+                  <sc-for list="{{ r.goalOptions }}" as="go" hint-placeholder-count="5"><button onClick="{{ go.onClick }}" style="{{ go.style }}">{{ go.label }}</button></sc-for>
+                </div>
+                </sc-if>
+                <div style="height:7px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden">
+                  <div style="{{ r.barStyle }}"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:10px">
+                  <sc-for list="{{ r.milestones }}" as="m" hint-placeholder-count="4">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+                      <div style="{{ m.dotStyle }}">{{ m.markEl }}</div>
+                      <span style="{{ m.labelStyle }}">{{ m.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ composerOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:8px;align-items:center;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.16);border-radius:18px;padding:10px 12px">
+            <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onDraftKey }}" placeholder="От чего отказываешься" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:#E8EDF3;font:600 15px 'Manrope'">
+            <button onClick="{{ confirmAdd }}" style="{{ addConfirmStyle }}">Добавить</button>
+            <button onClick="{{ cancelAdd }}" style="background:transparent;border:none;color:rgba(232,237,243,.5);font:400 24px/1 'Manrope';cursor:pointer;width:30px;flex:none">×</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ composerClosed }}" hint-placeholder-val="{{ true }}">
+          
+          </sc-if>
+        </div>
+        </sc-if>
+
+      </div>
+
+      <button onClick="{{ startAdd }}" style="position:absolute;right:18px;bottom:88px;width:56px;height:56px;border-radius:50%;background:#6FA0D6;border:none;color:#06121f;display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.5);z-index:5">{{ icPlus }}</button>
+      <!-- bottom nav (pinned) -->
+      <div style="flex:none;display:flex;justify-content:space-around;align-items:center;background:rgba(9,12,16,.96);border-top:1px solid rgba(168,203,239,.1);padding:10px 8px 14px;backdrop-filter:blur(12px)">
+        <a href="VeyrArc Today.dc.html" style="{{ barItemStyle }}">{{ icHome }}</a>
+        <div style="{{ barActiveStyle }}">
+          <span style="{{ barIconActiveStyle }}">{{ icChecklist }}</span>
+          <span style="{{ barLabelStyle }}">Привычки</span>
+        </div>
+        <a href="VeyrArc Calendar.dc.html" style="{{ barItemStyle }}">{{ icCal }}</a>
+        <a href="VeyrArc Training.dc.html" style="{{ barItemStyle }}">{{ icTarget }}</a>
+        <a href="VeyrArc Profile.dc.html" style="{{ barItemStyle }}">{{ icPerson }}</a>
+      </div>
+
+    </div>
+  </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:980},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    device: (this.props && this.props.startView) || 'desktop',
+    navReady: false,
+    view: 'habits',
+    now: Date.now(),
+    expandedId: 'water',
+    composing: false,
+    draft: '',
+    goalOverrides: {}, goalMenuId: null, draftRequired: true,
+    habits: [
+      { id: 'bed',   required: true, name: 'Заправить кровать', icon: 'bed',   hue: '#E8A54B', cadence: 'каждый день', streak: 12, best: 34, total: 96,  week: ['done','done','done','today-done','future','future','future'] },
+      { id: 'water', required: true, name: 'Пить воду',          icon: 'drop',  hue: '#5B9BD5', cadence: '2 л в день',   streak: 26, best: 41, total: 178, week: ['done','done','done','today-done','future','future','future'] },
+      { id: 'train', required: true, name: 'Ранний подъём',      icon: 'sun',   hue: '#D96A5B', cadence: 'каждый день', streak: 5,  best: 18, total: 64,  week: ['done','miss','done','today','future','future','future'] },
+      { id: 'read',  name: 'Чтение 20 мин',      icon: 'doc',   hue: '#5FBF9B', cadence: 'вечером',      streak: 9,  best: 22, total: 71,  week: ['done','done','miss','today','future','future','future'] },
+      { id: 'med',   name: 'Медитация',          icon: 'lotus', hue: '#9B87D6', cadence: 'утром',        streak: 3,  best: 15, total: 40,  week: ['done','done','done','today','future','future','future'] },
+    ],
+    refusals: [
+      { id: 'smoke', name: 'Сигареты',   icon: 'ban',   hue: '#D96A5B', quit: '2026-08-30T08:00:00', savedLabel: 'СИГАРЕТ', savedUnit: 24 },
+      { id: 'sugar', name: 'Сахар',      icon: 'nosugar', hue: '#E8A54B', quit: '2026-09-07T09:00:00', savedLabel: 'ККАЛ',   savedUnit: 320 },
+      { id: 'social', name: 'Соцсети до сна', icon: 'phone', hue: '#5B9BD5', quit: '2026-09-09T22:30:00', savedLabel: 'МИНУТ', savedUnit: 55 },
+    ],
+  };
+
+  MISS = 'rgba(229,57,43,.62)';
+  MISS_BORDER = 'rgba(229,57,43,.75)';
+  PALETTE = ['#5B9BD5', '#E8A54B', '#D96A5B', '#5FBF9B', '#9B87D6', '#6FA0D6'];
+
+  SPRING = 'cubic-bezier(.34,1.56,.64,1)';
+  componentDidMount() { this._t = setInterval(() => this.setState({ now: Date.now() }), 1000); setTimeout(() => this.setState({ navReady: true }), 500); }
+  componentWillUnmount() { clearInterval(this._t); }
+
+  e(t, p, c) { return React.createElement(t, p, c); }
+  svg(kids, o) {
+    o = o || {};
+    return this.e('svg', { width: o.size || 18, height: o.size || 18, viewBox: '0 0 24 24', fill: 'none', stroke: o.color || 'currentColor', strokeWidth: o.sw || 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' }, kids.map((k, i) => React.cloneElement(k, { key: i })));
+  }
+  p(d) { return this.e('path', { d: d }); }
+  icon(name, o) {
+    const P = this.p.bind(this), C = (a) => this.e('circle', a);
+    switch (name) {
+      case 'back': return this.svg([P('M15 6l-6 6 6 6')], { size: 18, sw: 2 });
+      case 'chevron': return this.svg([P('M9 6l6 6-6 6')], { size: 16, sw: 2 });
+      case 'plus': return this.svg([P('M12 6v12'), P('M6 12h12')], { size: 22, sw: 2 });
+      case 'trash': return this.svg([P('M5 7h14'), P('M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7'), P('M6.5 7l.8 12.2a1 1 0 0 0 1 .8h7.4a1 1 0 0 0 1-.8L17.5 7'), P('M10 11v6'), P('M14 11v6')], { size: 15 });
+      case 'home': return this.svg([P('M3.5 11 12 3.5l8.5 7.5'), P('M5.5 9.5V20.5h13V9.5')], { size: 24 });
+      case 'checklist': return this.svg([P('M10 6.5h10'), P('M10 12h10'), P('M10 17.5h10'), P('M4 6l1 1 1.8-2'), P('M4 11.5l1 1 1.8-2'), P('M4 17l1 1 1.8-2')], { size: 24 });
+      case 'cal': return this.svg([this.e('rect', { x: 4, y: 5.5, width: 16, height: 14.5, rx: 3 }), P('M4 10h16'), P('M8.5 3.5v3.5'), P('M15.5 3.5v3.5')], { size: 24 });
+      case 'tune': return this.svg([P('M4 8.5h8'), P('M17 8.5h3'), C({ cx: 14.5, cy: 8.5, r: 2.2 }), P('M4 15.5h3'), P('M12 15.5h8'), C({ cx: 9.5, cy: 15.5, r: 2.2 })], { size: 24 });
+      case 'person': return this.svg([C({ cx: 12, cy: 8, r: 4 }), P('M4.5 20a7.5 7.5 0 0 1 15 0')], { size: 24 });
+      case 'gym': return this.svg([P('M4 9.5v5'), P('M7 7.5v9'), P('M17 7.5v9'), P('M20 9.5v5'), P('M7 12h10')], { size: 24 });
+      case 'target': return this.svg([C({ cx: 12, cy: 12, r: 8 }), C({ cx: 12, cy: 12, r: 4.6 }), C({ cx: 12, cy: 12, r: 1.2 })], { size: 24 });
+      case 'check': return this.svg([P('M5 12.5l4 4 10-10')], { size: 13, sw: 3.2 });
+      case 'flame': return this.svg([P('M12 3.5c1.2 3 3.5 3.8 3.5 7A3.5 3.5 0 0 1 12 14a3.5 3.5 0 0 1-3.5-3.5c0-3.2 2.3-4 3.5-7z')], { size: 13 });
+      case 'bed': return this.svg([P('M3 8v9'), P('M3 12h18v5'), P('M21 17v-3a3 3 0 0 0-3-3H9v4'), C({ cx: 6.5, cy: 11, r: 1.6 })], { size: 17 });
+      case 'drop': return this.svg([P('M12 3.5s6 6 6 10.5a6 6 0 1 1-12 0C6 9.5 12 3.5 12 3.5z')], { size: 17 });
+      case 'dumb': return this.svg([P('M4 9.5v5'), P('M7 7.5v9'), P('M17 7.5v9'), P('M20 9.5v5'), P('M7 12h10')], { size: 17 });
+      case 'sun': return this.svg([C({ cx: 12, cy: 12, r: 4.2 }), P('M12 3v2.2'), P('M12 18.8V21'), P('M4.4 4.4l1.6 1.6'), P('M18 18l1.6 1.6'), P('M3 12h2.2'), P('M18.8 12H21'), P('M4.4 19.6l1.6-1.6'), P('M18 6l1.6-1.6')], { size: 17 });
+      case 'doc': return this.svg([P('M7 3.5h6l4 4V20a.7.7 0 0 1-.7.7H7a.7.7 0 0 1-.7-.7V4.2a.7.7 0 0 1 .7-.7z'), P('M13 3.5V8h4')], { size: 17 });
+      case 'lotus': return this.svg([P('M12 20c-4 0-7-2-7-2s1-5 7-5 7 5 7 5-3 2-7 2z'), P('M12 13c0-3 2-6 2-6s-2 1-2 1-2-1-2-1 2 3 2 6z')], { size: 17 });
+      case 'ban': return this.svg([C({ cx: 12, cy: 12, r: 8.5 }), P('M6 6l12 12')], { size: 17 });
+      case 'nosugar': return this.svg([this.e('rect', { x: 5, y: 8, width: 14, height: 9, rx: 2 }), P('M8 8V6.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2V8'), P('M5 5l14 14')], { size: 17 });
+      case 'phone': return this.svg([this.e('rect', { x: 7, y: 3.5, width: 10, height: 17, rx: 2.5 }), P('M11 17.5h2'), P('M5 5l14 14')], { size: 17 });
+      default: return null;
+    }
+  }
+
+  seed(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+  buildGrid(h) {
+    const rnd = this.seed(h.id);
+    const rate = h.streak > 15 ? 0.86 : h.streak > 7 ? 0.7 : 0.55;
+    const out = [];
+    for (let i = 0; i < 84; i++) {
+      const future = i >= 80;
+      let st;
+      if (future) st = 'future';
+      else st = rnd() < rate ? 'done' : (rnd() < 0.5 ? 'miss' : 'empty');
+      let bg;
+      if (st === 'done') bg = h.hue;
+      else if (st === 'miss') bg = this.MISS;
+      else if (st === 'empty') bg = 'rgba(255,255,255,.07)';
+      else bg = 'rgba(255,255,255,.03)';
+      out.push('aspect-ratio:1;border-radius:3px;background:' + bg);
+    }
+    return out;
+  }
+
+  hueBg(hue) {
+    return 'background:linear-gradient(160deg,' + hue + '22,rgba(13,17,22,.92) 60%);border:1px solid ' + hue + '3a;border-radius:20px;padding:18px 18px;overflow:hidden;min-width:0';
+  }
+
+  renderVals() {
+    const isH = this.state.view === 'habits';
+    const isD = this.state.device === 'desktop';
+    const switchOn = 'background:#6FA0D6;color:#06121f;border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const switchOff = 'background:transparent;color:rgba(232,237,243,.55);border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const segOn = 'flex:1;white-space:nowrap;border:none;border-radius:999px;padding:10px 8px;font:600 13px "Manrope";cursor:pointer;background:#6FA0D6;color:#06121f';
+    const segOff = 'flex:1;white-space:nowrap;border:none;border-radius:999px;padding:10px 8px;font:600 13px "Manrope";cursor:pointer;background:transparent;color:rgba(232,237,243,.55)';
+    const dayLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+    const habits = this.state.habits.map(h => {
+      const expanded = this.state.expandedId === h.id;
+      const week = h.week.map((st, i) => {
+        const isToday = st === 'today' || st === 'today-done';
+        const done = st === 'done' || st === 'today-done';
+        let dotStyle = 'width:32px;height:32px;border-radius:50%;display:grid;place-items:center;box-sizing:border-box;padding:0;';
+        if (done) dotStyle += 'background:' + h.hue + ';border:none;cursor:pointer';
+        else if (st === 'miss') dotStyle += 'background:transparent;border:1.5px solid ' + this.MISS_BORDER + ';cursor:default';
+        else if (isToday) dotStyle += 'background:transparent;border:2px dashed ' + h.hue + ';cursor:pointer';
+        else dotStyle += 'background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);cursor:default';
+        return {
+          label: dayLabels[i],
+          labelStyle: 'font:600 10px "Manrope";color:' + (isToday ? h.hue : 'rgba(232,237,243,.4)'),
+          dotStyle,
+          markEl: done ? this.e('span', { style: { color: '#06121f', display: 'grid', placeItems: 'center' } }, this.icon('check')) : null,
+          onClick: isToday ? (() => this.toggleToday(h.id)) : (() => {}),
+        };
+      });
+      return {
+        required: !!h.required,
+        id: h.id, name: h.name, hue: h.hue, cadence: h.cadence, streak: h.streak, best: h.best + ' дн', total: h.total,
+        cardStyle: this.hueBg(h.hue),
+        iconWrapStyle: 'width:34px;height:34px;flex:none;border-radius:11px;background:' + h.hue + '26;display:grid;place-items:center;color:' + h.hue,
+        iconEl: this.icon(h.icon),
+        flameStyle: 'color:' + h.hue + ';display:grid;place-items:center',
+        flameEl: this.icon('flame'),
+        chevronStyle: 'color:rgba(232,237,243,.4);display:grid;place-items:center;transition:transform .2s;transform:rotate(' + (expanded ? 90 : 0) + 'deg)',
+        expanded,
+        week,
+        grid: this.buildGrid(h),
+        rate: (h.streak > 15 ? 86 : h.streak > 7 ? 70 : 55) + '%',
+        toggleExpand: () => this.setState(s => ({ expandedId: s.expandedId === h.id ? null : h.id })),
+        onDelete: (ev) => { if (ev && ev.stopPropagation) ev.stopPropagation(); this.deleteHabit(h.id); },
+      };
+    });
+
+    const now = this.state.now;
+    const refusals = this.state.refusals.map(r => {
+      const ms = Math.max(0, now - new Date(r.quit).getTime());
+      const totalSec = Math.floor(ms / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hh = Math.floor((totalSec % 86400) / 3600);
+      const mm = Math.floor((totalSec % 3600) / 60);
+      const ss = totalSec % 60;
+      const pad = n => String(n).padStart(2, '0');
+      const goalsList = [3, 7, 14, 30, 90];
+      const override = this.state.goalOverrides[r.id];
+      const nextGoal = override || goalsList.find(g => g > days) || 180;
+      const prevGoal = override ? 0 : [0, 3, 7, 14, 30, 90].filter(g => g <= days).pop();
+      const pct = Math.min(100, Math.round((days - prevGoal) / Math.max(1, nextGoal - prevGoal) * 100));
+      const goalMenuOpen = this.state.goalMenuId === r.id;
+      const goalOptions = goalsList.map(g => ({ label: g + 'д', onClick: () => this.setState(s => ({ goalOverrides: Object.assign({}, s.goalOverrides, { [r.id]: g }), goalMenuId: null })),
+        style: 'flex:1;min-height:36px;border:none;border-radius:10px;cursor:pointer;font:700 11px "JetBrains Mono",monospace;' + (g === nextGoal ? 'background:' + r.hue + ';color:#06121f' : 'background:rgba(255,255,255,.05);color:rgba(232,237,243,.65)') }));
+      const savedTotal = Math.round(r.savedUnit * (totalSec / 86400));
+      const milestones = goalsList.map(g => {
+        const reached = days >= g;
+        const isNext = g === nextGoal;
+        let dotStyle = 'width:24px;height:24px;border-radius:50%;display:grid;place-items:center;box-sizing:border-box;';
+        if (reached) dotStyle += 'background:' + r.hue + ';border:none';
+        else if (isNext) dotStyle += 'background:transparent;border:2px solid ' + r.hue;
+        else dotStyle += 'background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)';
+        return {
+          label: g + 'д',
+          labelStyle: 'font:600 9px "JetBrains Mono",monospace;color:' + (reached ? r.hue : isNext ? r.hue : 'rgba(232,237,243,.35)'),
+          dotStyle,
+          markEl: reached ? this.e('span', { style: { color: '#06121f', display: 'grid', placeItems: 'center' } }, this.icon('check', { size: 12 })) : null,
+        };
+      });
+      return {
+        id: r.id, name: r.name, hue: r.hue, since: (() => { const d = new Date(r.quit); return d.getDate() + ' ' + ['янв.','февр.','мар.','апр.','мая','июня','июля','авг.','сент.','окт.','нояб.','дек.'][d.getMonth()]; })(),
+        hh: pad(hh), mm: pad(mm), ss: pad(ss), goalMenuOpen, goalOptions,
+        toggleGoalMenu: () => this.setState(s => ({ goalMenuId: s.goalMenuId === r.id ? null : r.id })),
+        cardStyle: this.hueBg(r.hue),
+        iconWrapStyle: 'width:34px;height:34px;flex:none;border-radius:11px;background:' + r.hue + '26;display:grid;place-items:center;color:' + r.hue,
+        iconEl: this.icon(r.icon),
+        days: days,
+        clock: pad(hh) + ':' + pad(mm) + ':' + pad(ss),
+        saved: savedTotal.toLocaleString('ru-RU'),
+        savedLabel: 'НЕ ' + r.savedLabel,
+        nextGoal,
+        barStyle: 'width:' + pct + '%;height:100%;border-radius:5px;background:' + r.hue + ';transition:width .5s',
+        milestones,
+        onDelete: () => this.deleteRefusal(r.id),
+      };
+    });
+
+    return {
+      isDesktop: isD, isMobile: !isD,
+      setDesktop: () => this.setState({ device: 'desktop' }),
+      setMobile: () => this.setState({ device: 'mobile' }),
+      tabDesktopStyle: isD ? switchOn : switchOff,
+      tabMobileStyle: isD ? switchOff : switchOn,
+      habitsView: isH, refusalsView: !isH,
+      showHabits: () => this.setState({ view: 'habits', composing: false, draft: '' }),
+      showRefusals: () => this.setState({ view: 'refusals', composing: false, draft: '' }),
+      segHabitsStyle: isH ? segOn : segOff,
+      segRefusalsStyle: isH ? segOff : segOn,
+      habits, refusals,
+      missColor: this.MISS,
+      composerOpen: this.state.composing, composerClosed: !this.state.composing,
+      draft: this.state.draft,
+      toggleDraftRequired: () => this.setState(s => ({ draftRequired: !s.draftRequired })),
+      draftTrackStyle: 'width:40px;height:24px;flex:none;border-radius:999px;position:relative;transition:background-color .2s;background:' + (this.state.draftRequired ? '#6FA0D6' : 'rgba(255,255,255,.12)'),
+      draftKnobStyle: 'position:absolute;top:3px;left:' + (this.state.draftRequired ? '19px' : '3px') + ';width:18px;height:18px;border-radius:50%;transition:left .2s;background:' + (this.state.draftRequired ? '#06121f' : '#E8EDF3'),
+      startAdd: () => { this.setState({ composing: true, draft: '', draftRequired: this.state.habits.filter(h => h.required).length < 3 }); setTimeout(() => { const el = this._scroll; if (el) el.scrollTop = el.scrollHeight; }, 60); },
+      scrollRef: (el) => { this._scroll = el; },
+      noHabits: this.state.habits.length === 0,
+      allDoneToday: this.state.habits.length > 0 && this.state.habits.every(h => h.week.includes('today-done')),
+      icCheck: this.icon('check', { size: 15 }),
+      cancelAdd: () => this.setState({ composing: false, draft: '' }),
+      onDraft: (ev) => this.setState({ draft: ev.target.value }),
+      onDraftKey: (ev) => { if (ev.key === 'Enter') this.confirmAdd(); if (ev.key === 'Escape') this.setState({ composing: false, draft: '' }); },
+      confirmAdd: () => this.confirmAdd(),
+      delBtnStyle: 'width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);display:grid;place-items:center;color:rgba(232,237,243,.42);cursor:pointer;flex:none;padding:0',
+      addBtnStyle: 'width:100%;background:transparent;border:1.5px dashed rgba(168,203,239,.24);border-radius:18px;padding:15px;color:rgba(168,203,239,.72);font:600 14px "Manrope";cursor:pointer',
+      addConfirmStyle: 'background:#6FA0D6;color:#06121f;border:none;border-radius:12px;padding:0 16px;height:38px;font:700 13px "Manrope";cursor:pointer;flex:none',
+      icBack: this.icon('back'), icChevron: this.icon('chevron'), icPlus: this.icon('plus'), icTrash: this.icon('trash'),
+      icHome: this.icon('home'), icChecklist: this.icon('checklist'), icCal: this.icon('cal'), icTune: this.icon('tune'), icPerson: this.icon('person'), icTarget: this.icon('target'),
+
+      railItemStyle: 'width:68px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:rgba(232,237,243,.42);cursor:pointer;overflow:hidden;transition:background-color .2s ease',
+      railItemHoverStyle: 'background:rgba(168,203,239,.07);color:rgba(232,237,243,.8)',
+      railIconIdleStyle: 'display:grid;place-items:center;width:100%;height:100%',
+      railActiveStyle: 'width:68px;height:' + (this.state.navReady ? '66px' : '48px') + ';border-radius:16px;background:' + (this.state.navReady ? 'linear-gradient(180deg,#f0b565,#E8A54B)' : 'rgba(232,165,75,.5)') + ';display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:11px;gap:4px;cursor:pointer;overflow:hidden;transition:height .38s ' + this.SPRING + ', background-color .38s ' + this.SPRING,
+      railIconActiveStyle: 'display:grid;place-items:center;color:#06121f;transition:color .26s ease',
+      railLabelStyle: 'font:700 9px "JetBrains Mono",monospace;color:#06121f;opacity:' + (this.state.navReady ? 1 : 0) + ';transform:translateY(' + (this.state.navReady ? '0' : '-4px') + ');transition:opacity .22s ease .13s, transform .22s ease .13s',
+      barItemStyle: 'width:56px;height:48px;display:grid;place-items:center;color:rgba(232,237,243,.42);border-radius:24px;flex:none',
+      barActiveStyle: 'height:48px;flex:none;width:' + (this.state.navReady ? '128px' : '48px') + ';border-radius:24px;background:' + (this.state.navReady ? '#E8A54B' : 'rgba(232,165,75,.5)') + ';display:flex;align-items:center;justify-content:flex-start;padding-left:12px;gap:8px;cursor:pointer;overflow:hidden;transition:width .38s ' + this.SPRING + ', background-color .38s ' + this.SPRING,
+      barIconActiveStyle: 'display:grid;place-items:center;color:#06121f;flex:none;transition:color .26s ease',
+      barLabelStyle: 'font:700 12px "Manrope";color:#06121f;white-space:nowrap;opacity:' + (this.state.navReady ? 1 : 0) + ';transform:translateX(' + (this.state.navReady ? '0' : '-6px') + ');transition:opacity .22s ease .13s, transform .22s ease .13s',
+    };
+  }
+
+  confirmAdd() {
+    const name = (this.state.draft || '').trim();
+    if (!name) { this.setState({ composing: false, draft: '' }); return; }
+    if (this.state.view === 'habits') {
+      const hue = this.PALETTE[this.state.habits.length % this.PALETTE.length];
+      const item = { id: 'h' + Date.now(), required: this.state.draftRequired, name, icon: 'doc', hue, cadence: 'каждый день', streak: 0, best: 0, total: 0, week: ['empty', 'empty', 'empty', 'today', 'future', 'future', 'future'] };
+      this.setState(s => ({ habits: [...s.habits, item], composing: false, draft: '', expandedId: item.id }));
+    } else {
+      const hue = this.PALETTE[this.state.refusals.length % this.PALETTE.length];
+      const item = { id: 'r' + Date.now(), name, icon: 'ban', hue, quit: new Date().toISOString(), savedLabel: 'СРЫВОВ', savedUnit: 1 };
+      this.setState(s => ({ refusals: [...s.refusals, item], composing: false, draft: '' }));
+    }
+  }
+
+  deleteHabit(id) { this.setState(s => ({ habits: s.habits.filter(h => h.id !== id) })); }
+  deleteRefusal(id) { this.setState(s => ({ refusals: s.refusals.filter(r => r.id !== id) })); }
+
+  toggleToday(id) {
+    this.setState(s => ({
+      habits: s.habits.map(h => {
+        if (h.id !== id) return h;
+        const week = h.week.slice();
+        const ti = week.findIndex(x => x === 'today' || x === 'today-done');
+        if (ti < 0) return h;
+        const nowDone = week[ti] === 'today-done';
+        week[ti] = nowDone ? 'today' : 'today-done';
+        return { ...h, week, streak: h.streak + (nowDone ? -1 : 1), total: h.total + (nowDone ? -1 : 1) };
+      }),
+    }));
+  }
+}
+</script>
+</body>
+</html>

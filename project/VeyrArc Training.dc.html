@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<script src="./i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;scrollbar-width:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{margin:0;background:#05070A}
+  a{color:#A8CBEF;text-decoration:none}
+  a:hover{color:#c8ddf6}
+  ::selection{background:rgba(232,165,75,.3)}
+  textarea{font-family:'Manrope',sans-serif}
+  textarea::placeholder{color:rgba(232,237,243,.35)}
+  textarea:disabled{opacity:.45;cursor:not-allowed}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#05070A;padding:60px 24px 90px;font-family:'Manrope',system-ui,sans-serif;color:#E8EDF3">
+
+  <sc-if value="{{ isRecap }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;justify-content:center;padding-top:60px">
+  <div style="width:100%;max-width:420px;background:#05070A;border:1px solid rgba(168,203,239,.1);border-radius:28px;padding:32px 28px;display:flex;flex-direction:column">
+    <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.22em;color:rgba(232,237,243,.4);text-align:center">ЦЕЛЬ ЗАВЕРШЕНА</div>
+    <div style="font:800 26px 'Manrope';text-align:center;margin-top:10px">{{ recap.title }}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:22px">
+      <div style="background:rgba(255,255,255,.05);border-radius:16px;padding:14px 6px;text-align:center"><div style="font:700 20px 'JetBrains Mono',monospace">{{ recap.pct }}%</div><div style="font:600 9px 'Manrope';color:rgba(232,237,243,.5);margin-top:4px">дней выполнено</div></div>
+      <div style="background:rgba(255,255,255,.05);border-radius:16px;padding:14px 6px;text-align:center"><div style="font:700 20px 'JetBrains Mono',monospace">{{ recap.best }}</div><div style="font:600 9px 'Manrope';color:rgba(232,237,243,.5);margin-top:4px">лучший стрик</div></div>
+      <div style="background:rgba(255,255,255,.05);border-radius:16px;padding:14px 6px;text-align:center"><div style="font:700 20px 'JetBrains Mono',monospace">{{ recap.notes }}</div><div style="font:600 9px 'Manrope';color:rgba(232,237,243,.5);margin-top:4px">записей</div></div>
+    </div>
+    <button onClick="{{ closeRecap }}" style="margin-top:24px;width:100%;background:#E8A54B;color:#06121f;border:none;border-radius:14px;padding:14px 0;font:700 14px 'Manrope';cursor:pointer">Готово</button>
+  </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isNotRecap }}" hint-placeholder-val="{{ true }}">
+
+  <div style="position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:5px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:5px;backdrop-filter:blur(12px)">
+    <button style="{{ tabDesktopStyle }}" onClick="{{ setDesktop }}">Desktop</button>
+    <button style="{{ tabMobileStyle }}" onClick="{{ setMobile }}">Mobile</button>
+  </div>
+
+  <!-- ============ DESKTOP ============ -->
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1280px;margin:0 auto">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">DESKTOP · 1280 × 832</div>
+    <div style="display:flex;background:#05070A;border:1px solid rgba(168,203,239,.08);border-radius:24px;overflow:hidden;min-height:832px">
+
+      <div style="width:104px;flex:none;background:#05070A;border-right:1px solid rgba(168,203,239,.06);display:flex;flex-direction:column;align-items:center;padding:24px 0;gap:10px">
+        <button style="width:64px;height:64px;border-radius:19px;background:#6FA0D6;border:none;display:grid;place-items:center;color:#06121f;cursor:pointer;margin-bottom:16px">{{ icPlus }}</button>
+        <a href="VeyrArc Today.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icHome }}</span></a>
+        <a href="VeyrArc Tracker.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icChecklist }}</span></a>
+        <a href="VeyrArc Calendar.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icCal }}</span></a>
+        <div style="{{ railActiveStyle }}">
+          <span style="{{ railIconActiveStyle }}">{{ icTarget }}</span>
+          <span style="{{ railLabelStyle }}">Цели</span>
+        </div>
+        <a href="VeyrArc Profile.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icPerson }}</span></a>
+      </div>
+
+      <div style="flex:1;padding:34px 36px 40px;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.26em;color:rgba(232,237,243,.34)">VEYRARC</div>
+            <div style="font:800 34px/1 'Manrope';letter-spacing:-.01em;margin-top:10px">Цели</div>
+          </div>
+          <div style="width:38px;height:38px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 12px 'Manrope'">AP</div>
+        </div>
+
+        <sc-if value="{{ hasGoals }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:22px;display:flex;gap:4px;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.08);border-radius:999px;padding:4px;max-width:280px">
+          <button onClick="{{ setDay }}" style="{{ vDayStyle }}">День</button>
+          <button onClick="{{ setMonth }}" style="{{ vMonthStyle }}">Месяц</button>
+        </div>
+
+        <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <sc-for list="{{ chips }}" as="c" hint-placeholder-count="3">
+            <button onClick="{{ c.onClick }}" onContextMenu="{{ c.onMenu }}" style="{{ c.style }}"><span style="{{ c.dotStyle }}"></span>{{ c.label }}</button>
+          </sc-for>
+          <sc-if value="{{ notAddingGoal }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ startAddGoal }}" style-after="content:'';position:absolute;inset:-5px" style="position:relative;width:34px;height:34px;flex:none;border-radius:50%;border:1.5px dashed rgba(168,203,239,.3);background:transparent;color:rgba(232,237,243,.55);cursor:pointer;display:grid;place-items:center">{{ icPlusSm }}</button>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ hasCompleted }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{ completedChips }}" as="cc" hint-placeholder-count="1">
+            <button onClick="{{ cc.onClick }}" style="border:none;flex:none;white-space:nowrap;border-radius:999px;padding:6px 12px;font:600 11px 'Manrope';cursor:pointer;background:rgba(255,255,255,.04);color:rgba(232,237,243,.4)">✓ {{ cc.label }}</button>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:10px;max-width:300px;background:rgba(13,17,22,.95);border:1px solid rgba(168,203,239,.14);border-radius:14px;padding:8px;display:flex;flex-direction:column">
+          <button onClick="{{ menuRename }}" style="text-align:left;background:transparent;border:none;color:#E8EDF3;padding:9px 10px;font:600 13px 'Manrope';cursor:pointer;border-radius:9px">Переименовать</button>
+          <button onClick="{{ menuComplete }}" style="text-align:left;background:transparent;border:none;color:#E8EDF3;padding:9px 10px;font:600 13px 'Manrope';cursor:pointer;border-radius:9px">Завершить цель</button>
+          <button onClick="{{ menuDelete }}" style="text-align:left;background:transparent;border:none;color:#D96A5B;padding:9px 10px;font:600 13px 'Manrope';cursor:pointer;border-radius:9px">Удалить</button>
+          <button onClick="{{ menuClose }}" style="text-align:left;background:transparent;border:none;color:rgba(232,237,243,.4);padding:9px 10px;font:600 12px 'Manrope';cursor:pointer;border-radius:9px">Закрыть</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ renaming }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:10px;display:flex;gap:8px;max-width:340px">
+          <input value="{{ renameValue }}" onChange="{{ onRenameValue }}" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:999px;padding:8px 16px;font:600 12px 'Manrope';color:#E8EDF3;outline:none"/>
+          <button onClick="{{ confirmRename }}" style="border:none;border-radius:999px;padding:8px 14px;font:700 12px 'Manrope';cursor:pointer;background:#E8A54B;color:#06121f">Ок</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ addingGoal }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ limitReached }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:14px;max-width:420px;background:linear-gradient(160deg,rgba(232,183,94,.12),rgba(13,17,22,.9) 65%);border:1px solid rgba(232,183,94,.25);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:8px">
+            <div style="color:#E8B75E">{{ icLock }}</div>
+            <div style="font:700 14px 'Manrope';color:#f2e2c4">Достигнут лимит целей</div>
+            <div style="font:400 12px/1.5 'Manrope';color:rgba(232,237,243,.55)">На бесплатном тарифе доступно до {{ freeLimit }} активных целей. Открой Pro для безлимита.</div>
+            <button onClick="{{ cancelAddGoal }}" style="align-self:flex-start;margin-top:4px;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:9px 18px;font:700 12px 'Manrope';cursor:pointer">Понятно</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ limitOk }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:14px;max-width:380px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:10px">
+            <input value="{{ newGoalName }}" onChange="{{ onNewGoalName }}" placeholder="Название цели" style="background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:12px;padding:10px 14px;font:600 13px 'Manrope';color:#E8EDF3;outline:none"/>
+            <div style="display:flex;gap:6px">
+              <button onClick="{{ setTypeProcess }}" style="{{ typeProcessStyle }}">Процесс</button>
+              <button onClick="{{ setTypeQuant }}" style="{{ typeQuantStyle }}">Число</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font:600 11px 'Manrope';color:rgba(232,237,243,.5)">Дедлайн (опц.)</span>
+              <input type="date" value="{{ newGoalDeadline }}" onChange="{{ onNewGoalDeadline }}" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:10px;padding:7px 10px;font:600 12px 'Manrope';color:#E8EDF3;outline:none"/>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button onClick="{{ cancelAddGoal }}" style="flex:1;background:rgba(255,255,255,.06);border:none;color:#E8EDF3;border-radius:11px;padding:10px;font:700 12px 'Manrope';cursor:pointer">Отмена</button>
+              <button onClick="{{ confirmAddGoal }}" style="flex:1;background:#E8A54B;border:none;color:#06121f;border-radius:11px;padding:10px;font:700 12px 'Manrope';cursor:pointer">Создать</button>
+            </div>
+          </div>
+          </sc-if>
+        </sc-if>
+
+        <!-- DAY -->
+        <sc-if value="{{ isDay }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:18px;display:flex;align-items:center;gap:12px">
+          <button onClick="{{ prevDay }}" style-after="content:'';position:absolute;inset:-6px" style="position:relative;width:32px;height:32px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.6);cursor:pointer">{{ icChevL }}</button>
+          <div style="font:700 15px 'Manrope'">{{ dayLabel }}</div>
+          <button onClick="{{ nextDay }}" style-after="content:'';position:absolute;inset:-6px" style="position:relative;width:32px;height:32px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.6);cursor:pointer">{{ icChevR }}</button>
+          <sc-if value="{{ notOnToday }}" hint-placeholder-val="{{ false }}"><button onClick="{{ jumpToday }}" style="border:none;background:rgba(255,255,255,.05);color:rgba(232,237,243,.6);border-radius:999px;padding:6px 14px;font:600 11px 'Manrope';cursor:pointer">Сегодня</button></sc-if>
+        </div>
+
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1.3fr;gap:16px;align-items:start">
+
+          <div style="background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:24px">
+            <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4)">ЗАДАНИЯ</div>
+            <div style="margin-top:14px;display:flex;flex-direction:column;gap:2px">
+              <sc-for list="{{ tasks }}" as="t" hint-placeholder-count="2">
+                <div style="padding:10px 0;border-top:1px solid rgba(168,203,239,.06)">
+                  <div style="display:flex;gap:12px;align-items:flex-start">
+                    <button onClick="{{ t.onToggle }}" style-after="content:'';position:absolute;inset:-7px" style="{{ t.checkStyle }}">{{ t.checkIcon }}</button>
+                    <div onClick="{{ t.onExpand }}" style="cursor:pointer;font:600 14px/1.4 'Manrope';color:#E8EDF3">{{ t.text }}</div>
+                  </div>
+                  <sc-if value="{{ t.expanded }}" hint-placeholder-val="{{ false }}"><div style="margin-left:40px;margin-top:6px;font:400 12px/1.5 'Manrope';color:rgba(232,237,243,.5)">{{ t.detail }}</div></sc-if>
+                </div>
+              </sc-for>
+              <sc-for list="{{ adhocItems }}" as="a" hint-placeholder-count="0">
+                <div style="display:flex;gap:12px;align-items:center;padding:8px 0;border-top:1px solid rgba(168,203,239,.06)">
+                  <span style="color:#E8A54B">·</span><span style="font:500 13px 'Manrope';color:rgba(232,237,243,.7)">{{ a }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(168,203,239,.08);display:flex;align-items:center;justify-content:space-between">
+              <button onClick="{{ toggleStreakPanel }}" style="min-height:44px;min-width:44px;display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#E8A54B;cursor:pointer;padding:0"><span>{{ icFlame }}</span><span style="font:700 14px 'JetBrains Mono',monospace">{{ streakCount }}</span></button>
+              <button onClick="{{ toggleAdhoc }}" style-after="content:'';position:absolute;inset:-6px" style="position:relative;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:none;color:#E8EDF3;cursor:pointer">{{ icPlusSm }}</button>
+              <div style="display:flex;gap:4px">
+                <sc-for list="{{ moods }}" as="m" hint-placeholder-count="5">
+                  <button onClick="{{ m.onClick }}" style="{{ m.style }}">{{ m.face }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <sc-if value="{{ streakPanelOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:12px;background:rgba(255,255,255,.04);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;font:600 12px 'Manrope';color:rgba(232,237,243,.65)"><span>Текущая серия: {{ streakCount }} дн.</span><span>Рекорд: {{ bestStreak }} дн.</span></div>
+            </sc-if>
+            <sc-if value="{{ adhocOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <input value="{{ adhocText }}" onChange="{{ onAdhocText }}" placeholder="Разовое действие" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.14);border-radius:10px;padding:8px 12px;font:500 12.5px 'Manrope';color:#E8EDF3;outline:none"/>
+              <button onClick="{{ confirmAdhoc }}" style="border:none;border-radius:10px;padding:8px 14px;font:700 12px 'Manrope';cursor:pointer;background:#E8A54B;color:#06121f">Добавить</button>
+            </div>
+            </sc-if>
+          </div>
+
+          <div style="background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px">
+            <div style="font:600 13px 'Manrope';color:rgba(232,237,243,.6)">Дневник {{ autosaveHint }}</div>
+            <textarea value="{{ diaryText }}" onChange="{{ onDiaryText }}" disabled="{{ diaryDisabled }}" placeholder="{{ diaryPlaceholder }}" style="width:100%;min-height:180px;resize:vertical;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.14);border-radius:14px;padding:14px;font:500 13.5px/1.5 'Manrope';color:#E8EDF3;outline:none"></textarea>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- MONTH -->
+        <sc-if value="{{ isMonth }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:18px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <button onClick="{{ prevMonth }}" style-after="content:'';position:absolute;inset:-7px" style="position:relative;width:30px;height:30px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.6);cursor:pointer">{{ icChevL }}</button>
+            <div style="font:800 22px 'Manrope'">{{ monthLabel }}</div>
+            <button onClick="{{ nextMonth }}" style-after="content:'';position:absolute;inset:-7px" style="position:relative;width:30px;height:30px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.6);cursor:pointer">{{ icChevR }}</button>
+          </div>
+
+          <div style="margin-top:14px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 26px">
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px 4px">
+              <sc-for list="{{ weekdayLabels }}" as="w" hint-placeholder-count="7">
+                <div style="text-align:center;font:700 10px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.35)">{{ w }}</div>
+              </sc-for>
+              <sc-for list="{{ monthCells }}" as="d" hint-placeholder-count="35">
+                <div style="display:flex;align-items:center;justify-content:center">
+                  <sc-if value="{{ d.filled }}" hint-placeholder-val="{{ true }}"><button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.n }}</button></sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:14px;margin-top:16px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:6px;font:600 10.5px 'Manrope';color:rgba(232,237,243,.45)"><span style="width:10px;height:10px;border-radius:50%;background:{{ selectedGoal.hue }};display:inline-block"></span>выполнено</span>
+              <span style="display:flex;align-items:center;gap:6px;font:600 10.5px 'Manrope';color:rgba(232,237,243,.45)"><span style="width:10px;height:10px;border-radius:50%;border:2px solid {{ selectedGoal.hue }};display:inline-block"></span>частично</span>
+              <span style="display:flex;align-items:center;gap:6px;font:600 10.5px 'Manrope';color:rgba(232,237,243,.45)"><span style="width:10px;height:10px;border-radius:50%;background:rgba(217,106,91,.5);display:inline-block"></span>пропущено</span>
+            </div>
+          </div>
+
+          <div style="margin-top:22px;font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4)">ВАШИ ЗАПИСИ</div>
+          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <sc-for list="{{ noteCards }}" as="n" hint-placeholder-count="4">
+              <div onClick="{{ n.onClick }}" style="cursor:pointer;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:16px;padding:16px 18px">
+                <div style="font:700 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.45)">{{ n.date }} {{ n.day }}</div>
+                <div style="font:500 13px/1.5 'Manrope';color:rgba(232,237,243,.8);margin-top:8px">{{ n.text }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ hasNoGoals }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:60px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px">
+          <div style="color:#E8A54B">{{ icTargetBig }}</div>
+          <div style="font:800 22px 'Manrope'">Пока нет целей</div>
+          <div style="font:400 13px 'Manrope';color:rgba(232,237,243,.5);max-width:280px">Создайте первую цель — например, накопить на что-то важное или выработать новую привычку.</div>
+          <button onClick="{{ startAddGoal }}" style="margin-top:6px;background:#E8A54B;color:#06121f;border:none;border-radius:999px;padding:12px 24px;font:700 13px 'Manrope';cursor:pointer">Создать цель</button>
+          <sc-if value="{{ addingGoal }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;max-width:320px;display:flex;gap:8px">
+            <input value="{{ newGoalName }}" onChange="{{ onNewGoalName }}" placeholder="Название цели" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:999px;padding:9px 16px;font:600 12px 'Manrope';color:#E8EDF3;outline:none"/>
+            <button onClick="{{ confirmAddGoal }}" style="border:none;border-radius:999px;padding:9px 16px;font:700 12px 'Manrope';cursor:pointer;background:#E8A54B;color:#06121f">Создать</button>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ MOBILE ============ -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;justify-content:center">
+  <div style="width:100%;max-width:390px">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">MOBILE · 390 × 844</div>
+    <div style="background:#05070A;border:1px solid rgba(168,203,239,.08);border-radius:34px;overflow:hidden;height:812px;display:flex;flex-direction:column">
+
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:22px 18px 14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.26em;color:rgba(232,237,243,.34)">VEYRARC</div>
+            <div style="font:800 28px/1.1 'Manrope';margin-top:8px">Цели</div>
+          </div>
+          <div style="width:38px;height:38px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 12px 'Manrope'">AP</div>
+        </div>
+
+        <sc-if value="{{ hasGoals }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:18px;display:flex;gap:4px;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.08);border-radius:999px;padding:4px">
+          <button onClick="{{ setDay }}" style="{{ vDayStyle }}">День</button>
+          <button onClick="{{ setMonth }}" style="{{ vMonthStyle }}">Месяц</button>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:7px;flex-wrap:wrap;align-items:center">
+          <sc-for list="{{ chips }}" as="c" hint-placeholder-count="3">
+            <button onClick="{{ c.onClick }}" onContextMenu="{{ c.onMenu }}" style="{{ c.style }}"><span style="{{ c.dotStyle }}"></span>{{ c.label }}</button>
+          </sc-for>
+          <sc-if value="{{ notAddingGoal }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ startAddGoal }}" style-after="content:'';position:absolute;inset:-6px" style="position:relative;width:32px;height:32px;flex:none;border-radius:50%;border:1.5px dashed rgba(168,203,239,.3);background:transparent;color:rgba(232,237,243,.55);cursor:pointer;display:grid;place-items:center">{{ icPlusSm }}</button>
+          </sc-if>
+        </div>
+        <sc-if value="{{ hasCompleted }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{ completedChips }}" as="cc" hint-placeholder-count="1">
+            <button onClick="{{ cc.onClick }}" style="border:none;flex:none;white-space:nowrap;border-radius:999px;padding:6px 12px;font:600 11px 'Manrope';cursor:pointer;background:rgba(255,255,255,.04);color:rgba(232,237,243,.4)">✓ {{ cc.label }}</button>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:10px;background:rgba(13,17,22,.95);border:1px solid rgba(168,203,239,.14);border-radius:14px;padding:8px;display:flex;flex-direction:column">
+          <button onClick="{{ menuRename }}" style="text-align:left;background:transparent;border:none;color:#E8EDF3;padding:9px 10px;font:600 13px 'Manrope';cursor:pointer;border-radius:9px">Переименовать</button>
+          <button onClick="{{ menuComplete }}" style="text-align:left;background:transparent;border:none;color:#E8EDF3;padding:9px 10px;font:600 13px 'Manrope';cursor:pointer;border-radius:9px">Завершить цель</button>
+          <button onClick="{{ menuDelete }}" style="text-align:left;background:transparent;border:none;color:#D96A5B;padding:9px 10px;font:600 13px 'Manrope';cursor:pointer;border-radius:9px">Удалить</button>
+          <button onClick="{{ menuClose }}" style="text-align:left;background:transparent;border:none;color:rgba(232,237,243,.4);padding:9px 10px;font:600 12px 'Manrope';cursor:pointer;border-radius:9px">Закрыть</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ renaming }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <input value="{{ renameValue }}" onChange="{{ onRenameValue }}" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:999px;padding:8px 16px;font:600 12px 'Manrope';color:#E8EDF3;outline:none"/>
+          <button onClick="{{ confirmRename }}" style="border:none;border-radius:999px;padding:8px 14px;font:700 12px 'Manrope';cursor:pointer;background:#E8A54B;color:#06121f">Ок</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ addingGoal }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ limitReached }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:12px;background:linear-gradient(160deg,rgba(232,183,94,.12),rgba(13,17,22,.9) 65%);border:1px solid rgba(232,183,94,.25);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:8px">
+            <div style="color:#E8B75E">{{ icLock }}</div>
+            <div style="font:700 13.5px 'Manrope';color:#f2e2c4">Достигнут лимит целей</div>
+            <div style="font:400 11.5px/1.5 'Manrope';color:rgba(232,237,243,.55)">До {{ freeLimit }} активных целей на free. Открой Pro для безлимита.</div>
+            <button onClick="{{ cancelAddGoal }}" style="align-self:flex-start;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:9px 18px;font:700 12px 'Manrope';cursor:pointer">Понятно</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ limitOk }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:12px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px">
+            <input value="{{ newGoalName }}" onChange="{{ onNewGoalName }}" placeholder="Название цели" style="background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:12px;padding:10px 14px;font:600 13px 'Manrope';color:#E8EDF3;outline:none"/>
+            <div style="display:flex;gap:6px">
+              <button onClick="{{ setTypeProcess }}" style="{{ typeProcessStyle }}">Процесс</button>
+              <button onClick="{{ setTypeQuant }}" style="{{ typeQuantStyle }}">Число</button>
+            </div>
+            <input type="date" value="{{ newGoalDeadline }}" onChange="{{ onNewGoalDeadline }}" style="background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:10px;padding:8px 10px;font:600 12px 'Manrope';color:#E8EDF3;outline:none"/>
+            <div style="display:flex;gap:8px">
+              <button onClick="{{ cancelAddGoal }}" style="flex:1;background:rgba(255,255,255,.06);border:none;color:#E8EDF3;border-radius:11px;padding:10px;font:700 12px 'Manrope';cursor:pointer">Отмена</button>
+              <button onClick="{{ confirmAddGoal }}" style="flex:1;background:#E8A54B;border:none;color:#06121f;border-radius:11px;padding:10px;font:700 12px 'Manrope';cursor:pointer">Создать</button>
+            </div>
+          </div>
+          </sc-if>
+        </sc-if>
+
+        <!-- DAY -->
+        <sc-if value="{{ isDay }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px">
+          <button onClick="{{ prevDay }}" style-after="content:'';position:absolute;inset:-7px" style="position:relative;width:30px;height:30px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.6);cursor:pointer">{{ icChevL }}</button>
+          <div style="font:700 14px 'Manrope'">{{ dayLabel }}</div>
+          <button onClick="{{ nextDay }}" style-after="content:'';position:absolute;inset:-7px" style="position:relative;width:30px;height:30px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.6);cursor:pointer">{{ icChevR }}</button>
+        </div>
+        <sc-if value="{{ notOnToday }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;margin-top:6px"><button onClick="{{ jumpToday }}" style="border:none;background:rgba(255,255,255,.05);color:rgba(232,237,243,.6);border-radius:999px;padding:6px 14px;font:600 11px 'Manrope';cursor:pointer">Сегодня</button></div></sc-if>
+
+        <div style="margin-top:12px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:18px">
+          <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4)">ЗАДАНИЯ</div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ tasks }}" as="t" hint-placeholder-count="2">
+              <div style="padding:9px 0;border-top:1px solid rgba(168,203,239,.06)">
+                <div style="display:flex;gap:11px;align-items:flex-start">
+                  <button onClick="{{ t.onToggle }}" style-after="content:'';position:absolute;inset:-7px" style="{{ t.checkStyle }}">{{ t.checkIcon }}</button>
+                  <div onClick="{{ t.onExpand }}" style="cursor:pointer;font:600 13.5px/1.4 'Manrope';color:#E8EDF3">{{ t.text }}</div>
+                </div>
+                <sc-if value="{{ t.expanded }}" hint-placeholder-val="{{ false }}"><div style="margin-left:38px;margin-top:5px;font:400 11.5px/1.5 'Manrope';color:rgba(232,237,243,.5)">{{ t.detail }}</div></sc-if>
+              </div>
+            </sc-for>
+            <sc-for list="{{ adhocItems }}" as="a" hint-placeholder-count="0">
+              <div style="display:flex;gap:11px;align-items:center;padding:7px 0;border-top:1px solid rgba(168,203,239,.06)">
+                <span style="color:#E8A54B">·</span><span style="font:500 12.5px 'Manrope';color:rgba(232,237,243,.7)">{{ a }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(168,203,239,.08);display:flex;align-items:center;justify-content:space-between">
+            <button onClick="{{ toggleStreakPanel }}" style="min-height:44px;min-width:44px;display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#E8A54B;cursor:pointer;padding:0"><span>{{ icFlame }}</span><span style="font:700 13px 'JetBrains Mono',monospace">{{ streakCount }}</span></button>
+            <button onClick="{{ toggleAdhoc }}" style-after="content:'';position:absolute;inset:-7px" style="position:relative;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);border:none;color:#E8EDF3;cursor:pointer">{{ icPlusSm }}</button>
+            <div style="display:flex;gap:3px">
+              <sc-for list="{{ moods }}" as="m" hint-placeholder-count="5">
+                <button onClick="{{ m.onClick }}" style="{{ m.style }}">{{ m.face }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{ streakPanelOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;font:600 11.5px 'Manrope';color:rgba(232,237,243,.65)"><span>Серия: {{ streakCount }} дн.</span><span>Рекорд: {{ bestStreak }} дн.</span></div>
+          </sc-if>
+          <sc-if value="{{ adhocOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <input value="{{ adhocText }}" onChange="{{ onAdhocText }}" placeholder="Разовое действие" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.14);border-radius:10px;padding:8px 12px;font:500 12px 'Manrope';color:#E8EDF3;outline:none"/>
+            <button onClick="{{ confirmAdhoc }}" style="border:none;border-radius:10px;padding:8px 12px;font:700 12px 'Manrope';cursor:pointer;background:#E8A54B;color:#06121f">+</button>
+          </div>
+          </sc-if>
+        </div>
+
+        <div style="margin-top:12px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px">
+          <div style="font:600 12.5px 'Manrope';color:rgba(232,237,243,.6)">Дневник {{ autosaveHint }}</div>
+          <textarea value="{{ diaryText }}" onChange="{{ onDiaryText }}" disabled="{{ diaryDisabled }}" placeholder="{{ diaryPlaceholder }}" style="width:100%;min-height:120px;resize:vertical;background:rgba(255,255,255,.05);border:1px solid rgba(168,203,239,.14);border-radius:14px;padding:12px;font:500 13px/1.5 'Manrope';color:#E8EDF3;outline:none"></textarea>
+        </div>
+        </sc-if>
+
+        <!-- MONTH -->
+        <sc-if value="{{ isMonth }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px">
+          <button onClick="{{ prevMonth }}" style-after="content:'';position:absolute;inset:-8px" style="position:relative;width:28px;height:28px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.6);cursor:pointer">{{ icChevL }}</button>
+          <div style="font:800 18px 'Manrope'">{{ monthLabel }}</div>
+          <button onClick="{{ nextMonth }}" style-after="content:'';position:absolute;inset:-8px" style="position:relative;width:28px;height:28px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.6);cursor:pointer">{{ icChevR }}</button>
+        </div>
+        <div style="margin-top:10px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:16px 14px">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px 2px">
+            <sc-for list="{{ weekdayLabels }}" as="w" hint-placeholder-count="7">
+              <div style="text-align:center;font:700 9px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.35)">{{ w }}</div>
+            </sc-for>
+            <sc-for list="{{ monthCellsM }}" as="d" hint-placeholder-count="35">
+              <div style="display:flex;align-items:center;justify-content:center">
+                <sc-if value="{{ d.filled }}" hint-placeholder-val="{{ true }}"><button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.n }}</button></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4)">ВАШИ ЗАПИСИ</div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ noteCards }}" as="n" hint-placeholder-count="4">
+            <div onClick="{{ n.onClick }}" style="cursor:pointer;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:16px;padding:14px 16px">
+              <div style="font:700 10.5px 'JetBrains Mono',monospace;color:rgba(232,237,243,.45)">{{ n.date }} {{ n.day }}</div>
+              <div style="font:500 13px/1.5 'Manrope';color:rgba(232,237,243,.8);margin-top:6px">{{ n.text }}</div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ hasNoGoals }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:50px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px">
+          <div style="color:#E8A54B">{{ icTargetBig }}</div>
+          <div style="font:800 19px 'Manrope'">Пока нет целей</div>
+          <div style="font:400 12.5px 'Manrope';color:rgba(232,237,243,.5);max-width:260px">Создайте первую цель — например, накопить на что-то важное или выработать новую привычку.</div>
+          <button onClick="{{ startAddGoal }}" style="margin-top:6px;background:#E8A54B;color:#06121f;border:none;border-radius:999px;padding:12px 22px;font:700 13px 'Manrope';cursor:pointer">Создать цель</button>
+          <sc-if value="{{ addingGoal }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;width:100%;display:flex;gap:8px">
+            <input value="{{ newGoalName }}" onChange="{{ onNewGoalName }}" placeholder="Название цели" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:999px;padding:9px 16px;font:600 12px 'Manrope';color:#E8EDF3;outline:none"/>
+            <button onClick="{{ confirmAddGoal }}" style="border:none;border-radius:999px;padding:9px 16px;font:700 12px 'Manrope';cursor:pointer;background:#E8A54B;color:#06121f">Создать</button>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+      </div>
+
+      <div style="flex:none;display:flex;justify-content:space-around;align-items:center;background:rgba(9,12,16,.96);border-top:1px solid rgba(168,203,239,.1);padding:10px 8px 14px;backdrop-filter:blur(12px)">
+        <a href="VeyrArc Today.dc.html" style="{{ barItemStyle }}">{{ icHome }}</a>
+        <a href="VeyrArc Tracker.dc.html" style="{{ barItemStyle }}">{{ icChecklist }}</a>
+        <a href="VeyrArc Calendar.dc.html" style="{{ barItemStyle }}">{{ icCal }}</a>
+        <div style="{{ barActiveStyle }}">
+          <span style="{{ barIconActiveStyle }}">{{ icTarget }}</span>
+          <span style="{{ barLabelStyle }}">Цели</span>
+        </div>
+        <a href="VeyrArc Profile.dc.html" style="{{ barItemStyle }}">{{ icPerson }}</a>
+      </div>
+
+    </div>
+  </div>
+  </div>
+  </sc-if>
+
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  pad(n) { return String(n).padStart(2, '0'); }
+  ymd(y, m, d) { return y + '-' + this.pad(m + 1) + '-' + this.pad(d); }
+  parseYmd(s) { const parts = s.split('-').map(Number); return new Date(parts[0], parts[1] - 1, parts[2]); }
+  addDays(s, delta) { const dt = this.parseYmd(s); dt.setDate(dt.getDate() + delta); return this.ymd(dt.getFullYear(), dt.getMonth(), dt.getDate()); }
+
+  TODAY_YMD = '2026-09-22';
+  FREE_LIMIT = 3;
+  WEEKDAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  WEEKDAY_NAMES = ['вс','пн','вт','ср','чт','пт','сб'];
+  SPRING = 'cubic-bezier(.34,1.56,.64,1)';
+
+  state = {
+    device: (this.props && this.props.startView) || 'desktop',
+    screen: 'day',
+    navReady: false,
+    selectedGoalId: 'travel',
+    viewDate: '2026-09-22',
+    viewMonth: { y: 2026, m: 8 },
+    addingGoal: false, limitReached: false,
+    newGoalName: '', newGoalType: 'process', newGoalDeadline: '',
+    menuGoalId: null, renaming: false, renameValue: '',
+    expandedTaskId: null, streakPanelOpen: false, adhocOpen: false, adhocText: '',
+    recapGoalId: null,
+    goals: [
+      { id: 'travel', title: 'Накопить на путешествие', hue: '#E8A54B', status: 'active', startDate: '2026-09-15', bestStreak: 4,
+        tasks: [{ id: 'a', text: 'Отложить часть дохода и обновить сумму в трекере накоплений', detail: 'Даже небольшая сумма — двигает дедлайн ближе.' }] },
+      { id: 'car', title: 'Купить машину', hue: '#5B9BD5', status: 'active', startDate: '2026-09-13', bestStreak: 2,
+        tasks: [{ id: 'a', text: 'Изучить один вариант авто', detail: 'Тест-драйв, отзывы или сравнение цены — что угодно, что продвигает выбор.' }] },
+      { id: 'english', title: 'Выучить английский', hue: '#9B87D6', status: 'active', startDate: '2026-09-17', bestStreak: 6,
+        tasks: [{ id: 'a', text: 'Пройти урок в приложении', detail: '' }, { id: 'b', text: 'Повторить 10 новых слов', detail: '' }] },
+    ],
+    entries: {
+      'travel|2026-09-15': { tasksDone: { a: true }, diary: 'Открыла отдельный счёт для накоплений и перевела первую сумму.', mood: 3 },
+      'travel|2026-09-16': { tasksDone: { a: true }, diary: '', mood: null },
+      'travel|2026-09-18': { tasksDone: { a: true }, diary: 'Нашла более выгодный вклад — прогресс пойдёт быстрее.', mood: 3 },
+      'travel|2026-09-19': { tasksDone: { a: true }, diary: '', mood: null },
+      'travel|2026-09-20': { tasksDone: { a: false }, diary: '', mood: null },
+      'travel|2026-09-21': { tasksDone: { a: true }, diary: 'Сравнила билеты на март — сумма почти собрана.', mood: 4 },
+      'car|2026-09-13': { tasksDone: { a: true }, diary: 'Посчитала бюджет с учётом страховки — сократила список до трёх моделей.', mood: 2 },
+      'car|2026-09-16': { tasksDone: { a: true }, diary: '', mood: null },
+      'car|2026-09-20': { tasksDone: { a: true }, diary: 'Съездила на тест-драйв Solaris и Rio. Rio понравился больше по посадке.', mood: 3 },
+      'car|2026-09-21': { tasksDone: { a: false }, diary: '', mood: null },
+      'english|2026-09-17': { tasksDone: { a: true, b: true }, diary: 'Прошла модуль про Present Perfect, наконец разобралась.', mood: 3 },
+      'english|2026-09-18': { tasksDone: { a: true, b: true }, diary: '', mood: null },
+      'english|2026-09-19': { tasksDone: { a: true, b: false }, diary: '', mood: null },
+      'english|2026-09-20': { tasksDone: { a: true, b: true }, diary: '', mood: null },
+      'english|2026-09-21': { tasksDone: { a: true, b: true }, diary: 'Досмотрела серию без субтитров — почти всё понятно.', mood: 4 },
+    },
+    adhoc: {},
+  };
+
+  componentDidMount() { setTimeout(() => this.setState({ navReady: true }), 500); }
+
+  e(t, p, c) { return React.createElement(t, p, c); }
+  svg(kids, o) { o = o || {}; return this.e('svg', { width: o.size || 20, height: o.size || 20, viewBox: '0 0 24 24', fill: 'none', stroke: o.color || 'currentColor', strokeWidth: o.sw || 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' }, kids.map((k, i) => React.cloneElement(k, { key: i }))); }
+  p(d) { return this.e('path', { d: d }); }
+  icon(name, o) {
+    const P = this.p.bind(this), C = (a) => this.e('circle', a);
+    switch (name) {
+      case 'plus': return this.svg([P('M12 6v12'), P('M6 12h12')], { size: 22, sw: 2 });
+      case 'home': return this.svg([P('M3.5 11 12 3.5l8.5 7.5'), P('M5.5 9.5V20.5h13V9.5')], { size: 24 });
+      case 'checklist': return this.svg([P('M10 6.5h10'), P('M10 12h10'), P('M10 17.5h10'), P('M4 6l1 1 1.8-2'), P('M4 11.5l1 1 1.8-2'), P('M4 17l1 1 1.8-2')], { size: 24 });
+      case 'cal': return this.svg([this.e('rect', { x: 4, y: 5.5, width: 16, height: 14.5, rx: 3 }), P('M4 10h16'), P('M8.5 3.5v3.5'), P('M15.5 3.5v3.5')], { size: 24 });
+      case 'person': return this.svg([C({ cx: 12, cy: 8, r: 4 }), P('M4.5 20a7.5 7.5 0 0 1 15 0')], { size: 24 });
+      case 'target': return this.svg([C({ cx: 12, cy: 12, r: 8 }), C({ cx: 12, cy: 12, r: 4.6 }), C({ cx: 12, cy: 12, r: 1.2 })], o || { size: 24 });
+      case 'flame': return this.svg([P('M12 3.5c1.2 3 3.5 3.8 3.5 7a3.5 3.5 0 0 1-7 0c0-1 .4-1.8 1-2.5-.2 1.6 1 2.2 1 2.2-.8-2.6.5-5.7 1.5-6.7z')], { size: 18 });
+      case 'check': return this.svg([P('M5 12.5l4 4 10-10')], { size: 14, sw: 3 });
+      case 'lock': return this.svg([this.e('rect', { x: 5, y: 10, width: 14, height: 10, rx: 2.5 }), P('M8.5 10V7a3.5 3.5 0 0 1 7 0v3')], { size: 18 });
+      case 'chevL': return this.svg([P('M15 6l-6 6 6 6')], { size: 15, sw: 2 });
+      case 'chevR': return this.svg([P('M9 6l6 6-6 6')], { size: 15, sw: 2 });
+      default: return null;
+    }
+  }
+  moodFace(level, color) {
+    const mouths = ['M9 16.6 q3 -2 6 0', 'M9 15.9 q3 -0.8 6 0', 'M9 15.5 h6', 'M9 15 q3 1.9 6 0', 'M9 14.5 q3 3 6 0'];
+    return this.svg([this.e('circle', { cx: 12, cy: 12, r: 9 }), this.e('circle', { cx: 9, cy: 10, r: 1, fill: color, stroke: 'none' }), this.e('circle', { cx: 15, cy: 10, r: 1, fill: color, stroke: 'none' }), this.e('path', { d: mouths[level] })], { size: 18, color: color, sw: 1.6 });
+  }
+
+  getEntry(goalId, dateKey) { return this.state.entries[goalId + '|' + dateKey] || { tasksDone: {}, diary: '', mood: null }; }
+  patchEntry(goalId, dateKey, patch) {
+    const key = goalId + '|' + dateKey;
+    this.setState(st => ({ entries: Object.assign({}, st.entries, { [key]: Object.assign({}, (st.entries[key] || { tasksDone: {}, diary: '', mood: null }), patch) }) }));
+  }
+
+  dayStatus(goal, dateKey) {
+    if (dateKey > this.TODAY_YMD) return 'future';
+    if (dateKey < goal.startDate) return 'neutral';
+    const entry = this.state.entries[goal.id + '|' + dateKey];
+    const doneCount = entry ? Object.values(entry.tasksDone || {}).filter(Boolean).length : 0;
+    const total = goal.tasks.length;
+    if (doneCount === 0) return 'missed';
+    if (doneCount >= total) return 'done';
+    return 'partial';
+  }
+
+  computeStreak(goal) {
+    let count = 0, d = this.TODAY_YMD;
+    while (this.dayStatus(goal, d) === 'done') { count++; d = this.addDays(d, -1); }
+    return count;
+  }
+
+  buildMonthCells(goal, y, m, sz, fsz) {
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const firstDow = new Date(y, m, 1).getDay();
+    const offset = (firstDow + 6) % 7;
+    const cells = [];
+    for (let i = 0; i < offset; i++) cells.push({ filled: false });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateKey = this.ymd(y, m, d);
+      const status = this.dayStatus(goal, dateKey);
+      const isToday = dateKey === this.TODAY_YMD;
+      let style = 'width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;border:none;display:grid;place-items:center;font:700 ' + fsz + 'px "JetBrains Mono",monospace;box-sizing:border-box;cursor:pointer;';
+      if (status === 'done') style += 'background:' + goal.hue + ';color:#06121f';
+      else if (status === 'partial') style += 'background:transparent;border:2px solid ' + goal.hue + ';color:' + goal.hue;
+      else if (status === 'missed') style += 'background:rgba(217,106,91,.14);color:#D96A5B';
+      else style += 'background:rgba(255,255,255,.05);color:rgba(232,237,243,.45)';
+      if (isToday) style += ';box-shadow:0 0 0 2px #E8A54B';
+      cells.push({ filled: true, n: d, style, onClick: () => this.setState({ screen: 'day', viewDate: dateKey }) });
+    }
+    return cells;
+  }
+
+  renderVals() {
+    const isD = this.state.device === 'desktop';
+    const ready = this.state.navReady;
+    const SPR = this.SPRING;
+    const switchOn = 'background:#6FA0D6;color:#06121f;border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const switchOff = 'background:transparent;color:rgba(232,237,243,.55);border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const segOn = 'flex:1;white-space:nowrap;background:#E8A54B;color:#06121f;border:none;border-radius:999px;padding:9px 0;font:600 12.5px "Manrope";cursor:pointer';
+    const segOff = 'flex:1;white-space:nowrap;background:transparent;color:rgba(232,237,243,.55);border:none;border-radius:999px;padding:9px 0;font:600 12.5px "Manrope";cursor:pointer';
+
+    const allGoals = this.state.goals;
+    const activeGoals = allGoals.filter(g => g.status === 'active');
+    const completedGoals = allGoals.filter(g => g.status === 'completed');
+    const hasGoals = activeGoals.length > 0;
+    const selectedGoal = activeGoals.find(g => g.id === this.state.selectedGoalId) || activeGoals[0] || null;
+    const screen = this.state.screen;
+
+    const chips = activeGoals.map(g => ({
+      label: g.title,
+      onClick: () => this.setState({ selectedGoalId: g.id, menuGoalId: null }),
+      onMenu: (ev) => { ev.preventDefault(); this.setState({ menuGoalId: g.id, renaming: false }); },
+      dotStyle: 'display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;background:' + (selectedGoal && g.id === selectedGoal.id ? '#06121f' : g.hue),
+      style: 'display:flex;align-items:center;flex:none;white-space:nowrap;border:none;border-radius:999px;padding:9px 16px;font:600 12.5px "Manrope";cursor:pointer;' + (selectedGoal && g.id === selectedGoal.id ? ('background:' + g.hue + ';color:#06121f') : 'background:rgba(255,255,255,.05);color:rgba(232,237,243,.7)'),
+    }));
+    const completedChips = completedGoals.map(g => ({ label: g.title, onClick: () => this.setState({ recapGoalId: g.id }) }));
+
+    const menuGoal = allGoals.find(g => g.id === this.state.menuGoalId);
+    const menuOpen = !!menuGoal && !this.state.renaming;
+
+    let diaryText = '', diaryDisabled = true, diaryPlaceholder = '', tasks = [], adhocItems = [], streakCount = 0, bestStreak = 0, dayLabel = '', autosaveHint = '';
+    let monthCells = [], monthCellsM = [], noteCards = [], monthLabel = '';
+
+    if (selectedGoal) {
+      const viewDate = this.state.viewDate;
+      const entry = this.getEntry(selectedGoal.id, viewDate);
+      const isFuture = viewDate > this.TODAY_YMD;
+      const dow = this.parseYmd(viewDate).getDay();
+      const dt = this.parseYmd(viewDate);
+      dayLabel = dt.getDate() + ' ' + ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][dt.getMonth()] + ' · ' + this.WEEKDAY_NAMES[dow];
+
+      tasks = selectedGoal.tasks.map(t => {
+        const done = !!entry.tasksDone[t.id];
+        return {
+          text: t.text, detail: t.detail, expanded: this.state.expandedTaskId === t.id,
+          onExpand: t.detail ? (() => this.setState(st => ({ expandedTaskId: st.expandedTaskId === t.id ? null : t.id }))) : (() => {}),
+          checkStyle: 'width:30px;height:30px;flex:none;border-radius:9px;position:relative;border:none;cursor:pointer;display:grid;place-items:center;margin-top:1px;' + (done ? 'background:#E8A54B;color:#06121f' : 'background:transparent;border:1.5px solid rgba(168,203,239,.3)'),
+          checkIcon: done ? this.icon('check', { size: 13, sw: 3 }) : null,
+          onToggle: () => this.patchEntry(selectedGoal.id, viewDate, { tasksDone: Object.assign({}, entry.tasksDone, { [t.id]: !done }) }),
+        };
+      });
+      adhocItems = (this.state.adhoc[selectedGoal.id + '|' + viewDate]) || [];
+      streakCount = this.computeStreak(selectedGoal);
+      bestStreak = Math.max(selectedGoal.bestStreak, streakCount);
+
+      const allDone = selectedGoal.tasks.length > 0 && selectedGoal.tasks.every(t => entry.tasksDone[t.id]);
+      diaryDisabled = isFuture;
+      diaryText = entry.diary || '';
+      autosaveHint = '';
+      diaryPlaceholder = isFuture ? 'Задание появится в этот день' : (allDone ? 'Расскажите, что помогло сегодня' : 'Что помешало сегодня?');
+
+      monthLabel = this.MONTH_NAMES[this.state.viewMonth.m] + ' ' + this.state.viewMonth.y;
+      monthCells = this.buildMonthCells(selectedGoal, this.state.viewMonth.y, this.state.viewMonth.m, 38, 12);
+      monthCellsM = this.buildMonthCells(selectedGoal, this.state.viewMonth.y, this.state.viewMonth.m, 30, 11);
+
+      noteCards = Object.keys(this.state.entries)
+        .filter(k => k.startsWith(selectedGoal.id + '|') && this.state.entries[k].diary)
+        .map(k => { const dk = k.split('|')[1]; const d2 = this.parseYmd(dk); return { key: dk, date: this.pad(d2.getDate()) + '.' + this.pad(d2.getMonth() + 1), day: this.WEEKDAY_NAMES[d2.getDay()], text: this.state.entries[k].diary }; })
+        .sort((a, b) => b.key.localeCompare(a.key))
+        .map(n => Object.assign({}, n, { onClick: () => this.setState({ screen: 'day', viewDate: n.key }) }));
+    }
+
+    const moods = [0, 1, 2, 3, 4].map(i => {
+      const sel = selectedGoal && this.getEntry(selectedGoal.id, this.state.viewDate).mood === i;
+      return {
+        face: this.moodFace(i, sel ? '#E8A54B' : 'rgba(232,237,243,.4)'),
+        onClick: () => this.patchEntry(selectedGoal.id, this.state.viewDate, { mood: i }),
+        style: 'width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:transparent;border:none;padding:0',
+      };
+    });
+
+    const typeOn = 'flex:1;white-space:nowrap;border:none;border-radius:10px;padding:8px 0;font:600 12px "Manrope";cursor:pointer;background:#E8A54B;color:#06121f';
+    const typeOff = 'flex:1;white-space:nowrap;border:none;border-radius:10px;padding:8px 0;font:600 12px "Manrope";cursor:pointer;background:rgba(255,255,255,.06);color:rgba(232,237,243,.6)';
+
+    return {
+      isDesktop: isD, isMobile: !isD,
+      setDesktop: () => this.setState({ device: 'desktop' }), setMobile: () => this.setState({ device: 'mobile' }),
+      tabDesktopStyle: isD ? switchOn : switchOff, tabMobileStyle: isD ? switchOff : switchOn,
+
+      hasGoals, hasNoGoals: !hasGoals, hasCompleted: completedGoals.length > 0, completedChips,
+      isDay: screen === 'day', isMonth: screen === 'month',
+      setDay: () => this.setState({ screen: 'day' }), setMonth: () => this.setState({ screen: 'month' }),
+      vDayStyle: screen === 'day' ? segOn : segOff, vMonthStyle: screen === 'month' ? segOn : segOff,
+
+      chips, selectedGoal: selectedGoal || { hue: '#E8A54B', task: '' },
+
+      menuOpen, menuClose: () => this.setState({ menuGoalId: null }),
+      menuRename: () => this.setState({ renaming: true, renameValue: menuGoal ? menuGoal.title : '' }),
+      menuComplete: () => { const id = this.state.menuGoalId; this.setState(st => ({ goals: st.goals.map(g => g.id === id ? Object.assign({}, g, { status: 'completed' }) : g), menuGoalId: null, recapGoalId: id })); },
+      menuDelete: () => { const id = this.state.menuGoalId; this.setState(st => { const remain = st.goals.filter(g => g.id !== id); return { goals: remain, menuGoalId: null, selectedGoalId: remain.find(g => g.status === 'active') ? remain.find(g => g.status === 'active').id : null }; }); },
+      renaming: this.state.renaming, renameValue: this.state.renameValue, onRenameValue: (ev) => this.setState({ renameValue: ev.target.value }),
+      confirmRename: () => { const id = this.state.menuGoalId; const val = this.state.renameValue.trim(); this.setState(st => ({ goals: st.goals.map(g => g.id === id ? Object.assign({}, g, { title: val || g.title }) : g), menuGoalId: null, renaming: false })); },
+
+      addingGoal: this.state.addingGoal, notAddingGoal: !this.state.addingGoal,
+      limitReached: this.state.limitReached, limitOk: !this.state.limitReached, freeLimit: this.FREE_LIMIT,
+      startAddGoal: () => this.setState({ addingGoal: true, limitReached: activeGoals.length >= this.FREE_LIMIT, newGoalName: '', newGoalType: 'process', newGoalDeadline: '' }),
+      cancelAddGoal: () => this.setState({ addingGoal: false }),
+      newGoalName: this.state.newGoalName, onNewGoalName: (ev) => this.setState({ newGoalName: ev.target.value }),
+      newGoalDeadline: this.state.newGoalDeadline, onNewGoalDeadline: (ev) => this.setState({ newGoalDeadline: ev.target.value }),
+      setTypeProcess: () => this.setState({ newGoalType: 'process' }), setTypeQuant: () => this.setState({ newGoalType: 'quant' }),
+      typeProcessStyle: this.state.newGoalType === 'process' ? typeOn : typeOff, typeQuantStyle: this.state.newGoalType === 'quant' ? typeOn : typeOff,
+      confirmAddGoal: () => {
+        const name = this.state.newGoalName.trim();
+        if (!name) { this.setState({ addingGoal: false }); return; }
+        const hues = ['#E8A54B', '#5B9BD5', '#9B87D6', '#5FBF9B', '#D96A5B'];
+        const id = 'g' + Date.now();
+        const hue = hues[allGoals.length % hues.length];
+        this.setState(st => ({ goals: st.goals.concat([{ id, title: name, hue, status: 'active', startDate: this.TODAY_YMD, bestStreak: 0, tasks: [{ id: 'a', text: 'Добавьте задание на сегодня', detail: '' }] }]), selectedGoalId: id, addingGoal: false, newGoalName: '' }));
+      },
+
+      isRecap: !!this.state.recapGoalId, isNotRecap: !this.state.recapGoalId,
+      recap: (() => {
+        const g = allGoals.find(x => x.id === this.state.recapGoalId);
+        if (!g) return { title: '', pct: 0, best: 0, notes: 0 };
+        const start = this.parseYmd(g.startDate), end = this.parseYmd(this.TODAY_YMD);
+        const totalDays = Math.max(1, Math.round((end - start) / 86400000) + 1);
+        let doneDays = 0, notesCount = 0;
+        for (let d = g.startDate; d <= this.TODAY_YMD; d = this.addDays(d, 1)) {
+          if (this.dayStatus(g, d) === 'done') doneDays++;
+          const e2 = this.state.entries[g.id + '|' + d]; if (e2 && e2.diary) notesCount++;
+        }
+        return { title: g.title, pct: Math.round((doneDays / totalDays) * 100), best: Math.max(g.bestStreak, this.computeStreak(g)), notes: notesCount };
+      })(),
+      closeRecap: () => this.setState({ recapGoalId: null }),
+
+      dayLabel, notOnToday: this.state.viewDate !== this.TODAY_YMD, jumpToday: () => this.setState({ viewDate: this.TODAY_YMD }),
+      prevDay: () => this.setState(st => ({ viewDate: this.addDays(st.viewDate, -1) })),
+      nextDay: () => this.setState(st => ({ viewDate: this.addDays(st.viewDate, 1) })),
+
+      tasks, adhocItems, streakCount, bestStreak, icFlame: this.icon('flame'),
+      toggleStreakPanel: () => this.setState(st => ({ streakPanelOpen: !st.streakPanelOpen })), streakPanelOpen: this.state.streakPanelOpen,
+      toggleAdhoc: () => this.setState(st => ({ adhocOpen: !st.adhocOpen })), adhocOpen: this.state.adhocOpen,
+      adhocText: this.state.adhocText, onAdhocText: (ev) => this.setState({ adhocText: ev.target.value }),
+      confirmAdhoc: () => {
+        if (!selectedGoal) return;
+        const text = this.state.adhocText.trim(); if (!text) return;
+        const key = selectedGoal.id + '|' + this.state.viewDate;
+        this.setState(st => ({ adhoc: Object.assign({}, st.adhoc, { [key]: (st.adhoc[key] || []).concat([text]) }), adhocText: '', adhocOpen: false }));
+      },
+      moods,
+
+      diaryText, diaryDisabled, diaryPlaceholder, autosaveHint,
+      onDiaryText: (ev) => { if (selectedGoal) this.patchEntry(selectedGoal.id, this.state.viewDate, { diary: ev.target.value }); },
+
+      monthLabel, weekdayLabels: this.WEEKDAYS, monthCells, monthCellsM, noteCards,
+      prevMonth: () => this.setState(st => { const dt = new Date(st.viewMonth.y, st.viewMonth.m - 1, 1); return { viewMonth: { y: dt.getFullYear(), m: dt.getMonth() } }; }),
+      nextMonth: () => this.setState(st => { const dt = new Date(st.viewMonth.y, st.viewMonth.m + 1, 1); return { viewMonth: { y: dt.getFullYear(), m: dt.getMonth() } }; }),
+
+      icPlus: this.icon('plus'), icPlusSm: this.icon('plus', { size: 16, sw: 2.2 }), icLock: this.icon('lock'),
+      icChevL: this.icon('chevL'), icChevR: this.icon('chevR'),
+      icHome: this.icon('home'), icChecklist: this.icon('checklist'), icCal: this.icon('cal'),
+      icPerson: this.icon('person'), icTarget: this.icon('target'), icTargetBig: this.icon('target', { size: 40 }),
+
+      railItemStyle: 'width:68px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:rgba(232,237,243,.42);cursor:pointer;overflow:hidden;transition:background-color .2s ease',
+      railItemHoverStyle: 'background:rgba(168,203,239,.07);color:rgba(232,237,243,.8)',
+      railIconIdleStyle: 'display:grid;place-items:center;width:100%;height:100%',
+      railActiveStyle: 'width:68px;height:' + (ready ? '66px' : '48px') + ';border-radius:16px;background:' + (ready ? 'linear-gradient(180deg,#f0b565,#E8A54B)' : 'rgba(232,165,75,.5)') + ';display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:11px;gap:4px;cursor:pointer;overflow:hidden;transition:height .38s ' + SPR + ', background-color .38s ' + SPR,
+      railIconActiveStyle: 'display:grid;place-items:center;color:#06121f;transition:color .26s ease',
+      railLabelStyle: 'font:700 9px "JetBrains Mono",monospace;color:#06121f;opacity:' + (ready ? 1 : 0) + ';transform:translateY(' + (ready ? '0' : '-4px') + ');transition:opacity .22s ease .13s, transform .22s ease .13s',
+      barItemStyle: 'width:56px;height:48px;display:grid;place-items:center;color:rgba(232,237,243,.42);border-radius:24px;flex:none',
+      barActiveStyle: 'height:48px;flex:none;width:' + (ready ? '128px' : '48px') + ';border-radius:24px;background:' + (ready ? '#E8A54B' : 'rgba(232,165,75,.5)') + ';display:flex;align-items:center;justify-content:flex-start;padding-left:12px;gap:8px;cursor:pointer;overflow:hidden;transition:width .38s ' + SPR + ', background-color .38s ' + SPR,
+      barIconActiveStyle: 'display:grid;place-items:center;color:#06121f;flex:none;transition:color .26s ease',
+      barLabelStyle: 'font:700 12px "Manrope";color:#06121f;white-space:nowrap;opacity:' + (ready ? 1 : 0) + ';transform:translateX(' + (ready ? '0' : '-6px') + ');transition:opacity .22s ease .13s, transform .22s ease .13s',
+    };
+  }
+}
+
+</script>
+</body>
+</html>

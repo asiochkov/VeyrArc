@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<script src="./i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;scrollbar-width:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{margin:0;background:#05070A}
+  a{color:#A8CBEF;text-decoration:none}
+  a:hover{color:#c8ddf6}
+  input::placeholder{color:currentColor;opacity:.38}
+  @keyframes wwUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes wwSlideL{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
+  @keyframes wwSlideR{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
+  @keyframes wwShakeA{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+  @keyframes wwShakeB{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+  @keyframes wwBreathe{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+  @keyframes wwSpin{to{transform:rotate(360deg)}}
+  @keyframes wwBurst{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.3) rotate(200deg);opacity:0}}
+  @keyframes wwGlowPulse{0%,100%{box-shadow:0 0 0 0 rgba(111,160,214,.0)}50%{box-shadow:0 0 0 6px rgba(111,160,214,.18)}}
+  @keyframes wwPop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+
+<div style="{{ S.page }}">
+
+  <div style="position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:calc(100vw - 24px)">
+    <div style="display:flex;gap:3px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:4px;backdrop-filter:blur(12px);overflow-x:auto;max-width:100%">
+      <sc-for list="{{ screenTabs }}" as="st" hint-placeholder-count="7"><button onClick="{{ st.onClick }}" style="{{ st.style }}">{{ st.label }}</button></sc-for>
+    </div>
+    <div style="display:flex;gap:3px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:4px;backdrop-filter:blur(12px)">
+      <button onClick="{{ setNight }}" style="{{ tabNight }}">Night</button>
+      <button onClick="{{ setDay }}" style="{{ tabDay }}">Daylight</button>
+    </div>
+    <div style="display:flex;gap:3px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:4px;backdrop-filter:blur(12px)">
+      <button onClick="{{ setDesktop }}" style="{{ tabDesktop }}">Desktop</button>
+      <button onClick="{{ setMobile }}" style="{{ tabMobile }}">Mobile</button>
+    </div>
+  </div>
+
+  <div style="{{ S.outer }}">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">{{ frameLabel }}</div>
+    <div style="{{ S.frame }}">
+
+      <!-- desktop split: left panel -->
+      <sc-if value="{{ isSplit }}" hint-placeholder-val="{{ true }}">
+      <div style="{{ S.leftPanel }}">
+        <div style="{{ S.leftGlow }}"></div>
+        <div style="position:relative;z-index:1;display:flex;align-items:center;gap:10px">
+          <span style="{{ S.logoMark }}">{{ icLogo }}</span>
+          <span style="{{ S.wordmark }}">VeyrArc</span>
+        </div>
+        <div style="position:relative;z-index:1;margin-top:auto">
+          <div style="{{ S.leftTitle }}">Стань тем, кем решил быть</div>
+          <div style="{{ S.leftSub }}">90 дней привычек, фокуса и отказов. Один аккаунт на телефоне и компьютере.</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:28px">
+            <sc-for list="{{ authSteps }}" as="as" hint-placeholder-count="3">
+              <div style="{{ as.style }}">
+                <span style="{{ as.numStyle }}">{{ as.num }}</span>
+                <span style="{{ as.labelStyle }}">{{ as.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- main -->
+      <div style="{{ S.main }}">
+        <sc-if value="{{ showHero }}" hint-placeholder-val="{{ false }}">
+        <div style="{{ S.hero }}"><div style="{{ S.heroGlow }}"></div></div>
+        </sc-if>
+
+        <div style="{{ S.col }}">
+
+          <sc-if value="{{ showTopLogo }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:36px;position:relative;{{ up0 }}">
+            <span style="{{ S.logoMark }}">{{ icLogo }}</span>
+            <span style="{{ S.wordmark }}">VeyrArc</span>
+          </div>
+          </sc-if>
+
+          <!-- ============ WELCOME ============ -->
+          <sc-if value="{{ is.welcome }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;min-height:{{ welcomeMinH }};{{ S.screen }}">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px 0">
+              <div style="white-space:nowrap;{{ S.welcomeBadge }};{{ up1 }}">VEYRARC · 90 ДНЕЙ</div>
+              <div style="font-kerning:auto;{{ S.h1big }};{{ up2 }}">Стань тем, кем решил быть</div>
+              <div style="max-width:320px;margin-top:12px;{{ S.sub }};{{ up3 }}">Привычки, тренировки и прогресс в одном месте. Каждый день ближе к лучшей версии себя</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;{{ up4 }}">
+              <button onClick="{{ go.onboard }}" style="font-kerning:auto;{{ S.cta }}">Начать свой Arc</button>
+              <button onClick="{{ go.login }}" style="font-kerning:auto;{{ S.ctaGhost }}">У меня уже есть аккаунт</button>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- ============ SIGN UP ============ -->
+          <sc-if value="{{ is.signup }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ S.screen }}">
+            <div style="font-kerning:auto;{{ S.h1 }};{{ up1 }}">Сохрани свой прогресс</div>
+            <div style="font-kerning:auto;{{ S.sub }};margin-top:8px;{{ up2 }}">Займёт 30 секунд. Все серии и результаты будут с тобой на любом устройстве</div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px;{{ up3 }}">
+              <button onClick="{{ oauth.google }}" style="{{ S.social }}"><sc-if value="{{ ld.google }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinnerSm }}"></span></sc-if><sc-if value="{{ nld.google }}" hint-placeholder-val="{{ true }}">{{ icGoogle }}</sc-if><span>Google</span></button>
+              <button onClick="{{ oauth.apple }}" style="{{ S.social }}"><sc-if value="{{ ld.apple }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinnerSm }}"></span></sc-if><sc-if value="{{ nld.apple }}" hint-placeholder-val="{{ true }}">{{ icApple }}</sc-if><span>Apple</span></button>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;margin:22px 0;{{ up4 }}"><span style="{{ S.hr }}"></span><span style="{{ S.or }}">или</span><span style="{{ S.hr }}"></span></div>
+
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;{{ up5 }}">
+              <div style="{{ fw.first }}">
+                <label style="{{ S.label }}">Имя</label>
+                <input value="{{ f.first }}" onChange="{{ on.first }}" onBlur="{{ bl.first }}" placeholder="напр. Иван" style="{{ fs.first }}" style-focus="{{ S.focus }}">
+                <sc-if value="{{ er.first.show }}" hint-placeholder-val="{{ false }}"><div style="{{ S.errText }}">{{ er.first.msg }}</div></sc-if>
+              </div>
+              <div style="{{ fw.last }}">
+                <label style="{{ S.label }}">Фамилия</label>
+                <input value="{{ f.last }}" onChange="{{ on.last }}" onBlur="{{ bl.last }}" placeholder="напр. Петров" style="{{ fs.last }}" style-focus="{{ S.focus }}">
+                <sc-if value="{{ er.last.show }}" hint-placeholder-val="{{ false }}"><div style="{{ S.errText }}">{{ er.last.msg }}</div></sc-if>
+              </div>
+            </div>
+
+            <div style="font-kerning:auto;{{ fw.email }};margin-top:14px;{{ up6 }}">
+              <label style="{{ S.label }}">Email</label>
+              <input type="email" value="{{ f.email }}" onChange="{{ on.email }}" onBlur="{{ bl.email }}" placeholder="напр. ivan@mail.ru" style="{{ fs.email }}" style-focus="{{ S.focus }}">
+              <sc-if value="{{ er.email.show }}" hint-placeholder-val="{{ false }}"><div style="{{ S.errText }}">{{ er.email.msg }}</div></sc-if>
+            </div>
+
+            <div style="font-kerning:auto;{{ fw.pw }};margin-top:14px;{{ up7 }}">
+              <label style="{{ S.label }}">Пароль</label>
+              <div style="position:relative">
+                <input type="{{ pwType }}" value="{{ f.pw }}" onChange="{{ on.pw }}" onBlur="{{ bl.pw }}" placeholder="минимум 8 символов" style="font-kerning:auto;{{ fs.pw }};padding-right:52px" style-focus="{{ S.focus }}">
+                <button onClick="{{ togglePw }}" style="{{ S.eye }}">{{ icEye }}</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+                <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+                  <sc-for list="{{ pwSegs }}" as="sg" hint-placeholder-count="3"><span style="{{ sg }}"></span></sc-for>
+                </div>
+                <span style="{{ pwStrengthStyle }}">{{ pwStrengthLabel }}</span>
+              </div>
+              <sc-if value="{{ er.pw.show }}" hint-placeholder-val="{{ false }}"><div style="{{ S.errText }}">{{ er.pw.msg }}</div></sc-if>
+            </div>
+
+            <button onClick="{{ toggleAgree }}" style="font-kerning:auto;{{ S.agreeRow }};{{ up8 }}">
+              <span style="{{ agreeBoxStyle }}">{{ agreeCheck }}</span>
+              <span style="font-kerning:auto;{{ S.small }};text-align:left">Я принимаю <a href="#" style="{{ S.linkInline }}">Условия</a> и <a href="#" style="{{ S.linkInline }}">Политику конфиденциальности</a></span>
+            </button>
+
+            <button onClick="{{ submitSignup }}" disabled="{{ signupDisabled }}" style="font-kerning:auto;{{ signupCta }};margin-top:18px;{{ up9 }}">
+              <sc-if value="{{ ld.signup }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinner }}"></span></sc-if>
+              <sc-if value="{{ nld.signup }}" hint-placeholder-val="{{ true }}"><span>Продолжить</span></sc-if>
+            </button>
+
+            <div style="{{ S.footer }}">Уже есть аккаунт? <button onClick="{{ go.login }}" style="{{ S.linkBtn }}">Войти</button></div>
+          </div>
+          </sc-if>
+
+          <!-- ============ OTP ============ -->
+          <sc-if value="{{ is.otp }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ S.screen }}">
+            <sc-if value="{{ otpOk }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 0">
+                <span style="{{ S.successBadge }}">{{ icCheckLg }}</span>
+                <div style="font-kerning:auto;{{ S.h1 }};margin-top:22px">Почта подтверждена</div>
+                <div style="font-kerning:auto;{{ S.sub }};margin-top:8px">Прогресс сохранён — продолжаем.</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ otpNotOk }}" hint-placeholder-val="{{ true }}">
+            <div style="font-kerning:auto;{{ S.iconTile }};{{ up1 }}">{{ icMail }}</div>
+            <div style="font-kerning:auto;{{ S.h1 }};margin-top:18px;{{ up2 }}">Проверь почту</div>
+            <div style="font-kerning:auto;{{ S.sub }};margin-top:8px;{{ up3 }}">Мы отправили код на <span style="{{ S.strong }}">{{ emailShown }}</span></div>
+            <div style="font-kerning:auto;{{ otpRowStyle }};{{ up4 }}">
+              <sc-for list="{{ otpCells }}" as="c" hint-placeholder-count="6">
+                <input ref="{{ c.ref }}" value="{{ c.value }}" inputMode="numeric" maxLength="6" onChange="{{ c.onChange }}" onKeyDown="{{ c.onKeyDown }}" onPaste="{{ c.onPaste }}" style="{{ c.style }}" style-focus="{{ S.otpFocus }}">
+              </sc-for>
+            </div>
+            <sc-if value="{{ otpErr }}" hint-placeholder-val="{{ false }}"><div style="font-kerning:auto;{{ S.errText }};text-align:center;margin-top:10px">Неверный код. Проверь письмо и попробуй ещё раз</div></sc-if>
+            <button onClick="{{ submitOtp }}" disabled="{{ otpDisabled }}" style="font-kerning:auto;{{ otpCta }};margin-top:22px;{{ up5 }}">
+              <sc-if value="{{ ld.otp }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinner }}"></span></sc-if>
+              <sc-if value="{{ nld.otp }}" hint-placeholder-val="{{ true }}"><span>Подтвердить</span></sc-if>
+            </button>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;{{ up6 }}">
+              <sc-if value="{{ canResend }}" hint-placeholder-val="{{ false }}"><button onClick="{{ resend }}" style="{{ S.linkBtn }}">Отправить код повторно</button></sc-if>
+              <sc-if value="{{ cantResend }}" hint-placeholder-val="{{ true }}"><span style="{{ S.small }}">Отправить повторно через <span style="font-family:'JetBrains Mono',monospace">{{ resendLabel }}</span></span></sc-if>
+              <button onClick="{{ go.signup }}" style="{{ S.linkBtn }}">Изменить email</button>
+            </div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <!-- ============ LOGIN ============ -->
+          <sc-if value="{{ is.login }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ S.screen }}">
+            <div style="font-kerning:auto;{{ S.h1 }};{{ up1 }}">С возвращением</div>
+            <div style="font-kerning:auto;{{ S.sub }};margin-top:8px;{{ up2 }}">Войди, чтобы продолжить арку.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px;{{ up3 }}">
+              <button onClick="{{ oauth.google }}" style="{{ S.social }}"><sc-if value="{{ ld.google }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinnerSm }}"></span></sc-if><sc-if value="{{ nld.google }}" hint-placeholder-val="{{ true }}">{{ icGoogle }}</sc-if><span>Google</span></button>
+              <button onClick="{{ oauth.apple }}" style="{{ S.social }}"><sc-if value="{{ ld.apple }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinnerSm }}"></span></sc-if><sc-if value="{{ nld.apple }}" hint-placeholder-val="{{ true }}">{{ icApple }}</sc-if><span>Apple</span></button>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin:22px 0;{{ up4 }}"><span style="{{ S.hr }}"></span><span style="{{ S.or }}">или</span><span style="{{ S.hr }}"></span></div>
+
+            <sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ S.alert }}">{{ icAlert }}<span>Неверный email или пароль. Проверь данные и попробуй снова.</span></div>
+            </sc-if>
+
+            <div style="font-kerning:auto;{{ fw.lemail }};{{ up5 }}">
+              <label style="{{ S.label }}">Email</label>
+              <input type="email" value="{{ f.lemail }}" onChange="{{ on.lemail }}" placeholder="напр. ivan@mail.ru" style="{{ fs.lemail }}" style-focus="{{ S.focus }}">
+            </div>
+            <div style="font-kerning:auto;{{ fw.lpw }};margin-top:14px;{{ up6 }}">
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><label style="{{ S.label }}">Пароль</label><button onClick="{{ go.reset }}" style="font-kerning:auto;{{ S.linkBtn }};font-size:12.5px">Забыли пароль?</button></div>
+              <div style="position:relative">
+                <input type="{{ pwType }}" value="{{ f.lpw }}" onChange="{{ on.lpw }}" placeholder="••••••••" style="font-kerning:auto;{{ fs.lpw }};padding-right:52px" style-focus="{{ S.focus }}">
+                <button onClick="{{ togglePw }}" style="{{ S.eye }}">{{ icEye }}</button>
+              </div>
+            </div>
+            <button onClick="{{ submitLogin }}" disabled="{{ loginDisabled }}" style="font-kerning:auto;{{ loginCta }};margin-top:22px;{{ up7 }}">
+              <sc-if value="{{ ld.login }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinner }}"></span></sc-if>
+              <sc-if value="{{ nld.login }}" hint-placeholder-val="{{ true }}"><span>Войти</span></sc-if>
+            </button>
+            <div style="{{ S.footer }}">Нет аккаунта? <button onClick="{{ go.signup }}" style="{{ S.linkBtn }}">Создать</button></div>
+          </div>
+          </sc-if>
+
+          <!-- ============ RESET ============ -->
+          <sc-if value="{{ is.reset }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ S.screen }}">
+            <button onClick="{{ resetBack }}" style="font-kerning:auto;{{ S.backBtn }};{{ up0 }}">{{ icBack }}</button>
+
+            <sc-if value="{{ rs.email }}" hint-placeholder-val="{{ true }}">
+            <div style="{{ S.slide }}">
+              <div style="font-kerning:auto;{{ S.h1 }};margin-top:18px">Восстановить пароль</div>
+              <div style="font-kerning:auto;{{ S.sub }};margin-top:8px">Введи email — пришлём код для сброса.</div>
+              <div style="font-kerning:auto;{{ fw.remail }};margin-top:26px">
+                <label style="{{ S.label }}">Email</label>
+                <input type="email" value="{{ f.remail }}" onChange="{{ on.remail }}" onBlur="{{ bl.remail }}" placeholder="напр. ivan@mail.ru" style="{{ fs.remail }}" style-focus="{{ S.focus }}">
+                <sc-if value="{{ er.remail.show }}" hint-placeholder-val="{{ false }}"><div style="{{ S.errText }}">{{ er.remail.msg }}</div></sc-if>
+              </div>
+              <button onClick="{{ submitResetEmail }}" disabled="{{ resetEmailDisabled }}" style="font-kerning:auto;{{ resetEmailCta }};margin-top:22px">
+                <sc-if value="{{ ld.reset }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinner }}"></span></sc-if>
+                <sc-if value="{{ nld.reset }}" hint-placeholder-val="{{ true }}"><span>Отправить код</span></sc-if>
+              </button>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ rs.check }}" hint-placeholder-val="{{ false }}">
+            <div style="font-kerning:auto;{{ S.slide }};display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:24px">
+              <div style="{{ S.iconTileLg }}">{{ icMailLg }}</div>
+              <div style="font-kerning:auto;{{ S.h1 }};margin-top:22px">Проверь почту</div>
+              <div style="font-kerning:auto;{{ S.sub }};margin-top:8px;max-width:300px">Код для сброса пароля отправлен на <span style="{{ S.strong }}">{{ resetEmailShown }}</span></div>
+              <button onClick="{{ rsGo.code }}" style="font-kerning:auto;{{ S.cta }};margin-top:28px">Ввести код</button>
+              <button onClick="{{ rsGo.email }}" style="font-kerning:auto;{{ S.linkBtn }};margin-top:16px">Другой email</button>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ rs.code }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ S.slide }}">
+              <div style="font-kerning:auto;{{ S.h1 }};margin-top:18px">Введи код</div>
+              <div style="font-kerning:auto;{{ S.sub }};margin-top:8px">6 цифр из письма на <span style="{{ S.strong }}">{{ resetEmailShown }}</span></div>
+              <div style="{{ otpRowStyle }}">
+                <sc-for list="{{ otpCells }}" as="c" hint-placeholder-count="6">
+                  <input ref="{{ c.ref }}" value="{{ c.value }}" inputMode="numeric" maxLength="6" onChange="{{ c.onChange }}" onKeyDown="{{ c.onKeyDown }}" onPaste="{{ c.onPaste }}" style="{{ c.style }}" style-focus="{{ S.otpFocus }}">
+                </sc-for>
+              </div>
+              <sc-if value="{{ otpErr }}" hint-placeholder-val="{{ false }}"><div style="font-kerning:auto;{{ S.errText }};text-align:center;margin-top:10px">Неверный код. Проверь письмо и попробуй ещё раз</div></sc-if>
+              <button onClick="{{ submitResetCode }}" disabled="{{ otpDisabled }}" style="font-kerning:auto;{{ otpCta }};margin-top:22px">
+                <sc-if value="{{ ld.otp }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinner }}"></span></sc-if>
+                <sc-if value="{{ nld.otp }}" hint-placeholder-val="{{ true }}"><span>Продолжить</span></sc-if>
+              </button>
+              <div style="margin-top:18px;text-align:center">
+                <sc-if value="{{ canResend }}" hint-placeholder-val="{{ false }}"><button onClick="{{ resend }}" style="{{ S.linkBtn }}">Отправить код повторно</button></sc-if>
+                <sc-if value="{{ cantResend }}" hint-placeholder-val="{{ true }}"><span style="{{ S.small }}">Отправить повторно через <span style="font-family:'JetBrains Mono',monospace">{{ resendLabel }}</span></span></sc-if>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ rs.newpw }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ S.slide }}">
+              <div style="font-kerning:auto;{{ S.h1 }};margin-top:18px">Новый пароль</div>
+              <div style="font-kerning:auto;{{ S.sub }};margin-top:8px">Придумай пароль, который не использовал раньше.</div>
+              <div style="font-kerning:auto;{{ fw.npw }};margin-top:26px">
+                <label style="{{ S.label }}">Новый пароль</label>
+                <div style="position:relative">
+                  <input type="{{ pwType }}" value="{{ f.npw }}" onChange="{{ on.npw }}" onBlur="{{ bl.npw }}" placeholder="минимум 8 символов" style="font-kerning:auto;{{ fs.npw }};padding-right:52px" style-focus="{{ S.focus }}">
+                  <button onClick="{{ togglePw }}" style="{{ S.eye }}">{{ icEye }}</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+                  <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+                    <sc-for list="{{ npwSegs }}" as="sg" hint-placeholder-count="3"><span style="{{ sg }}"></span></sc-for>
+                  </div>
+                  <span style="{{ npwStrengthStyle }}">{{ npwStrengthLabel }}</span>
+                </div>
+                <sc-if value="{{ er.npw.show }}" hint-placeholder-val="{{ false }}"><div style="{{ S.errText }}">{{ er.npw.msg }}</div></sc-if>
+              </div>
+              <div style="font-kerning:auto;{{ fw.npw2 }};margin-top:14px">
+                <label style="{{ S.label }}">Повтори пароль</label>
+                <input type="{{ pwType }}" value="{{ f.npw2 }}" onChange="{{ on.npw2 }}" onBlur="{{ bl.npw2 }}" placeholder="ещё раз" style="{{ fs.npw2 }}" style-focus="{{ S.focus }}">
+                <sc-if value="{{ er.npw2.show }}" hint-placeholder-val="{{ false }}"><div style="{{ S.errText }}">{{ er.npw2.msg }}</div></sc-if>
+              </div>
+              <button onClick="{{ submitNewPw }}" disabled="{{ newPwDisabled }}" style="font-kerning:auto;{{ newPwCta }};margin-top:22px">
+                <sc-if value="{{ ld.newpw }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinner }}"></span></sc-if>
+                <sc-if value="{{ nld.newpw }}" hint-placeholder-val="{{ true }}"><span>Сохранить пароль</span></sc-if>
+              </button>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ rs.done }}" hint-placeholder-val="{{ false }}">
+            <div style="font-kerning:auto;{{ S.slide }};display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:30px">
+              <span style="{{ S.successBadge }}">{{ icCheckLg }}</span>
+              <div style="font-kerning:auto;{{ S.h1 }};margin-top:22px">Пароль обновлён</div>
+              <div style="font-kerning:auto;{{ S.sub }};margin-top:8px">Теперь войди с новым паролем.</div>
+              <button onClick="{{ go.login }}" style="font-kerning:auto;{{ S.cta }};margin-top:28px">Войти</button>
+            </div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <!-- ============ ONBOARDING ============ -->
+          <sc-if value="{{ is.onboarding }}" hint-placeholder-val="{{ false }}">
+          <div style="font-kerning:auto;{{ S.screen }}">
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;{{ up1 }}">
+              <sc-for list="{{ obSteps }}" as="ob" hint-placeholder-count="3">
+                <button onClick="{{ ob.onClick }}" style="font-kerning:auto;{{ ob.style }}">
+                  <span style="font-kerning:auto;{{ ob.numStyle }}">{{ ob.num }}</span>
+                  <span style="font-kerning:auto;{{ ob.labelStyle }}">{{ ob.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ obIs.s0 }}" hint-placeholder-val="{{ true }}">
+            <div style="font-kerning:auto;{{ S.slide }}">
+              <div style="margin-top:26px;{{ S.h1 }}">Как тебя называть?</div>
+              <div style="display:flex;align-items:center;gap:16px;margin-top:24px">
+                <span style="font-kerning:auto;{{ S.avatarLg }}">{{ initials }}</span>
+                <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;flex:none">
+                  <button style="font-kerning:auto;{{ S.ctaGhostSm }}">Добавить фото</button>
+                  <span style="font-kerning:auto;{{ S.small }}">необязательно</span>
+                </div>
+              </div>
+              <div style="margin-top:22px">
+                <label style="font-kerning:auto;{{ S.label }}">Имя</label>
+                <input value="{{ f.pname }}" onChange="{{ on.pname }}" placeholder="напр. Иван" style="font-kerning:auto;{{ fs.pname }}" style-focus="{{ S.focus }}">
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ obIs.s1 }}" hint-placeholder-val="{{ false }}">
+            <div style="font-kerning:auto;{{ S.slide }}">
+              <div style="margin-top:26px;{{ S.h1 }}">Что ты хочешь изменить?</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+                <sc-for list="{{ dirOpts }}" as="d" hint-placeholder-count="5">
+                  <div style="font-kerning:auto;{{ d.cardStyle }}">
+                    <button onClick="{{ d.onClick }}" style="width:100%;min-height:60px;display:flex;align-items:center;gap:12px;background:transparent;border:none;padding:12px 14px;cursor:pointer;color:inherit;text-align:left">
+                      <span style="font-kerning:auto;{{ d.iconStyle }}">{{ d.iconEl }}</span>
+                      <span style="flex:1;min-width:0;font:700 15px 'Manrope';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.label }}</span>
+                      <sc-if value="{{ d.hasCount }}" hint-placeholder-val="{{ false }}"><span style="font-kerning:auto;{{ d.countStyle }}">{{ d.count }}</span></sc-if>
+                      <span style="font-kerning:auto;{{ d.chevStyle }}">{{ icChevron }}</span>
+                    </button>
+                    <sc-if value="{{ d.open }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 14px;animation:wwUp .3s ease both">
+                      <sc-for list="{{ d.habits }}" as="ho" hint-placeholder-count="4">
+                        <button onClick="{{ ho.onClick }}" style="font-kerning:auto;{{ ho.style }}">{{ ho.markEl }}<span>{{ ho.label }}</span></button>
+                      </sc-for>
+                    </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ obIs.s2 }}" hint-placeholder-val="{{ false }}">
+            <div style="font-kerning:auto;{{ S.slide }}">
+              <div style="margin-top:26px;{{ S.h1 }}">Когда тебе напомнить?</div>
+              <div style="margin-top:8px;{{ S.sub }}">С напоминаниями проще не сорваться</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px">
+                <sc-for list="{{ timeOpts }}" as="to" hint-placeholder-count="6">
+                  <button onClick="{{ to.onClick }}" style="font-kerning:auto;{{ to.style }}">
+                    <span style="display:block;font:700 16px 'JetBrains Mono',monospace">{{ to.time }}</span>
+                    <span style="font-kerning:auto;{{ to.subStyle }}">{{ to.sub }}</span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="font-kerning:auto;{{ S.permCard }}">
+                <span style="font-kerning:auto;{{ S.iconTile }}">{{ icBell }}</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font:700 14.5px 'Manrope'">Уведомления</div>
+                  <div style="margin-top:3px;{{ S.small }}">{{ permDesc }}</div>
+                </div>
+                <sc-if value="{{ permGranted }}" hint-placeholder-val="{{ false }}"><span style="font-kerning:auto;{{ S.permOk }}">{{ icCheckSm }} Включены</span></sc-if>
+                <sc-if value="{{ permNotGranted }}" hint-placeholder-val="{{ true }}"><button onClick="{{ grantPerm }}" style="font-kerning:auto;{{ S.ctaSm }}">Разрешить</button></sc-if>
+              </div>
+            </div>
+            </sc-if>
+
+            <div style="display:flex;gap:10px;margin-top:28px">
+              <button onClick="{{ obSkip }}" style="flex:1;{{ S.ctaGhost }}">Пропустить</button>
+              <button onClick="{{ obNext }}" disabled="{{ obNextDisabled }}" style="flex:1.4;{{ obNextStyle }}"><span>Далее</span></button>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- ============ DAY 1 ============ -->
+          <sc-if value="{{ is.final }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:{{ welcomeMinH }};{{ S.screen }}">
+            <div style="font:800 50px/1.04 'Manrope';letter-spacing:-.03em;{{ up1 }}">День 1 из 90.</div>
+            <div style="font:800 50px/1.04 'Manrope';letter-spacing:-.03em;color:{{ linkColor }};{{ up2 }}">Готов?</div>
+            <div style="position:relative;width:156px;height:156px;margin-top:46px;{{ up3 }}">
+              <svg width="156" height="156" viewBox="0 0 156 156" style="position:absolute;inset:0;transform:rotate(-90deg)">
+                <circle cx="78" cy="78" r="74" fill="none" stroke="{{ ringTrack }}" stroke-width="4"></circle>
+                <circle cx="78" cy="78" r="74" fill="none" stroke="{{ ringColor }}" stroke-width="4" stroke-linecap="round" stroke-dasharray="464.96" stroke-dashoffset="{{ holdOffset }}"></circle>
+              </svg>
+              <button onPointerDown="{{ holdStart }}" onPointerUp="{{ holdEnd }}" onPointerLeave="{{ holdEnd }}" onPointerCancel="{{ holdEnd }}" onContextMenu="{{ noCtx }}" style="position:absolute;inset:12px;border-radius:50%;border:none;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;{{ holdBtnStyle }}">Я в деле</button>
+              {{ burstEl }}
+            </div>
+            <div style="margin-top:20px;min-height:20px;{{ S.small }};{{ up4 }}">{{ holdHint }}</div>
+          </div>
+          </sc-if>
+
+          <!-- ============ FIRST HOME ============ -->
+          <sc-if value="{{ is.home }}" hint-placeholder-val="{{ false }}">
+          <div style="font-kerning:auto;{{ S.screen }}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;{{ up0 }}">
+              <div>
+                <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.24em;white-space:nowrap;{{ S.faint }}">VEYRARC</div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px"><span style="font:800 30px/1 'Manrope';white-space:nowrap">День 1</span><span style="font:600 12px 'JetBrains Mono',monospace;{{ S.faint }}">из 90</span></div>
+              </div>
+              <sc-if value="{{ homeStreak }}" hint-placeholder-val="{{ false }}">
+              <div style="position:relative;display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:999px;white-space:nowrap;font:700 13px 'Manrope';animation:wwPop .5s ease both;{{ S.streakPill }}">{{ icFlame }}<span>Серия: <span style="font-family:'JetBrains Mono',monospace">1</span> день</span>{{ homeBurstEl }}</div>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ homeNone }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:12px;margin-top:20px;padding:14px 16px;border-radius:18px;animation:wwUp .5s ease both,wwGlowPulse 2.4s ease-in-out .6s infinite;{{ S.hintCard }}">
+              <span style="font-kerning:auto;{{ S.iconTile }}">{{ icSpark }}</span>
+              <span style="font:700 14px/1.4 'Manrope'">Первая отметка — самая важная. Сделай её сейчас</span>
+            </div>
+            </sc-if>
+
+            <div style="margin-top:14px;{{ S.list }};{{ up2 }}">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;padding:16px 16px 6px"><span style="font:700 17px 'Manrope'">Сегодня</span><span style="font:600 12px 'JetBrains Mono',monospace;{{ S.faint }}">{{ homeCount }}</span></div>
+              <sc-for list="{{ homeHabits }}" as="hh" hint-placeholder-count="3">
+                <button onClick="{{ hh.onClick }}" style="font-kerning:auto;{{ S.row }}">
+                  <span style="font-kerning:auto;{{ hh.boxStyle }}">{{ hh.checkEl }}</span>
+                  <span style="font-kerning:auto;{{ hh.textStyle }}">{{ hh.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ homeStreak }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px;padding:18px;border-radius:20px;animation:wwUp .45s ease .25s both;{{ S.saveCard }}">
+              <div style="font:800 17px 'Manrope'">Сохрани свой прогресс</div>
+              <div style="margin-top:6px;{{ S.small }}">Займёт 30 секунд. Все серии и результаты будут с тобой на любом устройстве</div>
+              <button onClick="{{ go.signup }}" style="margin-top:14px;{{ S.cta }}">Продолжить</button>
+            </div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <!-- ============ ACCOUNT ============ -->
+          <sc-if value="{{ is.account }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ S.screen }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;{{ up0 }}">
+              <div style="{{ S.h2 }}">Аккаунт</div>
+              <button onClick="{{ togglePlan }}" style="{{ planBadgeStyle }}">{{ planLabel }}</button>
+            </div>
+
+            <div style="font-kerning:auto;{{ S.accHeader }};{{ up1 }}">
+              <div style="{{ S.accGlow }}"></div>
+              <div style="position:relative;display:flex;align-items:center;gap:16px">
+                <span style="{{ S.avatarLg }}">{{ initials }}</span>
+                <div style="min-width:0;flex:1">
+                  <div style="font:800 20px 'Manrope';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ fullName }}</div>
+                  <div style="font-kerning:auto;{{ S.muted }};font:600 13px 'Manrope';margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">@{{ nickShown }}</div>
+                  <div style="font-kerning:auto;{{ S.faint }};font:500 12.5px 'Manrope';margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ emailShown }}</div>
+                </div>
+              </div>
+              <div style="{{ S.arcPill }}">{{ icSnowSm }}<span>VeyrArc · день <span style="font-family:'JetBrains Mono',monospace">14</span> из <span style="font-family:'JetBrains Mono',monospace">90</span></span></div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px;{{ up2 }}">
+              <div style="{{ S.stat }}"><span style="{{ S.statIcon }}">{{ icFlame }}</span><span style="{{ S.statNum }}">14</span><span style="{{ S.statLabel }}">дней подряд</span></div>
+              <div style="{{ S.stat }}"><span style="{{ S.statIcon }}">{{ icCheckSm }}</span><span style="{{ S.statNum }}">186</span><span style="{{ S.statLabel }}">привычек выполнено</span></div>
+              <div style="{{ S.stat }}"><span style="{{ S.statIcon }}">{{ icBolt }}</span><span style="{{ S.statNum }}">42ч</span><span style="{{ S.statLabel }}">фокуса за Arc</span></div>
+            </div>
+
+            <sc-if value="{{ isFree }}" hint-placeholder-val="{{ true }}">
+            <div style="font-kerning:auto;{{ S.upsell }};{{ up3 }}">
+              <span style="{{ S.upsellIcon }}">{{ icLock }}</span>
+              <div style="flex:1 1 calc(100% - 56px);min-width:0">
+                <div style="{{ S.upsellTitle }}">VeyrArc Pro</div>
+                <div style="{{ S.upsellSub }}">Открой полную аналитику, историю Arc и безлимит привычек</div>
+              </div>
+              <a href="VeyrArc Pro.dc.html" style="{{ S.goldBtn }}">Открыть Pro</a>
+            </div>
+            </sc-if>
+
+            <div style="font-kerning:auto;{{ S.list }};{{ up4 }}">
+              <button style="{{ S.row }}"><span style="{{ S.rowIcon }}">{{ icUser }}</span><span style="{{ S.rowText }}">Личные данные</span><span style="{{ S.chev }}">{{ icChevron }}</span></button>
+              <button onClick="{{ toggleSec }}" style="{{ S.row }}"><span style="{{ S.rowIcon }}">{{ icShield }}</span><span style="{{ S.rowText }}">Безопасность</span><span style="{{ secChevStyle }}">{{ icChevron }}</span></button>
+              <sc-if value="{{ secOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="{{ S.subList }}">
+                <button style="{{ S.subRow }}"><span style="flex:1;text-align:left">Сменить пароль</span><span style="{{ S.chev }}">{{ icChevron }}</span></button>
+                <div style="{{ S.subRow }}"><span style="display:flex;align-items:center;gap:10px;flex:1">{{ icGoogle }}<span>Google</span></span><span style="{{ S.linked }}">{{ icCheckSm }} Привязан</span></div>
+                <div style="{{ S.subRow }}"><span style="display:flex;align-items:center;gap:10px;flex:1">{{ icApple }}<span>Apple</span></span><button onClick="{{ linkApple }}" style="{{ appleLinkStyle }}">{{ appleLinkLabel }}</button></div>
+              </div>
+              </sc-if>
+              <a href="VeyrArc Settings.dc.html" style="{{ S.row }}"><span style="{{ S.rowIcon }}">{{ icBell }}</span><span style="{{ S.rowText }}">Уведомления</span><span style="{{ S.chev }}">{{ icChevron }}</span></a>
+              <div style="{{ S.rowCol }}">
+                <div style="display:flex;align-items:center;gap:14px;width:100%"><span style="{{ S.rowIcon }}">{{ icMoon }}</span><span style="{{ S.rowText }}">Тема</span></div>
+                <div style="{{ S.seg3 }}">
+                  <sc-for list="{{ themeOpts }}" as="th" hint-placeholder-count="3"><button onClick="{{ th.onClick }}" style="{{ th.style }}">{{ th.label }}</button></sc-for>
+                </div>
+              </div>
+              <div style="{{ S.row }}">
+                <span style="{{ S.rowIcon }}">{{ icGlobe }}</span><span style="{{ S.rowText }}">Язык</span>
+                <div style="{{ S.seg2 }}">
+                  <button onClick="{{ setRu }}" style="{{ langRuStyle }}">RU</button>
+                  <button onClick="{{ setEn }}" style="{{ langEnStyle }}">EN</button>
+                </div>
+              </div>
+              <a href="VeyrArc Pro.dc.html" style="{{ S.row }}"><span style="{{ S.rowIcon }}">{{ icCrown }}</span><span style="{{ S.rowText }}">Подписка</span><span style="{{ S.rowValue }}">{{ planLabel }}</span><span style="{{ S.chev }}">{{ icChevron }}</span></a>
+              <button style="{{ S.row }}"><span style="{{ S.rowIcon }}">{{ icDownload }}</span><span style="{{ S.rowText }}">Экспорт данных</span><span style="{{ S.chev }}">{{ icChevron }}</span></button>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;{{ up5 }}">
+              <button onClick="{{ askLogout }}" style="{{ S.ctaGhost }}">Выйти</button>
+              <button onClick="{{ askDelete }}" style="{{ S.dangerBtn }}">Удалить аккаунт</button>
+            </div>
+          </div>
+          </sc-if>
+
+        </div>
+      </div>
+
+      <!-- modals -->
+      <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ S.overlay }}">
+        <div style="{{ S.modal }}">
+          <sc-if value="{{ md.logout }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ S.h3 }}">Выйти из аккаунта?</div>
+            <div style="font-kerning:auto;{{ S.sub }};margin-top:8px">Данные сохранятся — войди снова в любой момент.</div>
+            <div style="display:flex;gap:10px;margin-top:20px">
+              <button onClick="{{ closeModal }}" style="font-kerning:auto;{{ S.ctaGhost }};flex:1">Отмена</button>
+              <button onClick="{{ doLogout }}" style="font-kerning:auto;{{ S.cta }};flex:1">Выйти</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ md.del1 }}" hint-placeholder-val="{{ false }}">
+            <span style="{{ S.dangerTile }}">{{ icAlert }}</span>
+            <div style="font-kerning:auto;{{ S.h3 }};margin-top:14px">Удалить аккаунт?</div>
+            <div style="font-kerning:auto;{{ S.sub }};margin-top:8px">Привычки, отказы, цели, дневник и история Arc будут удалены навсегда. Подписку Pro нужно отменить отдельно.</div>
+            <div style="display:flex;gap:10px;margin-top:20px">
+              <button onClick="{{ closeModal }}" style="font-kerning:auto;{{ S.ctaGhost }};flex:1">Отмена</button>
+              <button onClick="{{ delStep2 }}" style="font-kerning:auto;{{ S.dangerSolid }};flex:1">Продолжить</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ md.del2 }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ S.h3 }}">Подтверди удаление</div>
+            <div style="font-kerning:auto;{{ S.sub }};margin-top:8px">Введи слово <span style="{{ S.codeWord }}">{{ delWord }}</span>, чтобы удалить аккаунт.</div>
+            <input value="{{ f.delConfirm }}" onChange="{{ on.delConfirm }}" placeholder="{{ delWord }}" style="font-kerning:auto;{{ fs.delConfirm }};margin-top:16px;font-family:'JetBrains Mono',monospace;letter-spacing:.08em" style-focus="{{ S.focusDanger }}">
+            <div style="display:flex;gap:10px;margin-top:16px">
+              <button onClick="{{ closeModal }}" style="font-kerning:auto;{{ S.ctaGhost }};flex:1">Отмена</button>
+              <button onClick="{{ doDelete }}" disabled="{{ delDisabled }}" style="font-kerning:auto;{{ delFinalStyle }};flex:1">
+                <sc-if value="{{ ld.del }}" hint-placeholder-val="{{ false }}"><span style="{{ S.spinnerLight }}"></span></sc-if>
+                <sc-if value="{{ nld.del }}" hint-placeholder-val="{{ true }}"><span>Удалить навсегда</span></sc-if>
+              </button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:980},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;mobile&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  T = {
+    night: { page: '#05070A', bg: '#05070A', text: '#E8EDF3', muted: 'rgba(232,237,243,.58)', faint: 'rgba(232,237,243,.38)', field: 'rgba(255,255,255,.06)', fieldHi: 'rgba(255,255,255,.09)', card: 'rgba(13,17,22,.85)', glass: 'rgba(255,255,255,.04)', border: 'rgba(168,203,239,.12)', accent: '#6FA0D6', accentInk: '#06121f', link: '#A8CBEF', ctaBg: '#F3F6FA', ctaInk: '#06121f', gold: '#E8B75E', goldInk: '#241a06', goldText: '#f2e2c4', error: '#E5645A', errorSoft: 'rgba(229,100,90,.12)', success: '#5FBF9B', amber: '#E8A54B', violet: '#9B87D6', disabledBg: 'rgba(255,255,255,.08)', disabledInk: 'rgba(232,237,243,.35)', overlay: 'rgba(3,5,8,.72)', modal: '#0d1116', glowA: .55, glowB: .32 },
+    day: { page: '#DFE6EE', bg: '#F2F5F9', text: '#0B1320', muted: 'rgba(11,19,32,.62)', faint: 'rgba(11,19,32,.42)', field: '#E4EAF2', fieldHi: '#FFFFFF', card: 'rgba(255,255,255,.85)', glass: 'rgba(255,255,255,.6)', border: 'rgba(11,19,32,.09)', accent: '#4F86C6', accentInk: '#FFFFFF', link: '#2F6DB0', ctaBg: '#0B1320', ctaInk: '#F3F6FA', gold: '#C9912F', goldInk: '#FFFFFF', goldText: '#7A5410', error: '#D2463B', errorSoft: 'rgba(210,70,59,.10)', success: '#2E9C74', amber: '#C9822F', violet: '#7B68C0', disabledBg: 'rgba(11,19,32,.08)', disabledInk: 'rgba(11,19,32,.35)', overlay: 'rgba(11,19,32,.35)', modal: '#FFFFFF', glowA: .38, glowB: .22 },
+  };
+  SCREENS = [['welcome', 'Welcome'], ['onboarding', 'Onboarding'], ['final', 'Day 1'], ['home', 'Home'], ['signup', 'Sign up'], ['otp', 'OTP'], ['login', 'Sign in'], ['reset', 'Reset'], ['account', 'Account']];
+  DIRS = [
+    ['body', 'Тело', ['Вода 8 стаканов', 'Сон до 23:00', 'Холодный душ', 'Прогулка 30 мин']],
+    ['mind', 'Разум', ['Чтение 20 мин', 'Медитация', 'Дневник', '10 новых слов']],
+    ['disc', 'Дисциплина', ['Ранний подъём', 'Заправить кровать', 'План на день', 'Без телефона утром']],
+    ['prod', 'Продуктивность', ['Глубокая работа 90 мин', 'Одна главная задача', 'Разбор входящих', 'Итоги дня']],
+    ['quit', 'Отказ от вредного', ['Без сахара', 'Без соцсетей до сна', 'Без сигарет', 'Без фастфуда']],
+  ];
+
+  state = {
+    device: (this.props && this.props.startView) || 'mobile',
+    theme: 'night', themePref: 'night', screen: 'welcome', dir: 1, anim: 0,
+    f: { first: '', last: '', email: '', pw: '', lemail: '', lpw: '', remail: '', npw: '', npw2: '', pname: 'Анна', nick: '', delConfirm: '' },
+    touched: {}, showPw: false, agree: false, loading: null,
+    otp: ['', '', '', '', '', ''], otpErr: false, otpOk: false, left: 45,
+    loginErr: false, shake: 0, shakeField: null,
+    rstep: 'email', ob: 0, focus: 'body', habits: [], holdP: 0, celebrate: false, homeChecked: {}, homeBurst: 0, time: '08:00', perm: false,
+    plan: 'free', secOpen: false, appleLinked: false, modal: null,
+    lang: (() => { try { return localStorage.getItem('ww.lang') || 'ru'; } catch (e) { return 'ru'; } })(),
+  };
+
+  componentDidMount() {
+    this._refs = [];
+    this._t = setInterval(() => { if ((this.state.screen === 'otp' || (this.state.screen === 'reset' && this.state.rstep === 'code')) && this.state.left > 0) this.setState(s => ({ left: s.left - 1 })); }, 1000);
+    this._st = (e) => { if (e.key === 'ww.lang') this.setState({ lang: e.newValue || 'ru' }); };
+    window.addEventListener('storage', this._st);
+  }
+  holdStart(ev) {
+    if (this.state.celebrate) return;
+    if (ev && ev.currentTarget && ev.currentTarget.setPointerCapture) { try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch (e) {} }
+    const t0 = performance.now(); cancelAnimationFrame(this._raf);
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / 1500);
+      this.setState({ holdP: p });
+      if (p >= 1) { this.setState({ celebrate: true }); if (navigator.vibrate) navigator.vibrate(30); this._c = setTimeout(() => this.go('home', { homeChecked: {} }), 1400); return; }
+      this._raf = requestAnimationFrame(tick);
+    };
+    this._raf = requestAnimationFrame(tick);
+  }
+  holdEnd() { if (this.state.celebrate) return; cancelAnimationFrame(this._raf); this.setState({ holdP: 0 }); }
+  burst(n, spread, colors) {
+    return this.e('div', { style: { position: 'absolute', inset: 0, pointerEvents: 'none' } }, Array.from({ length: n }, (_, i) => {
+      const a = (i / n) * Math.PI * 2 + (i % 2 ? .2 : 0), r = spread * (0.65 + (i % 3) * 0.18);
+      return this.e('span', { key: i, style: { position: 'absolute', left: '50%', top: '50%', width: i % 3 ? 7 : 10, height: i % 3 ? 7 : 4, marginLeft: -4, marginTop: -3, borderRadius: i % 2 ? '50%' : 2, background: colors[i % colors.length], '--dx': Math.round(Math.cos(a) * r) + 'px', '--dy': Math.round(Math.sin(a) * r) + 'px', animation: 'wwBurst .95s cubic-bezier(.15,.8,.3,1) ' + ((i % 4) * 25) + 'ms forwards' } });
+    }));
+  }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); clearTimeout(this._c); clearInterval(this._t); clearTimeout(this._l); window.removeEventListener('storage', this._st); }
+
+  e(t, p, c) { return React.createElement(t, p, c); }
+  svg(kids, o) { o = o || {}; return this.e('svg', { width: o.size || 18, height: o.size || 18, viewBox: '0 0 24 24', fill: 'none', stroke: o.color || 'currentColor', strokeWidth: o.sw || 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', style: { flex: 'none' } }, kids.map((k, i) => React.cloneElement(k, { key: i }))); }
+  P(d) { return this.e('path', { d }); }
+
+  go(screen, extra) {
+    const order = this.SCREENS.map(s => s[0]);
+    const dir = order.indexOf(screen) >= order.indexOf(this.state.screen) ? 1 : -1;
+    this.setState(Object.assign({ screen, dir, anim: this.state.anim + 1, loading: null, loginErr: false, otpErr: false, otpOk: false, showPw: false }, extra || {}));
+  }
+  load(key, ms, then) { this.setState({ loading: key }); clearTimeout(this._l); this._l = setTimeout(() => { this.setState({ loading: null }); then && then(); }, ms || 1100); }
+  setF(k, v) { this.setState(s => ({ f: Object.assign({}, s.f, { [k]: v }) })); }
+  touch(k) { this.setState(s => ({ touched: Object.assign({}, s.touched, { [k]: true }) })); }
+  shake(field) { this.setState(s => ({ shake: s.shake + 1, shakeField: field })); }
+  strength(pw) {
+    if (!pw) return 0;
+    let n = pw.length >= 8 ? 1 : 0;
+    if (n && (/\d/.test(pw) && /[A-Za-zА-Яа-я]/.test(pw))) n = 2;
+    if (n === 2 && pw.length >= 10 && (/[^A-Za-z0-9А-Яа-я]/.test(pw) || /[A-ZА-Я]/.test(pw))) n = 3;
+    return n;
+  }
+  otpSetAt(i, v) {
+    const digits = (v || '').replace(/\D/g, '');
+    const otp = this.state.otp.slice();
+    if (digits.length > 1) { for (let k = 0; k < 6; k++) otp[k] = digits[k] || otp[k] || ''; this.setState({ otp, otpErr: false }); const r = this._refs[Math.min(5, digits.length)]; r && r.focus(); return; }
+    otp[i] = digits;
+    this.setState({ otp, otpErr: false });
+    if (digits && i < 5) { const r = this._refs[i + 1]; r && r.focus(); }
+  }
+
+  renderVals() {
+    const t = this.T[this.state.theme], st = this.state, f = st.f;
+    const isD = st.device === 'desktop';
+    const scr = st.screen;
+    const isAuth = scr !== 'account';
+    const isSplit = isD && isAuth;
+    const en = st.lang === 'en';
+    const pill = (on) => 'white-space:nowrap;border:none;border-radius:999px;padding:7px 14px;font:600 11.5px "Manrope";cursor:pointer;' + (on ? 'background:#6FA0D6;color:#06121f' : 'background:transparent;color:rgba(232,237,243,.6)');
+    const up = (i) => 'animation:wwUp .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:' + (i * 40) + 'ms';
+    const field = 'width:100%;height:50px;border:none;outline:none;border-radius:13px;padding:0 16px;font:500 15px "Manrope";color:' + t.text + ';background:' + t.field + ';transition:box-shadow .2s, background-color .2s;';
+    const cta = 'width:100%;height:52px;border:none;border-radius:14px;font:800 15px "Manrope";cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s, transform .1s;';
+    const S = {
+      page: 'min-height:100vh;background:' + (st.theme === 'day' ? '#C9D3DE' : '#05070A') + ';padding:70px 20px 90px;font-family:"Manrope",system-ui,sans-serif;color:' + t.text + ';transition:background-color .3s',
+      outer: isD ? 'max-width:1280px;margin:0 auto' : 'max-width:390px;margin:0 auto',
+      frame: 'position:relative;display:flex;overflow:hidden;background:' + t.bg + ';border:1px solid ' + t.border + ';transition:background-color .3s;' + (isD ? 'border-radius:24px;min-height:832px' : 'border-radius:34px;height:812px'),
+      leftPanel: 'position:relative;width:46%;flex:none;margin:14px;border-radius:22px;overflow:hidden;padding:36px;display:flex;flex-direction:column;background:' + (st.theme === 'day' ? '#0f1f33' : '#0a121c'),
+      leftGlow: 'position:absolute;inset:-20%;background:radial-gradient(60% 50% at 30% 80%, rgba(111,160,214,.75), transparent 70%),radial-gradient(45% 40% at 85% 70%, rgba(232,165,75,.45), transparent 70%),radial-gradient(50% 45% at 60% 30%, rgba(155,135,214,.45), transparent 70%);animation:wwBreathe 7s ease-in-out infinite;pointer-events:none',
+      leftTitle: 'font:800 40px/1.08 "Manrope";letter-spacing:-.02em;color:#F3F6FA;max-width:420px;text-wrap:balance',
+      leftSub: 'font:500 14.5px/1.55 "Manrope";color:rgba(243,246,250,.72);margin-top:14px;max-width:380px',
+      main: 'position:relative;flex:1;min-width:0;overflow-y:auto;display:flex;flex-direction:column',
+      hero: 'position:absolute;left:0;right:0;top:0;height:' + (scr === 'welcome' || scr === 'final' ? '520px' : '300px') + ';overflow:hidden;pointer-events:none',
+      heroGlow: 'position:absolute;inset:-30% -20% 0;background:radial-gradient(70% 55% at 50% 0%, rgba(111,160,214,' + t.glowA + '), transparent 70%),radial-gradient(40% 40% at 88% 12%, rgba(232,165,75,' + t.glowB + '), transparent 70%),radial-gradient(45% 45% at 10% 22%, rgba(155,135,214,' + t.glowB + '), transparent 70%);animation:wwBreathe 7s ease-in-out infinite;-webkit-mask-image:linear-gradient(to bottom,#000 40%,transparent 100%);mask-image:linear-gradient(to bottom,#000 40%,transparent 100%)',
+      col: 'position:relative;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;' + (isD ? (isAuth ? 'max-width:420px;padding:56px 0 40px;justify-content:center' : 'max-width:720px;padding:40px 32px') : 'padding:' + (scr === 'account' ? '20px' : '28px') + ' 22px 28px'),
+      screen: 'position:relative;animation:' + (st.dir > 0 ? 'wwSlideL' : 'wwSlideR') + ' .38s cubic-bezier(.2,.8,.2,1) both',
+      slide: 'animation:' + (st.dir > 0 ? 'wwSlideL' : 'wwSlideR') + ' .38s cubic-bezier(.2,.8,.2,1) both',
+      logoMark: 'width:36px;height:36px;border-radius:11px;display:grid;place-items:center;color:#06121f;background:linear-gradient(150deg,#A8CBEF,#6FA0D6 60%,#4F86C6);box-shadow:0 8px 20px rgba(111,160,214,.35);flex:none',
+      wordmark: 'font:800 19px "Manrope";letter-spacing:-.01em;color:' + (isSplit ? '#F3F6FA' : t.text),
+      welcomeBadge: 'white-space:nowrap;font:700 10px "JetBrains Mono",monospace;letter-spacing:.24em;color:' + t.link + ';background:' + t.glass + ';border:1px solid ' + t.border + ';border-radius:999px;padding:7px 14px;backdrop-filter:blur(8px)',
+      h1big: 'font:800 38px/1.08 "Manrope";letter-spacing:-.02em;margin-top:22px;text-wrap:balance;max-width:320px',
+      h1: 'font:800 28px/1.15 "Manrope";letter-spacing:-.015em;text-wrap:balance',
+      h2: 'font:800 26px/1.1 "Manrope";letter-spacing:-.01em',
+      h3: 'font:800 19px/1.25 "Manrope"',
+      sub: 'font:500 14px/1.55 "Manrope";color:' + t.muted,
+      strong: 'color:' + t.text + ';font-weight:700',
+      muted: 'color:' + t.muted, faint: 'color:' + t.faint,
+      small: 'font:500 12.5px/1.5 "Manrope";color:' + t.muted,
+      label: 'display:block;font:600 12.5px "Manrope";color:' + t.muted + ';margin-bottom:8px',
+      labelLg: 'font:700 14px "Manrope"',
+      focus: 'box-shadow:0 0 0 3px ' + (st.theme === 'day' ? 'rgba(79,134,198,.25)' : 'rgba(111,160,214,.28)') + ', 0 0 24px ' + (st.theme === 'day' ? 'rgba(79,134,198,.18)' : 'rgba(111,160,214,.25)') + ';background:' + t.fieldHi,
+      focusDanger: 'box-shadow:0 0 0 3px ' + t.errorSoft + ';background:' + t.fieldHi,
+      errText: 'font:600 12px/1.4 "Manrope";color:' + t.error + ';margin-top:7px',
+      okText: 'display:flex;align-items:center;gap:6px;font:600 12px "Manrope";color:' + t.success + ';margin-top:7px',
+      eye: 'position:absolute;right:4px;top:3px;width:44px;height:44px;border:none;background:transparent;color:' + t.faint + ';cursor:pointer;display:grid;place-items:center;border-radius:10px',
+      social: 'height:50px;border-radius:15px;border:1px solid ' + t.border + ';background:' + t.glass + ';backdrop-filter:blur(10px);color:' + t.text + ';font:700 14px "Manrope";display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer',
+      hr: 'flex:1;height:1px;background:' + t.border,
+      or: 'font:600 12px "Manrope";color:' + t.faint,
+      agreeRow: 'display:flex;align-items:flex-start;gap:12px;margin-top:18px;background:transparent;border:none;padding:4px 0;cursor:pointer;color:inherit;min-height:44px',
+      linkInline: 'color:' + t.link + ';font-weight:700',
+      linkBtn: 'background:transparent;border:none;padding:0;min-height:36px;color:' + t.link + ';font:700 13px "Manrope";cursor:pointer',
+      footer: 'display:flex;justify-content:center;align-items:center;gap:6px;margin-top:22px;font:500 13px "Manrope";color:' + t.muted,
+      cta: cta + 'background:' + t.ctaBg + ';color:' + t.ctaInk,
+      ctaGhost: cta + 'background:' + t.glass + ';color:' + t.text + ';border:1px solid ' + t.border,
+      ctaGhostSm: 'white-space:nowrap;height:40px;padding:0 16px;border-radius:12px;border:1px solid ' + t.border + ';background:' + t.glass + ';color:' + t.text + ';font:700 13px "Manrope";cursor:pointer',
+      ctaSm: 'height:40px;padding:0 16px;border-radius:12px;border:none;background:' + t.accent + ';color:' + t.accentInk + ';font:700 13px "Manrope";cursor:pointer;flex:none',
+      spinner: 'width:20px;height:20px;border-radius:50%;border:2.5px solid ' + (st.theme === 'day' ? 'rgba(243,246,250,.3)' : 'rgba(6,18,31,.2)') + ';border-top-color:' + t.ctaInk + ';animation:wwSpin .7s linear infinite',
+      spinnerSm: 'width:16px;height:16px;border-radius:50%;border:2px solid ' + t.border + ';border-top-color:' + t.text + ';animation:wwSpin .7s linear infinite',
+      spinnerLight: 'width:20px;height:20px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;animation:wwSpin .7s linear infinite',
+      iconTile: 'width:48px;height:48px;border-radius:15px;display:grid;place-items:center;flex:none;background:' + (st.theme === 'day' ? 'rgba(79,134,198,.12)' : 'rgba(111,160,214,.14)') + ';color:' + t.link,
+      iconTileLg: 'width:84px;height:84px;border-radius:26px;display:grid;place-items:center;background:' + (st.theme === 'day' ? 'rgba(79,134,198,.12)' : 'rgba(111,160,214,.14)') + ';color:' + t.link + ';animation:wwPop .5s ease both',
+      streakPill: 'color:' + t.amber + ';background:' + (st.theme === 'day' ? 'rgba(201,130,47,.12)' : 'rgba(232,165,75,.14)'),
+      hintCard: 'background:' + (st.theme === 'day' ? 'rgba(79,134,198,.1)' : 'rgba(111,160,214,.12)') + ';border:1px solid ' + (st.theme === 'day' ? 'rgba(79,134,198,.3)' : 'rgba(111,160,214,.3)'),
+      saveCard: 'background:' + t.card + ';border:1px solid ' + t.border + ';box-shadow:0 20px 50px rgba(0,0,0,' + (st.theme === 'day' ? '.08' : '.35') + ')',
+      successBadge: 'width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:' + t.success + ';color:#fff;box-shadow:0 12px 34px ' + t.success + '55;animation:wwPop .5s ease both',
+      otpFocus: 'box-shadow:0 0 0 3px ' + (st.theme === 'day' ? 'rgba(79,134,198,.25)' : 'rgba(111,160,214,.3)') + ';background:' + t.fieldHi,
+      alert: 'display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:13px;margin-bottom:16px;background:' + t.errorSoft + ';color:' + t.error + ';font:600 13px/1.45 "Manrope";animation:wwUp .3s ease both',
+      backBtn: 'width:44px;height:44px;border-radius:50%;border:1px solid ' + t.border + ';background:' + t.glass + ';color:' + t.text + ';display:grid;place-items:center;cursor:pointer',
+      avatarLg: 'width:64px;height:64px;flex:none;border-radius:50%;display:grid;place-items:center;font:800 22px "Manrope";color:#06121f;background:linear-gradient(150deg,#A8CBEF,#6FA0D6)',
+      atSign: 'position:absolute;left:16px;top:50%;transform:translateY(-50%);font:600 15px "Manrope";color:' + t.faint + ';pointer-events:none',
+      permCard: 'display:flex;align-items:center;gap:14px;margin-top:18px;padding:16px;border-radius:18px;background:' + t.glass + ';border:1px solid ' + t.border,
+      permOk: 'display:flex;align-items:center;gap:6px;font:700 12.5px "Manrope";color:' + t.success + ';flex:none',
+      accHeader: 'position:relative;overflow:hidden;margin-top:16px;padding:20px;border-radius:22px;background:' + t.card + ';border:1px solid ' + t.border,
+      accGlow: 'position:absolute;inset:-40% -10% auto;height:220px;background:radial-gradient(closest-side,rgba(111,160,214,' + (t.glowA * .6) + '),transparent);animation:wwBreathe 7s ease-in-out infinite;pointer-events:none',
+      arcPill: 'position:relative;display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:8px 12px;border-radius:999px;font:600 12px "Manrope";color:' + t.link + ';background:' + (st.theme === 'day' ? 'rgba(79,134,198,.1)' : 'rgba(111,160,214,.12)') + ';white-space:nowrap',
+      stat: 'display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:18px;background:' + t.card + ';border:1px solid ' + t.border + ';min-width:0',
+      statIcon: 'color:' + t.link + ';display:grid;width:28px;height:28px;place-items:center;border-radius:9px;background:' + (st.theme === 'day' ? 'rgba(79,134,198,.1)' : 'rgba(111,160,214,.12)') + ';margin-bottom:6px',
+      statNum: 'font:700 24px/1 "JetBrains Mono",monospace;white-space:nowrap',
+      statLabel: 'font:500 11px/1.35 "Manrope";color:' + t.muted,
+      upsell: 'display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;padding:16px;border-radius:20px;background:linear-gradient(160deg,' + (st.theme === 'day' ? 'rgba(201,145,47,.14)' : 'rgba(232,183,94,.12)') + ',' + t.card + ' 65%);border:1px solid ' + (st.theme === 'day' ? 'rgba(201,145,47,.3)' : 'rgba(232,183,94,.25)'),
+      upsellIcon: 'width:42px;height:42px;flex:none;border-radius:13px;display:grid;place-items:center;color:' + t.gold + ';background:' + (st.theme === 'day' ? 'rgba(201,145,47,.14)' : 'rgba(232,183,94,.14)'),
+      upsellTitle: 'font:800 15px "Manrope";color:' + t.goldText,
+      upsellSub: 'font:500 12.5px/1.45 "Manrope";color:' + t.muted + ';margin-top:3px',
+      goldBtn: 'flex:1 1 100%;height:44px;padding:0 18px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;font:800 13px "Manrope";color:' + t.goldInk + ';background:linear-gradient(90deg,' + t.gold + ',' + (st.theme === 'day' ? '#B07A1F' : '#d9a94f') + ')',
+      list: 'margin-top:12px;border-radius:20px;overflow:hidden;background:' + t.card + ';border:1px solid ' + t.border,
+      row: 'width:100%;min-height:58px;display:flex;align-items:center;gap:14px;padding:10px 16px;background:transparent;border:none;border-top:1px solid ' + t.border + ';color:' + t.text + ';cursor:pointer;text-align:left;font:inherit',
+      rowCol: 'width:100%;display:flex;flex-direction:column;gap:12px;padding:12px 16px 14px;border-top:1px solid ' + t.border,
+      rowIcon: 'width:34px;height:34px;flex:none;border-radius:11px;display:grid;place-items:center;color:' + t.link + ';background:' + (st.theme === 'day' ? 'rgba(79,134,198,.1)' : 'rgba(111,160,214,.12)'),
+      rowText: 'flex:1;min-width:0;font:600 14.5px "Manrope";white-space:nowrap;overflow:hidden;text-overflow:ellipsis',
+      rowValue: 'font:600 12.5px "Manrope";color:' + t.muted,
+      chev: 'color:' + t.faint + ';display:grid',
+      subList: 'padding:0 16px 10px 64px;display:flex;flex-direction:column',
+      subRow: 'min-height:48px;display:flex;align-items:center;gap:10px;background:transparent;border:none;border-top:1px solid ' + t.border + ';color:' + t.text + ';font:600 13.5px "Manrope";cursor:pointer;padding:0',
+      linked: 'display:flex;align-items:center;gap:6px;font:700 12px "Manrope";color:' + t.success,
+      seg3: 'display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;border-radius:12px;background:' + t.field + ';width:100%',
+      seg2: 'display:flex;gap:3px;padding:3px;border-radius:10px;background:' + t.field + ';flex:none',
+      dangerBtn: cta + 'background:transparent;color:' + t.error + ';border:1px solid ' + t.errorSoft,
+      dangerSolid: cta + 'background:' + t.error + ';color:#fff',
+      dangerTile: 'width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:' + t.errorSoft + ';color:' + t.error,
+      codeWord: 'font:700 13px "JetBrains Mono",monospace;color:' + t.error + ';background:' + t.errorSoft + ';padding:2px 7px;border-radius:6px',
+      overlay: 'position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:' + t.overlay + ';backdrop-filter:blur(6px);animation:wwUp .2s ease both',
+      modal: 'width:100%;max-width:380px;padding:22px;border-radius:24px;background:' + t.modal + ';border:1px solid ' + t.border + ';box-shadow:0 30px 80px rgba(0,0,0,.35)',
+    };
+
+    // fields
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const errs = {
+      first: !f.first.trim() ? 'Введи имя' : '',
+      last: !f.last.trim() ? 'Введи фамилию' : '',
+      email: !f.email ? 'Введи email' : (!emailRe.test(f.email) ? 'Похоже, в email ошибка' : ''),
+      pw: f.pw.length < 8 ? 'Минимум 8 символов' : '',
+      remail: !emailRe.test(f.remail) ? 'Похоже, в email ошибка' : '',
+      npw: f.npw.length < 8 ? 'Минимум 8 символов' : '',
+      npw2: f.npw2 !== f.npw ? 'Пароли не совпадают' : '',
+      nick: f.nick && !/^[a-z0-9._]{3,20}$/i.test(f.nick) ? 'От 3 символов: латиница, цифры, точка' : '',
+    };
+    const keys = ['first', 'last', 'email', 'pw', 'lemail', 'lpw', 'remail', 'npw', 'npw2', 'pname', 'nick', 'delConfirm'];
+    const on = {}, bl = {}, fs = {}, fw = {}, er = {};
+    keys.forEach(k => {
+      on[k] = (ev) => { this.setF(k, ev.target.value); if (k === 'lemail' || k === 'lpw') this.setState({ loginErr: false }); };
+      bl[k] = () => this.touch(k);
+      const showErr = !!(st.touched[k] && errs[k]) || ((k === 'lemail' || k === 'lpw') && st.loginErr);
+      er[k] = { show: !!(st.touched[k] && errs[k]), msg: errs[k] || '' };
+      fs[k] = field + (showErr ? 'box-shadow:inset 0 0 0 1.5px ' + t.error + ';background:' + t.errorSoft : '');
+      const sh = st.shakeField === k || (st.shakeField === 'login' && (k === 'lemail' || k === 'lpw'));
+      fw[k] = sh ? 'animation:' + (st.shake % 2 ? 'wwShakeA' : 'wwShakeB') + ' .42s ease' : '';
+    });
+    const signupValid = !errs.first && !errs.last && !errs.email && !errs.pw && st.agree;
+    const ctaState = (valid, key) => cta + (valid || st.loading === key ? 'background:' + t.ctaBg + ';color:' + t.ctaInk : 'background:' + t.disabledBg + ';color:' + t.disabledInk + ';cursor:not-allowed');
+    const segs = (pw) => { const n = this.strength(pw); const c = [t.error, t.amber, t.success][Math.max(0, n - 1)]; return [0, 1, 2].map(i => 'height:4px;border-radius:2px;transition:background-color .25s;background:' + (i < n ? c : t.border)); };
+    const sLabel = (pw) => ['', 'Слабый', 'Средний', 'Надёжный'][this.strength(pw)];
+    const sStyle = (pw) => 'font:700 11.5px "Manrope";min-width:64px;text-align:right;white-space:nowrap;color:' + (['transparent', t.error, t.amber, t.success][this.strength(pw)]);
+    const ld = {}, nld = {};
+    ['google', 'apple', 'signup', 'otp', 'login', 'reset', 'newpw', 'ob', 'del'].forEach(k => { ld[k] = st.loading === k; nld[k] = st.loading !== k; });
+
+    // otp
+    const otpFull = st.otp.every(d => d);
+    const otpCells = st.otp.map((d, i) => ({
+      value: d,
+      ref: (el) => { if (!this._refs) this._refs = []; this._refs[i] = el; },
+      onChange: (ev) => this.otpSetAt(i, ev.target.value),
+      onPaste: (ev) => { ev.preventDefault(); this.otpSetAt(0, (ev.clipboardData || window.clipboardData).getData('text')); },
+      onKeyDown: (ev) => { if (ev.key === 'Backspace' && !st.otp[i] && i > 0) { const r = this._refs[i - 1]; r && r.focus(); } },
+      style: 'width:100%;height:58px;border:none;outline:none;border-radius:14px;text-align:center;font:700 22px "JetBrains Mono",monospace;color:' + t.text + ';background:' + (st.otpErr ? t.errorSoft : (d ? t.fieldHi : t.field)) + ';' + (st.otpErr ? 'box-shadow:inset 0 0 0 1.5px ' + t.error : (d ? 'box-shadow:inset 0 0 0 1.5px ' + t.border : '')),
+    }));
+    const otpRowStyle = 'display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:26px;' + (st.shakeField === 'otp' ? 'animation:' + (st.shake % 2 ? 'wwShakeA' : 'wwShakeB') + ' .42s ease' : '');
+    const verifyOtp = (next) => {
+      if (!otpFull) return;
+      this.load('otp', 1000, () => {
+        if (st.otp.join('') === '000000') { this.setState({ otpErr: true }); this.shake('otp'); return; }
+        next();
+      });
+    };
+
+    // auth steps (desktop panel)
+    const activeAuth = scr === 'home' ? 1 : (scr === 'signup' || scr === 'otp') ? 2 : 0;
+    const authSteps = [['01', 'Настрой свой Arc'], ['02', 'Первая отметка'], ['03', 'Сохрани прогресс']].map(([num, label], i) => {
+      const on2 = i === activeAuth;
+      return {
+        num, label,
+        style: 'display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:16px;transition:all .3s;' + (on2 ? 'background:#F3F6FA;color:#06121f' : 'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#F3F6FA;backdrop-filter:blur(10px)'),
+        numStyle: 'font:700 22px "JetBrains Mono",monospace;' + (on2 ? 'color:#06121f' : 'color:rgba(243,246,250,.55)'),
+        labelStyle: 'font:700 14.5px "Manrope"',
+      };
+    });
+
+    // onboarding
+    const ob = st.ob;
+    const obSteps = [['01', 'Профиль'], ['02', 'Цели'], ['03', 'Ритм']].map(([num, label], i) => {
+      const on2 = i === ob, done = i < ob;
+      return {
+        num, label, onClick: () => { if (i <= ob) this.setState({ ob: i, dir: i > ob ? 1 : -1 }); },
+        style: 'text-align:left;display:flex;flex-direction:column;gap:14px;padding:12px 12px 14px;border-radius:16px;cursor:pointer;transition:all .3s;min-width:0;' + (on2 ? 'background:' + t.ctaBg + ';color:' + t.ctaInk + ';border:1px solid transparent' : 'background:' + t.glass + ';color:' + t.text + ';border:1px solid ' + t.border + ';backdrop-filter:blur(10px)'),
+        numStyle: 'font:700 18px "JetBrains Mono",monospace;' + (on2 ? '' : 'color:' + (done ? t.link : t.faint)),
+        labelStyle: 'font:700 12.5px "Manrope";white-space:nowrap;overflow:hidden;text-overflow:ellipsis',
+      };
+    });
+    const P = this.P.bind(this);
+    const hc = st.habits.length;
+    const dirIcons = { body: [P('M12 3.5s6 6 6 10.5a6 6 0 1 1-12 0C6 9.5 12 3.5 12 3.5z')], mind: [P('M9 18h6'), P('M10 21h4'), P('M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z')], disc: [P('M12 3.5l7 2.8v5.2c0 4.2-3 7-7 8.5-4-1.5-7-4.3-7-8.5V6.3z')], prod: [P('M13 2 4 14h6l-1 8 9-12h-6z')], quit: [this.e('circle', { cx: 12, cy: 12, r: 8.5 }), P('M6 6l12 12')] };
+    const iceSoft = st.theme === 'day' ? 'rgba(79,134,198,.1)' : 'rgba(111,160,214,.13)';
+    const dirOpts = this.DIRS.map(([id, label, list]) => {
+      const open = st.focus === id;
+      const cnt = list.filter(h => st.habits.includes(h)).length;
+      return {
+        label, open, hasCount: cnt > 0, count: cnt, iconEl: this.svg(dirIcons[id], { size: 18 }),
+        onClick: () => this.setState(s => ({ focus: s.focus === id ? null : id })),
+        cardStyle: 'border-radius:18px;overflow:hidden;transition:background-color .2s,border-color .2s;color:' + t.text + ';' + (open ? 'background:' + iceSoft + ';border:1.5px solid ' + t.accent : 'background:' + t.glass + ';border:1.5px solid ' + t.border),
+        iconStyle: 'width:36px;height:36px;flex:none;border-radius:11px;display:grid;place-items:center;color:' + (open ? t.accentInk : t.link) + ';background:' + (open ? t.accent : iceSoft),
+        countStyle: 'min-width:24px;height:24px;padding:0 7px;border-radius:999px;display:grid;place-items:center;font:700 12px "JetBrains Mono",monospace;background:' + t.accent + ';color:' + t.accentInk,
+        chevStyle: 'display:grid;color:' + t.faint + ';transition:transform .2s;transform:rotate(' + (open ? 90 : 0) + 'deg)',
+        habits: list.map(h => {
+          const on2 = st.habits.includes(h);
+          return {
+            label: h,
+            markEl: on2 ? this.svg([P('M5 12.5l4 4 10-10')], { size: 14, sw: 3 }) : this.svg([P('M12 6v12'), P('M6 12h12')], { size: 14, sw: 2.2 }),
+            onClick: () => this.setState(s => ({ habits: s.habits.includes(h) ? s.habits.filter(x => x !== h) : s.habits.concat([h]) })),
+            style: 'min-height:40px;display:inline-flex;align-items:center;gap:7px;padding:0 14px;border-radius:999px;cursor:pointer;font:600 13px "Manrope";white-space:nowrap;transition:all .2s;' + (on2 ? 'background:' + t.accent + ';color:' + t.accentInk + ';border:1px solid transparent' : 'background:' + t.field + ';color:' + t.text + ';border:1px solid ' + t.border),
+          };
+        }),
+      };
+    });
+    const timeOpts = [['07:00', 'рано'], ['08:00', 'утро'], ['09:00', 'утро'], ['13:00', 'день'], ['20:00', 'вечер'], ['21:30', 'перед сном']].map(([time, sub]) => {
+      const on2 = st.time === time;
+      return {
+        time, sub, onClick: () => this.setState({ time }),
+        style: 'padding:14px 8px;border-radius:16px;cursor:pointer;text-align:center;transition:all .2s;color:' + (on2 ? t.ctaInk : t.text) + ';' + (on2 ? 'background:' + t.ctaBg + ';border:1px solid transparent' : 'background:' + t.glass + ';border:1px solid ' + t.border),
+        subStyle: 'display:block;font:600 11px "Manrope";margin-top:4px;opacity:.6',
+      };
+    });
+    const obValid = ob === 0 ? !!f.pname.trim() : ob === 1 ? hc >= 1 : true;
+    const homeList = (st.habits.length ? st.habits : ['Вода 8 стаканов', 'Чтение 20 мин', 'Ранний подъём']).slice(0, 5);
+    const homeDone = homeList.filter(h => st.homeChecked[h]).length;
+    const burstColors = ['#6FA0D6', '#A8CBEF', '#E8A54B', '#9B87D6', '#5FBF9B'];
+
+    const initials = ((f.pname || f.first || 'А')[0] + ((f.last || 'П')[0] || '')).toUpperCase();
+    const delWord = en ? 'DELETE' : 'УДАЛИТЬ';
+    const seg = (on2) => 'min-height:36px;border:none;border-radius:9px;cursor:pointer;font:700 12.5px "Manrope";white-space:nowrap;padding:0 12px;transition:all .2s;' + (on2 ? 'background:' + t.accent + ';color:' + t.accentInk : 'background:transparent;color:' + t.muted);
+    const themeOpts = [['night', 'Night'], ['day', 'Daylight'], ['system', 'Системная']].map(([id, label]) => ({ label, onClick: () => this.setState({ themePref: id, theme: id === 'system' ? 'night' : id }), style: seg(st.themePref === id) }));
+    const setLang = (l) => { this.setState({ lang: l }); if (window.wwSetLang) window.wwSetLang(l); else try { localStorage.setItem('ww.lang', l); } catch (e) {} };
+    const md = { logout: st.modal === 'logout', del1: st.modal === 'del1', del2: st.modal === 'del2' };
+    const delOk = f.delConfirm.trim().toUpperCase() === delWord;
+    const mm = Math.floor(st.left / 60), ss = st.left % 60;
+
+    const ic = {
+      logo: this.svg([P('M12 3v18'), P('M4.2 7.5l15.6 9'), P('M4.2 16.5l15.6-9'), P('M9.5 4.5 12 6l2.5-1.5'), P('M9.5 19.5 12 18l2.5 1.5')], { size: 20, sw: 2 }),
+      google: this.e('svg', { width: 18, height: 18, viewBox: '0 0 24 24', style: { flex: 'none' } }, [
+        this.e('path', { key: 1, fill: '#4285F4', d: 'M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z' }),
+        this.e('path', { key: 2, fill: '#34A853', d: 'M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z' }),
+        this.e('path', { key: 3, fill: '#FBBC05', d: 'M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z' }),
+        this.e('path', { key: 4, fill: '#EA4335', d: 'M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z' })]),
+      apple: this.e('svg', { width: 18, height: 18, viewBox: '0 0 24 24', style: { flex: 'none' } }, this.e('path', { fill: 'currentColor', d: 'M16.37 12.57c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.19-1.73-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.88-.76-1.48.02-2.85.86-3.61 2.19-1.54 2.67-.39 6.63 1.11 8.8.73 1.06 1.6 2.25 2.74 2.21 1.1-.04 1.52-.71 2.85-.71s1.71.71 2.87.69c1.19-.02 1.94-1.08 2.66-2.15.84-1.23 1.19-2.42 1.21-2.48-.03-.01-2.32-.89-2.34-3.53zM14.18 6.1c.61-.74 1.02-1.76.91-2.78-.88.04-1.94.59-2.57 1.32-.56.65-1.06 1.69-.93 2.69.98.08 1.98-.5 2.59-1.23z' })),
+      eye: st.showPw ? this.svg([P('M3 3l18 18'), P('M10.6 6.2A9.5 9.5 0 0 1 12 6c5 0 8.5 4.5 9.5 6-.5.8-1.6 2.3-3.2 3.6'), P('M6.3 7.6C4.4 8.9 3.1 10.8 2.5 12c1 1.5 4.5 6 9.5 6 1.5 0 2.9-.4 4.1-1'), P('M9.9 9.9a3 3 0 0 0 4.2 4.2')]) : this.svg([P('M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z'), this.e('circle', { cx: 12, cy: 12, r: 3 })]),
+    };
+    const I = (kids, size, sw) => this.svg(kids, { size: size || 18, sw });
+    const C = (a) => this.e('circle', a);
+
+    return {
+      S, isSplit, frameLabel: isD ? 'DESKTOP · 1280 × 832' : 'MOBILE · 390 × 844',
+      showHero: !isSplit, showTopLogo: !isSplit && ['welcome', 'signup', 'otp', 'login'].includes(scr),
+      welcomeMinH: isD ? '560px' : '640px',
+      screenTabs: this.SCREENS.map(([id, label]) => ({ label, onClick: () => this.go(id, id === 'reset' ? { rstep: 'email' } : id === 'onboarding' ? { ob: 0 } : id === 'final' ? { holdP: 0, celebrate: false } : id === 'home' ? { homeChecked: {} } : {}), style: pill(scr === id) })),
+      setNight: () => this.setState({ theme: 'night', themePref: 'night' }), setDay: () => this.setState({ theme: 'day', themePref: 'day' }),
+      tabNight: pill(st.theme === 'night'), tabDay: pill(st.theme === 'day'),
+      setDesktop: () => this.setState({ device: 'desktop' }), setMobile: () => this.setState({ device: 'mobile' }),
+      tabDesktop: pill(isD), tabMobile: pill(!isD),
+      is: { final: scr === 'final', home: scr === 'home', welcome: scr === 'welcome', signup: scr === 'signup', otp: scr === 'otp', login: scr === 'login', reset: scr === 'reset', onboarding: scr === 'onboarding', account: scr === 'account' },
+      up0: up(0), up1: up(1), up2: up(2), up3: up(3), up4: up(4), up5: up(5), up6: up(6), up7: up(7), up8: up(8), up9: up(9),
+      go: { onboard: () => this.go('onboarding', { ob: 0 }), signup: () => this.go('signup'), login: () => this.go('login'), reset: () => this.go('reset', { rstep: 'email', f: Object.assign({}, f, { remail: f.lemail }) }) },
+      authSteps,
+      f, on, bl, fs, fw, er, ld, nld,
+      pwType: st.showPw ? 'text' : 'password', togglePw: () => this.setState(s => ({ showPw: !s.showPw })),
+      pwSegs: segs(f.pw), pwStrengthLabel: sLabel(f.pw), pwStrengthStyle: sStyle(f.pw),
+      npwSegs: segs(f.npw), npwStrengthLabel: sLabel(f.npw), npwStrengthStyle: sStyle(f.npw),
+      toggleAgree: (ev) => { if (ev.target.tagName === 'A') { ev.preventDefault(); return; } this.setState(s => ({ agree: !s.agree })); },
+      agreeBoxStyle: 'width:22px;height:22px;flex:none;border-radius:7px;display:grid;place-items:center;margin-top:1px;transition:all .2s;' + (st.agree ? 'background:' + t.accent + ';color:' + t.accentInk : 'box-shadow:inset 0 0 0 1.5px ' + t.faint),
+      agreeCheck: st.agree ? I([P('M5 12.5l4 4 10-10')], 13, 3.2) : null,
+      signupDisabled: !signupValid || !!st.loading, signupCta: ctaState(signupValid, 'signup'),
+      submitSignup: () => { if (!signupValid) { this.setState({ touched: { first: 1, last: 1, email: 1, pw: 1 } }); return; } this.load('signup', 1200, () => this.go('otp', { otp: ['', '', '', '', '', ''], left: 45, f: Object.assign({}, this.state.f, { pname: f.pname || f.first }) })); },
+      oauth: {
+        google: () => this.load('google', 1300, () => window.location.href = 'VeyrArc Today.dc.html'),
+        apple: () => this.load('apple', 1300, () => window.location.href = 'VeyrArc Today.dc.html'),
+      },
+      emailShown: f.email || 'anna.petrova@gmail.com', resetEmailShown: f.remail || 'anna.petrova@gmail.com',
+      otpCells, otpRowStyle, otpErr: st.otpErr, otpOk: st.otpOk, otpNotOk: !st.otpOk,
+      otpDisabled: !otpFull || !!st.loading, otpCta: ctaState(otpFull, 'otp'),
+      submitOtp: () => verifyOtp(() => { this.setState({ otpOk: true }); setTimeout(() => { window.location.href = 'VeyrArc Today.dc.html'; }, 1100); }),
+      canResend: st.left === 0, cantResend: st.left > 0, resendLabel: mm + ':' + String(ss).padStart(2, '0'),
+      resend: () => this.setState({ left: 45, otp: ['', '', '', '', '', ''], otpErr: false }),
+      loginErr: st.loginErr, loginDisabled: !f.lemail || !f.lpw || !!st.loading, loginCta: ctaState(!!(f.lemail && f.lpw), 'login'),
+      submitLogin: () => this.load('login', 1100, () => { if (!emailRe.test(f.lemail) || f.lpw.length < 8) { this.setState({ loginErr: true }); this.shake('login'); } else window.location.href = 'VeyrArc Today.dc.html'; }),
+      rs: { email: st.rstep === 'email', check: st.rstep === 'check', code: st.rstep === 'code', newpw: st.rstep === 'newpw', done: st.rstep === 'done' },
+      rsGo: { code: () => this.setState({ rstep: 'code', dir: 1, otp: ['', '', '', '', '', ''], left: 45 }), email: () => this.setState({ rstep: 'email', dir: -1 }) },
+      resetBack: () => { const order = ['email', 'check', 'code', 'newpw', 'done']; const i = order.indexOf(st.rstep); if (i <= 0 || st.rstep === 'done') this.go('login'); else this.setState({ rstep: order[i - 1], dir: -1 }); },
+      resetEmailDisabled: !!errs.remail || !!st.loading, resetEmailCta: ctaState(!errs.remail, 'reset'),
+      submitResetEmail: () => this.load('reset', 1000, () => this.setState({ rstep: 'check', dir: 1 })),
+      submitResetCode: () => verifyOtp(() => this.setState({ rstep: 'newpw', dir: 1 })),
+      newPwDisabled: !!errs.npw || !!errs.npw2 || !f.npw2 || !!st.loading, newPwCta: ctaState(!errs.npw && !errs.npw2 && !!f.npw2, 'newpw'),
+      submitNewPw: () => this.load('newpw', 1100, () => this.setState({ rstep: 'done', dir: 1 })),
+      obSteps, obIs: { s0: ob === 0, s1: ob === 1, s2: ob === 2 },
+      initials, nickOk: !!f.nick && !errs.nick && f.nick.length >= 3,
+      dirOpts, timeOpts,
+      linkColor: t.link, ringTrack: t.border, ringColor: st.celebrate ? t.success : t.accent,
+      holdOffset: (464.96 * (1 - st.holdP)).toFixed(1),
+      holdStart: (ev) => this.holdStart(ev), holdEnd: () => this.holdEnd(), noCtx: (ev) => ev.preventDefault(),
+      holdBtnStyle: 'font:800 17px "Manrope";transition:transform .15s, background-color .3s;transform:scale(' + (st.holdP > 0 && !st.celebrate ? 0.94 : 1) + ');background:' + (st.celebrate ? t.success : t.ctaBg) + ';color:' + (st.celebrate ? '#fff' : t.ctaInk) + ';box-shadow:0 14px 40px ' + (st.theme === 'day' ? 'rgba(11,19,32,.18)' : 'rgba(111,160,214,.25)'),
+      holdHint: st.celebrate ? 'Поехали' : (st.holdP > 0 ? 'Держи…' : 'Удерживай 1,5 секунды'),
+      burstEl: st.celebrate ? this.burst(18, 120, burstColors) : null,
+      homeHabits: homeList.map(h => {
+        const on2 = !!st.homeChecked[h];
+        return {
+          label: h,
+          onClick: () => { const first = homeDone === 0 && !on2; this.setState(s => ({ homeChecked: Object.assign({}, s.homeChecked, { [h]: !s.homeChecked[h] }), homeBurst: first ? s.homeBurst + 1 : s.homeBurst })); },
+          boxStyle: 'width:26px;height:26px;flex:none;border-radius:8px;display:grid;place-items:center;transition:all .2s;' + (on2 ? 'background:' + t.accent + ';color:' + t.accentInk + ';animation:wwPop .35s ease both' : 'box-shadow:inset 0 0 0 1.5px ' + t.faint),
+          checkEl: on2 ? this.svg([P('M5 12.5l4 4 10-10')], { size: 14, sw: 3.2 }) : null,
+          textStyle: 'flex:1;min-width:0;font:600 15px "Manrope";white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s;color:' + (on2 ? t.muted : t.text),
+        };
+      }),
+      homeNone: homeDone === 0, homeStreak: homeDone > 0, homeCount: homeDone + ' из ' + homeList.length,
+      homeBurstEl: st.homeBurst ? this.e('div', { key: st.homeBurst, style: { position: 'absolute', inset: 0 } }, this.burst(14, 60, burstColors)) : null,
+      icSpark: this.svg([P('M12 3v4'), P('M12 17v4'), P('M3 12h4'), P('M17 12h4'), P('M6 6l2.5 2.5'), P('M15.5 15.5 18 18'), P('M18 6l-2.5 2.5'), P('M8.5 15.5 6 18')], { size: 20 }),
+      habitCountLabel: 'выбрано ' + hc + ' из 5', habitCountStyle: 'font:600 12px "Manrope";color:' + (hc < 3 ? t.amber : t.muted),
+      permGranted: st.perm, permNotGranted: !st.perm, grantPerm: () => this.setState({ perm: true }),
+      permDesc: st.perm ? 'Напомним в ' + st.time + ' и когда фокус-сессия завершится' : 'Чтобы напоминания приходили вовремя',
+      obNextDisabled: !obValid || !!st.loading, obNextStyle: ctaState(obValid, 'ob'), obNextLabel: ob === 2 ? 'Начать Arc' : 'Далее',
+      obNext: () => { if (!obValid) return; if (ob < 2) this.setState({ ob: ob + 1, dir: 1 }); else this.go('final', { holdP: 0, celebrate: false }); },
+      obSkip: () => { if (ob < 2) this.setState({ ob: ob + 1, dir: 1 }); else this.go('final', { holdP: 0, celebrate: false }); },
+      fullName: (f.pname || f.first || 'Анна') + ' ' + (f.last || 'Петрова'), nickShown: f.nick || 'anna.arc',
+      isFree: st.plan === 'free', planLabel: st.plan === 'free' ? 'Free' : 'Pro',
+      togglePlan: () => this.setState(s => ({ plan: s.plan === 'free' ? 'pro' : 'free' })),
+      planBadgeStyle: 'height:32px;padding:0 14px;border-radius:999px;border:none;cursor:pointer;font:800 11px "JetBrains Mono",monospace;letter-spacing:.12em;' + (st.plan === 'pro' ? 'color:' + t.goldInk + ';background:linear-gradient(90deg,' + t.gold + ',' + (st.theme === 'day' ? '#B07A1F' : '#d9a94f') + ')' : 'color:' + t.muted + ';background:' + t.field),
+      secOpen: st.secOpen, toggleSec: () => this.setState(s => ({ secOpen: !s.secOpen })),
+      secChevStyle: 'color:' + t.faint + ';display:grid;transition:transform .2s;transform:rotate(' + (st.secOpen ? 90 : 0) + 'deg)',
+      linkApple: () => this.setState(s => ({ appleLinked: !s.appleLinked })),
+      appleLinkLabel: st.appleLinked ? 'Отвязать' : 'Привязать',
+      appleLinkStyle: 'height:34px;padding:0 14px;border-radius:10px;cursor:pointer;font:700 12px "Manrope";' + (st.appleLinked ? 'background:transparent;border:1px solid ' + t.border + ';color:' + t.muted : 'background:' + t.accent + ';border:none;color:' + t.accentInk),
+      themeOpts, setRu: () => setLang('ru'), setEn: () => setLang('en'), langRuStyle: seg(!en), langEnStyle: seg(en),
+      modalOpen: !!st.modal, md, closeModal: () => this.setState({ modal: null, f: Object.assign({}, f, { delConfirm: '' }) }),
+      askLogout: () => this.setState({ modal: 'logout' }), askDelete: () => this.setState({ modal: 'del1' }), delStep2: () => this.setState({ modal: 'del2' }),
+      doLogout: () => { this.setState({ modal: null }); this.go('welcome'); },
+      delWord, delDisabled: !delOk || !!st.loading,
+      delFinalStyle: cta + (delOk ? 'background:' + t.error + ';color:#fff' : 'background:' + t.disabledBg + ';color:' + t.disabledInk + ';cursor:not-allowed'),
+      doDelete: () => this.load('del', 1200, () => { this.setState({ modal: null, f: Object.assign({}, this.state.f, { delConfirm: '' }) }); this.go('welcome'); }),
+      icLogo: ic.logo, icGoogle: ic.google, icApple: ic.apple, icEye: ic.eye,
+      icBack: I([P('M15 6l-6 6 6 6')], 18, 2),
+      icMail: I([this.e('rect', { x: 3.5, y: 5.5, width: 17, height: 13, rx: 2.5 }), P('M4 7l8 6 8-6')], 22),
+      icMailLg: I([this.e('rect', { x: 3.5, y: 5.5, width: 17, height: 13, rx: 2.5 }), P('M4 7l8 6 8-6')], 36, 1.6),
+      icCheckLg: I([P('M5 12.5l4.5 4.5L19 7.5')], 38, 2.6), icCheckSm: I([P('M5 12.5l4 4 10-10')], 14, 2.6),
+      icAlert: I([C({ cx: 12, cy: 12, r: 9 }), P('M12 7.5v5.5'), P('M12 16.5v.01')], 18, 2),
+      icBell: I([P('M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z'), P('M10 20a2 2 0 0 0 4 0')], 20),
+      icSnowSm: I([P('M12 3v18'), P('M4.2 7.5l15.6 9'), P('M4.2 16.5l15.6-9')], 14),
+      icFlame: I([P('M12 3.5c1.2 3 3.5 3.8 3.5 7a3.5 3.5 0 0 1-7 0c0-1 .4-1.8 1-2.5-.2 1.6 1 2.2 1 2.2-.8-2.6.5-5.7 1.5-6.7z')], 16),
+      icBolt: I([P('M13 2 4 14h6l-1 8 9-12h-6z')], 15, 1.6),
+      icLock: I([this.e('rect', { x: 5, y: 10, width: 14, height: 10, rx: 2.5 }), P('M8.5 10V7a3.5 3.5 0 0 1 7 0v3')], 20),
+      icUser: I([C({ cx: 12, cy: 8, r: 4 }), P('M4.5 20a7.5 7.5 0 0 1 15 0')], 18),
+      icShield: I([P('M12 3.5l7 2.8v5.2c0 4.2-3 7-7 8.5-4-1.5-7-4.3-7-8.5V6.3z')], 18),
+      icMoon: I([P('M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z')], 18),
+      icGlobe: I([C({ cx: 12, cy: 12, r: 8.5 }), P('M3.5 12h17'), P('M12 3.5c2.5 2.6 3.6 5.4 3.6 8.5S14.5 17.9 12 20.5C9.5 17.9 8.4 15.1 8.4 12S9.5 6.1 12 3.5z')], 18),
+      icCrown: I([P('M4 8l4 4 4-6 4 6 4-4-1.5 10h-13z')], 18),
+      icDownload: I([P('M12 4v11'), P('M7.5 10.5 12 15l4.5-4.5'), P('M5 19.5h14')], 18),
+      icChevron: I([P('M9 6l6 6-6 6')], 16, 2),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<script src="./i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;scrollbar-width:none}
+  *::-webkit-scrollbar{width:0;height:0;display:none}
+  body{margin:0;background:#05070A}
+  a{color:#A8CBEF;text-decoration:none}
+  a:hover{color:#c8ddf6}
+  ::selection{background:rgba(111,160,214,.3)}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#05070A;padding:60px 24px 90px;font-family:'Manrope',system-ui,sans-serif;color:#E8EDF3">
+
+  <div style="position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:5px;background:rgba(13,17,22,.92);border:1px solid rgba(168,203,239,.14);border-radius:999px;padding:5px;backdrop-filter:blur(12px)">
+    <button style="{{ tabDesktopStyle }}" onClick="{{ setDesktop }}">Desktop</button>
+    <button style="{{ tabMobileStyle }}" onClick="{{ setMobile }}">Mobile</button>
+  </div>
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1280px;margin:0 auto">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">DESKTOP · 1280 × 832</div>
+    <div style="display:flex;background:#05070A;border:1px solid rgba(168,203,239,.08);border-radius:24px;overflow:hidden;min-height:832px">
+
+      <!-- rail -->
+      <div style="width:104px;flex:none;background:#05070A;border-right:1px solid rgba(168,203,239,.06);display:flex;flex-direction:column;align-items:center;padding:24px 0;gap:10px">
+        <button style="width:64px;height:64px;border-radius:19px;background:#6FA0D6;border:none;display:grid;place-items:center;color:#06121f;cursor:pointer;margin-bottom:16px">{{ icPlus }}</button>
+        <div style="{{ railActiveStyle }}">
+          <span style="{{ railIconActiveStyle }}">{{ icHome }}</span>
+          <span style="{{ railLabelStyle }}">Сегодня</span>
+        </div>
+        <a href="VeyrArc Tracker.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icChecklist }}</span></a>
+        <a href="VeyrArc Calendar.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icCal }}</span></a>
+        <a href="VeyrArc Training.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icTarget }}</span></a>
+        <a href="VeyrArc Profile.dc.html" style="{{ railItemStyle }}" style-hover="{{ railItemHoverStyle }}"><span style="{{ railIconIdleStyle }}">{{ icPerson }}</span></a>
+      </div>
+
+      <!-- content -->
+      <div style="flex:1;padding:34px 36px 40px;min-width:0">
+        <!-- header -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.26em;color:rgba(232,237,243,.34)">VEYRARC</div>
+            <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px">
+              <div style="font:800 34px/1 'Manrope';letter-spacing:-.01em;white-space:nowrap">День 14</div>
+              <div style="font:600 13px 'JetBrains Mono',monospace;color:rgba(232,237,243,.42)">из 90</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <a href="VeyrArc Settings.dc.html" style="width:44px;height:44px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.7);cursor:pointer">{{ icGear }}</a>
+            <div style="width:38px;height:38px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 12px 'Manrope'">AP</div>
+          </div>
+        </div>
+
+        <!-- week -->
+        <div style="margin-top:24px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:20px 26px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4);white-space:nowrap">ЭТА НЕДЕЛЯ</div><div style="display:flex;align-items:center;gap:6px;font:600 11px 'Manrope';color:#A8CBEF;white-space:nowrap">{{ icSnowSm }}<span>заморозка · <span style="font-family:'JetBrains Mono',monospace">0/1</span></span></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:0 4px">
+            <sc-for list="{{ daysDesktop }}" as="day" hint-placeholder-count="7">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+                <div style="{{ day.circleStyle }}">{{ day.iconEl }}</div>
+                <span style="{{ day.labelStyle }}">{{ day.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- grid -->
+        <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;grid-template-areas:'pro planner today' 'mood pomo pomo' 'streak pomo pomo' 'analytics focus best'">
+
+          <!-- pro -->
+          <sc-if value="{{ showPro }}" hint-placeholder-val="{{ true }}">
+          <div style="grid-area:pro;min-width:0;background:linear-gradient(160deg,rgba(232,183,94,.10),rgba(13,17,22,.9) 60%);border:1px solid rgba(232,183,94,.22);border-radius:20px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px">
+            <div style="width:46px;height:46px;border-radius:14px;background:rgba(232,183,94,.14);border:1px solid rgba(232,183,94,.3);display:grid;place-items:center;color:#E8B75E">{{ icLock }}</div>
+            <div style="font:700 15px 'Manrope';color:#f2e2c4">VeyrArc Pro</div>
+            <div style="font:400 12px/1.5 'Manrope';color:rgba(232,237,243,.55);max-width:210px">Открой полную аналитику, историю Arc и безлимит привычек</div>
+            <a href="VeyrArc Pro.dc.html" style="margin-top:6px;width:100%;max-width:220px;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:12px 26px;font:700 13px 'Manrope';cursor:pointer;display:block;text-align:center;box-sizing:border-box">Открыть Pro</a>
+          </div>
+          </sc-if>
+
+          <!-- planner -->
+          <div style="grid-area:planner;min-width:0;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span style="font:700 16px 'Manrope'">Планер</span>
+              <span style="font:600 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.4)">3 пункта</span>
+            </div>
+            <div style="margin-top:14px;display:flex;flex-direction:column">
+              <sc-for list="{{ planner }}" as="it" hint-placeholder-count="3">
+                <div style="display:flex;gap:16px;align-items:center;padding:13px 0;border-top:1px solid rgba(168,203,239,.07)">
+                  <span style="{{ it.timeStyle }}">{{ it.time }}</span>
+                  <span style="font:500 13.5px 'Manrope';color:rgba(232,237,243,.85)">{{ it.text }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <a href="#" style="margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:6px;font:700 13px 'Manrope';color:#A8CBEF">Открыть планер {{ icChevron }}</a>
+          </div>
+
+          <!-- today -->
+          <div style="grid-area:today;min-width:0;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 24px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span style="font:700 16px 'Manrope'">Сегодня</span>
+              <span style="font:600 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.4)">{{ todayCount }}</span>
+            </div>
+            <div style="margin-top:8px">
+              <sc-for list="{{ habits }}" as="h" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:13px;padding:13px 0;border-top:1px solid rgba(168,203,239,.07)">
+                  <sc-if value="{{ h.isBinary }}" hint-placeholder-val="{{ true }}"><button onClick="{{ h.toggle }}" style="{{ h.hitStyle }}">{{ h.checkEl }}</button></sc-if>
+                  <sc-if value="{{ h.isDuration }}" hint-placeholder-val="{{ false }}"><button onClick="{{ h.onPlay }}" style="{{ h.hitStyle }}">{{ h.playEl }}</button></sc-if>
+                  <div style="{{ h.iconWrapStyle }}">{{ h.iconEl }}</div>
+                  <div style="flex:1;min-width:72px">
+                    <div style="font:500 14.5px 'Manrope';color:#E8EDF3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ h.title }}</div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+                      <span style="font:400 11px 'Manrope';color:rgba(232,237,243,.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ h.cat }}</span>
+                      {{ h.dotsEl }}
+                    </div>
+                    <sc-if value="{{ h.isCounter }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:6px;margin-top:8px"><button onClick="{{ h.dec }}" style="{{ stepBtnStyle }}">−</button><span style="font:700 12px 'JetBrains Mono',monospace;min-width:3.5ch;text-align:center;font-variant-numeric:tabular-nums">{{ h.countLabel }}</span><button onClick="{{ h.inc }}" style="{{ stepBtnStyle }}">+</button></div></sc-if>
+                    <sc-if value="{{ h.expanded }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:10px;height:48px;display:flex;align-items:center;gap:10px;background:rgba(111,160,214,.08);border:1px solid rgba(111,160,214,.2);border-radius:12px;padding:0 10px">
+                      <span style="font:700 18px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:#E8EDF3;flex:1">{{ h.leftLabel }}</span>
+                      <button onClick="{{ h.onPlay }}" style="{{ miniBtnStyle }}">{{ h.pauseEl }}</button>
+                      <button onClick="{{ h.onStop }}" style="{{ miniBtnStyle }}">{{ icStop }}</button>
+                    </div>
+                    </sc-if>
+                  </div>
+                  <span style="font:700 15px 'JetBrains Mono',monospace;color:#6FA0D6;flex:none;min-width:2ch;text-align:right">{{ h.streak }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- mood -->
+          <div style="grid-area:mood;min-width:0;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span style="font:700 16px 'Manrope'">Настроение</span>
+              <span style="font:600 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.4)">сегодня</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:20px">
+              <sc-for list="{{ moods }}" as="m" hint-placeholder-count="5">
+                <button onClick="{{ m.onClick }}" style="{{ m.wrapStyle }}">{{ m.faceEl }}</button>
+              </sc-for>
+            </div>
+            <div style="margin-top:20px;padding-top:14px;border-top:1px solid rgba(168,203,239,.07);font:400 12px 'Manrope';color:rgba(232,237,243,.45)">{{ moodNote }}</div>
+          </div>
+
+          <!-- pomodoro -->
+          <div style="grid-area:pomo;min-width:0;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column">
+            <div style="display:flex;gap:6px;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.06);border-radius:999px;padding:5px">
+              <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+                <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+              </sc-for>
+            </div>
+            <div style="text-align:center;margin-top:18px">
+              <div style="font:700 68px/1 'JetBrains Mono',monospace;letter-spacing:.01em">{{ timerText }}</div>
+              <div style="font:400 13px 'Manrope';color:rgba(232,237,243,.45);margin-top:10px">Сессия 2 из 4</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:22px;margin-top:20px">
+              <button style="width:44px;height:44px;border-radius:50%;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.6);cursor:pointer">{{ icReset }}</button>
+              <button style="width:60px;height:60px;border-radius:50%;background:#6FA0D6;border:none;display:grid;place-items:center;color:#06121f;cursor:pointer;box-shadow:0 6px 20px rgba(111,160,214,.35)">{{ icPlay }}</button>
+              <button style="width:44px;height:44px;border-radius:50%;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.6);cursor:pointer">{{ icTune2 }}</button>
+            </div>
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(168,203,239,.07);text-align:center;font:400 12px 'Manrope';color:rgba(232,237,243,.42)">3 сессии &nbsp;·&nbsp; Тело 1ч20 &nbsp;·&nbsp; Разум 40м</div>
+          </div>
+
+          <!-- streak -->
+          <div style="grid-area:streak;min-width:0;background:linear-gradient(160deg,rgba(111,160,214,.08),rgba(13,17,22,.9) 65%);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4)">СТРИК</div>
+              <div style="color:#6FA0D6">{{ icFlame }}</div>
+            </div>
+            <div>
+              <div style="font:700 56px/1 'JetBrains Mono',monospace">14</div>
+              <div style="font:400 13px 'Manrope';color:rgba(232,237,243,.5);margin-top:8px">дней подряд</div>
+              <div style="font:600 11px 'Manrope';color:rgba(232,237,243,.4);margin-top:4px">рекорд — <span style="font-family:'JetBrains Mono',monospace;color:#A8CBEF">21</span> день</div>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <sc-for list="{{ streakBars }}" as="b" hint-placeholder-count="7">
+                <div style="{{ b }}"></div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- analytics -->
+          <div style="grid-area:analytics;min-width:0;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 24px;text-align:center;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4)">АНАЛИТИКА ДНЯ</div>
+            <div style="position:relative;width:132px;height:132px;margin:6px auto 4px">
+              <svg width="132" height="132" viewBox="0 0 120 120" style="transform:rotate(-90deg)">
+                <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(168,203,239,.1)" stroke-width="9"></circle>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#6FA0D6" stroke-width="9" stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="{{ dayOffset }}"></circle>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div style="font:700 26px 'JetBrains Mono',monospace">{{ dayPct }}%</div>
+                <div style="font:500 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.5)">{{ todayCount }}</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-around;margin-top:4px">
+              <div><div style="font:700 16px 'JetBrains Mono',monospace">{{ catBody }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:4px">ТЕЛО</div></div>
+              <div><div style="font:700 16px 'JetBrains Mono',monospace">{{ catMind }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:4px">РАЗУМ</div></div>
+              <div><div style="font:700 16px 'JetBrains Mono',monospace">{{ catDisc }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:4px">ДИСЦ</div></div>
+              <div><div style="height:19px;display:grid;place-items:center">{{ moodMini }}</div><div style="font:600 9px 'JetBrains Mono',monospace;letter-spacing:.1em;color:rgba(232,237,243,.4);margin-top:4px">НАСТР.</div></div>
+            </div>
+          </div>
+
+          <!-- focus hours -->
+          <div style="grid-area:focus;min-width:0;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4)">ЧАСЫ ФОКУСА</div>
+            <div>
+              <div style="font:700 44px/1 'JetBrains Mono',monospace">3ч20</div>
+              <div style="font:400 13px 'Manrope';color:rgba(232,237,243,.5);margin-top:8px">за сегодня</div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:5px;height:34px">
+              <sc-for list="{{ focusBars }}" as="b" hint-placeholder-count="7">
+                <div style="{{ b }}"></div>
+              </sc-for>
+            </div>
+            <div style="font:600 12px 'JetBrains Mono',monospace;color:#6FA0D6">+18 мин к вчера</div>
+          </div>
+
+          <!-- best streak -->
+          <div style="grid-area:best;min-width:0;background:linear-gradient(160deg,rgba(232,183,94,.09),rgba(13,17,22,.9) 62%);border:1px solid rgba(232,183,94,.20);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4)">ЛИЧНЫЙ РЕКОРД</div>
+              <span style="font:700 9px 'JetBrains Mono',monospace;letter-spacing:.14em;color:#241a06;background:#E8B75E;border-radius:999px;padding:4px 10px">РЕКОРД</span>
+            </div>
+            <div>
+              <div style="font:400 13px 'Manrope';color:rgba(232,237,243,.55)">Фокус за один день</div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
+                <span style="font:700 40px/1 'JetBrains Mono',monospace;color:#f2e2c4;white-space:nowrap">4ч10</span>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font:400 12px 'Manrope';color:rgba(232,237,243,.42)">
+              <span>3 дня назад</span>
+              <span style="color:#E8B75E;font-weight:600;font-family:'JetBrains Mono',monospace">+50 мин</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:390px;margin:0 auto">
+    <div style="font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;color:rgba(232,237,243,.32);text-align:center;margin-bottom:14px">MOBILE · 390 × 844</div>
+    <div style="background:#05070A;border:1px solid rgba(168,203,239,.08);border-radius:34px;overflow:hidden;height:812px;display:flex;flex-direction:column">
+
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:22px 18px 14px">
+      <!-- header -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.26em;color:rgba(232,237,243,.34)">VEYRARC</div>
+          <div style="display:flex;align-items:baseline;gap:9px;margin-top:8px">
+            <div style="font:800 30px/1 'Manrope';letter-spacing:-.01em;white-space:nowrap">День 14</div>
+            <div style="font:600 12px 'JetBrains Mono',monospace;color:rgba(232,237,243,.42)">из 90</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <a href="VeyrArc Settings.dc.html" style="width:44px;height:44px;border-radius:50%;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.7);cursor:pointer">{{ icGear }}</a>
+          <div style="width:38px;height:38px;border-radius:50%;background:#6FA0D6;color:#06121f;display:grid;place-items:center;font:700 12px 'Manrope'">AP</div>
+        </div>
+      </div>
+
+      <!-- week -->
+      <div style="margin-top:22px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:16px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:rgba(232,237,243,.4);white-space:nowrap">ЭТА НЕДЕЛЯ</div><div style="display:flex;align-items:center;gap:6px;font:600 11px 'Manrope';color:#A8CBEF;white-space:nowrap">{{ icSnowSm }}<span>заморозка · <span style="font-family:'JetBrains Mono',monospace">0/1</span></span></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:14px">
+          <sc-for list="{{ days }}" as="day" hint-placeholder-count="7">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div style="{{ day.circleStyle }}">{{ day.iconEl }}</div>
+              <span style="{{ day.labelStyle }}">{{ day.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- analytics + pro row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div style="background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:16px 14px;text-align:center">
+          <div style="font:700 9px 'JetBrains Mono',monospace;letter-spacing:.14em;color:rgba(232,237,243,.4)">АНАЛИТИКА ДНЯ</div>
+          <div style="position:relative;width:92px;height:92px;margin:10px auto 6px">
+            <svg width="92" height="92" viewBox="0 0 120 120" style="transform:rotate(-90deg)">
+              <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(168,203,239,.1)" stroke-width="10"></circle>
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#6FA0D6" stroke-width="10" stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="{{ dayOffset }}"></circle>
+            </svg>
+            <div style="position:absolute;inset:0;display:grid;place-items:center;font:700 19px 'JetBrains Mono',monospace"><span style="white-space:nowrap">{{ dayPct }}%</span></div>
+          </div>
+          <div style="font:500 11px 'JetBrains Mono',monospace;color:rgba(232,237,243,.5)">{{ todayCount }} привычек</div>
+          <div style="display:flex;justify-content:space-around;margin-top:12px">
+            <div><div style="font:700 13px 'JetBrains Mono',monospace">{{ catBody }}</div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.4);margin-top:2px">ТЕЛО</div></div>
+            <div><div style="font:700 13px 'JetBrains Mono',monospace">{{ catMind }}</div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.4);margin-top:2px">РАЗУМ</div></div>
+            <div><div style="font:700 13px 'JetBrains Mono',monospace">{{ catDisc }}</div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.4);margin-top:2px">ДИСЦ.</div></div>
+            <div><div style="height:16px;display:grid;place-items:center">{{ moodMini }}</div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.4);margin-top:2px">НАСТР.</div></div>
+          </div>
+        </div>
+        <sc-if value="{{ showPro }}" hint-placeholder-val="{{ true }}">
+        <div style="background:linear-gradient(160deg,rgba(232,183,94,.12),rgba(13,17,22,.9) 65%);border:1px solid rgba(232,183,94,.22);border-radius:20px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(232,183,94,.14);border:1px solid rgba(232,183,94,.3);display:grid;place-items:center;color:#E8B75E">{{ icLock }}</div>
+          <div style="font:700 14px 'Manrope';color:#f2e2c4">VeyrArc Pro</div>
+          <div style="font:400 11px/1.45 'Manrope';color:rgba(232,237,243,.55)">Открой полную аналитику, историю Arc и безлимит</div>
+          <a href="VeyrArc Pro.dc.html" style="margin-top:4px;width:100%;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:10px;font:700 12.5px 'Manrope';cursor:pointer;display:block;text-align:center;box-sizing:border-box">Открыть Pro</a>
+        </div>
+        </sc-if>
+      </div>
+
+      <!-- today -->
+      <div style="margin-top:12px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:18px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font:700 18px 'Manrope'">Сегодня</span>
+          <span style="font:600 12px 'JetBrains Mono',monospace;color:rgba(232,237,243,.4)">{{ todayCount }}</span>
+        </div>
+        <div style="margin-top:6px">
+          <sc-for list="{{ habits }}" as="h" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid rgba(168,203,239,.07)">
+              <sc-if value="{{ h.isBinary }}" hint-placeholder-val="{{ true }}"><button onClick="{{ h.toggle }}" style="{{ h.hitStyle }}">{{ h.checkEl }}</button></sc-if>
+                  <sc-if value="{{ h.isDuration }}" hint-placeholder-val="{{ false }}"><button onClick="{{ h.onPlay }}" style="{{ h.hitStyle }}">{{ h.playEl }}</button></sc-if>
+                  <div style="{{ h.iconWrapStyle }}">{{ h.iconEl }}</div>
+              <div style="flex:1;min-width:72px">
+                <div style="font:500 15px 'Manrope';color:#E8EDF3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ h.title }}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+                  <span style="font:400 11px 'Manrope';color:rgba(232,237,243,.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ h.cat }}</span>
+                  {{ h.dotsEl }}
+                </div>
+                    <sc-if value="{{ h.isCounter }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:6px;margin-top:8px"><button onClick="{{ h.dec }}" style="{{ stepBtnStyle }}">−</button><span style="font:700 12px 'JetBrains Mono',monospace;min-width:3.5ch;text-align:center;font-variant-numeric:tabular-nums">{{ h.countLabel }}</span><button onClick="{{ h.inc }}" style="{{ stepBtnStyle }}">+</button></div></sc-if>
+                    <sc-if value="{{ h.expanded }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:10px;height:48px;display:flex;align-items:center;gap:10px;background:rgba(111,160,214,.08);border:1px solid rgba(111,160,214,.2);border-radius:12px;padding:0 10px">
+                      <span style="font:700 18px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:#E8EDF3;flex:1">{{ h.leftLabel }}</span>
+                      <button onClick="{{ h.onPlay }}" style="{{ miniBtnStyle }}">{{ h.pauseEl }}</button>
+                      <button onClick="{{ h.onStop }}" style="{{ miniBtnStyle }}">{{ icStop }}</button>
+                    </div>
+                    </sc-if>
+              </div>
+              <span style="font:700 16px 'JetBrains Mono',monospace;color:#6FA0D6;flex:none;min-width:2ch;text-align:right">{{ h.streak }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- mood -->
+      <div style="margin-top:12px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:700 17px 'Manrope'">Настроение</span><span style="font:600 11px 'Manrope';color:rgba(232,237,243,.45)">{{ moodLabel }}</span></div>
+        <div style="display:flex;justify-content:space-between;margin-top:16px">
+          <sc-for list="{{ moods }}" as="m" hint-placeholder-count="5">
+            <button onClick="{{ m.onClick }}" style="{{ m.wrapStyle }}">{{ m.faceEl }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- pomodoro -->
+      <div style="margin-top:12px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:18px">
+        <div style="display:flex;gap:6px;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.06);border-radius:999px;padding:5px">
+          <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+        <div style="text-align:center;margin-top:16px">
+          <div style="font:700 60px/1 'JetBrains Mono',monospace">{{ timerText }}</div>
+          <div style="font:400 13px 'Manrope';color:rgba(232,237,243,.45);margin-top:8px">Сессия 2 из 4</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:22px;margin-top:16px">
+          <button style="width:44px;height:44px;border-radius:50%;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.6);cursor:pointer">{{ icReset }}</button>
+          <button style="width:58px;height:58px;border-radius:50%;background:#6FA0D6;border:none;display:grid;place-items:center;color:#06121f;cursor:pointer;box-shadow:0 6px 20px rgba(111,160,214,.35)">{{ icPlay }}</button>
+          <button style="width:44px;height:44px;border-radius:50%;background:rgba(5,7,10,.6);border:1px solid rgba(168,203,239,.1);display:grid;place-items:center;color:rgba(232,237,243,.6);cursor:pointer">{{ icTune2 }}</button>
+        </div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(168,203,239,.07);text-align:center;font:400 12px 'Manrope';color:rgba(232,237,243,.42)">3 сессии &nbsp;·&nbsp; Тело 1ч20 &nbsp;·&nbsp; Разум 40м</div>
+      </div>
+
+      <!-- planner -->
+      <div style="margin-top:12px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font:700 18px 'Manrope'">Планер</span>
+          <span style="font:600 12px 'JetBrains Mono',monospace;color:rgba(232,237,243,.4)">3 пункта</span>
+        </div>
+        <div style="margin-top:10px">
+          <sc-for list="{{ planner }}" as="it" hint-placeholder-count="3">
+            <div style="display:flex;gap:16px;align-items:center;padding:13px 0;border-top:1px solid rgba(168,203,239,.07)">
+              <span style="{{ it.timeStyle }}">{{ it.time }}</span>
+              <span style="font:500 14px 'Manrope';color:rgba(232,237,243,.85)">{{ it.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <a href="#" style="margin-top:6px;padding-top:14px;border-top:1px solid rgba(168,203,239,.07);display:flex;align-items:center;justify-content:space-between;font:700 14px 'Manrope';color:#A8CBEF">Открыть планер {{ icChevron }}</a>
+      </div>
+
+      <!-- streak + record -->
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:linear-gradient(160deg,rgba(111,160,214,.10),rgba(13,17,22,.9) 65%);border:1px solid rgba(168,203,239,.12);border-radius:20px;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 9px 'JetBrains Mono',monospace;letter-spacing:.16em;color:rgba(232,237,243,.4)">СТРИК</span><span style="color:#6FA0D6">{{ icFlame }}</span></div>
+          <div style="font:700 36px/1 'JetBrains Mono',monospace;margin-top:12px">14</div>
+          <div style="font:400 11px 'Manrope';color:rgba(232,237,243,.5);margin-top:6px">дней подряд</div>
+          <div style="font:600 10.5px 'Manrope';color:rgba(232,237,243,.4);margin-top:3px;white-space:nowrap">рекорд — <span style="font-family:'JetBrains Mono',monospace;color:#A8CBEF">21</span> день</div>
+        </div>
+        <div style="background:linear-gradient(160deg,rgba(232,183,94,.09),rgba(13,17,22,.9) 62%);border:1px solid rgba(232,183,94,.20);border-radius:20px;padding:16px">
+          <span style="font:700 9px 'JetBrains Mono',monospace;letter-spacing:.16em;color:rgba(232,237,243,.4);white-space:nowrap">ЛИЧНЫЙ РЕКОРД</span>
+          <div style="font:700 30px/1 'JetBrains Mono',monospace;color:#f2e2c4;margin-top:14px;white-space:nowrap">4ч10</div>
+          <div style="font:400 11px 'Manrope';color:rgba(232,237,243,.5);margin-top:6px">фокус за один день</div>
+          <div style="font:600 10.5px 'JetBrains Mono',monospace;color:#E8B75E;margin-top:3px">+50 мин</div>
+        </div>
+      </div>
+
+      </div>
+
+      <!-- bottom nav (pinned) -->
+      <div style="flex:none;display:flex;justify-content:space-around;align-items:center;background:rgba(9,12,16,.96);border-top:1px solid rgba(168,203,239,.1);padding:10px 8px 14px;backdrop-filter:blur(12px)">
+        <div style="{{ barActiveStyle }}">
+          <span style="{{ barIconActiveStyle }}">{{ icHome }}</span>
+          <span style="{{ barLabelStyle }}">Сегодня</span>
+        </div>
+        <a href="VeyrArc Tracker.dc.html" style="{{ barItemStyle }}">{{ icChecklist }}</a>
+        <a href="VeyrArc Calendar.dc.html" style="{{ barItemStyle }}">{{ icCal }}</a>
+        <a href="VeyrArc Training.dc.html" style="{{ barItemStyle }}">{{ icTarget }}</a>
+        <a href="VeyrArc Profile.dc.html" style="{{ barItemStyle }}">{{ icPerson }}</a>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:980},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showPro&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;focusMinutes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:25,&quot;min&quot;:5,&quot;max&quot;:90,&quot;step&quot;:5,&quot;unit&quot;:&quot;мин&quot;,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  state = {
+    view: (this.props && this.props.startView) || 'desktop',
+    moodSel: 2,
+    activeTab: 0,
+    navReady: false,
+    flashId: null,
+    habits: [
+      { id: 'shower', type: 'binary', icon: 'snow', title: 'Холодный душ', cat: 'Тело · утро', streak: 12, checked: true, dots: [1,1,1,1,0,0,0] },
+      { id: 'water', type: 'counter', icon: 'drop', title: 'Вода', cat: 'Тело · 8 стаканов', streak: 26, count: 3, goal: 8, dots: [1,1,1,1,0,0,0] },
+      { id: 'read', type: 'duration', icon: 'doc', title: 'Чтение', cat: 'Разум · 20 мин', streak: 9, minutes: 20, left: 1200, running: false, started: false, dots: [1,1,0,1,1,0,0] },
+      { id: 'rise', type: 'binary', icon: 'sun', title: 'Ранний подъём', cat: 'Тело · утро', streak: 5, checked: false, dots: [1,0,0,0,1,1,0] },
+      { id: 'social', type: 'binary', icon: 'shield', title: 'Соцсети — стоп', cat: 'Дисциплина · утро', streak: 3, checked: false, dots: [1,1,1,0,0,0,0] },
+    ],
+  };
+
+  SPRING = 'cubic-bezier(.34,1.56,.64,1)';
+  componentDidMount() {
+    setTimeout(() => this.setState({ navReady: true }), 500);
+    this._t = setInterval(() => {
+      if (!this.state.habits.some(h => h.running)) return;
+      let finished = null;
+      this.setState(s => ({ habits: s.habits.map(h => { if (!h.running) return h; const left = Math.max(0, h.left - 1); if (left === 0) finished = h.id; return { ...h, left, running: left > 0 }; }) }), () => { if (finished) this.flash(finished); });
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._t); clearTimeout(this._f); }
+  flash(id) { this.setState({ flashId: id }); clearTimeout(this._f); this._f = setTimeout(() => this.setState({ flashId: null }), 400); }
+  patchHabit(id, fn) { this.setState(s => ({ habits: s.habits.map(x => x.id === id ? { ...x, ...fn(x) } : x) })); }
+
+  e(t, p, c) { return React.createElement(t, p, c); }
+
+  svg(kids, o) {
+    o = o || {};
+    return this.e('svg', {
+      width: o.size || 18, height: o.size || 18, viewBox: '0 0 24 24',
+      fill: 'none', stroke: o.color || 'currentColor', strokeWidth: o.sw || 1.7,
+      strokeLinecap: 'round', strokeLinejoin: 'round'
+    }, kids.map((k, i) => React.cloneElement(k, { key: i })));
+  }
+  p(d) { return this.e('path', { d: d }); }
+
+  icon(name, o) {
+    const P = this.p.bind(this);
+    const C = (a) => this.e('circle', a);
+    switch (name) {
+      case 'plus': return this.svg([P('M12 6v12'), P('M6 12h12')], o);
+      case 'home': return this.svg([P('M3.5 11 12 3.5l8.5 7.5'), P('M5.5 9.5V20.5h13V9.5')], o);
+      case 'checklist': return this.svg([P('M10 6.5h10'), P('M10 12h10'), P('M10 17.5h10'), P('M4 6l1 1 1.8-2'), P('M4 11.5l1 1 1.8-2'), P('M4 17l1 1 1.8-2')], o);
+      case 'cal': return this.svg([this.e('rect', { x: 4, y: 5.5, width: 16, height: 14.5, rx: 3 }), P('M4 10h16'), P('M8.5 3.5v3.5'), P('M15.5 3.5v3.5')], o);
+      case 'tune': return this.svg([P('M4 8.5h8'), P('M17 8.5h3'), C({ cx: 14.5, cy: 8.5, r: 2.2 }), P('M4 15.5h3'), P('M12 15.5h8'), C({ cx: 9.5, cy: 15.5, r: 2.2 })], o);
+      case 'person': return this.svg([C({ cx: 12, cy: 8, r: 4 }), P('M4.5 20a7.5 7.5 0 0 1 15 0')], o);
+      case 'gear': return this.svg([C({ cx: 12, cy: 12, r: 3.2 }), P('M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z')], o);
+      case 'chevron': return this.svg([P('M9 6l6 6-6 6')], { size: (o && o.size) || 16, sw: 2 });
+      case 'lock': return this.svg([this.e('rect', { x: 5, y: 10, width: 14, height: 10, rx: 2.5 }), P('M8.5 10V7a3.5 3.5 0 0 1 7 0v3')], o);
+      case 'reset': return this.svg([P('M4.5 9a7.7 7.7 0 1 1-1.4 4.5'), P('M4.5 4.2V9H9.3')], o);
+      case 'drop': return this.svg([P('M12 3.5s6 6 6 10.5a6 6 0 1 1-12 0C6 9.5 12 3.5 12 3.5z')], o);
+      case 'doc': return this.svg([P('M7 3.5h6l4 4V20a.7.7 0 0 1-.7.7H7a.7.7 0 0 1-.7-.7V4.2a.7.7 0 0 1 .7-.7z'), P('M13 3.5V8h4')], o);
+      case 'sun': return this.svg([this.e('circle', { cx: 12, cy: 12, r: 4.2 }), P('M12 3v2.2'), P('M12 18.8V21'), P('M4.4 4.4l1.6 1.6'), P('M18 18l1.6 1.6'), P('M3 12h2.2'), P('M18.8 12H21'), P('M4.4 19.6l1.6-1.6'), P('M18 6l1.6-1.6')], o);
+      case 'shield': return this.svg([P('M12 3.5l7 2.8v5.2c0 4.2-3 7-7 8.5-4-1.5-7-4.3-7-8.5V6.3z')], o);
+      case 'flame': return this.svg([P('M12 3.5c1.2 3 3.5 3.8 3.5 7a3.5 3.5 0 0 1-7 0c0-1 .4-1.8 1-2.5-.2 1.6 1 2.2 1 2.2-.8-2.6.5-5.7 1.5-6.7z'), P('M12 3.5c1.2 3 3.5 3.8 3.5 7A3.5 3.5 0 0 1 12 14a3.5 3.5 0 0 1-3.5-3.5c0-3.2 2.3-4 3.5-7z')], { size: 20 });
+      case 'trophy': return this.svg([P('M7 4.5h10v3a5 5 0 0 1-10 0z'), P('M7 5.5H4.5v1A2.5 2.5 0 0 0 7 9'), P('M17 5.5h2.5v1A2.5 2.5 0 0 1 17 9'), P('M12 12v3.5'), P('M8.5 19.5h7'), P('M10 19.5c0-1.5.5-2.5 2-4 1.5 1.5 2 2.5 2 4')], { size: 20 });
+      case 'gym': return this.svg([P('M4 9.5v5'), P('M7 7.5v9'), P('M17 7.5v9'), P('M20 9.5v5'), P('M7 12h10')], o);
+      case 'target': return this.svg([this.e('circle', { cx: 12, cy: 12, r: 8 }), this.e('circle', { cx: 12, cy: 12, r: 4.6 }), this.e('circle', { cx: 12, cy: 12, r: 1.2 })], o);
+      case 'snow': return this.svg([P('M12 3v18'), P('M4.2 7.5l15.6 9'), P('M4.2 16.5l15.6-9'), P('M9.5 4.5 12 6l2.5-1.5'), P('M9.5 19.5 12 18l2.5 1.5')], o);
+      case 'check': return this.svg([P('M5 12.5l4 4 10-10')], o);
+      case 'pause': return this.svg([P('M9 6v12'), P('M15 6v12')], o);
+      case 'stop': return this.svg([this.e('rect', { x: 6.5, y: 6.5, width: 11, height: 11, rx: 2 })], o);
+      case 'play': return this.e('svg', { width: (o && o.size) || 20, height: (o && o.size) || 20, viewBox: '0 0 24 24' }, this.e('path', { d: 'M8 6v12l10-6z', fill: (o && o.color) || 'currentColor' }));
+      default: return null;
+    }
+  }
+
+  dotsEl(dots) {
+    return this.e('div', { style: { display: 'flex', gap: 3 } },
+      dots.map((d, i) => this.e('span', { key: i, style: { width: 5, height: 5, borderRadius: '50%', background: d ? '#6FA0D6' : 'rgba(168,203,239,.2)' } })));
+  }
+
+  moodFace(level, color) {
+    const mouths = ['M9 16.6 q3 -2 6 0', 'M9 15.9 q3 -0.8 6 0', 'M9 15.5 h6', 'M9 15 q3 1.9 6 0', 'M9 14.5 q3 3 6 0'];
+    return this.svg([
+      this.e('circle', { cx: 12, cy: 12, r: 9 }),
+      this.e('circle', { cx: 9, cy: 10, r: 1, fill: color, stroke: 'none' }),
+      this.e('circle', { cx: 15, cy: 10, r: 1, fill: color, stroke: 'none' }),
+      this.e('path', { d: mouths[level] }),
+    ], { size: 20, color: color, sw: 1.6 });
+  }
+
+  circleStyle(state, sz) {
+    sz = sz || 28;
+    let base = 'width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;box-sizing:border-box;';
+    base += 'display:grid;place-items:center;color:#A8CBEF;';
+    if (state === 'done') return base + 'background:#6FA0D6';
+    if (state === 'freeze') return base + 'border:1.5px solid rgba(168,203,239,.55);background:repeating-linear-gradient(45deg,rgba(168,203,239,.16) 0 3px,rgba(168,203,239,.04) 3px 6px)';
+    if (state === 'today') return base + 'border:2px solid #E8B75E;background:rgba(232,183,94,.1)';
+    return base + 'border:1.5px solid rgba(168,203,239,.16);background:transparent';
+  }
+
+  renderVals() {
+    const showPro = (this.props && this.props.showPro !== undefined) ? this.props.showPro : true;
+    const fm = (this.props && this.props.focusMinutes) || 25;
+    const isD = this.state.view === 'desktop';
+
+    const switchOn = 'background:#6FA0D6;color:#06121f;border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+    const switchOff = 'background:transparent;color:rgba(232,237,243,.55);border:none;border-radius:999px;padding:8px 18px;font:600 12px "Manrope";cursor:pointer';
+
+    const dayStates = ['done', 'freeze', 'done', 'today', 'empty', 'empty', 'empty'];
+    const dayLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const mkDays = (sz, fsz) => dayLabels.map((l, i) => ({
+      label: l,
+      circleStyle: this.circleStyle(dayStates[i], sz),
+      iconEl: dayStates[i] === 'freeze' ? this.icon('snow', { size: Math.round(sz * 0.5), sw: 1.6 }) : null,
+      labelStyle: 'font:600 ' + fsz + 'px "Manrope";color:' + (dayStates[i] === 'today' ? '#E8B75E' : 'rgba(232,237,243,.4)'),
+    }));
+    const days = mkDays(28, 11);
+    const daysDesktop = mkDays(64, 14);
+
+    const pad = n => String(n).padStart(2, '0');
+    const habits = this.state.habits.map(h => {
+      const type = h.type || 'binary';
+      const done = type === 'counter' ? h.count >= h.goal : type === 'duration' ? h.left === 0 : !!h.checked;
+      const pct = type === 'counter' ? h.count / h.goal : type === 'duration' ? 1 - h.left / (h.minutes * 60) : 0;
+      const flash = this.state.flashId === h.id;
+      const kids = [];
+      if (type !== 'binary') kids.push(this.e('svg', { key: 'r', width: 34, height: 34, viewBox: '0 0 34 34', style: { position: 'absolute', left: -2, top: -2, transform: 'rotate(-90deg)' } }, [
+        this.e('circle', { key: 'a', cx: 17, cy: 17, r: 15, fill: 'none', stroke: 'rgba(168,203,239,.14)', strokeWidth: 2.5 }),
+        this.e('circle', { key: 'b', cx: 17, cy: 17, r: 15, fill: 'none', stroke: '#6FA0D6', strokeWidth: 2.5, strokeLinecap: 'round', strokeDasharray: 94.25, strokeDashoffset: 94.25 * (1 - pct), style: { transition: 'stroke-dashoffset .3s' } })]));
+      kids.push(this.e('span', { key: 'i', style: { display: 'grid', placeItems: 'center', color: done ? '#A8CBEF' : 'rgba(168,203,239,.75)', opacity: flash ? 0 : 1, transition: 'opacity .15s' } }, this.icon(h.icon, { size: 17 })));
+      if (flash) kids.push(this.e('span', { key: 'c', style: { position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#6FA0D6' } }, this.icon('check', { size: 16, sw: 3 })));
+      const box = this.e('span', { style: { width: 22, height: 22, borderRadius: 7, boxSizing: 'border-box', display: 'grid', placeItems: 'center', background: done ? '#6FA0D6' : 'transparent', border: done ? 'none' : '1.5px solid rgba(168,203,239,.25)', color: '#06121f' } }, done ? this.icon('check', { size: 13, sw: 3.2 }) : null);
+      const playEl = this.e('span', { style: { width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center', background: done ? 'rgba(111,160,214,.2)' : '#6FA0D6', color: done ? '#6FA0D6' : '#06121f' } }, done ? this.icon('check', { size: 13, sw: 3 }) : (h.running ? this.icon('pause', { size: 13, sw: 2.6 }) : this.icon('play', { size: 13, color: '#06121f' })));
+      return {
+        title: h.title, cat: h.cat, streak: h.streak,
+        isBinary: type === 'binary', isCounter: type === 'counter', isDuration: type === 'duration',
+        hitStyle: 'width:44px;height:44px;margin:-11px -8px -11px -11px;padding:0;background:transparent;border:none;display:grid;place-items:center;cursor:pointer;flex:none',
+        checkEl: box, playEl,
+        iconWrapStyle: 'position:relative;width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;background:' + (type === 'binary' ? 'rgba(168,203,239,.07)' : 'transparent'),
+        iconEl: this.e('span', { style: { position: 'relative', width: 30, height: 30, display: 'grid', placeItems: 'center' } }, kids),
+        dotsEl: this.dotsEl(h.dots),
+        countLabel: type === 'counter' ? h.count + '/' + h.goal : '',
+        inc: () => { if (h.count >= h.goal) return; this.patchHabit(h.id, x => ({ count: x.count + 1 })); if (h.count + 1 >= h.goal) this.flash(h.id); },
+        dec: () => this.patchHabit(h.id, x => ({ count: Math.max(0, x.count - 1) })),
+        expanded: type === 'duration' && h.started && h.left > 0,
+        leftLabel: type === 'duration' ? pad(Math.floor(h.left / 60)) + ':' + pad(h.left % 60) : '',
+        pauseEl: h.running ? this.icon('pause', { size: 14, sw: 2.6 }) : this.icon('play', { size: 14 }),
+        onPlay: () => { if (done) return; this.patchHabit(h.id, x => ({ running: !x.running, started: true })); },
+        onStop: () => this.patchHabit(h.id, x => ({ running: false, started: false, left: x.minutes * 60 })),
+        toggle: () => this.patchHabit(h.id, x => ({ checked: !x.checked })),
+        _done: done,
+      };
+    });
+    const doneN = habits.filter(h => h._done).length;
+    const todayCount = doneN + ' из ' + habits.length;
+    const dayPct = habits.length ? Math.round(doneN / habits.length * 100) : 0;
+    const catFrac = (c) => { const list = this.state.habits.map((h, i) => ({ c: h.cat.split(' · ')[0], d: habits[i]._done })).filter(x => x.c === c); return list.filter(x => x.d).length + '/' + list.length; };
+
+    const planner = [
+      { time: '18:00', text: 'Встреча с командой', accent: true },
+      { time: 'Днём', text: 'Позвонить родителям' },
+      { time: 'Днём', text: 'Купить термобельё' },
+    ].map(it => ({
+      time: it.time, text: it.text,
+      timeStyle: 'flex:none;width:44px;font:700 11px "JetBrains Mono",monospace;color:' + (it.accent ? '#A8CBEF' : 'rgba(232,237,243,.4)'),
+    }));
+
+    const moods = [0, 1, 2, 3, 4].map(i => {
+      const sel = i === this.state.moodSel;
+      const col = sel ? '#A8CBEF' : 'rgba(232,237,243,.3)';
+      return {
+        faceEl: this.moodFace(i, col),
+        onClick: () => this.setState({ moodSel: i }),
+        wrapStyle: 'width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0;transition:transform .2s ease, opacity .2s ease;transform:scale(' + (sel ? 1.1 : 1) + ');opacity:' + (sel ? 1 : .55) + ';'
+          + (sel ? 'background:rgba(111,160,214,.14);border:1.5px solid rgba(168,203,239,.4)' : 'background:transparent;border:1.5px solid rgba(168,203,239,.12)'),
+      };
+    });
+
+    const tabLabels = ['Фокус', 'Короткий', 'Длинный'];
+    const tabs = tabLabels.map((l, i) => {
+      const on = i === this.state.activeTab;
+      return {
+        label: l,
+        onClick: () => this.setState({ activeTab: i }),
+        style: 'flex:1;white-space:nowrap;border:none;border-radius:999px;padding:10px 8px;font:600 12.5px "Manrope";cursor:pointer;'
+          + (on ? 'background:#6FA0D6;color:#06121f' : 'background:transparent;color:rgba(232,237,243,.55)'),
+      };
+    });
+
+    const streakBars = [1,1,1,1,1,1,0].map(on =>
+      'flex:1;height:6px;border-radius:3px;background:' + (on ? '#6FA0D6' : 'rgba(168,203,239,.16)'));
+    const focusVals = [40, 55, 30, 70, 45, 85, 60];
+    const focusBars = focusVals.map((v, i) =>
+      'flex:1;height:' + v + '%;border-radius:3px;background:' + (i === focusVals.length - 1 ? '#6FA0D6' : 'rgba(168,203,239,.22)'));
+
+    return {
+      isDesktop: isD, isMobile: !isD,
+      streakBars, focusBars,
+      icFlame: this.icon('flame'), icTrophy: this.icon('trophy'),
+      setDesktop: () => this.setState({ view: 'desktop' }),
+      setMobile: () => this.setState({ view: 'mobile' }),
+      tabDesktopStyle: isD ? switchOn : switchOff,
+      tabMobileStyle: isD ? switchOff : switchOn,
+      showPro, todayCount, dayPct, dayOffset: (301.6 * (1 - dayPct / 100)).toFixed(1),
+      catBody: catFrac('Тело'), catMind: catFrac('Разум'), catDisc: catFrac('Дисциплина'),
+      moodMini: this.moodFace(this.state.moodSel, '#A8CBEF'),
+      moodLabel: ['Плохо', 'Так себе', 'Спокойно', 'Хорошо', 'Отлично'][this.state.moodSel],
+      moodNote: 'Отмечено: ' + ['плохо', 'так себе', 'спокойно', 'хорошо', 'отлично'][this.state.moodSel] + ' · учтено в аналитике дня и корреляциях',
+      icSnowSm: this.icon('snow', { size: 13 }), icStop: this.icon('stop', { size: 14 }),
+      stepBtnStyle: 'width:28px;height:28px;border-radius:50%;border:1px solid rgba(168,203,239,.2);background:rgba(111,160,214,.1);color:#A8CBEF;font:700 15px/1 "Manrope";cursor:pointer;display:grid;place-items:center;padding:0',
+      miniBtnStyle: 'width:32px;height:32px;border-radius:50%;border:none;background:rgba(111,160,214,.18);color:#A8CBEF;cursor:pointer;display:grid;place-items:center;padding:0',
+      timerText: fm + ':00',
+      days, daysDesktop, habits, planner, moods, tabs,
+      icPlus: this.icon('plus', { size: 28 }), icHome: this.icon('home', { size: 28 }), icChecklist: this.icon('checklist', { size: 28 }),
+      icCal: this.icon('cal', { size: 28 }), icTune: this.icon('tune', { size: 28 }), icPerson: this.icon('person', { size: 28 }), icTarget: this.icon('target', { size: 28 }),
+      icGear: this.icon('gear', { size: 17 }), icChevron: this.icon('chevron'),
+      icLock: this.icon('lock', { size: 18 }), icReset: this.icon('reset', { size: 18 }),
+      icTune2: this.icon('tune', { size: 18 }), icPlay: this.icon('play', { size: 22, color: '#06121f' }),
+
+      railItemStyle: 'width:68px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:rgba(232,237,243,.42);cursor:pointer;overflow:hidden;transition:background-color .2s ease',
+      railItemHoverStyle: 'background:rgba(168,203,239,.07);color:rgba(232,237,243,.8)',
+      railIconIdleStyle: 'display:grid;place-items:center;width:100%;height:100%',
+      railActiveStyle: 'width:68px;height:' + (this.state.navReady ? '66px' : '48px') + ';border-radius:16px;background:' + (this.state.navReady ? 'linear-gradient(180deg,#f0b565,#E8A54B)' : 'rgba(232,165,75,.5)') + ';display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:11px;gap:4px;cursor:pointer;overflow:hidden;transition:height .38s ' + this.SPRING + ', background-color .38s ' + this.SPRING,
+      railIconActiveStyle: 'display:grid;place-items:center;color:#06121f;transition:color .26s ease',
+      railLabelStyle: 'font:700 9px "JetBrains Mono",monospace;color:#06121f;opacity:' + (this.state.navReady ? 1 : 0) + ';transform:translateY(' + (this.state.navReady ? '0' : '-4px') + ');transition:opacity .22s ease .13s, transform .22s ease .13s',
+      barItemStyle: 'width:56px;height:48px;display:grid;place-items:center;color:rgba(232,237,243,.42);border-radius:24px;flex:none',
+      barActiveStyle: 'height:48px;flex:none;width:' + (this.state.navReady ? '128px' : '48px') + ';border-radius:24px;background:' + (this.state.navReady ? '#E8A54B' : 'rgba(232,165,75,.5)') + ';display:flex;align-items:center;justify-content:flex-start;padding-left:12px;gap:8px;cursor:pointer;overflow:hidden;transition:width .38s ' + this.SPRING + ', background-color .38s ' + this.SPRING,
+      barIconActiveStyle: 'display:grid;place-items:center;color:#06121f;flex:none;transition:color .26s ease',
+      barLabelStyle: 'font:700 12px "Manrope";color:#06121f;white-space:nowrap;opacity:' + (this.state.navReady ? 1 : 0) + ';transform:translateX(' + (this.state.navReady ? '0' : '-6px') + ');transition:opacity .22s ease .13s, transform .22s ease .13s',
+    };
+  }
+}
+</script>
+</body>
+</html>
