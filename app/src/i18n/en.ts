@@ -133,7 +133,7 @@ export const en: Dict = {
   auth: {
     badge: 'VEYRARC · 90 DAYS',
     welcomeTitle: 'Become who you decided to be',
-    welcomeSub: 'Habits, workouts and progress in one place. Every day closer to your best self',
+    welcomeSub: 'Habits, goals and progress in one place. Every day closer to your best self',
     startArc: 'Start your Arc',
     haveAccount: 'I already have an account',
     leftTitle: 'Become who you decided to be',
