@@ -1,0 +1,34 @@
+.root {
+  height: 100dvh;
+  background: var(--bg);
+  transition: opacity .15s ease; /* language cross-fade */
+}
+.fading {
+  opacity: 0;
+}
+
+.desktop {
+  display: flex;
+  height: 100%;
+}
+.desktopMain {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.mobileMain {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}

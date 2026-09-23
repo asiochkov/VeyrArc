@@ -1,0 +1,86 @@
+/* Desktop rail — VeyrArc Tracker/Calendar/Training/Profile.dc.html */
+.rail {
+  width: var(--rail-w);
+  flex: none;
+  background: var(--bg);
+  border-right: 1px solid var(--ice-06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  gap: 10px;
+}
+
+.plus {
+  width: 64px;
+  height: 64px;
+  border-radius: 19px;
+  background: var(--accent);
+  border: none;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  cursor: pointer;
+  margin-bottom: 16px;
+  padding: 0;
+}
+
+.item {
+  width: 68px;
+  height: 48px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--t-42);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background-color .2s ease;
+}
+.item:hover {
+  background: var(--ice-07);
+  color: var(--t-80);
+}
+.itemIcon {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.active {
+  width: 68px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--amber-50);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 11px;
+  gap: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: height .38s var(--spring), background-color .38s var(--spring);
+}
+.active.ready {
+  height: 66px;
+  background: linear-gradient(180deg, var(--amber-hi), var(--amber));
+}
+.activeIcon {
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  transition: color .26s ease;
+}
+.activeLabel {
+  font: 700 9px var(--font-mono);
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .22s ease .13s, transform .22s ease .13s;
+}
+.ready .activeLabel {
+  opacity: 1;
+  transform: translateY(0);
+}

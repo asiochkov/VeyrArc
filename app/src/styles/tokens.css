@@ -1,0 +1,162 @@
+/*
+ * VeyrArc design tokens — Night only (decision A1, docs/stage-0.md).
+ * Values are copied verbatim from project/*.dc.html. Alpha scales keep the
+ * exact alpha used in the design; do not round or merge them.
+ */
+:root {
+  /* base */
+  --bg: #05070A;
+  --text: #E8EDF3;
+  --text-strong: #F3F6FA;
+  --ink: #06121f;            /* text on accent fills */
+  --accent: #6FA0D6;
+  --link: #A8CBEF;
+  --link-hover: #c8ddf6;
+  --gold: #E8B75E;
+  --gold-2: #d9a94f;
+  --gold-3: #f0c877;
+  --gold-ink: #241a06;
+  --gold-text: #f2e2c4;
+  --amber: #E8A54B;          /* active navigation, goals accent */
+  --amber-hi: #f0b565;
+  --success: #5FBF9B;
+  --violet: #9B87D6;
+  --error: #E5645A;
+  --error-ink: #1a0605;
+  --danger: #D96A5B;
+  --now: #8fc2ff;
+
+  /* surfaces */
+  --card: rgba(13,17,22,.85);
+  --card-end: rgba(13,17,22,.9);
+  --card-92: rgba(13,17,22,.92);
+  --menu: rgba(13,17,22,.95);
+  --well: rgba(5,7,10,.6);
+  --well-65: rgba(5,7,10,.65);
+  --well-70: rgba(5,7,10,.7);
+  --bar: rgba(9,12,16,.96);
+  --popover: #0C1015;
+  --modal: #0d1116;
+  --overlay: rgba(3,5,8,.72);
+
+  /* hue palette (habits / quits / goals) */
+  --hue-blue: #5B9BD5;
+  --hue-amber: #E8A54B;
+  --hue-red: #D96A5B;
+  --hue-green: #5FBF9B;
+  --hue-violet: #9B87D6;
+  --hue-ice: #6FA0D6;
+  --miss: rgba(229,57,43,.62);
+  --miss-border: rgba(229,57,43,.75);
+
+  /* calendar event fills */
+  --ev-blue: #4E86BE;
+  --ev-green: #43A483;
+  --ev-red: #C25749;
+  --ev-purple: #8670C4;
+
+  /* text alphas: rgba(232,237,243,a) */
+  --t-18: rgba(232,237,243,.18);
+  --t-22: rgba(232,237,243,.22);
+  --t-25: rgba(232,237,243,.25);
+  --t-28: rgba(232,237,243,.28);
+  --t-30: rgba(232,237,243,.3);
+  --t-32: rgba(232,237,243,.32);
+  --t-34: rgba(232,237,243,.34);
+  --t-35: rgba(232,237,243,.35);
+  --t-38: rgba(232,237,243,.38);
+  --t-40: rgba(232,237,243,.4);
+  --t-42: rgba(232,237,243,.42);
+  --t-45: rgba(232,237,243,.45);
+  --t-50: rgba(232,237,243,.5);
+  --t-55: rgba(232,237,243,.55);
+  --t-58: rgba(232,237,243,.58);
+  --t-60: rgba(232,237,243,.6);
+  --t-65: rgba(232,237,243,.65);
+  --t-70: rgba(232,237,243,.7);
+  --t-72: rgba(232,237,243,.72);
+  --t-75: rgba(232,237,243,.75);
+  --t-80: rgba(232,237,243,.8);
+  --t-85: rgba(232,237,243,.85);
+
+  /* ice borders/fills: rgba(168,203,239,a) */
+  --ice-04: rgba(168,203,239,.04);
+  --ice-06: rgba(168,203,239,.06);
+  --ice-07: rgba(168,203,239,.07);
+  --ice-08: rgba(168,203,239,.08);
+  --ice-09: rgba(168,203,239,.09);
+  --ice-10: rgba(168,203,239,.10);
+  --ice-12: rgba(168,203,239,.12);
+  --ice-14: rgba(168,203,239,.14);
+  --ice-16: rgba(168,203,239,.16);
+  --ice-18: rgba(168,203,239,.18);
+  --ice-20: rgba(168,203,239,.2);
+  --ice-22: rgba(168,203,239,.22);
+  --ice-24: rgba(168,203,239,.24);
+  --ice-25: rgba(168,203,239,.25);
+  --ice-30: rgba(168,203,239,.3);
+  --ice-35: rgba(168,203,239,.35);
+  --ice-40: rgba(168,203,239,.4);
+  --ice-55: rgba(168,203,239,.55);
+  --ice-72: rgba(168,203,239,.72);
+  --ice-75: rgba(168,203,239,.75);
+
+  /* accent fills: rgba(111,160,214,a) */
+  --blue-08: rgba(111,160,214,.08);
+  --blue-09: rgba(111,160,214,.09);
+  --blue-10: rgba(111,160,214,.1);
+  --blue-12: rgba(111,160,214,.12);
+  --blue-14: rgba(111,160,214,.14);
+  --blue-16: rgba(111,160,214,.16);
+  --blue-18: rgba(111,160,214,.18);
+  --blue-20: rgba(111,160,214,.2);
+  --blue-28: rgba(111,160,214,.28);
+  --blue-30: rgba(111,160,214,.3);
+  --blue-35: rgba(111,160,214,.35);
+  --blue-50: rgba(111,160,214,.5);
+  --blue-75: rgba(111,160,214,.75);
+
+  /* gold fills: rgba(232,183,94,a) */
+  --gold-08: rgba(232,183,94,.08);
+  --gold-09: rgba(232,183,94,.09);
+  --gold-10: rgba(232,183,94,.10);
+  --gold-12: rgba(232,183,94,.12);
+  --gold-14: rgba(232,183,94,.14);
+  --gold-16: rgba(232,183,94,.16);
+  --gold-20: rgba(232,183,94,.20);
+  --gold-22: rgba(232,183,94,.22);
+  --gold-25: rgba(232,183,94,.25);
+  --gold-28: rgba(232,183,94,.28);
+  --gold-30: rgba(232,183,94,.3);
+  --gold-35: rgba(232,183,94,.35);
+
+  /* amber fills: rgba(232,165,75,a) */
+  --amber-14: rgba(232,165,75,.14);
+  --amber-50: rgba(232,165,75,.5);
+
+  /* white alphas */
+  --w-03: rgba(255,255,255,.03);
+  --w-035: rgba(255,255,255,.035);
+  --w-04: rgba(255,255,255,.04);
+  --w-05: rgba(255,255,255,.05);
+  --w-06: rgba(255,255,255,.06);
+  --w-07: rgba(255,255,255,.07);
+  --w-08: rgba(255,255,255,.08);
+  --w-09: rgba(255,255,255,.09);
+  --w-12: rgba(255,255,255,.12);
+
+  --error-soft: rgba(229,100,90,.12);
+
+  /* typography */
+  --font-ui: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* motion */
+  --spring: cubic-bezier(.34,1.56,.64,1);
+  --ease-screen: cubic-bezier(.2,.8,.2,1);
+  --ease-burst: cubic-bezier(.15,.8,.3,1);
+
+  /* layout */
+  --rail-w: 104px;
+  --bp-desktop: 1024px;
+}

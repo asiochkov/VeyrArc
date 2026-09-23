@@ -1,0 +1,35 @@
+@import './tokens.css';
+
+/* Verbatim from the <helmet> blocks of project/*.dc.html */
+* { box-sizing: border-box; scrollbar-width: none; }
+*::-webkit-scrollbar { width: 0; height: 0; display: none; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-tap-highlight-color: transparent;
+}
+a { color: var(--link); text-decoration: none; }
+a:hover { color: var(--link-hover); }
+::selection { background: rgba(111,160,214,.3); }
+input::placeholder { color: currentColor; opacity: .38; }
+textarea::placeholder { color: rgba(232,237,243,.35); }
+textarea:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Calendar week grid keeps a visible scrollbar (VeyrArc Calendar.dc.html) */
+.wk-scroll::-webkit-scrollbar { width: 8px; height: 8px; display: block; }
+.wk-scroll::-webkit-scrollbar-thumb { background: rgba(168,203,239,.14); border-radius: 8px; }
+
+/* Animations — VeyrArc Auth.dc.html */
+@keyframes wwUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes wwSlideL { from { opacity: 0; transform: translateX(48px); } to { opacity: 1; transform: none; } }
+@keyframes wwSlideR { from { opacity: 0; transform: translateX(-48px); } to { opacity: 1; transform: none; } }
+@keyframes wwShakeA { 0%,100% { transform: none; } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+@keyframes wwShakeB { 0%,100% { transform: none; } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+@keyframes wwBreathe { 0%,100% { opacity: .85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes wwSpin { to { transform: rotate(360deg); } }
+@keyframes wwBurst { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--dx),var(--dy)) scale(.3) rotate(200deg); opacity: 0; } }
+@keyframes wwGlowPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(111,160,214,.0); } 50% { box-shadow: 0 0 0 6px rgba(111,160,214,.18); } }
+@keyframes wwPop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }

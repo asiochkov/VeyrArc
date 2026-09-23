@@ -1,0 +1,64 @@
+/* Mobile bottom navigation — pinned, flat (Claude_Design_Instructions.md) */
+.bar {
+  flex: none;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--bar);
+  border-top: 1px solid var(--ice-10);
+  /* 14px bottom as in the design; the safe-area inset is 0 outside iOS home-indicator devices */
+  padding: 10px 8px calc(14px + env(safe-area-inset-bottom));
+  backdrop-filter: blur(12px);
+}
+
+.item {
+  width: 56px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  color: var(--t-42);
+  border-radius: 24px;
+  flex: none;
+}
+.item:hover {
+  color: var(--t-42);
+}
+
+.active {
+  height: 48px;
+  flex: none;
+  width: 48px;
+  border-radius: 24px;
+  background: var(--amber-50);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 12px;
+  gap: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: width .38s var(--spring), background-color .38s var(--spring);
+}
+.active.ready {
+  width: 128px;
+  background: var(--amber);
+}
+.activeIcon {
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  flex: none;
+  transition: color .26s ease;
+}
+.activeLabel {
+  font: 700 12px var(--font-ui);
+  color: var(--ink);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity .22s ease .13s, transform .22s ease .13s;
+}
+.ready .activeLabel {
+  opacity: 1;
+  transform: translateX(0);
+}
