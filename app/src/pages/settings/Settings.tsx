@@ -1,11 +1,16 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
+import { useHeader } from '../../data/header';
+import { daysBetween } from '../../data/model';
+import { exportData, fetchArcs, startNewArc, updateProfile } from '../../data/settings';
+import { useAuth, userEmail } from '../../lib/auth';
+import { isoDay } from '../../lib/day';
 import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
 import { deleteAccount, signOut } from '../../lib/auth';
 import { hasBackend } from '../../lib/supabase';
 import { useLangStore, useT, type Lang, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
-import { todayStats } from '../../mock/today';
 import { Icon, type IconName } from '../../ui/Icon';
 import { ConfirmDialog, Segmented } from '../../ui/primitives';
 import s from './settings.module.css';
@@ -27,8 +32,39 @@ export function Settings() {
   const setLang = useLangStore((x) => x.setLang);
   const [langOpen, setLangOpen] = useState(false);
   const [group, setGroup] = useState<Group>('account');
-  const [unit, setUnit] = useState<'ml' | 'oz'>('ml');
-  const [notif, setNotif] = useState({ n1: true, n2: true, n3: true, n4: false });
+  const { session, profile, plan } = useAuth();
+  const hd = useHeader();
+  const qc = useQueryClient();
+  const arcsQ = useQuery({ queryKey: ['arcs'], queryFn: fetchArcs, enabled: hasBackend && !!session });
+  const [unitLocal, setUnitLocal] = useState<'ml' | 'oz'>('ml');
+  const [notifLocal, setNotifLocal] = useState({ n1: true, n2: true, n3: true, n4: false });
+  // backend: values live in the profile row
+  const unit = hasBackend ? profile?.water_unit ?? 'ml' : unitLocal;
+  const setUnit = (u: 'ml' | 'oz') => { if (hasBackend) void updateProfile({ water_unit: u }).catch(() => {}); else setUnitLocal(u); };
+  const NOTIF_COL = { n1: 'notify_habits', n2: 'notify_summary', n3: 'notify_focus', n4: 'notify_arc' } as const;
+  const notif = hasBackend && profile
+    ? { n1: profile.notify_habits, n2: profile.notify_summary, n3: profile.notify_focus, n4: profile.notify_arc }
+    : notifLocal;
+  const toggleNotif = (k: keyof typeof NOTIF_COL) => {
+    if (hasBackend) void updateProfile({ [NOTIF_COL[k]]: !notif[k] }).catch(() => {});
+    else setNotifLocal((n) => ({ ...n, [k]: !n[k] }));
+  };
+  const pickLang = (l: Lang) => { setLang(l); if (hasBackend) void updateProfile({ lang: l }).catch(() => {}); };
+  const account = hasBackend
+    ? { name: [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || userEmail(session), email: userEmail(session), initials: hd.initials }
+    : { name: ACCOUNT.name, email: ACCOUNT.email, initials: hd.initials };
+  const isPro = hasBackend ? plan?.plan === 'pro' : true;
+  const renew = hasBackend && plan?.renews_at
+    ? new Date(plan.renews_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })
+    : t.pick(ACCOUNT.renew);
+  const fmtD = (d: string) => new Date(d + 'T00:00:00').toLocaleDateString(lang === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short' });
+  const arcs = hasBackend
+    ? (arcsQ.data ?? []).slice().reverse().map((a) => {
+      const end = a.ended_on ?? new Date(new Date(a.started_on + 'T00:00:00').getTime() + (a.length_days - 1) * 86400000).toISOString().slice(0, 10);
+      const elapsed = Math.min(a.length_days, daysBetween(a.started_on, a.ended_on ?? isoDay()) + 1);
+      return { n: a.number, dates: { ru: `${fmtD(a.started_on)} – ${fmtD(end)}`, en: `${fmtD(a.started_on)} – ${fmtD(end)}` }, pct: Math.round((elapsed / a.length_days) * 100) + '%', current: !a.ended_on };
+    })
+    : ARCS;
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [arcModal, setArcModal] = useState(false);
   const [accModal, setAccModal] = useState<AccountModal>(null);
@@ -56,7 +92,7 @@ export function Settings() {
         {(['ru', 'en'] as Lang[]).map((id) => {
           const sel = lang === id;
           return (
-            <button key={id} type="button" className={s.langRow} onClick={() => setLang(id)}>
+            <button key={id} type="button" className={s.langRow} onClick={() => pickLang(id)}>
               <span className={s.radio} data-on={sel}>{sel && <span className={s.radioDot} />}</span>
               <span style={{ flex: 1, font: '600 15px var(--font-ui)' }}>{id === 'ru' ? 'Русский' : 'English'}</span>
               <span style={{ font: '500 12px var(--font-ui)', color: 'rgba(232,237,243,.4)' }}>{id === lang ? '' : t('settings.langOther')}</span>
@@ -86,10 +122,10 @@ export function Settings() {
         <div>
           <div className={s.groupTitle}>{t('settings.account')}</div>
           <button type="button" className={s.accountBtn} onClick={() => navigate('/settings/account')}>
-            <span className={s.avatar}>{todayStats.initials}</span>
+            <span className={s.avatar}>{account.initials}</span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', font: '700 16px var(--font-ui)' }}>{ACCOUNT.name}</span>
-              <span style={{ display: 'block', font: '500 12.5px var(--font-ui)', color: 'rgba(232,237,243,.5)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ACCOUNT.email}</span>
+              <span style={{ display: 'block', font: '700 16px var(--font-ui)' }}>{account.name}</span>
+              <span style={{ display: 'block', font: '500 12.5px var(--font-ui)', color: 'rgba(232,237,243,.5)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{account.email}</span>
             </span>
             <span style={{ color: 'rgba(232,237,243,.4)' }}><Icon name="chevron" size={16} sw={2} /></span>
           </button>
@@ -116,7 +152,7 @@ export function Settings() {
           <div className={s.groupTitle}>{t('settings.notifications')}</div>
           <div className={s.list}>
             {(['n1', 'n2', 'n3', 'n4'] as const).map((k) => (
-              <button key={k} type="button" role="switch" aria-checked={notif[k]} className={s.row} style={{ cursor: 'pointer' }} onClick={() => setNotif((n) => ({ ...n, [k]: !n[k] }))}>
+              <button key={k} type="button" role="switch" aria-checked={notif[k]} className={s.row} style={{ cursor: 'pointer' }} onClick={() => toggleNotif(k)}>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', font: '600 14.5px var(--font-ui)' }}>{t(`settings.${k}`)}</span>
                   <span style={{ display: 'block', font: '400 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.45)', marginTop: 3 }}>{t(`settings.${k}d`)}</span>
@@ -130,19 +166,33 @@ export function Settings() {
       {show('pro') && (
         <div>
           <div className={s.groupTitle}>{t('settings.pro')}</div>
+          {!isPro ? (
+            // B22: for Free the card invites to Pro (texts from the Account upsell)
+            <div className={s.proCard}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className={s.crown}><Icon name="lock" size={19} /></span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', font: '700 15px var(--font-ui)', color: '#f2e2c4' }}>{t('auth.upsellTitle')}</span>
+                  <span style={{ display: 'block', font: '500 12px/1.45 var(--font-ui)', color: 'rgba(232,237,243,.55)', marginTop: 3 }}>{t('auth.upsellSub')}</span>
+                </span>
+              </div>
+              <button type="button" className={s.manage} onClick={() => navigate('/pro')}>{t('auth.openPro')}</button>
+            </div>
+          ) : (
           <div className={s.proCard}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className={s.crown}><Icon name="crown" size={19} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', font: '700 15px var(--font-ui)', color: '#f2e2c4' }}>{t('settings.proActive')}</span>
                 <span style={{ display: 'block', font: '500 12px var(--font-ui)', color: 'rgba(232,237,243,.55)', marginTop: 3, whiteSpace: 'nowrap' }}>
-                  {t('settings.renews')} · <span style={{ fontFamily: 'var(--font-mono)' }}>{t.pick(ACCOUNT.renew)}</span>
+                  {t('settings.renews')} · <span style={{ fontFamily: 'var(--font-mono)' }}>{renew}</span>
                 </span>
               </span>
               <span className={s.proBadge}>PRO</span>
             </div>
             <button type="button" className={s.manage}>{t('settings.manage')}</button>
           </div>
+          )}
         </div>
       )}
       {show('arc') && (
@@ -154,7 +204,7 @@ export function Settings() {
             </Row>
             {archiveOpen && (
               <div style={{ padding: '4px 18px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {ARCS.map((a) => (
+                {arcs.map((a) => (
                   <div key={a.n} className={s.arcItem}>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'block', font: '700 13.5px var(--font-ui)' }}>Arc {a.n}</span>
@@ -177,7 +227,7 @@ export function Settings() {
         <div>
           <div className={s.groupTitle}>{t('settings.data')}</div>
           <div className={s.list}>
-            <Row icon="download" label={t('settings.export')} onClick={() => {}}>{chev}</Row>
+            <Row icon="download" label={t('settings.export')} onClick={() => { if (hasBackend) void exportData().catch(() => {}); }}>{chev}</Row>
             <Row icon="trashPlain" label={t('settings.del')} danger onClick={() => setAccModal('del1')} />
           </div>
           <div style={{ marginTop: 14, textAlign: 'center', font: '500 11px var(--font-mono)', color: 'rgba(232,237,243,.28)' }}>{t('settings.version', { v: ACCOUNT.version })}</div>
@@ -203,8 +253,13 @@ export function Settings() {
       )}
 
       <ConfirmDialog
-        open={arcModal} title={t('settings.newArcTitle')} body={t('settings.newArcBody', { d: todayStats.arcDay, n: todayStats.arcLength })}
-        confirmLabel={t('settings.newArcOk')} cancelLabel={t('settings.cancel')} onConfirm={() => setArcModal(false)} onCancel={() => setArcModal(false)}
+        open={arcModal} title={t('settings.newArcTitle')} body={t('settings.newArcBody', { d: hd.arcDay, n: hd.arcLength })}
+        confirmLabel={t('settings.newArcOk')} cancelLabel={t('settings.cancel')}
+        onConfirm={() => {
+          setArcModal(false);
+          if (hasBackend) void startNewArc().then(() => Promise.all(['arcs', 'arc', 'today'].map((k) => qc.invalidateQueries({ queryKey: [k] })))).catch(() => {});
+        }}
+        onCancel={() => setArcModal(false)}
       />
       <AccountDialogs modal={accModal} setModal={setAccModal}
         onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}

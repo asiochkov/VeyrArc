@@ -9,6 +9,13 @@ import { db } from './supabase';
 
 const HABIT_ICON: Record<Exclude<DirId, 'quit'>, IconName> = { body: 'drop', mind: 'doc', disc: 'sun', prod: 'target' };
 const QUIT_ICON: Record<string, IconName> = { 'Без сахара': 'nosugar', 'Без соцсетей до сна': 'phone' };
+/* per-chip icon and type (duration habits carry their minutes) */
+const CHIP: Record<string, { icon: IconName; minutes?: number; counter?: number }> = {
+  'Вода 8 стаканов': { icon: 'drop', counter: 8 }, 'Сон до 23:00': { icon: 'moon' }, 'Холодный душ': { icon: 'snow' }, 'Прогулка 30 мин': { icon: 'sun', minutes: 30 },
+  'Чтение 20 мин': { icon: 'doc', minutes: 20 }, 'Медитация': { icon: 'lotus' }, 'Дневник': { icon: 'pencil' }, '10 новых слов': { icon: 'doc' },
+  'Ранний подъём': { icon: 'sun' }, 'Заправить кровать': { icon: 'bedTracker' }, 'План на день': { icon: 'checklist' }, 'Без телефона утром': { icon: 'phone' },
+  'Глубокая работа 90 мин': { icon: 'bolt', minutes: 90 }, 'Одна главная задача': { icon: 'target' }, 'Разбор входящих': { icon: 'mail' }, 'Итоги дня': { icon: 'clipboard' },
+};
 const HUE: Record<DirId, string> = { body: '#5B9BD5', mind: '#9B87D6', disc: '#E8A54B', prod: '#5FBF9B', quit: '#D96A5B' };
 
 export type Created = Record<string, { kind: 'habit' | 'quit'; id: string }>;
@@ -29,12 +36,15 @@ export async function saveOnboarding(v: { name: string; habits: string[]; time: 
   const created: Created = {};
   const habits = picked.filter((p) => p.dir !== 'quit');
   if (habits.length) {
-    const rows = habits.map((p, i) => ({
-      name: p.h[lang], category: p.dir, icon: HABIT_ICON[p.dir as Exclude<DirId, 'quit'>], hue: HUE[p.dir], sort: i,
-      // bulk inserts need the same keys on every row
-      type: p.h.ru === 'Вода 8 стаканов' ? 'counter' : 'binary', target: p.h.ru === 'Вода 8 стаканов' ? 8 : null,
-      unit: p.h.ru === 'Вода 8 стаканов' ? (lang === 'en' ? 'glasses' : 'стаканов') : null,
-    }));
+    // bulk inserts need the same keys on every row
+    const rows = habits.map((p, i) => {
+      const c = CHIP[p.h.ru];
+      return {
+        name: p.h[lang], category: p.dir, icon: c?.icon ?? HABIT_ICON[p.dir as Exclude<DirId, 'quit'>], hue: HUE[p.dir], sort: i,
+        type: c?.counter ? 'counter' : c?.minutes ? 'duration' : 'binary', target: c?.counter ?? null,
+        unit: c?.counter ? (lang === 'en' ? 'glasses' : 'стаканов') : null, minutes: c?.minutes ?? null,
+      };
+    });
     const r = await db().from('habits').insert(rows).select('id');
     if (r.error) throw r.error;
     r.data.forEach((row, i) => { created[habits[i].h.ru] = { kind: 'habit', id: row.id }; });
