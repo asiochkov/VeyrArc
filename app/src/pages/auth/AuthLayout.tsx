@@ -1,7 +1,6 @@
 import { useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useT } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
-import { Icon } from '../../ui/Icon';
 import s from './auth.module.css';
 import { useFlow, type Screen } from './flow';
 
@@ -11,7 +10,7 @@ export const up = (i: number): CSSProperties => ({ animation: 'wwUp .5s cubic-be
 export function Logo({ light }: { light?: boolean }) {
   return (
     <>
-      <span className={s.logoMark}><Icon name="logo" size={20} sw={2} /></span>
+      <span className={s.logoMark}><span className={s.logoGlyph} aria-hidden /></span>
       <span className={s.wordmark} style={{ color: light ? '#F3F6FA' : 'var(--text)' }}>VeyrArc</span>
     </>
   );

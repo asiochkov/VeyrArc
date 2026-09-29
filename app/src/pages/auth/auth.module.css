@@ -17,6 +17,7 @@
 .stepLabel { font: 700 14.5px var(--font-ui); }
 
 .logoMark { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; color: var(--ink); background: linear-gradient(150deg, #A8CBEF, #6FA0D6 60%, #4F86C6); box-shadow: 0 8px 20px rgba(111,160,214,.35); flex: none; }
+.logoGlyph { width: 24px; height: 24px; background: currentColor; -webkit-mask: url('/logo-mark.png') center / contain no-repeat; mask: url('/logo-mark.png') center / contain no-repeat; }
 .wordmark { font: 800 19px var(--font-ui); letter-spacing: -.01em; }
 
 /* main column */

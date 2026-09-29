@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     // Installable app + offline shell. Not in the Artifact preview build (the host blocks service workers).
     mode !== 'preview' && VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.png', 'favicon-32.png', 'apple-touch-icon.png', 'logo-mark.png'],
       manifest: {
         name: 'VeyrArc',
         short_name: 'VeyrArc',
