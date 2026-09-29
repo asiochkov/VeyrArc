@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { runMaintenance } from '../lib/maintenance';
+import { startReminders } from '../lib/reminders';
 import { Navigate } from 'react-router-dom';
 import { isAnon, useAuth } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
@@ -17,6 +18,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     ran.current = uid;
     void runMaintenance(qc).catch(() => {});
   }, [uid, onboarded, qc]);
+  useEffect(() => (hasBackend && uid && onboarded ? startReminders(qc) : undefined), [uid, onboarded, qc]);
   if (!hasBackend) return children;
   if (!ready) return <div style={{ height: '100%', background: 'var(--bg)' }} />;
   if (!session) return <Navigate to="/welcome" replace />;

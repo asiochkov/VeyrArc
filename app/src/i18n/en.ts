@@ -415,6 +415,12 @@ export const en: Dict = {
     proDescShort: 'Unlock full analytics, Arc history and unlimited habits',
     proCta: 'Get Pro',
   },
+  notif: {
+    habitsTitle: 'Time to check in',
+    habitsBody: { one: '{n} habit left for today', other: '{n} habits left for today' },
+    focusTitle: 'Focus session complete',
+    focusBody: 'Nice work. Take a short break.',
+  },
   categories: {
     body: 'Body',
     mind: 'Mind',

@@ -5,6 +5,7 @@ import { config } from '../../config';
 import { useLangStore, useT } from '../../i18n';
 import { deleteAccount, isAnon, signOut, useAuth, userEmail } from '../../lib/auth';
 import { saveOnboarding, setHabitDone } from '../../lib/onboarding';
+import { askPermission, notificationsSupported } from '../../lib/reminders';
 import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
 import { Cta } from '../../ui/primitives';
@@ -133,7 +134,7 @@ export function Onboarding() {
                 {perm ? (
                   <span className={s.permOk}><Icon name="check" size={14} sw={2.6} /> {t('auth.permGranted')}</span>
                 ) : (
-                  <button type="button" className={s.ctaSm} onClick={() => setPerm(true)}>{t('auth.allow')}</button>
+                  <button type="button" className={s.ctaSm} onClick={() => { void askPermission().then((ok) => setPerm(ok || !notificationsSupported())); }}>{t('auth.allow')}</button>
                 )}
               </div>
             </div>

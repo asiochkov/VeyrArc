@@ -6,6 +6,7 @@ import { useAuth } from '../../lib/auth';
 import { hasBackend } from '../../lib/supabase';
 import { plannerToday, todayHabits, todayStats, weekStates, type TodayHabit } from '../../mock/today';
 import { isDone } from './HabitRow';
+import { notifyFocusDone } from '../../lib/reminders';
 
 const MOCK: TodayView = { habits: todayHabits, week: weekStates, planner: plannerToday, stats: todayStats, streakBase: todayStats.streak - 1, requiredIds: [] };
 /* Pomodoro tabs «Фокус / Короткий / Длинный» */
@@ -108,6 +109,7 @@ export function useTodayState() {
       const cur = pomoSession ?? view?.stats.session ?? 1;
       setExtra((e) => ({ sessions: e.sessions + 1, minutes: e.minutes + TAB_MIN[0] }));
       if (hasBackend) save(writeFocus(TAB_MIN[0]));
+      notifyFocusDone();
       setSession(cur % 4 + 1);
       const next = cur === 4 ? 2 : 1;
       setTab(next); setPomoLeft(TAB_MIN[next] * 60);

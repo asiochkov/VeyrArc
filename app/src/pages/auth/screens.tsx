@@ -102,10 +102,10 @@ export function Signup() {
             <Strength pw={f.pw} />
             {touched.pw && errs.pw && <div className={s.errText}>{errs.pw}</div>}
           </div>
-          <button type="button" className={s.agreeRow} style={up(8)} onClick={(e) => { if ((e.target as HTMLElement).tagName === 'A') { e.preventDefault(); return; } setAgree(!agree); }}>
+          <button type="button" className={s.agreeRow} style={up(8)} onClick={(e) => { if ((e.target as HTMLElement).tagName === 'A') return; setAgree(!agree); }}>
             <span className={s.agreeBox} data-on={agree}>{agree && <Icon name="check" size={13} sw={3.2} />}</span>
             <span className={s.small} style={{ textAlign: 'left' }}>
-              {t('auth.agreeA')}<a href="/terms" className={s.linkInline}>{t('auth.terms')}</a>{t('auth.agreeAnd')}<a href="/privacy" className={s.linkInline}>{t('auth.privacy')}</a>
+              {t('auth.agreeA')}<a href="/terms" target="_blank" rel="noopener" className={s.linkInline}>{t('auth.terms')}</a>{t('auth.agreeAnd')}<a href="/privacy" target="_blank" rel="noopener" className={s.linkInline}>{t('auth.privacy')}</a>
             </span>
           </button>
           <SubmitCta valid={valid} loading={loading === 'signup'} onClick={submit} style={{ marginTop: 18, ...up(9) }}>{t('auth.continue')}</SubmitCta>

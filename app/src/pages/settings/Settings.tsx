@@ -5,6 +5,7 @@ import { daysBetween } from '../../data/model';
 import { exportData, fetchArcs, startNewArc, updateProfile } from '../../data/settings';
 import { useAuth, userEmail } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
+import { askPermission } from '../../lib/reminders';
 import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
 import { deleteAccount, signOut } from '../../lib/auth';
@@ -46,6 +47,7 @@ export function Settings() {
     ? { n1: profile.notify_habits, n2: profile.notify_summary, n3: profile.notify_focus, n4: profile.notify_arc }
     : notifLocal;
   const toggleNotif = (k: keyof typeof NOTIF_COL) => {
+    if (!notif[k]) void askPermission();
     if (hasBackend) void updateProfile({ [NOTIF_COL[k]]: !notif[k] }).catch(() => {});
     else setNotifLocal((n) => ({ ...n, [k]: !n[k] }));
   };

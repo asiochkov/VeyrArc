@@ -4,6 +4,7 @@ import { Account, DayOne, FirstHome, Onboarding } from '../pages/auth/screens2';
 import { Calendar } from '../pages/calendar/Calendar';
 import { Goals } from '../pages/goals/Goals';
 import { Profile } from '../pages/profile/Profile';
+import { Legal } from '../pages/legal/Legal';
 import { Pro } from '../pages/pro/Pro';
 import { Settings } from '../pages/settings/Settings';
 import { Today } from '../pages/today/Today';
@@ -41,6 +42,8 @@ const routes: RouteObject[] = [
       { path: '/login', element: <GuestOnly><Login /></GuestOnly> },
       { path: '/reset', element: <Reset /> },
       { path: '/pro', element: <Pro /> },
+      { path: '/terms', element: <Legal doc="terms" /> },
+      { path: '/privacy', element: <Legal doc="privacy" /> },
       { path: '/settings/account', element: <RequireAuth><Account /></RequireAuth> },
     ],
   },
