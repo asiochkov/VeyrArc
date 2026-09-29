@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
 import { config } from '../../config';
 import { useLangStore, useT } from '../../i18n';
+import { deleteAccount, isAnon, signOut, useAuth, userEmail } from '../../lib/auth';
+import { saveOnboarding, setHabitDone } from '../../lib/onboarding';
+import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
 import { Cta } from '../../ui/primitives';
 import s from './auth.module.css';
@@ -151,6 +154,7 @@ export function Onboarding() {
 export function DayOne() {
   const t = useT();
   const navigate = useNavigate();
+  const { f, habits, time, setCreated } = useFlow();
   const [holdP, setHoldP] = useState(0);
   const [celebrate, setCelebrate] = useState(false);
   const raf = useRef(0);
@@ -168,7 +172,11 @@ export function DayOne() {
       if (p >= 1) {
         setCelebrate(true);
         if (navigator.vibrate) navigator.vibrate(30);
-        timer.current = setTimeout(() => navigate('/start'), 1400);
+        const wait = new Promise((r) => { timer.current = setTimeout(r, 1400); });
+        const save = hasBackend
+          ? saveOnboarding({ name: f.pname, habits, time }).then(setCreated).catch(() => {})
+          : Promise.resolve();
+        void Promise.all([wait, save]).then(() => navigate('/start'));
         return;
       }
       raf.current = requestAnimationFrame(tick);
@@ -211,6 +219,8 @@ export function FirstHome() {
   const t = useT();
   const navigate = useNavigate();
   const habits = useFlow((x) => x.habits);
+  const created = useFlow((x) => x.created);
+  const session = useAuth((x) => x.session);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [burst, setBurst] = useState(0);
   const all = DIRS.flatMap(([, list]) => list);
@@ -252,7 +262,12 @@ export function FirstHome() {
             {list.map((h) => {
               const on = !!checked[h.ru];
               return (
-                <button key={h.ru} type="button" className={s.row} onClick={() => { if (done === 0 && !on) setBurst((b) => b + 1); setChecked((c) => ({ ...c, [h.ru]: !c[h.ru] })); }}>
+                <button key={h.ru} type="button" className={s.row} onClick={() => {
+                  if (done === 0 && !on) setBurst((b) => b + 1);
+                  setChecked((c) => ({ ...c, [h.ru]: !c[h.ru] }));
+                  const item = created[h.ru];
+                  if (hasBackend && item?.kind === 'habit') void setHabitDone(item.id, !on).catch(() => {});
+                }}>
                   <span className={s.homeBox} data-on={on}>{on && <Icon name="check" size={14} sw={3.2} />}</span>
                   <span style={{ flex: 1, minWidth: 0, font: '600 15px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s', color: on ? 'rgba(232,237,243,.58)' : 'var(--text)' }}>{t.pick(h)}</span>
                 </button>
@@ -264,7 +279,7 @@ export function FirstHome() {
             <div className={s.saveCard}>
               <div style={{ font: '800 17px var(--font-ui)' }}>{t('auth.signupTitle')}</div>
               <div className={s.small} style={{ marginTop: 6 }}>{t('auth.signupSub')}</div>
-              <Cta style={{ marginTop: 14 }} onClick={() => navigate('/signup')}>{t('auth.continue')}</Cta>
+              <Cta style={{ marginTop: 14 }} onClick={() => navigate(hasBackend && session && !isAnon(session) ? '/' : '/signup')}>{t('auth.continue')}</Cta>
             </div>
           )}
         </div>
@@ -278,7 +293,14 @@ export function FirstHome() {
 export function Account() {
   const t = useT();
   const navigate = useNavigate();
-  const { f, plan, setPlan } = useFlow();
+  const flow = useFlow();
+  const { session, profile, plan: realPlan } = useAuth();
+  // backend: real name / email / plan; otherwise the design's example values
+  const f = hasBackend
+    ? { ...flow.f, pname: profile?.first_name ?? '', first: profile?.first_name ?? '', last: profile?.last_name ?? '', nick: profile?.nickname ?? '', email: userEmail(session) }
+    : flow.f;
+  const plan = hasBackend ? (realPlan?.plan === 'pro' ? 'pro' : 'free') : flow.plan;
+  const setPlan = hasBackend ? () => {} : flow.setPlan;
   const lang = useLangStore((x) => x.lang);
   const setLang = useLangStore((x) => x.setLang);
   const [secOpen, setSecOpen] = useState(false);
@@ -301,9 +323,9 @@ export function Account() {
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 16 }}>
               <span className={s.avatarLg}>{initials}</span>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ font: '800 20px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{(f.pname || f.first || 'Анна') + ' ' + (f.last || 'Петрова')}</div>
-                <div className={s.muted} style={{ font: '600 13px var(--font-ui)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>@{f.nick || 'anna.arc'}</div>
-                <div className={s.faint} style={{ font: '500 12.5px var(--font-ui)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.email || 'anna.petrova@gmail.com'}</div>
+                <div style={{ font: '800 20px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? [f.first, f.last].filter(Boolean).join(' ') : (f.pname || f.first || 'Анна') + ' ' + (f.last || 'Петрова')}</div>
+                <div className={s.muted} style={{ font: '600 13px var(--font-ui)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? (f.nick ? '@' + f.nick : '') : '@' + (f.nick || 'anna.arc')}</div>
+                <div className={s.faint} style={{ font: '500 12.5px var(--font-ui)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? f.email : f.email || 'anna.petrova@gmail.com'}</div>
               </div>
             </div>
             <div className={s.arcPill}>
@@ -369,7 +391,9 @@ export function Account() {
             <Cta variant="ghost" onClick={() => setModal('logout')}>{t('auth.logout')}</Cta>
             <Cta variant="danger" onClick={() => setModal('del1')}>{t('auth.deleteAccount')}</Cta>
           </div>
-          <AccountDialogs modal={modal} setModal={setModal} onLogout={() => navigate('/welcome')} onDelete={() => navigate('/welcome')} />
+          <AccountDialogs modal={modal} setModal={setModal}
+            onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}
+            onDelete={async () => { if (hasBackend) await deleteAccount(); navigate('/welcome'); }} />
         </div>
       )}
     </AuthLayout>

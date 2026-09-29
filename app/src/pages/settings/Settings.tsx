@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
+import { deleteAccount, signOut } from '../../lib/auth';
+import { hasBackend } from '../../lib/supabase';
 import { useLangStore, useT, type Lang, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { todayStats } from '../../mock/today';
@@ -204,7 +206,9 @@ export function Settings() {
         open={arcModal} title={t('settings.newArcTitle')} body={t('settings.newArcBody', { d: todayStats.arcDay, n: todayStats.arcLength })}
         confirmLabel={t('settings.newArcOk')} cancelLabel={t('settings.cancel')} onConfirm={() => setArcModal(false)} onCancel={() => setArcModal(false)}
       />
-      <AccountDialogs modal={accModal} setModal={setAccModal} onLogout={() => navigate('/welcome')} onDelete={() => navigate('/welcome')} />
+      <AccountDialogs modal={accModal} setModal={setAccModal}
+        onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}
+        onDelete={async () => { if (hasBackend) await deleteAccount(); navigate('/welcome'); }} />
     </div>
   );
 }

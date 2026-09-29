@@ -38,6 +38,12 @@ type Flow = {
   setPerm: (v: boolean) => void;
   plan: 'free' | 'pro';
   setPlan: (p: 'free' | 'pro') => void;
+  /* backend: which email confirmation is pending (sign-up or guest linking) */
+  pending: { kind: 'signup' | 'link'; email: string; pw: string } | null;
+  setPending: (p: Flow['pending']) => void;
+  /* backend: onboarding items saved as habits / quits, keyed by the RU label */
+  created: Record<string, { kind: 'habit' | 'quit'; id: string }>;
+  setCreated: (c: Flow['created']) => void;
 };
 
 export const useFlow = create<Flow>((set, get) => ({
@@ -58,6 +64,10 @@ export const useFlow = create<Flow>((set, get) => ({
   setPerm: (perm) => set({ perm }),
   plan: 'free',
   setPlan: (plan) => set({ plan }),
+  pending: null,
+  setPending: (pending) => set({ pending }),
+  created: {},
+  setCreated: (created) => set({ created }),
 }));
 
 export const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

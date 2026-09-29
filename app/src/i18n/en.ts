@@ -176,6 +176,8 @@ export const en: Dict = {
     welcomeBack: 'Welcome back',
     signInSub: 'Sign in to continue your arc.',
     loginError: 'Wrong email or password. Check your details and try again.',
+    errEmailTaken: 'This email is already registered. Sign in or use another one.',
+    errGeneric: 'That didn’t work. Check your connection and try again.',
     forgot: 'Forgot password?',
     noAccount: 'No account?',
     create: 'Create',

@@ -17,7 +17,12 @@ export function useLoad() {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => { setLoading(null); then?.(); }, ms || 1100);
   };
-  return { loading, load };
+  /* backend: spinner for as long as the request takes */
+  const run = async (key: string, fn: () => Promise<void>) => {
+    setLoading(key);
+    try { await fn(); } finally { setLoading(null); }
+  };
+  return { loading, load, run };
 }
 
 /* shake toggles between two identical keyframes so it replays */

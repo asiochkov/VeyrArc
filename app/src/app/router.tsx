@@ -10,10 +10,11 @@ import { Today } from '../pages/today/Today';
 import { Tracker } from '../pages/tracker/Tracker';
 import { PreviewLayout, PreviewScreens } from '../preview/PreviewScreens';
 import { AppShell } from './AppShell';
+import { GuestOnly, RequireAuth } from './AuthGate';
 
 const routes: RouteObject[] = [
   {
-    element: <AppShell chrome="app" />,
+    element: <RequireAuth><AppShell chrome="app" /></RequireAuth>,
     children: [
       { path: '/', element: <Today /> },
       { path: '/habits', element: <Tracker /> },
@@ -23,7 +24,7 @@ const routes: RouteObject[] = [
     ],
   },
   {
-    element: <AppShell chrome="settings" />,
+    element: <RequireAuth><AppShell chrome="settings" /></RequireAuth>,
     children: [
       { path: '/settings', element: <Settings /> },
     ],
@@ -31,16 +32,16 @@ const routes: RouteObject[] = [
   {
     element: <AppShell chrome="bare" />,
     children: [
-      { path: '/welcome', element: <Welcome /> },
+      { path: '/welcome', element: <GuestOnly><Welcome /></GuestOnly> },
       { path: '/onboarding', element: <Onboarding /> },
       { path: '/day-one', element: <DayOne /> },
       { path: '/start', element: <FirstHome /> },
-      { path: '/signup', element: <Signup /> },
+      { path: '/signup', element: <GuestOnly><Signup /></GuestOnly> },
       { path: '/verify', element: <Verify /> },
-      { path: '/login', element: <Login /> },
+      { path: '/login', element: <GuestOnly><Login /></GuestOnly> },
       { path: '/reset', element: <Reset /> },
       { path: '/pro', element: <Pro /> },
-      { path: '/settings/account', element: <Account /> },
+      { path: '/settings/account', element: <RequireAuth><Account /></RequireAuth> },
     ],
   },
 ];

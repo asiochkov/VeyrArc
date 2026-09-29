@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useT } from '../../i18n';
+import { google, nextPath, resendEmail, sendReset, setNewPassword, signIn, signUpOrLink, startGuest, verifyEmail, verifyReset } from '../../lib/auth';
+import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
 import { Cta } from '../../ui/primitives';
 import s from './auth.module.css';
@@ -13,6 +15,14 @@ import { EyeButton, Field, OrDivider, OtpInput, SocialRow, Strength, SubmitCta, 
 export function Welcome() {
   const t = useT();
   const navigate = useNavigate();
+  const { loading, run } = useLoad();
+  const start = () => {
+    if (!hasBackend) { navigate('/onboarding'); return; }
+    // B23: the guest is a real (anonymous) user from the first screen on
+    void run('start', async () => {
+      try { await startGuest(); navigate('/onboarding'); } catch { navigate('/signup'); }
+    });
+  };
   return (
     <AuthLayout screen="welcome">
       {({ dir, isDesktop }) => (
@@ -23,7 +33,7 @@ export function Welcome() {
             <div className={s.sub} style={{ maxWidth: 320, marginTop: 12, ...up(3) }}>{t('auth.welcomeSub')}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, ...up(4) }}>
-            <Cta onClick={() => navigate('/onboarding')}>{t('auth.startArc')}</Cta>
+            <Cta loading={loading === 'start'} onClick={start}>{t('auth.startArc')}</Cta>
             <Cta variant="ghost" onClick={() => navigate('/login')}>{t('auth.haveAccount')}</Cta>
           </div>
         </div>
@@ -37,11 +47,12 @@ export function Welcome() {
 export function Signup() {
   const t = useT();
   const navigate = useNavigate();
-  const { f, setF } = useFlow();
+  const { f, setF, setPending } = useFlow();
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [showPw, setShowPw] = useState(false);
   const [agree, setAgree] = useState(false);
-  const { loading, load } = useLoad();
+  const [serverErr, setServerErr] = useState('');
+  const { loading, load, run } = useLoad();
   const errs = {
     first: !f.first.trim() ? t('auth.errFirst') : '',
     last: !f.last.trim() ? t('auth.errLast') : '',
@@ -52,9 +63,22 @@ export function Signup() {
   const touch = (k: string) => setTouched((x) => ({ ...x, [k]: true }));
   const submit = () => {
     if (!valid) { setTouched({ first: true, last: true, email: true, pw: true }); return; }
-    load('signup', 1200, () => { if (!f.pname) setF('pname', f.first); navigate('/verify'); });
+    if (!f.pname) setF('pname', f.first);
+    if (!hasBackend) { load('signup', 1200, () => navigate('/verify')); return; }
+    void run('signup', async () => {
+      try {
+        const kind = await signUpOrLink({ first: f.first, last: f.last, email: f.email, pw: f.pw });
+        setPending({ kind, email: f.email, pw: f.pw });
+        navigate('/verify');
+      } catch (e) {
+        setServerErr(/already|exists|registered/i.test(String((e as Error).message)) ? t('auth.errEmailTaken') : t('auth.errGeneric'));
+      }
+    });
   };
-  const oauth = (k: string) => load(k, 1300, () => navigate('/'));
+  const oauth = (k: string) => {
+    if (!hasBackend) { load(k, 1300, () => navigate('/')); return; }
+    void run(k, async () => { try { await google(); } catch { setServerErr(t('auth.errGeneric')); } });
+  };
 
   return (
     <AuthLayout screen="signup">
@@ -64,12 +88,13 @@ export function Signup() {
           <div className={s.sub} style={{ marginTop: 8, ...up(2) }}>{t('auth.signupSub')}</div>
           <SocialRow loading={loading} onGoogle={() => oauth('google')} onApple={() => oauth('apple')} style={up(3)} />
           <OrDivider style={up(4)} />
+          {serverErr && <div className={s.alert}><Icon name="alert" size={18} sw={2} /><span>{serverErr}</span></div>}
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12, ...up(5) }}>
             <Field label={t('auth.firstName')} value={f.first} placeholder={t('auth.phFirst')} onChange={(e) => setF('first', e.target.value)} onBlur={() => touch('first')} showError={touched.first && !!errs.first} error={errs.first} />
             <Field label={t('auth.lastName')} value={f.last} placeholder={t('auth.phLast')} onChange={(e) => setF('last', e.target.value)} onBlur={() => touch('last')} showError={touched.last && !!errs.last} error={errs.last} />
           </div>
           <Field wrapStyle={{ marginTop: 14, ...up(6) }} type="email" label={t('auth.email')} value={f.email} placeholder={t('auth.phEmail')}
-            onChange={(e) => setF('email', e.target.value)} onBlur={() => touch('email')} showError={touched.email && !!errs.email} error={errs.email} />
+            onChange={(e) => { setF('email', e.target.value); setServerErr(''); }} onBlur={() => touch('email')} showError={touched.email && !!errs.email} error={errs.email} />
           <div style={{ marginTop: 14, ...up(7) }}>
             <Field label={t('auth.password')} type={showPw ? 'text' : 'password'} value={f.pw} placeholder={t('auth.phPassword')}
               onChange={(e) => setF('pw', e.target.value)} onBlur={() => touch('pw')} showError={touched.pw && !!errs.pw}
@@ -96,16 +121,31 @@ export function Signup() {
 export function Verify() {
   const t = useT();
   const navigate = useNavigate();
-  const email = useFlow((x) => x.f.email) || 'anna.petrova@gmail.com';
+  const pending = useFlow((x) => x.pending);
+  const email = pending?.email || useFlow.getState().f.email || (hasBackend ? '' : 'anna.petrova@gmail.com');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [err, setErr] = useState(false);
   const [ok, setOk] = useState(false);
-  const { loading, load } = useLoad();
+  const { loading, load, run } = useLoad();
   const { shake, cls } = useShake();
   const timer = useResendTimer(!ok);
   const full = otp.every(Boolean);
+  const resend = () => {
+    timer.reset(); setOtp(['', '', '', '', '', '']); setErr(false);
+    if (hasBackend && pending) void resendEmail(pending.kind, pending.email).catch(() => {});
+  };
   const submit = () => {
     if (!full) return;
+    if (hasBackend) {
+      void run('otp', async () => {
+        try {
+          await verifyEmail(pending?.kind ?? 'signup', email, otp.join(''), pending?.pw ?? '');
+          setOk(true);
+          setTimeout(() => navigate(nextPath()), 1100);
+        } catch { setErr(true); shake('otp'); }
+      });
+      return;
+    }
     load('otp', 1000, () => {
       if (otp.join('') === '000000') { setErr(true); shake('otp'); return; }
       setOk(true);
@@ -133,7 +173,7 @@ export function Verify() {
               <SubmitCta valid={full} loading={loading === 'otp'} onClick={submit} style={{ marginTop: 22, ...up(5) }}>{t('auth.confirm')}</SubmitCta>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 18, ...up(6) }}>
                 {timer.left === 0 ? (
-                  <button type="button" className={s.linkBtn} onClick={() => { timer.reset(); setOtp(['', '', '', '', '', '']); setErr(false); }}>{t('auth.resend')}</button>
+                  <button type="button" className={s.linkBtn} onClick={resend}>{t('auth.resend')}</button>
                 ) : (
                   <span className={s.small}>{t('auth.resendIn')}<span style={{ fontFamily: 'var(--font-mono)' }}>{timer.label}</span></span>
                 )}
@@ -155,12 +195,21 @@ export function Login() {
   const { f, setF } = useFlow();
   const [showPw, setShowPw] = useState(false);
   const [err, setErr] = useState(false);
-  const { loading, load } = useLoad();
+  const { loading, load, run } = useLoad();
   const { shake, cls } = useShake();
-  const submit = () => load('login', 1100, () => {
-    if (!emailRe.test(f.lemail) || f.lpw.length < 8) { setErr(true); shake('login'); } else navigate('/');
-  });
-  const oauth = (k: string) => load(k, 1300, () => navigate('/'));
+  const submit = () => {
+    if (!hasBackend) {
+      load('login', 1100, () => { if (!emailRe.test(f.lemail) || f.lpw.length < 8) { setErr(true); shake('login'); } else navigate('/'); });
+      return;
+    }
+    void run('login', async () => {
+      try { await signIn(f.lemail.trim(), f.lpw); navigate(nextPath()); } catch { setErr(true); shake('login'); }
+    });
+  };
+  const oauth = (k: string) => {
+    if (!hasBackend) { load(k, 1300, () => navigate('/')); return; }
+    void run(k, async () => { try { await google(); } catch { setErr(true); } });
+  };
 
   return (
     <AuthLayout screen="login">
@@ -201,9 +250,27 @@ export function Reset() {
   const [showPw, setShowPw] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [err, setErr] = useState(false);
-  const { loading, load } = useLoad();
+  const { loading, load, run } = useLoad();
   const { shake, cls } = useShake();
   const timer = useResendTimer(step === 'code');
+  // backend: the same steps, backed by Supabase password recovery (6-digit code)
+  const sendCode = () => {
+    if (!hasBackend) { load('reset', 1000, () => go('check')); return; }
+    void run('reset', async () => { await sendReset(f.remail.trim()).catch(() => {}); go('check'); });
+  };
+  const checkCode = () => {
+    if (!full) return;
+    if (!hasBackend) { load('otp', 1000, () => { if (otp.join('') === '000000') { setErr(true); shake('otp'); } else go('newpw'); }); return; }
+    void run('otp', async () => { try { await verifyReset(f.remail.trim(), otp.join('')); go('newpw'); } catch { setErr(true); shake('otp'); } });
+  };
+  const savePw = () => {
+    if (!hasBackend) { load('newpw', 1100, () => go('done')); return; }
+    void run('newpw', async () => { try { await setNewPassword(f.npw); go('done'); } catch { setTouched((x) => ({ ...x, npw: true })); } });
+  };
+  const resendReset = () => {
+    timer.reset(); setOtp(['', '', '', '', '', '']); setErr(false);
+    if (hasBackend) void sendReset(f.remail.trim()).catch(() => {});
+  };
   const go = (next: RStep, d: 1 | -1 = 1) => { setSdir(d); setStep(next); };
   const email = f.remail || 'anna.petrova@gmail.com';
   const errs = {
@@ -227,7 +294,7 @@ export function Reset() {
               <div className={s.sub} style={{ marginTop: 8 }}>{t('auth.resetSub')}</div>
               <Field wrapStyle={{ marginTop: 26 }} type="email" label={t('auth.email')} value={f.remail} placeholder={t('auth.phEmail')}
                 onChange={(e) => setF('remail', e.target.value)} onBlur={() => setTouched((x) => ({ ...x, remail: true }))} showError={touched.remail && !!errs.remail} error={errs.remail} />
-              <SubmitCta valid={!errs.remail} loading={loading === 'reset'} onClick={() => load('reset', 1000, () => go('check'))} style={{ marginTop: 22 }}>{t('auth.sendCode')}</SubmitCta>
+              <SubmitCta valid={!errs.remail} loading={loading === 'reset'} onClick={sendCode} style={{ marginTop: 22 }}>{t('auth.sendCode')}</SubmitCta>
             </div>
           )}
 
@@ -248,10 +315,10 @@ export function Reset() {
               <OtpInput value={otp} onChange={(v) => { setOtp(v); setErr(false); }} error={err} shakeClass={cls('otp')} />
               {err && <div className={s.errText} style={{ textAlign: 'center', marginTop: 10 }}>{t('auth.wrongCode')}</div>}
               <SubmitCta valid={full} loading={loading === 'otp'} style={{ marginTop: 22 }}
-                onClick={() => full && load('otp', 1000, () => { if (otp.join('') === '000000') { setErr(true); shake('otp'); } else go('newpw'); })}>{t('auth.continue')}</SubmitCta>
+                onClick={checkCode}>{t('auth.continue')}</SubmitCta>
               <div style={{ marginTop: 18, textAlign: 'center' }}>
                 {timer.left === 0 ? (
-                  <button type="button" className={s.linkBtn} onClick={() => { timer.reset(); setOtp(['', '', '', '', '', '']); setErr(false); }}>{t('auth.resend')}</button>
+                  <button type="button" className={s.linkBtn} onClick={resendReset}>{t('auth.resend')}</button>
                 ) : (
                   <span className={s.small}>{t('auth.resendIn')}<span style={{ fontFamily: 'var(--font-mono)' }}>{timer.label}</span></span>
                 )}
@@ -272,7 +339,7 @@ export function Reset() {
               </div>
               <Field wrapStyle={{ marginTop: 14 }} label={t('auth.repeatPassword')} type={showPw ? 'text' : 'password'} value={f.npw2} placeholder={t('auth.phRepeat')}
                 onChange={(e) => setF('npw2', e.target.value)} onBlur={() => setTouched((x) => ({ ...x, npw2: true }))} showError={touched.npw2 && !!errs.npw2} error={errs.npw2} />
-              <SubmitCta valid={!errs.npw && !errs.npw2 && !!f.npw2} loading={loading === 'newpw'} onClick={() => load('newpw', 1100, () => go('done'))} style={{ marginTop: 22 }}>{t('auth.savePassword')}</SubmitCta>
+              <SubmitCta valid={!errs.npw && !errs.npw2 && !!f.npw2} loading={loading === 'newpw'} onClick={savePw} style={{ marginTop: 22 }}>{t('auth.savePassword')}</SubmitCta>
             </div>
           )}
 
