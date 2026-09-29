@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { hasBackend } from '../../lib/supabase';
 import type { IconName } from '../../ui/Icon';
 
 /*
@@ -54,7 +55,7 @@ export const useFlow = create<Flow>((set, get) => ({
     const dir = prev == null || ORDER.indexOf(s) >= ORDER.indexOf(prev) ? 1 : -1;
     set({ prev: s, dir });
   },
-  f: { first: '', last: '', email: '', pw: '', lemail: '', lpw: '', remail: '', npw: '', npw2: '', pname: 'Анна', nick: '' },
+  f: { first: '', last: '', email: '', pw: '', lemail: '', lpw: '', remail: '', npw: '', npw2: '', pname: hasBackend ? '' : 'Анна', nick: '' },
   setF: (k, v) => set((st) => ({ f: { ...st.f, [k]: v } })),
   habits: [],
   toggleHabit: (id) => set((st) => ({ habits: st.habits.includes(id) ? st.habits.filter((x) => x !== id) : [...st.habits, id] })),
