@@ -1,4 +1,12 @@
-import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent } from 'react';
+import { colorOf, createItem, fetchCalendar, updateNote, updateTimes, weekEvents, type CalRaw } from '../../data/calendar';
+import { fetchGoals } from '../../data/goals';
+import { useHeader } from '../../data/header';
+import { addDays, daysBetween, hhmm, parseDay } from '../../data/model';
+import { buildToday, fetchToday } from '../../data/today';
+import { useAuth } from '../../lib/auth';
+import { hasBackend } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
 import { useAddAction } from '../../app/nav';
 import { useT, type T } from '../../i18n';
@@ -7,7 +15,6 @@ import {
   breakdown, calEvents, EV_CAT, EV_FILL, H0, H1, mobileStats, MONTH, ROW, ROW_M, TASKS_TODAY, TODAY_IDX, TZ_LABEL,
   upcoming, weekDates, type CalEvent, type EvColor,
 } from '../../mock/calendar';
-import { todayStats } from '../../mock/today';
 import { Icon, type IconName } from '../../ui/Icon';
 import { Avatar, Segmented } from '../../ui/primitives';
 import s from './calendar.module.css';
@@ -22,14 +29,92 @@ const fmt = (x: number) => {
 };
 const HOURS = Array.from({ length: H1 - H0 + 1 }, (_, i) => String(H0 + i).padStart(2, '0') + ':00');
 
+type Cal = {
+  weekDates: number[]; todayIdx: number; monthIdx: number; year: number;
+  month: { days: number; sel: number; today: number; lead: number };
+  monthDots: (n: number) => EvColor[];
+  upcoming: { name: { ru: string; en: string }; time: string; done: boolean }[];
+  breakdown: { label: { ru: string; en: string }; hours: number; c: string; w: number }[];
+  tasksToday: number; tz: string;
+  stats: { value: string; key: 'habitsDone' | 'daysInRow' | 'daysToGoal'; hue: string; icon: string; span: number }[];
+};
+const MOCK_CAL: Cal = {
+  weekDates, todayIdx: TODAY_IDX, monthIdx: 8, year: 2026, month: { ...MONTH, lead: 0 },
+  monthDots: (n) => { const i = weekDates.indexOf(n); return i >= 0 ? calEvents.filter((e) => e.d === i).map((e) => e.c) : []; },
+  upcoming, breakdown, tasksToday: TASKS_TODAY, tz: TZ_LABEL, stats: mobileStats.map((m) => ({ ...m })),
+};
+const BD = [
+  { key: 'meeting', label: { ru: 'Встречи', en: 'Meetings' }, c: '#5B9BD5' },
+  { key: 'work', label: { ru: 'Проекты', en: 'Projects' }, c: '#5FBF9B' },
+  { key: 'deadline', label: { ru: 'События', en: 'Events' }, c: '#E8A54B' },
+  { key: 'review', label: { ru: 'Ревью', en: 'Reviews' }, c: '#9B87D6' },
+];
+const COLOR_OF_KEY: Record<string, EvColor> = { meeting: 'blue', work: 'green', deadline: 'red', review: 'purple' };
+
+function deriveCal(raw: CalRaw, extra: { habitsPct: number | null; streak: number | null; daysToGoal: number | null }): Cal {
+  const d0 = parseDay(raw.day);
+  const days = new Date(d0.getFullYear(), d0.getMonth() + 1, 0).getDate();
+  const lead = (new Date(d0.getFullYear(), d0.getMonth(), 1).getDay() + 6) % 7;
+  const events = weekEvents(raw);
+  const hours: Record<string, number> = {};
+  for (const e of events) { const k = Object.keys(COLOR_OF_KEY).find((x) => COLOR_OF_KEY[x] === e.c)!; hours[k] = (hours[k] ?? 0) + (e.e - e.s); }
+  const maxH = Math.max(1, ...Object.values(hours));
+  const off = -new Date().getTimezoneOffset() / 60;
+  const todays = raw.items.filter((p) => p.day === raw.day);
+  return {
+    weekDates: Array.from({ length: 7 }, (_, i) => parseDay(addDays(raw.week0, i)).getDate()),
+    todayIdx: daysBetween(raw.week0, raw.day), monthIdx: d0.getMonth(), year: d0.getFullYear(),
+    month: { days, sel: d0.getDate(), today: d0.getDate(), lead },
+    monthDots: (n) => {
+      const day = raw.monthStart.slice(0, 8) + String(n).padStart(2, '0');
+      return raw.items.filter((p) => p.day === day).map((p) => colorOf(raw, p));
+    },
+    upcoming: todays.slice(0, 4).map((p) => ({ name: { ru: p.title, en: p.title }, time: hhmm(p.starts_at) ?? '—', done: p.done })),
+    breakdown: BD.map((b) => ({ label: b.label, c: b.c, hours: Math.round((hours[b.key] ?? 0) * 10) / 10, w: Math.round(((hours[b.key] ?? 0) / maxH) * 78) })),
+    tasksToday: todays.length,
+    tz: `GMT ${off >= 0 ? '+' : '−'}${Math.abs(off)}`,
+    stats: [
+      { value: extra.habitsPct == null ? '—' : extra.habitsPct + '%', key: 'habitsDone', hue: '#5FBF9B', icon: 'check', span: 2 },
+      { value: extra.streak == null ? '—' : String(extra.streak), key: 'daysInRow', hue: '#E8A54B', icon: 'flameTall', span: 1 },
+      { value: extra.daysToGoal == null ? '—' : String(extra.daysToGoal), key: 'daysToGoal', hue: '#9B87D6', icon: 'target', span: 1 },
+    ],
+  };
+}
+
 /* State + handlers from VeyrArc Calendar.dc.html */
 function useCalendar() {
+  const session = useAuth((x) => x.session);
+  const on = hasBackend && !!session;
+  const q = useQuery({ queryKey: ['calendar'], queryFn: fetchCalendar, enabled: on, refetchOnWindowFocus: false });
+  const qt = useQuery({ queryKey: ['today'], queryFn: fetchToday, enabled: on, refetchOnWindowFocus: false });
+  const qg = useQuery({ queryKey: ['goals'], queryFn: fetchGoals, enabled: on, refetchOnWindowFocus: false });
+  const cal = useMemo<Cal | null>(() => {
+    if (!hasBackend) return MOCK_CAL;
+    if (!q.data) return null;
+    const tv = qt.data ? buildToday(qt.data, { initials: '', freezesAllowed: 1 }) : null;
+    const todayIdx = (new Date().getDay() + 6) % 7;
+    const dots = tv ? tv.habits.flatMap((h) => h.dots.slice(0, todayIdx + 1)) : [];
+    const deadlines = (qg.data?.goals ?? []).filter((g) => g.status === 'active' && g.deadline && g.deadline >= q.data.day).map((g) => daysBetween(q.data.day, g.deadline!));
+    return deriveCal(q.data, {
+      habitsPct: dots.length ? Math.round((dots.filter(Boolean).length / dots.length) * 100) : null,
+      streak: tv ? tv.stats.streak : null,
+      daysToGoal: deadlines.length ? Math.min(...deadlines) : null,
+    });
+  }, [q.data, qt.data, qg.data]);
   const [view, setView] = useState<View>('week');
-  const [selEvent, setSelEvent] = useState<string | null>('meet');
-  const [selDay, setSelDay] = useState(1);
+  const [selEvent, setSelEvent] = useState<string | null>(hasBackend ? null : 'meet');
+  const [selDay, setSelDay] = useState(hasBackend ? (new Date().getDay() + 6) % 7 : 1);
   const [monthOpen, setMonthOpen] = useState(false);
   const [now, setNow] = useState(Date.now());
-  const [events, setEvents] = useState<CalEvent[]>(calEvents);
+  const [events, setEvents] = useState<CalEvent[]>(hasBackend ? [] : calEvents);
+  useEffect(() => { if (q.data) setEvents(weekEvents(q.data)); }, [q.data]);
+  const eventsRef = useRef(events);
+  eventsRef.current = events;
+  const noteTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const persistTimes = (id: string) => {
+    if (!hasBackend) return;
+    setTimeout(() => { const ev = eventsRef.current.find((x) => x.id === id); if (ev) void updateTimes(id, ev.s, ev.e).catch(() => {}); }, 0);
+  };
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [creating, setCreating] = useState<Creating | null>(null);
   const drag = useRef<{ id: string; y0: number; s: number; e: number } | null>(null);
@@ -46,7 +131,7 @@ function useCalendar() {
       if (ns + len > H1) ns = H1 - len;
       setEvents((list) => list.map((x) => (x.id === d.id ? { ...x, s: ns, e: ns + len } : x)));
     };
-    const up = () => { drag.current = null; };
+    const up = () => { const d = drag.current; drag.current = null; if (d) persistTimes(d.id); };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
     return () => { clearInterval(t); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
@@ -59,11 +144,11 @@ function useCalendar() {
     drag.current = { id, y0: ev.clientY, s: e0.s, e: e0.e };
   };
 
-  const nudge = (id: string, field: 's' | 'e', delta: number) => setEvents((list) => list.map((x) => {
+  const nudge = (id: string, field: 's' | 'e', delta: number) => { persistTimes(id); setEvents((list) => list.map((x) => {
     if (x.id !== id) return x;
     if (field === 's') return { ...x, s: Math.max(H0, Math.min(x.e - 0.25, x.s + delta)) };
     return { ...x, e: Math.min(H1, Math.max(x.s + 0.25, x.e + delta)) };
-  }));
+  })); };
 
   const nudgeCreating = (field: 's' | 'e', delta: number) => setCreating((c) => {
     if (!c) return c;
@@ -84,7 +169,8 @@ function useCalendar() {
     const used = events.filter((ev) => ev.d === selDay).map((ev) => ev.s);
     let st = 12;
     while (used.indexOf(st) >= 0 && st < H1 - 1) st++;
-    const item: CalEvent = { id: 't' + Date.now(), d: selDay, s: st, e: Math.min(st + 1, H1), t: label, c: 'purple' };
+    const item: CalEvent = { id: hasBackend ? crypto.randomUUID() : 't' + Date.now(), d: selDay, s: st, e: Math.min(st + 1, H1), t: label, c: 'purple' };
+    if (hasBackend && q.data) void createItem(q.data, item.id, addDays(q.data.week0, selDay), item.s, item.e, label[document.documentElement.lang === 'en' ? 'en' : 'ru'], item.c).catch(() => {});
     setEvents((l) => [...l, item]);
     setSelEvent(item.id);
   };
@@ -92,13 +178,21 @@ function useCalendar() {
   const saveCreating = (fallback: { ru: string; en: string }) => {
     if (!creating) return;
     const title = creating.t.trim();
-    const item: CalEvent = { id: 'n' + Date.now(), d: creating.d, s: creating.s, e: creating.e, t: title ? { ru: title, en: title } : fallback, c: creating.c };
+    const item: CalEvent = { id: hasBackend ? crypto.randomUUID() : 'n' + Date.now(), d: creating.d, s: creating.s, e: creating.e, t: title ? { ru: title, en: title } : fallback, c: creating.c };
+    if (hasBackend && q.data) void createItem(q.data, item.id, addDays(q.data.week0, creating.d), item.s, item.e, title || fallback[document.documentElement.lang === 'en' ? 'en' : 'ru'], item.c).catch(() => {});
     setEvents((l) => [...l, item]);
     setCreating(null);
     setSelEvent(item.id);
   };
 
   return {
+    cal: cal ?? MOCK_CAL, ready: !!cal,
+    saveNote: (id: string, v: string) => {
+      setNotes((n) => ({ ...n, [id]: v }));
+      if (!hasBackend) return;
+      clearTimeout(noteTimers.current[id]);
+      noteTimers.current[id] = setTimeout(() => { void updateNote(id, v).catch(() => {}); }, 700);
+    },
     view, setView, selEvent, setSelEvent, selDay, setSelDay, monthOpen, setMonthOpen, now, events, notes, setNotes,
     creating, setCreating, startDrag, nudge, nudgeCreating, onColumnClick, addTask, saveCreating,
   };
@@ -109,6 +203,7 @@ export function Calendar() {
   const t = useT();
   const isDesktop = useIsDesktop();
   const st = useCalendar();
+  const hd = useHeader();
 
   const setHandler = useAddAction((x) => x.setHandler);
   useEffect(() => {
@@ -116,26 +211,30 @@ export function Calendar() {
     return () => setHandler(null);
   });
 
-  return isDesktop ? <DesktopCalendar t={t} st={st} /> : <MobileCalendar t={t} st={st} />;
+  if (!st.ready) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
+  return isDesktop ? <DesktopCalendar t={t} st={st} initials={hd.initials} /> : <MobileCalendar t={t} st={st} initials={hd.initials} />;
 }
 
 /* month grid cells: 30 days + trailing greyed days, sel = 12, today = 11 */
-function monthCells() {
+function monthCells(cal: Cal) {
+  const M = cal.month;
   const cells: { label: string; k: 'sel' | 'today' | 'day' | 'grey' }[] = [];
-  for (let n = 1; n <= MONTH.days; n++) cells.push({ label: String(n), k: n === MONTH.sel ? 'sel' : n === MONTH.today ? 'today' : 'day' });
+  const prevDays = new Date(cal.year, cal.monthIdx, 0).getDate();
+  for (let i = M.lead; i > 0; i--) cells.push({ label: String(prevDays - i + 1), k: 'grey' });
+  for (let n = 1; n <= M.days; n++) cells.push({ label: String(n), k: n === M.sel ? 'sel' : n === M.today ? 'today' : 'day' });
   let nx = 1;
-  while (cells.length < 35) cells.push({ label: String(nx++), k: 'grey' });
+  while (cells.length < 35 || cells.length % 7) cells.push({ label: String(nx++), k: 'grey' });
   return cells;
 }
 
-function MonthMini({ t, big, gap }: { t: T; big: boolean; gap: number }) {
+function MonthMini({ t, big, gap, cal }: { t: T; big: boolean; gap: number; cal: Cal }) {
   return (
     <>
       <div className={s.grid7} style={{ gap, marginBottom: gap }}>
         {t.list('weekdays.short').map((w) => <div key={w} className={s.wd} style={big ? undefined : { padding: '2px 0' }}>{w}</div>)}
       </div>
       <div className={s.grid7} style={{ gap }}>
-        {monthCells().map((c, i) => (
+        {monthCells(cal).map((c, i) => (
           <div key={i} className={s.mcell} data-k={c.k} style={{ fontSize: big ? 13 : 12, borderRadius: big ? 11 : 9 }}>{c.label}</div>
         ))}
       </div>
@@ -188,7 +287,8 @@ function TimeBox({ label, value, onUp, onDown }: { label: string; value: string;
 }
 
 function EventPopover({ t, st }: { t: T; st: St }) {
-  const ev = st.events.find((x) => x.id === st.selEvent) || st.events.find((x) => x.id === 'meet')!;
+  const ev = st.events.find((x) => x.id === st.selEvent) || st.events.find((x) => x.id === 'meet') || (hasBackend ? st.events[0] : undefined);
+  if (!ev) return null;
   const cat = EV_CAT[ev.c];
   const note = st.notes[ev.id] ?? (ev.n ? t.pick(ev.n) : '');
   return (
@@ -214,7 +314,7 @@ function EventPopover({ t, st }: { t: T; st: St }) {
       <div style={{ marginTop: 14 }}>
         <div className={s.noteLab}>{t('calendar.note')}</div>
         <textarea className={s.note} value={note} placeholder={t('calendar.notePlaceholder')}
-          onChange={(e) => { const v = e.target.value; st.setNotes((n) => ({ ...n, [ev.id]: v })); }} />
+          onChange={(e) => st.saveNote(ev.id, e.target.value)} />
       </div>
     </div>
   );
@@ -257,9 +357,10 @@ function CreatePopover({ t, st }: { t: T; st: St }) {
 
 /* ---------------- desktop ---------------- */
 
-function DesktopCalendar({ t, st }: { t: T; st: St }) {
+function DesktopCalendar({ t, st, initials }: { t: T; st: St; initials: string }) {
   const dows = t.list('weekdays.short');
-  const monthName = t.list('months')[8];
+  const { weekDates, todayIdx: TODAY_IDX, upcoming, breakdown, tz: TZ_LABEL } = st.cal;
+  const monthName = t.list('months')[st.cal.monthIdx];
   const hoursCol = (
     <div className={s.hours}>
       <div className={s.tz}>{TZ_LABEL}</div>
@@ -272,7 +373,7 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
       <div className={s.sidebar}>
         <div>
           <div className={s.miniMonth}>{monthName}</div>
-          <MonthMini t={t} big={false} gap={4} />
+          <MonthMini t={t} big={false} gap={4} cal={st.cal} />
         </div>
         <div>
           <div className={s.secHead} style={{ marginBottom: 12 }}>
@@ -318,7 +419,7 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
               options={(['month', 'week', 'day'] as View[]).map((v) => ({ id: v, label: t(`calendar.views.${v}`) }))} />
             <button type="button" className={s.iconBtn}><Icon name="search" size={18} /></button>
             <button type="button" className={s.iconBtn}><Icon name="bell" size={18} /></button>
-            <Avatar initials={todayStats.initials} size={36} />
+            <Avatar initials={initials} size={36} />
           </div>
         </div>
 
@@ -364,11 +465,10 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
               {dows.map((w) => <div key={w} style={{ font: '700 11px var(--font-mono)', letterSpacing: '.08em', color: 'rgba(232,237,243,.4)', padding: '0 4px' }}>{w}</div>)}
             </div>
             <div className={s.grid7} style={{ flex: 1, gridAutoRows: '1fr', gap: 8 }}>
-              {monthCells().map((c, i) => {
+              {monthCells(st.cal).map((c, i) => {
                 const greyed = c.k === 'grey';
-                const dayIdx = greyed ? -1 : weekDates.indexOf(Number(c.label));
-                const evs = dayIdx >= 0 ? st.events.filter((ev) => ev.d === dayIdx) : [];
-                const isSel = c.label === '12' && !greyed;
+                const evs = greyed ? [] : st.cal.monthDots(Number(c.label)).map((cc) => ({ c: cc }));
+                const isSel = c.k === 'sel';
                 return (
                   <div key={i} className={s.monthCell} data-sel={isSel}>
                     <div className={s.monthNum} style={greyed ? { color: 'rgba(232,237,243,.22)' } : isSel ? { color: '#A8CBEF' } : undefined}>{c.label}</div>
@@ -393,9 +493,10 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
 
 /* ---------------- mobile ---------------- */
 
-function MobileCalendar({ t, st }: { t: T; st: St }) {
+function MobileCalendar({ t, st, initials }: { t: T; st: St; initials: string }) {
   const dows = t.list('weekdays.short');
-  const monthName = t.list('months')[8];
+  const { weekDates, tasksToday: TASKS_TODAY, stats: mobileStats } = st.cal;
+  const monthName = t.list('months')[st.cal.monthIdx];
   return (
     <div className={s.mobileScroll} data-scroll>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -406,7 +507,7 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
             <div style={{ font: '800 22px/1.1 var(--font-ui)', marginTop: 5 }}>{t('calendar.planner')}</div>
           </div>
         </div>
-        <Avatar initials={todayStats.initials} />
+        <Avatar initials={initials} />
       </div>
 
       <div style={{ marginTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -428,7 +529,7 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
               <button type="button" className={s.arrow}><Icon name="chevron" size={15} sw={2} /></button>
             </div>
           </div>
-          <MonthMini t={t} big gap={5} />
+          <MonthMini t={t} big gap={5} cal={st.cal} />
         </div>
       )}
 

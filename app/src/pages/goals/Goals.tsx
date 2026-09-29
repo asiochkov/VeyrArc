@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom';
 import { useAddAction } from '../../app/nav';
 import { useT, type Bilingual, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
-import { FREE_GOAL_LIMIT, GOALS_TODAY, type Goal } from '../../mock/goals';
-import { todayStats } from '../../mock/today';
+import { type Goal } from '../../mock/goals';
+import { useHeader } from '../../data/header';
 import { Icon } from '../../ui/Icon';
 import { Avatar, MoodFace, Segmented } from '../../ui/primitives';
 import s from './goals.module.css';
@@ -25,6 +25,7 @@ export function Goals() {
     return () => setHandler(null);
   });
 
+  if (!g.ready) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
   return (
     <>
       {isDesktop ? <Desktop t={t} g={g} /> : <Mobile t={t} g={g} />}
@@ -89,7 +90,7 @@ function MenuAndForms({ t, g, m }: { t: T; g: GoalsState; m: boolean }) {
           <div style={{ color: '#E8B75E' }}><Icon name="lock" size={18} /></div>
           <div style={{ font: `700 ${m ? 13.5 : 14}px var(--font-ui)`, color: '#f2e2c4' }}>{t('goals.limitTitle')}</div>
           <div style={{ font: `400 ${m ? 11.5 : 12}px/1.5 var(--font-ui)`, color: 'rgba(232,237,243,.55)' }}>
-            {t(m ? 'goals.limitDescShort' : 'goals.limitDesc', { n: FREE_GOAL_LIMIT })}
+            {t(m ? 'goals.limitDescShort' : 'goals.limitDesc', { n: g.limit })}
           </div>
           <button type="button" className={s.goldPill} style={m ? undefined : { marginTop: 4 }} onClick={() => g.setAddingGoal(false)}>{t('goals.gotIt')}</button>
         </div>
@@ -127,8 +128,8 @@ function dayLabel(t: T, date: string) {
 
 function DayNav({ t, g, m }: { t: T; g: GoalsState; m: boolean }) {
   const btn = m ? 30 : 32;
-  const notToday = g.viewDate !== GOALS_TODAY;
-  const todayBtn = notToday && <button type="button" className={s.todayBtn} onClick={() => g.setViewDate(GOALS_TODAY)}>{t('goals.today')}</button>;
+  const notToday = g.viewDate !== g.today;
+  const todayBtn = notToday && <button type="button" className={s.todayBtn} onClick={() => g.setViewDate(g.today)}>{t('goals.today')}</button>;
   return (
     <>
       <div style={{ marginTop: m ? 14 : 18, display: 'flex', alignItems: 'center', justifyContent: m ? 'center' : undefined, gap: m ? 10 : 12 }}>
@@ -208,7 +209,7 @@ function TasksCard({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
 
 function DiaryCard({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: Goal }) {
   const entry = g.getEntry(goal.id, g.viewDate);
-  const isFuture = g.viewDate > GOALS_TODAY;
+  const isFuture = g.viewDate > g.today;
   const allDone = goal.tasks.length > 0 && goal.tasks.every((task) => entry.tasksDone[task.id]);
   const ph = isFuture ? t('goals.phFuture') : allDone ? t('goals.phDone') : t('goals.phMissed');
   return (
@@ -253,7 +254,7 @@ function MonthView({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
                 else if (st === 'partial') Object.assign(style, { background: 'transparent', border: `2px solid ${goal.hue}`, color: goal.hue });
                 else if (st === 'missed') Object.assign(style, { background: 'rgba(217,106,91,.14)', color: '#D96A5B' });
                 else Object.assign(style, { background: 'rgba(255,255,255,.05)', color: 'rgba(232,237,243,.45)' });
-                if (c.date === GOALS_TODAY) style.boxShadow = '0 0 0 2px #E8A54B';
+                if (c.date === g.today) style.boxShadow = '0 0 0 2px #E8A54B';
                 return <button type="button" className={s.dayCell} style={style} onClick={() => { g.setScreen('day'); g.setViewDate(c.date); }}>{c.n}</button>;
               })()}
             </div>
@@ -320,7 +321,7 @@ function Desktop({ t, g }: { t: T; g: GoalsState }) {
           <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.26em', color: 'rgba(232,237,243,.34)' }}>{t('common.brandCaps')}</div>
           <div style={{ font: '800 34px/1 var(--font-ui)', letterSpacing: '-.01em', marginTop: 10 }}>{t('goals.title')}</div>
         </div>
-        <Avatar initials={todayStats.initials} />
+        <Avatar initials={useHeader().initials} />
       </div>
       {goal ? (
         <>
@@ -355,7 +356,7 @@ function Mobile({ t, g }: { t: T; g: GoalsState }) {
           <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.26em', color: 'rgba(232,237,243,.34)' }}>{t('common.brandCaps')}</div>
           <div style={{ font: '800 28px/1.1 var(--font-ui)', marginTop: 8 }}>{t('goals.title')}</div>
         </div>
-        <Avatar initials={todayStats.initials} />
+        <Avatar initials={useHeader().initials} />
       </div>
       {goal ? (
         <>
