@@ -31,7 +31,9 @@ export async function saveOnboarding(v: { name: string; habits: string[]; time: 
   if (habits.length) {
     const rows = habits.map((p, i) => ({
       name: p.h[lang], category: p.dir, icon: HABIT_ICON[p.dir as Exclude<DirId, 'quit'>], hue: HUE[p.dir], sort: i,
-      ...(p.h.ru === 'Вода 8 стаканов' ? { type: 'counter', target: 8 } : {}),
+      // bulk inserts need the same keys on every row
+      type: p.h.ru === 'Вода 8 стаканов' ? 'counter' : 'binary', target: p.h.ru === 'Вода 8 стаканов' ? 8 : null,
+      unit: p.h.ru === 'Вода 8 стаканов' ? (lang === 'en' ? 'glasses' : 'стаканов') : null,
     }));
     const r = await db().from('habits').insert(rows).select('id');
     if (r.error) throw r.error;

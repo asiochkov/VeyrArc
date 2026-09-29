@@ -59,12 +59,12 @@ export function HabitCard({
       {expanded && (
         <div className={s.expanded}>
           <div className={s.stats}>
-            <div><div className={s.statVal}>{habitRate(h)}%</div><div className={s.statLab}>{t('tracker.statDone')}</div></div>
+            <div><div className={s.statVal}>{h.rate ?? habitRate(h)}%</div><div className={s.statLab}>{t('tracker.statDone')}</div></div>
             <div><div className={s.statVal}>{t('tracker.bestDays', { n: h.best })}</div><div className={s.statLab}>{t('tracker.statBest')}</div></div>
             <div><div className={s.statVal}>{h.total}</div><div className={s.statLab}>{t('tracker.statTotal')}</div></div>
           </div>
           <div className={s.grid12} style={{ gap: mobile ? 4 : 5 }}>
-            {buildGrid(h).map((c, i) => (
+            {(h.grid ?? buildGrid(h)).map((c, i) => (
               <div key={i} className={s.cell} style={{ background: c === 'done' ? h.hue : c === 'miss' ? MISS : c === 'empty' ? 'rgba(255,255,255,.07)' : 'rgba(255,255,255,.03)' }} />
             ))}
           </div>

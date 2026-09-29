@@ -380,6 +380,7 @@ export const ru = {
     planner: 'Планер',
     plannerCount: { one: '{n} пункт', few: '{n} пункта', many: '{n} пунктов', other: '{n} пункта' },
     openPlanner: 'Открыть планер',
+    daytime: 'Днём',
     today: 'Сегодня',
     countOf: '{a} из {b}',
     habitsOf: '{a} из {b} привычек',

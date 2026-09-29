@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useT, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
-import { plannerToday, todayStats as st, weekStates } from '../../mock/today';
 import { Icon } from '../../ui/Icon';
 import { Avatar, MoodFace, ProgressRing, Segmented } from '../../ui/primitives';
 import { HabitRow } from './HabitRow';
@@ -14,13 +13,15 @@ export function Today() {
   const isDesktop = useIsDesktop();
   const state = useTodayState();
   const t = useT();
+  if (!state.ready) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
   return isDesktop ? <DesktopToday t={t} state={state} /> : <MobileToday t={t} state={state} />;
 }
 
 /* ---------------- shared pieces ---------------- */
 
-function Header({ t, size }: { t: T; size: 'd' | 'm' }) {
+function Header({ t, size, state }: { t: T; size: 'd' | 'm'; state: State }) {
   const d = size === 'd';
+  const st = state.stats;
   return (
     <div className={s.header}>
       <div>
@@ -38,8 +39,9 @@ function Header({ t, size }: { t: T; size: 'd' | 'm' }) {
   );
 }
 
-function Week({ t, size }: { t: T; size: 'd' | 'm' }) {
+function Week({ t, size, state }: { t: T; size: 'd' | 'm'; state: State }) {
   const d = size === 'd';
+  const st = state.stats;
   const labels = t.list('weekdays.short');
   const sz = d ? 64 : 28;
   return (
@@ -52,12 +54,12 @@ function Week({ t, size }: { t: T; size: 'd' | 'm' }) {
         </div>
       </div>
       <div className={s.weekRow} style={d ? { alignItems: 'center', marginTop: 18, padding: '0 4px' } : { marginTop: 14 }}>
-        {weekStates.map((state, i) => (
+        {state.week.map((ds, i) => (
           <div key={i} className={s.dayCol} style={{ gap: d ? 14 : 8 }}>
-            <div className={s.circle} data-state={state} style={{ width: sz, height: sz }}>
-              {state === 'freeze' && <Icon name="snow" size={Math.round(sz * 0.5)} sw={1.6} />}
+            <div className={s.circle} data-state={ds} style={{ width: sz, height: sz }}>
+              {ds === 'freeze' && <Icon name="snow" size={Math.round(sz * 0.5)} sw={1.6} />}
             </div>
-            <span style={{ font: `600 ${d ? 14 : 11}px var(--font-ui)`, color: state === 'today' ? '#E8B75E' : 'rgba(232,237,243,.4)' }}>{labels[i]}</span>
+            <span style={{ font: `600 ${d ? 14 : 11}px var(--font-ui)`, color: ds === 'today' ? '#E8B75E' : 'rgba(232,237,243,.4)' }}>{labels[i]}</span>
           </div>
         ))}
       </div>
@@ -102,7 +104,7 @@ function PomodoroTabs({ t, state }: { t: T; state: State }) {
   );
 }
 
-function pomoSummary(t: T) {
+function pomoSummary(t: T, st: State['stats']) {
   return (
     <>
       {t('today.sessionsSummary', { n: st.sessionsToday })} &nbsp;·&nbsp; {t('today.bodyTime', { t: t.hm(st.focusBodyMin) })} &nbsp;·&nbsp; {t('today.mindTime', { t: t.hm(st.focusMindMin) })}
@@ -110,7 +112,7 @@ function pomoSummary(t: T) {
   );
 }
 
-function recordLine(t: T) {
+function recordLine(t: T, st: State['stats']) {
   return (
     <>
       {t('today.recordPrefix')}<span className={s.recordNum}>{st.streakRecord}</span>{t('today.recordDays', { n: st.streakRecord })}
@@ -121,12 +123,14 @@ function recordLine(t: T) {
 /* ---------------- desktop ---------------- */
 
 function DesktopToday({ t, state }: { t: T; state: State }) {
+  const st = state.stats;
+  const plannerToday = state.planner;
   const todayCount = t('today.countOf', { a: state.doneN, b: state.habits.length });
   const moodWords = t.list('today.moodWords');
   return (
     <div className={s.desktop}>
-      <Header t={t} size="d" />
-      <Week t={t} size="d" />
+      <Header t={t} size="d" state={state} />
+      <Week t={t} size="d" state={state} />
 
       <div className={s.grid}>
         {/* pro */}
@@ -183,15 +187,15 @@ function DesktopToday({ t, state }: { t: T; state: State }) {
         <div className={s.card} style={{ gridArea: 'pomo', padding: '22px 24px', display: 'flex', flexDirection: 'column' }}>
           <PomodoroTabs t={t} state={state} />
           <div style={{ textAlign: 'center', marginTop: 18 }}>
-            <div className={s.timerBig} style={{ fontSize: 68, letterSpacing: '.01em' }}>{st.focusMinutes}:00</div>
+            <div className={s.timerBig} style={{ fontSize: 68, letterSpacing: '.01em' }}>{state.pomo.label}</div>
             <div className={s.sessionLine} style={{ marginTop: 10 }}>{t('today.session', { a: st.session, b: st.sessionsPerCycle })}</div>
           </div>
           <div className={s.controls} style={{ marginTop: 20 }}>
-            <button type="button" className={s.ctrlSmall}><Icon name="reset" size={18} /></button>
-            <button type="button" className={s.ctrlPlay} style={{ width: 60, height: 60 }}><Icon name="play" size={22} color="#06121f" /></button>
+            <button type="button" className={s.ctrlSmall} onClick={state.pomo.reset}><Icon name="reset" size={18} /></button>
+            <button type="button" className={s.ctrlPlay} style={{ width: 60, height: 60 }} onClick={state.pomo.toggle}><Icon name={state.pomo.running ? 'pause' : 'play'} size={22} color="#06121f" /></button>
             <button type="button" className={s.ctrlSmall}><Icon name="tune" size={18} /></button>
           </div>
-          <div className={s.pomoSummary} style={{ marginTop: 20, paddingTop: 16 }}>{pomoSummary(t)}</div>
+          <div className={s.pomoSummary} style={{ marginTop: 20, paddingTop: 16 }}>{pomoSummary(t, st)}</div>
         </div>
 
         {/* streak */}
@@ -203,7 +207,7 @@ function DesktopToday({ t, state }: { t: T; state: State }) {
           <div>
             <div className={s.bigMono} style={{ fontSize: 56 }}>{st.streak}</div>
             <div className={s.sub13} style={{ marginTop: 8 }}>{t('today.daysInRow')}</div>
-            <div className={s.record} style={{ fontSize: 11, marginTop: 4 }}>{recordLine(t)}</div>
+            <div className={s.record} style={{ fontSize: 11, marginTop: 4 }}>{recordLine(t, st)}</div>
           </div>
           <div className={s.bars}>
             {st.streakBars.map((on, i) => <div key={i} className={s.bar} data-on={!!on} />)}
@@ -280,12 +284,14 @@ function AnalyticsStat({ val, label, size }: { val: string; label: string; size:
 /* ---------------- mobile ---------------- */
 
 function MobileToday({ t, state }: { t: T; state: State }) {
+  const st = state.stats;
+  const plannerToday = state.planner;
   const todayCount = t('today.countOf', { a: state.doneN, b: state.habits.length });
   const moodLabels = t.list('today.moodLabels');
   return (
     <div className={s.mobileScroll} data-scroll>
-      <Header t={t} size="m" />
-      <Week t={t} size="m" />
+      <Header t={t} size="m" state={state} />
+      <Week t={t} size="m" state={state} />
 
       {/* analytics + pro row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
@@ -343,15 +349,15 @@ function MobileToday({ t, state }: { t: T; state: State }) {
       <div className={s.card} style={{ marginTop: 12, padding: 18 }}>
         <PomodoroTabs t={t} state={state} />
         <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <div className={s.timerBig} style={{ fontSize: 60 }}>{st.focusMinutes}:00</div>
+          <div className={s.timerBig} style={{ fontSize: 60 }}>{state.pomo.label}</div>
           <div className={s.sessionLine} style={{ marginTop: 8 }}>{t('today.session', { a: st.session, b: st.sessionsPerCycle })}</div>
         </div>
         <div className={s.controls} style={{ marginTop: 16 }}>
-          <button type="button" className={s.ctrlSmall}><Icon name="reset" size={18} /></button>
-          <button type="button" className={s.ctrlPlay} style={{ width: 58, height: 58 }}><Icon name="play" size={22} color="#06121f" /></button>
+          <button type="button" className={s.ctrlSmall} onClick={state.pomo.reset}><Icon name="reset" size={18} /></button>
+          <button type="button" className={s.ctrlPlay} style={{ width: 58, height: 58 }} onClick={state.pomo.toggle}><Icon name={state.pomo.running ? 'pause' : 'play'} size={22} color="#06121f" /></button>
           <button type="button" className={s.ctrlSmall}><Icon name="tune" size={18} /></button>
         </div>
-        <div className={s.pomoSummary} style={{ marginTop: 16, paddingTop: 14 }}>{pomoSummary(t)}</div>
+        <div className={s.pomoSummary} style={{ marginTop: 16, paddingTop: 14 }}>{pomoSummary(t, st)}</div>
       </div>
 
       {/* planner */}
@@ -382,7 +388,7 @@ function MobileToday({ t, state }: { t: T; state: State }) {
           </div>
           <div className={s.bigMono} style={{ fontSize: 36, marginTop: 12 }}>{st.streak}</div>
           <div style={{ font: '400 11px var(--font-ui)', color: 'rgba(232,237,243,.5)', marginTop: 6 }}>{t('today.daysInRow')}</div>
-          <div className={s.record} style={{ fontSize: 10.5, marginTop: 3, whiteSpace: 'nowrap' }}>{recordLine(t)}</div>
+          <div className={s.record} style={{ fontSize: 10.5, marginTop: 3, whiteSpace: 'nowrap' }}>{recordLine(t, st)}</div>
         </div>
         <div className={s.bestCard} style={{ padding: 16 }}>
           <span style={{ font: '700 9px var(--font-mono)', letterSpacing: '.16em', color: 'rgba(232,237,243,.4)', whiteSpace: 'nowrap' }}>{t('today.personalBest')}</span>

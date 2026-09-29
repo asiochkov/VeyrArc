@@ -375,6 +375,7 @@ export const en: Dict = {
     planner: 'Planner',
     plannerCount: { one: '{n} item', other: '{n} items' },
     openPlanner: 'Open planner',
+    daytime: 'Daytime',
     today: 'Today',
     countOf: '{a} of {b}',
     habitsOf: '{a} of {b} habits',

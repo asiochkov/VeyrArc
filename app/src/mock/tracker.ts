@@ -13,6 +13,8 @@ export type TrackerHabit = {
   streak: number; best: number; total: number; week: WeekMark[];
   /* A5: fields the composer now sets (not shown on the card in the design) */
   type?: HabitType; target?: number; unit?: string; minutes?: number; category?: Category;
+  /* backend: real 12-week history and completion rate */
+  grid?: GridCell[]; rate?: number;
 };
 
 export type Refusal = {
@@ -21,6 +23,8 @@ export type Refusal = {
   savedLabel?: 'cigs' | 'kcal' | 'min' | 'slips'; unit?: string; savedUnit: number;
   /* A6: slip counter and best clean run, in days */
   relapses: number; best: number;
+  /* backend: the picked «ближайшая цель» */
+  goalDays?: number;
 };
 
 export const trackerHabits: TrackerHabit[] = [

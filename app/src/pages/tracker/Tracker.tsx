@@ -1,10 +1,15 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAddAction } from '../../app/nav';
 import { useT, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
+import { useHeader } from '../../data/header';
+import { addHabit, addQuit, archiveHabit, archiveQuit, buildTracker, fetchTracker, relapse, setQuitGoal } from '../../data/tracker';
+import { writeLog } from '../../data/today';
+import { hasBackend } from '../../lib/supabase';
+import { useAuth } from '../../lib/auth';
 import { HABIT_PALETTE, refusals as seedRefusals, trackerHabits, type Refusal, type TrackerHabit } from '../../mock/tracker';
-import { todayStats } from '../../mock/today';
 import { Icon } from '../../ui/Icon';
 import { Avatar, ConfirmDialog, Segmented } from '../../ui/primitives';
 import { HabitCard, RefusalCard } from './cards';
@@ -23,14 +28,27 @@ function useTracker() {
   const location = useLocation() as { state?: { compose?: boolean } };
   const [view, setView] = useState<View>('habits');
   const [now, setNow] = useState(Date.now());
-  const [expandedId, setExpandedId] = useState<string | null>('water');
+  const [expandedId, setExpandedId] = useState<string | null>(hasBackend ? null : 'water');
   const [composing, setComposing] = useState(!!location.state?.compose);
   const [draft, setDraft] = useState('');
   const [draftRequired, setDraftRequired] = useState(true);
   const [goalOverrides, setGoalOverrides] = useState<Record<string, number>>({});
   const [goalMenuId, setGoalMenuId] = useState<string | null>(null);
-  const [habits, setHabits] = useState<TrackerHabit[]>(trackerHabits);
-  const [refusals, setRefusals] = useState<Refusal[]>(seedRefusals);
+  const [habits, setHabits] = useState<TrackerHabit[]>(hasBackend ? [] : trackerHabits);
+  const [refusals, setRefusals] = useState<Refusal[]>(hasBackend ? [] : seedRefusals);
+  // backend: server data seeds the local state; writes are optimistic, then refetched
+  const session = useAuth((x) => x.session);
+  const qc = useQueryClient();
+  const q = useQuery({ queryKey: ['tracker'], queryFn: fetchTracker, enabled: hasBackend && !!session, refetchOnWindowFocus: false });
+  useEffect(() => {
+    if (!q.data) return;
+    const b = buildTracker(q.data);
+    setHabits(b.habits); setRefusals(b.refusals);
+    setGoalOverrides(Object.fromEntries(b.refusals.filter((r) => r.goalDays).map((r) => [r.id, r.goalDays!])));
+  }, [q.data]);
+  const sync = (p: Promise<unknown>) => {
+    void p.finally(() => { void qc.invalidateQueries({ queryKey: ['tracker'] }); void qc.invalidateQueries({ queryKey: ['today'] }); });
+  };
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [habitDraft, setHabitDraft] = useState<HabitDraft>(defaultHabitDraft(HABIT_PALETTE[trackerHabits.length % HABIT_PALETTE.length]));
   const [quitDraft, setQuitDraft] = useState<QuitDraft>(defaultQuitDraft());
@@ -74,6 +92,7 @@ function useTracker() {
       };
       setHabits((l) => [...l, item]);
       setExpandedId(item.id);
+      if (hasBackend) sync(addHabit(name, d, draftRequired, habits.length));
     } else {
       const unit = quitDraft.unit.trim();
       const item: Refusal = {
@@ -82,12 +101,20 @@ function useTracker() {
         relapses: 0, best: 0,
       };
       setRefusals((l) => [...l, item]);
+      if (hasBackend) sync(addQuit(name, quitDraft, item.hue));
     }
     setComposing(false);
     setDraft('');
   };
 
-  const toggleToday = (id: string) => setHabits((list) => list.map((h) => {
+  const toggleToday = (id: string) => {
+    const h0 = habits.find((h) => h.id === id);
+    if (hasBackend && h0) {
+      const wasDone = h0.week.includes('today-done');
+      const full = h0.type === 'counter' ? h0.target ?? 1 : h0.type === 'duration' ? h0.minutes ?? 1 : 1;
+      sync(writeLog(id, wasDone ? 0 : full, !wasDone));
+    }
+    setHabits((list) => list.map((h) => {
     if (h.id !== id) return h;
     const week = h.week.slice();
     const ti = week.findIndex((x) => x === 'today' || x === 'today-done');
@@ -96,10 +123,12 @@ function useTracker() {
     week[ti] = nowDone ? 'today' : 'today-done';
     return { ...h, week, streak: h.streak + (nowDone ? -1 : 1), total: h.total + (nowDone ? -1 : 1) };
   }));
+  };
 
   // A6: a slip restarts the timer; the best clean run and slip count are kept
   const confirmSlip = () => {
     const id = slipId;
+    if (hasBackend && id) sync(relapse(id));
     setRefusals((list) => list.map((r) => {
       if (r.id !== id) return r;
       const days = Math.floor((Date.now() - new Date(r.quit).getTime()) / 86400000);
@@ -113,6 +142,10 @@ function useTracker() {
     view, switchView, now, expandedId, setExpandedId, composing, draft, setDraft, draftRequired, setDraftRequired,
     goalOverrides, setGoalOverrides, goalMenuId, setGoalMenuId, habits, setHabits, refusals, setRefusals,
     startAdd, cancelAdd, confirmAdd, toggleToday, scrollRef,
+    ready: !hasBackend || !!q.data,
+    removeHabit: (id: string) => { setHabits((l) => l.filter((x) => x.id !== id)); if (hasBackend) sync(archiveHabit(id)); },
+    removeQuit: (id: string) => { setRefusals((l) => l.filter((x) => x.id !== id)); if (hasBackend) sync(archiveQuit(id)); },
+    pickGoal: (id: string, g: number) => { setGoalOverrides((o) => ({ ...o, [id]: g })); if (hasBackend) sync(setQuitGoal(id, g)); },
   };
 }
 type St = ReturnType<typeof useTracker>;
@@ -121,7 +154,9 @@ export function Tracker() {
   const t = useT();
   const isDesktop = useIsDesktop();
   const st = useTracker();
+  const hd = useHeader();
   const mobile = !isDesktop;
+  if (!st.ready) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
 
   const seg = (
     <Segmented
@@ -140,10 +175,10 @@ export function Tracker() {
       <div className={s.desktop}>
         <div className={s.header} style={{ alignItems: 'flex-start' }}>
           <div>
-            <div className={s.caps} style={{ letterSpacing: '.26em' }}>{t('tracker.arcDayCaps', { n: todayStats.arcDay })}</div>
+            <div className={s.caps} style={{ letterSpacing: '.26em' }}>{t('tracker.arcDayCaps', { n: hd.arcDay })}</div>
             <div className={s.title} style={{ font: '800 34px/1 var(--font-ui)', letterSpacing: '-.01em', marginTop: 10 }}>{t('tracker.title')}</div>
           </div>
-          <Avatar initials={todayStats.initials} />
+          <Avatar initials={hd.initials} />
         </div>
         {seg}
         {body}
@@ -158,11 +193,11 @@ export function Tracker() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Link to="/" className={s.back} aria-label={t('nav.today')}><Icon name="back" size={18} sw={2} /></Link>
             <div>
-              <div className={s.caps} style={{ letterSpacing: '.24em' }}>{t('tracker.arcDayCaps', { n: todayStats.arcDay })}</div>
+              <div className={s.caps} style={{ letterSpacing: '.24em' }}>{t('tracker.arcDayCaps', { n: hd.arcDay })}</div>
               <div className={s.title} style={{ font: '800 22px/1.1 var(--font-ui)', marginTop: 5 }}>{t('tracker.title')}</div>
             </div>
           </div>
-          <Avatar initials={todayStats.initials} />
+          <Avatar initials={hd.initials} />
         </div>
         {seg}
         {body}
@@ -207,7 +242,7 @@ function HabitsView({ t, st, mobile }: { t: T; st: St; mobile: boolean }) {
     <HabitCard
       key={h.id} t={t} h={h} mobile={mobile} expanded={st.expandedId === h.id}
       onToggleExpand={() => st.setExpandedId(st.expandedId === h.id ? null : h.id)}
-      onDelete={() => st.setHabits((l) => l.filter((x) => x.id !== h.id))}
+      onDelete={() => st.removeHabit(h.id)}
       onToggleToday={() => st.toggleToday(h.id)}
     />
   ));
@@ -247,8 +282,8 @@ function RefusalsView({ t, st, mobile }: { t: T; st: St; mobile: boolean }) {
       key={r.id} t={t} r={r} now={st.now} mobile={mobile}
       goalOverride={st.goalOverrides[r.id]} menuOpen={st.goalMenuId === r.id}
       onToggleMenu={() => st.setGoalMenuId(st.goalMenuId === r.id ? null : r.id)}
-      onPickGoal={(g) => { st.setGoalOverrides((o) => ({ ...o, [r.id]: g })); st.setGoalMenuId(null); }}
-      onDelete={() => st.setRefusals((l) => l.filter((x) => x.id !== r.id))}
+      onPickGoal={(g) => { st.pickGoal(r.id, g); st.setGoalMenuId(null); }}
+      onDelete={() => st.removeQuit(r.id)}
       onSlip={() => st.setSlipId(r.id)}
     />
   ));
