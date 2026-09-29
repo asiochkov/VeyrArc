@@ -15,6 +15,8 @@ export const ru = {
     profile: 'Профиль',
   },
   common: {
+    offline: 'Нет связи с сервером. Данные не загрузились.',
+    retry: 'Повторить',
     cancel: 'Отмена',
     add: 'Добавить',
     create: 'Создать',

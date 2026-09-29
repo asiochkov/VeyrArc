@@ -10,6 +10,8 @@ export const en: Dict = {
     profile: 'Profile',
   },
   common: {
+    offline: 'No connection to the server. Data didn’t load.',
+    retry: 'Retry',
     cancel: 'Cancel',
     add: 'Add',
     create: 'Create',
