@@ -18,7 +18,7 @@ export async function updateProfile(patch: Partial<Profile>) {
 }
 
 export async function startNewArc() {
-  const r = await db().rpc('start_new_arc');
+  const r = await db().rpc('start_new_arc', {});
   if (r.error) throw r.error;
 }
 

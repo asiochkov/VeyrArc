@@ -62,7 +62,7 @@ export function Settings() {
     ? (arcsQ.data ?? []).slice().reverse().map((a) => {
       const end = a.ended_on ?? new Date(new Date(a.started_on + 'T00:00:00').getTime() + (a.length_days - 1) * 86400000).toISOString().slice(0, 10);
       const elapsed = Math.min(a.length_days, daysBetween(a.started_on, a.ended_on ?? isoDay()) + 1);
-      return { n: a.number, dates: { ru: `${fmtD(a.started_on)} – ${fmtD(end)}`, en: `${fmtD(a.started_on)} – ${fmtD(end)}` }, pct: Math.round((elapsed / a.length_days) * 100) + '%', current: !a.ended_on };
+      return { n: a.number, dates: { ru: `${fmtD(a.started_on)} – ${fmtD(end)}`, en: `${fmtD(a.started_on)} – ${fmtD(end)}` }, pct: ((a.summary as { pct?: number } | null)?.pct ?? Math.round((elapsed / a.length_days) * 100)) + '%', current: !a.ended_on };
     })
     : ARCS;
   const [archiveOpen, setArchiveOpen] = useState(false);

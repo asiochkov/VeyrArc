@@ -343,6 +343,8 @@ export const ru = {
     relapseTitle: 'Отметить срыв?',
     relapseBody: 'Таймер начнётся заново. Рекорд и история сохранятся.',
     relapseOk: 'Отметить',
+    limitTitle: 'Достигнут лимит привычек',
+    limitDesc: 'На бесплатном тарифе доступно до {n} привычек. Открой Pro для безлимита.',
     savedCustom: 'НЕ {u}',
     arcDayCaps: 'VEYRARC · ДЕНЬ {n}',
     title: 'Трекер',

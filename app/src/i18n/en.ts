@@ -338,6 +338,8 @@ export const en: Dict = {
     relapseTitle: 'Log a slip?',
     relapseBody: 'The timer starts over. Your best and history are kept.',
     relapseOk: 'Log it',
+    limitTitle: 'Habit limit reached',
+    limitDesc: 'The free plan allows up to {n} habits. Open Pro for unlimited.',
     savedCustom: '{u} AVOIDED',
     arcDayCaps: 'VEYRARC · DAY {n}',
     title: 'Tracker',

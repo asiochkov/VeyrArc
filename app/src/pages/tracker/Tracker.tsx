@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { config } from '../../config';
 import { useAddAction } from '../../app/nav';
 import { useT, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
@@ -53,6 +54,9 @@ function useTracker() {
   const [habitDraft, setHabitDraft] = useState<HabitDraft>(defaultHabitDraft(HABIT_PALETTE[trackerHabits.length % HABIT_PALETTE.length]));
   const [quitDraft, setQuitDraft] = useState<QuitDraft>(defaultQuitDraft());
   const [slipId, setSlipId] = useState<string | null>(null);
+  const [limitOpen, setLimitOpen] = useState(false);
+  const plan = useAuth((x) => x.plan);
+  const habitLimit = hasBackend && plan?.plan !== 'pro' ? config.limits.free.habits : Infinity;
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -60,6 +64,8 @@ function useTracker() {
   }, []);
 
   const startAdd = () => {
+    // Free plan: up to 5 habits (the database enforces it too)
+    if (view === 'habits' && habits.length >= habitLimit) { setLimitOpen(true); return; }
     setComposing(true);
     setDraft('');
     setHabitDraft(defaultHabitDraft(HABIT_PALETTE[habits.length % HABIT_PALETTE.length]));
@@ -92,7 +98,7 @@ function useTracker() {
       };
       setHabits((l) => [...l, item]);
       setExpandedId(item.id);
-      if (hasBackend) sync(addHabit(name, d, draftRequired, habits.length));
+      if (hasBackend) sync(addHabit(name, d, draftRequired, habits.length).catch((e) => { if (String(e?.message).includes('limit:habits')) setLimitOpen(true); }));
     } else {
       const unit = quitDraft.unit.trim();
       const item: Refusal = {
@@ -142,7 +148,7 @@ function useTracker() {
     view, switchView, now, expandedId, setExpandedId, composing, draft, setDraft, draftRequired, setDraftRequired,
     goalOverrides, setGoalOverrides, goalMenuId, setGoalMenuId, habits, setHabits, refusals, setRefusals,
     startAdd, cancelAdd, confirmAdd, toggleToday, scrollRef,
-    ready: !hasBackend || !!q.data,
+    ready: !hasBackend || !!q.data, limitOpen, setLimitOpen, habitLimit,
     removeHabit: (id: string) => { setHabits((l) => l.filter((x) => x.id !== id)); if (hasBackend) sync(archiveHabit(id)); },
     removeQuit: (id: string) => { setRefusals((l) => l.filter((x) => x.id !== id)); if (hasBackend) sync(archiveQuit(id)); },
     pickGoal: (id: string, g: number) => { setGoalOverrides((o) => ({ ...o, [id]: g })); if (hasBackend) sync(setQuitGoal(id, g)); },
@@ -155,6 +161,7 @@ export function Tracker() {
   const isDesktop = useIsDesktop();
   const st = useTracker();
   const hd = useHeader();
+  const navigate = useNavigate();
   const mobile = !isDesktop;
   if (!st.ready) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
 
@@ -168,6 +175,10 @@ export function Tracker() {
     />
   );
 
+  const limitDialog = (
+    <ConfirmDialog open={st.limitOpen} title={t('tracker.limitTitle')} body={t('tracker.limitDesc', { n: st.habitLimit })}
+      confirmLabel={t('auth.openPro')} cancelLabel={t('goals.gotIt')} onConfirm={() => navigate('/pro')} onCancel={() => st.setLimitOpen(false)} />
+  );
   const body = st.view === 'habits' ? <HabitsView t={t} st={st} mobile={mobile} /> : <RefusalsView t={t} st={st} mobile={mobile} />;
 
   if (isDesktop) {
@@ -182,6 +193,7 @@ export function Tracker() {
         </div>
         {seg}
         {body}
+        {limitDialog}
       </div>
     );
   }
@@ -201,6 +213,7 @@ export function Tracker() {
         </div>
         {seg}
         {body}
+        {limitDialog}
       </div>
       <button type="button" className={s.fab} onClick={st.startAdd} aria-label={t('common.add')}>
         <Icon name="plus" size={22} sw={2} />
