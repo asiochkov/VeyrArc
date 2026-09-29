@@ -54,7 +54,7 @@ const routes: RouteObject[] = [
  * a single page without server rewrites, so routing lives in memory and a
  * screen list (not part of the design, preview only) links to every route.
  */
-export const router = import.meta.env.VITE_PREVIEW
+export const router = import.meta.env.VITE_PREVIEW && import.meta.env.MODE === 'preview'
   ? createMemoryRouter([
     { element: <PreviewLayout />, children: [...routes, { path: '/__screens', element: <PreviewScreens /> }] },
   ], { initialEntries: ['/__screens'] })

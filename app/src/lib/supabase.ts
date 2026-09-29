@@ -7,7 +7,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-export const hasBackend = !!(url && key) && !import.meta.env.VITE_PREVIEW;
+export const hasBackend = !!(url && key) && !(import.meta.env.VITE_PREVIEW && import.meta.env.MODE === 'preview');
 
 export const supabase: SupabaseClient | null = hasBackend
   ? createClient(url!, key!, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } })
