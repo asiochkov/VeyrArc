@@ -1,3 +1,4 @@
+import { mutate } from './sync';
 import { useAuth, type Profile } from '../lib/auth';
 import { db } from '../lib/supabase';
 import type { ArcRow } from './model';
@@ -6,6 +7,13 @@ export async function fetchArcs() {
   const r = await db().from('arcs').select('*').order('number');
   if (r.error) throw r.error;
   return r.data as ArcRow[];
+}
+
+/** Change profile fields at once on screen; the write is queued / rolled back by data/sync.ts. */
+export function setProfile(patch: Partial<Profile>) {
+  const cur = useAuth.getState().profile;
+  if (cur) useAuth.setState({ profile: { ...cur, ...patch } });
+  mutate(() => updateProfile(patch), { rollback: () => { void useAuth.getState().loadProfile(); } });
 }
 
 export async function updateProfile(patch: Partial<Profile>) {

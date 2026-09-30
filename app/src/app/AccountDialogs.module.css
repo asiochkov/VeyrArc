@@ -1,6 +1,6 @@
 /* VeyrArc Auth.dc.html — S.overlay / S.modal (Night tokens) */
 .overlay {
-  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 20px;
+  position: fixed; inset: 0; z-index: var(--z-sheet); display: grid; place-items: center; overflow-y: auto; overscroll-behavior: contain; padding: calc(20px + var(--safe-top)) 20px calc(20px + var(--safe-bottom));
   background: rgba(3,5,8,.72); backdrop-filter: blur(6px); animation: wwUp .2s ease both;
 }
 .modal {
@@ -18,3 +18,8 @@
   transition: box-shadow .2s, background-color .2s;
 }
 .field:focus { box-shadow: 0 0 0 3px rgba(229,100,90,.12); background: rgba(255,255,255,.09); }
+
+.label { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font: 600 12px var(--font-ui); color: var(--text-secondary); }
+.input { width: 100%; height: 50px; border: none; outline: none; border-radius: 13px; padding: 0 16px; font: 500 16px var(--font-ui); color: var(--text); background: rgba(255,255,255,.06); }
+.input:focus { box-shadow: 0 0 0 3px rgba(111,160,214,.3); background: rgba(255,255,255,.09); }
+.err { margin-top: 12px; font: 600 13px var(--font-ui); color: var(--error); }

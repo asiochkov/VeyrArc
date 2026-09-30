@@ -2,7 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { useHeader } from '../../data/header';
 import { daysBetween } from '../../data/model';
-import { exportData, fetchArcs, startNewArc, updateProfile } from '../../data/settings';
+import { exportData, fetchArcs, startNewArc, setProfile } from '../../data/settings';
+import { toast } from '../../ui/toast';
 import { useAuth, userEmail, isProPlan } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { askPermission } from '../../lib/reminders';
@@ -41,17 +42,17 @@ export function Settings() {
   const [notifLocal, setNotifLocal] = useState({ n1: true, n2: true, n3: true, n4: false });
   // backend: values live in the profile row
   const unit = hasBackend ? profile?.water_unit ?? 'ml' : unitLocal;
-  const setUnit = (u: 'ml' | 'oz') => { if (hasBackend) void updateProfile({ water_unit: u }).catch(() => {}); else setUnitLocal(u); };
+  const setUnit = (u: 'ml' | 'oz') => { if (hasBackend) setProfile({ water_unit: u }); else setUnitLocal(u); };
   const NOTIF_COL = { n1: 'notify_habits', n2: 'notify_summary', n3: 'notify_focus', n4: 'notify_arc' } as const;
   const notif = hasBackend && profile
     ? { n1: profile.notify_habits, n2: profile.notify_summary, n3: profile.notify_focus, n4: profile.notify_arc }
     : notifLocal;
   const toggleNotif = (k: keyof typeof NOTIF_COL) => {
     if (!notif[k]) void askPermission();
-    if (hasBackend) void updateProfile({ [NOTIF_COL[k]]: !notif[k] }).catch(() => {});
+    if (hasBackend) setProfile({ [NOTIF_COL[k]]: !notif[k] });
     else setNotifLocal((n) => ({ ...n, [k]: !n[k] }));
   };
-  const pickLang = (l: Lang) => { setLang(l); if (hasBackend) void updateProfile({ lang: l }).catch(() => {}); };
+  const pickLang = (l: Lang) => { setLang(l); if (hasBackend) setProfile({ lang: l }); };
   const account = hasBackend
     ? { name: [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || userEmail(session), email: userEmail(session), initials: hd.initials }
     : { name: ACCOUNT.name, email: ACCOUNT.email, initials: hd.initials };
@@ -97,12 +98,12 @@ export function Settings() {
             <button key={id} type="button" className={s.langRow} onClick={() => pickLang(id)}>
               <span className={s.radio} data-on={sel}>{sel && <span className={s.radioDot} />}</span>
               <span style={{ flex: 1, font: '600 15px var(--font-ui)' }}>{id === 'ru' ? 'Русский' : 'English'}</span>
-              <span style={{ font: '500 12px var(--font-ui)', color: 'rgba(232,237,243,.4)' }}>{id === lang ? '' : t('settings.langOther')}</span>
+              <span style={{ font: '500 12px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{id === lang ? '' : t('settings.langOther')}</span>
             </button>
           );
         })}
       </div>
-      <div style={{ marginTop: 10, maxWidth: 560, font: '400 12px/1.5 var(--font-ui)', color: 'rgba(232,237,243,.45)', padding: '0 4px' }}>{t('settings.langHint')}</div>
+      <div style={{ marginTop: 10, maxWidth: 560, font: '400 12px/1.5 var(--font-ui)', color: 'rgba(232,237,243,.6)', padding: '0 4px' }}>{t('settings.langHint')}</div>
     </>
   );
 
@@ -116,7 +117,7 @@ export function Settings() {
     );
     return onClick !== undefined ? <button type="button" className={s.row} style={{ cursor: 'pointer' }} onClick={onClick}>{inner}</button> : <div className={s.row}>{inner}</div>;
   };
-  const chev = <span style={{ color: 'rgba(232,237,243,.35)' }}><Icon name="chevron" size={16} sw={2} /></span>;
+  const chev = <span style={{ color: 'rgba(232,237,243,.52)' }}><Icon name="chevron" size={16} sw={2} /></span>;
 
   const content = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22, minWidth: 0 }}>
@@ -129,7 +130,7 @@ export function Settings() {
               <span style={{ display: 'block', font: '700 16px var(--font-ui)' }}>{account.name}</span>
               <span style={{ display: 'block', font: '500 12.5px var(--font-ui)', color: 'rgba(232,237,243,.5)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{account.email}</span>
             </span>
-            <span style={{ color: 'rgba(232,237,243,.4)' }}><Icon name="chevron" size={16} sw={2} /></span>
+            <span style={{ color: 'rgba(232,237,243,.56)' }}><Icon name="chevron" size={16} sw={2} /></span>
           </button>
         </div>
       )}
@@ -157,7 +158,7 @@ export function Settings() {
               <button key={k} type="button" role="switch" aria-checked={notif[k]} className={s.row} style={{ cursor: 'pointer' }} onClick={() => toggleNotif(k)}>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', font: '600 14.5px var(--font-ui)' }}>{t(`settings.${k}`)}</span>
-                  <span style={{ display: 'block', font: '400 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.45)', marginTop: 3 }}>{t(`settings.${k}d`)}</span>
+                  <span style={{ display: 'block', font: '400 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 3 }}>{t(`settings.${k}d`)}</span>
                 </span>
                 <span className={s.track} data-on={notif[k]}><span className={s.knob} /></span>
               </button>
@@ -192,7 +193,7 @@ export function Settings() {
               </span>
               <span className={s.proBadge}>PRO</span>
             </div>
-            <button type="button" className={s.manage}>{t('settings.manage')}</button>
+            <Link to="/pro" className={s.manage}>{t('settings.manage')}</Link>
           </div>
           )}
         </div>
@@ -202,7 +203,7 @@ export function Settings() {
           <div className={s.groupTitle}>{t('settings.arc')}</div>
           <div className={s.list}>
             <Row icon="archive" label={t('settings.archive')} onClick={() => setArchiveOpen(!archiveOpen)}>
-              <span style={{ color: 'rgba(232,237,243,.35)', display: 'grid', transition: 'transform .2s', transform: `rotate(${archiveOpen ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
+              <span style={{ color: 'rgba(232,237,243,.52)', display: 'grid', transition: 'transform .2s', transform: `rotate(${archiveOpen ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
             </Row>
             {archiveOpen && (
               <div style={{ padding: '4px 18px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -210,11 +211,11 @@ export function Settings() {
                   <div key={a.n} className={s.arcItem}>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'block', font: '700 13.5px var(--font-ui)' }}>Arc {a.n}</span>
-                      <span style={{ display: 'block', font: '500 11.5px var(--font-mono)', color: 'rgba(232,237,243,.45)', marginTop: 3, whiteSpace: 'nowrap' }}>{t.pick(a.dates)}</span>
+                      <span style={{ display: 'block', font: '500 11.5px var(--font-mono)', color: 'rgba(232,237,243,.6)', marginTop: 3, whiteSpace: 'nowrap' }}>{t.pick(a.dates)}</span>
                     </span>
                     <span style={{ textAlign: 'right', flex: 'none' }}>
                       <span style={{ display: 'block', font: '700 16px var(--font-mono)', color: '#A8CBEF' }}>{a.pct}</span>
-                      <span style={{ display: 'block', font: '600 9px var(--font-ui)', color: 'rgba(232,237,243,.4)' }}>{a.current ? t('settings.current') : t('settings.completed')}</span>
+                      <span style={{ display: 'block', font: '600 9px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{a.current ? t('settings.current') : t('settings.completed')}</span>
                     </span>
                   </div>
                 ))}
@@ -229,7 +230,7 @@ export function Settings() {
         <div>
           <div className={s.groupTitle}>{t('settings.data')}</div>
           <div className={s.list}>
-            <Row icon="download" label={t('settings.export')} onClick={() => { if (hasBackend) void exportData().catch(() => {}); }}>{chev}</Row>
+            <Row icon="download" label={t('settings.export')} onClick={() => { if (hasBackend) void exportData().then(() => toast.success(t('settings.exported'))).catch(() => toast.error(t('common.loadFailed'))); }}>{chev}</Row>
             <Row icon="trashPlain" label={t('settings.del')} danger onClick={() => setAccModal('del1')} />
           </div>
           <div style={{ marginTop: 14, textAlign: 'center', font: '500 11px var(--font-mono)', color: 'rgba(232,237,243,.28)' }}>{t('settings.version', { v: ACCOUNT.version })}</div>
@@ -259,7 +260,7 @@ export function Settings() {
         confirmLabel={t('settings.newArcOk')} cancelLabel={t('settings.cancel')}
         onConfirm={() => {
           setArcModal(false);
-          if (hasBackend) void startNewArc().then(() => Promise.all(['arcs', 'arc', 'today'].map((k) => qc.invalidateQueries({ queryKey: [k] })))).catch(() => {});
+          if (hasBackend) void startNewArc().then(() => Promise.all(['arcs', 'arc', 'today'].map((k) => qc.invalidateQueries({ queryKey: [k] })))).catch(() => toast.error(t('common.saveFailed')));
         }}
         onCancel={() => setArcModal(false)}
       />

@@ -1,3 +1,5 @@
+import { translate, useLangStore } from '../../i18n';
+import { toast } from '../../ui/toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { config } from '../../config';
@@ -5,6 +7,7 @@ import { addGoalTask, completeGoal, createGoal, deleteGoal, deleteGoalTask, fetc
 import { useAuth, isProPlan } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { hasBackend } from '../../lib/supabase';
+import { mutate } from '../../data/sync';
 import { entries as seedEntries, FREE_GOAL_LIMIT, GOAL_HUES, goals as seedGoals, GOALS_TODAY, type Entry, type Goal } from '../../mock/goals';
 
 /* Logic from VeyrArc Training.dc.html (goals). Dates are YYYY-MM-DD strings. */
@@ -25,7 +28,7 @@ export function useGoals() {
   const [goals, setGoals] = useState<Goal[]>(hasBackend ? [] : seedGoals);
   const [entries, setEntries] = useState<Record<string, Entry>>(hasBackend ? {} : seedEntries);
   useEffect(() => { if (q.data) { setGoals(q.data.goals); setEntries(q.data.entries); } }, [q.data]);
-  const sync = (p: Promise<unknown>) => { void p.catch(() => {}).finally(() => { void qc.invalidateQueries({ queryKey: ['goals'] }); }); };
+  const sync = (run: () => Promise<unknown>) => mutate(run, { rollback: () => { void q.refetch(); }, done: () => { void qc.invalidateQueries({ queryKey: ['goals'] }); } });
   const entryTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   // diary save indicator per goal|day
   const [saveState, setSaveState] = useState<Record<string, 'saving' | 'saved' | 'error'>>({});
@@ -40,6 +43,7 @@ export function useGoals() {
   const [newGoalDeadline, setNewGoalDeadline] = useState('');
   const [menuGoalId, setMenuGoalId] = useState<string | null>(null);
   const [renaming, setRenaming] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [streakPanelOpen, setStreakPanelOpen] = useState(false);
@@ -63,9 +67,10 @@ export function useGoals() {
       const diary = 'diary' in patch;
       if (diary) setSaveState((x) => ({ ...x, [key]: 'saving' }));
       entryTimers.current[key] = setTimeout(() => {
-        void saveEntry(goalId, date, next)
-          .then(() => { if (diary) setSaveState((x) => ({ ...x, [key]: 'saved' })); })
-          .catch(() => setSaveState((x) => ({ ...x, [key]: 'error' })));
+        mutate(() => saveEntry(goalId, date, next), {
+          done: () => { if (diary) setSaveState((x) => ({ ...x, [key]: 'saved' })); },
+          rollback: () => { setSaveState((x) => ({ ...x, [key]: 'error' })); if (!diary) void q.refetch(); },
+        });
       }, diary ? 700 : 0);
     }
   };
@@ -117,7 +122,7 @@ export function useGoals() {
       id, title: { ru: name, en: name }, hue: GOAL_HUES[goals.length % GOAL_HUES.length], status: 'active', startDate: TODAY,
       bestStreak: 0, type: 'process', deadline: newGoalDeadline || undefined, tasks: steps.map((x) => ({ id: x.id, text: { ru: x.text, en: x.text }, detail: { ru: '', en: '' } })),
     };
-    if (hasBackend) sync(createGoal({ id, title: name, hue: g.hue, deadline: newGoalDeadline, steps }));
+    sync(() => createGoal({ id, title: name, hue: g.hue, deadline: newGoalDeadline, steps }));
     setViewDate(TODAY);
     setStepOpen(!step);
     setGoals((l) => [...l, g]);
@@ -128,10 +133,10 @@ export function useGoals() {
 
   const menu = {
     rename: () => { const g = goals.find((x) => x.id === menuGoalId); setRenaming(true); setRenameValue(g ? g.title.ru : ''); },
-    complete: () => { const id = menuGoalId; const cg = goals.find((x) => x.id === id); if (hasBackend && id && cg) sync(completeGoal(id, Math.max(cg.bestStreak, computeStreak(cg)))); setGoals((l) => l.map((g) => (g.id === id ? { ...g, status: 'completed' } : g))); setMenuGoalId(null); setRecapGoalId(id); },
+    complete: () => { const id = menuGoalId; const cg = goals.find((x) => x.id === id); if (id && cg) sync(() => completeGoal(id, Math.max(cg.bestStreak, computeStreak(cg)))); setGoals((l) => l.map((g) => (g.id === id ? { ...g, status: 'completed' } : g))); setMenuGoalId(null); setRecapGoalId(id); },
     remove: () => {
       const id = menuGoalId;
-      if (hasBackend && id) sync(deleteGoal(id));
+      if (id) sync(() => deleteGoal(id));
       const remain = goals.filter((g) => g.id !== id);
       setGoals(remain);
       setMenuGoalId(null);
@@ -141,7 +146,7 @@ export function useGoals() {
     confirmRename: () => {
       const id = menuGoalId;
       const val = renameValue.trim();
-      if (hasBackend && id && val) sync(renameGoal(id, val));
+      if (id && val) sync(() => renameGoal(id, val));
       setGoals((l) => l.map((g) => (g.id === id ? { ...g, title: val ? { ru: val, en: val } : g.title } : g)));
       setMenuGoalId(null);
       setRenaming(false);
@@ -156,7 +161,7 @@ export function useGoals() {
     if (!text) { setStepOpen(false); return; }
     const id = newId();
     patchTasks(selected.id, (ts) => [...ts, { id, text: { ru: text, en: text }, detail: { ru: '', en: '' } }]);
-    if (hasBackend) sync(addGoalTask(id, selected.id, text, selected.tasks.length));
+    sync(() => addGoalTask(id, selected.id, text, selected.tasks.length));
     setStepText('');
   };
   const renameStep = (id: string, text: string) => {
@@ -164,21 +169,30 @@ export function useGoals() {
     const v = text.trim().slice(0, 160);
     if (!v) return;
     patchTasks(selected.id, (ts) => ts.map((x) => (x.id === id ? { ...x, text: { ru: v, en: v } } : x)));
-    if (hasBackend) sync(renameGoalTask(id, v));
+    sync(() => renameGoalTask(id, v));
   };
   const removeStep = (id: string) => {
     if (!selected) return;
-    patchTasks(selected.id, (ts) => ts.filter((x) => x.id !== id));
-    if (hasBackend) sync(deleteGoalTask(id));
+    const goalId = selected.id;
+    const idx = selected.tasks.findIndex((x) => x.id === id);
+    const step = selected.tasks[idx];
+    if (!step) return;
+    patchTasks(goalId, (ts) => ts.filter((x) => x.id !== id));
+    sync(() => deleteGoalTask(id));
+    const lang = useLangStore.getState().lang;
+    toast.action(translate(lang, 'goals.stepDeleted'), translate(lang, 'explain.undo'), () => {
+      patchTasks(goalId, (ts) => { const n = ts.slice(); n.splice(idx, 0, step); return n; });
+      sync(() => addGoalTask(step.id, goalId, step.text.ru, idx));
+    });
   };
 
   const shiftMonth = (delta: number) => setViewMonth((v) => { const dt = new Date(v.y, v.m + delta, 1); return { y: dt.getFullYear(), m: dt.getMonth() }; });
 
   return {
-    today: TODAY, limit, ready: !hasBackend || !!q.data,
+    today: TODAY, limit, ready: !hasBackend || !!q.data, loadError: q.isError && !q.data, retry: () => { void q.refetch(); },
     goals, entries, active, completed, selected, screen, setScreen, setSelectedGoalId, viewDate, setViewDate, viewMonth, shiftMonth,
     addingGoal, setAddingGoal, limitReached, newGoalName, setNewGoalName, newGoalStep, setNewGoalStep, newGoalDeadline, setNewGoalDeadline,
-    startAddGoal, confirmAddGoal, menuGoalId, setMenuGoalId, renaming, setRenaming, renameValue, setRenameValue, menu,
+    startAddGoal, confirmAddGoal, confirmDelete, setConfirmDelete, menuGoalId, setMenuGoalId, renaming, setRenaming, renameValue, setRenameValue, menu,
     expandedTaskId, setExpandedTaskId, streakPanelOpen, setStreakPanelOpen,
     stepOpen, setStepOpen, stepText, setStepText, addStep, renameStep, removeStep, editingSteps, setEditingSteps,
     saveState: selected ? saveState[selected.id + '|' + viewDate] : undefined,

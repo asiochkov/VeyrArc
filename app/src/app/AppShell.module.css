@@ -1,7 +1,7 @@
 .root {
   height: 100dvh;
   /* iPhone: keep content below the status bar / Dynamic Island (standalone PWA draws under it) */
-  padding-top: env(safe-area-inset-top, 0px);
+  padding: var(--safe-top) var(--safe-right) 0 var(--safe-left);
   box-sizing: border-box;
   overflow: hidden;
   background: var(--bg);

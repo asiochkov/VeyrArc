@@ -1,3 +1,4 @@
+import { PageState } from '../../ui/PageState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -9,6 +10,8 @@ import { useHeader } from '../../data/header';
 import { addHabit, addQuit, archiveHabit, archiveQuit, buildTracker, restoreHabit, fetchTracker, relapse, setQuitGoal, setQuitSince, undoRelapse } from '../../data/tracker';
 import { writeLog } from '../../data/today';
 import { hasBackend } from '../../lib/supabase';
+import { mutate } from '../../data/sync';
+import { toast } from '../../ui/toast';
 import { useAuth, isProPlan } from '../../lib/auth';
 import { HABIT_PALETTE, refusals as seedRefusals, trackerHabits, type Refusal, type TrackerHabit } from '../../mock/tracker';
 import { Icon } from '../../ui/Icon';
@@ -26,6 +29,7 @@ const CADENCE_LABELS = {
 
 /* State and handlers from VeyrArc Tracker.dc.html */
 function useTracker() {
+  const t = useT();
   const location = useLocation() as { state?: { compose?: boolean } };
   const [view, setView] = useState<View>('habits');
   const [now, setNow] = useState(Date.now());
@@ -47,22 +51,21 @@ function useTracker() {
     setHabits(b.habits); setRefusals(b.refusals);
     setGoalOverrides(Object.fromEntries(b.refusals.filter((r) => r.goalDays).map((r) => [r.id, r.goalDays!])));
   }, [q.data]);
-  const sync = (p: Promise<unknown>) => {
-    void p.finally(() => { void qc.invalidateQueries({ queryKey: ['tracker'] }); void qc.invalidateQueries({ queryKey: ['today'] }); });
-  };
+  const refresh = () => { void qc.invalidateQueries({ queryKey: ['tracker'] }); void qc.invalidateQueries({ queryKey: ['today'] }); };
+  // optimistic change → write → refresh; a refused write rolls back via the refetch and shows a toast
+  const sync = (run: () => Promise<unknown>) => mutate(run, { rollback: () => { void q.refetch(); }, done: refresh });
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [habitDraft, setHabitDraft] = useState<HabitDraft>(defaultHabitDraft(HABIT_PALETTE[trackerHabits.length % HABIT_PALETTE.length]));
   const [quitDraft, setQuitDraft] = useState<QuitDraft>(defaultQuitDraft());
   const [slipId, setSlipId] = useState<string | null>(null);
   const [limitOpen, setLimitOpen] = useState(false);
-  const [deleted, setDeleted] = useState<{ h: TrackerHabit; idx: number } | null>(null);
-  useEffect(() => { if (!deleted) return; const tm = setTimeout(() => setDeleted(null), 5000); return () => clearTimeout(tm); }, [deleted]);
+  const [quitDelId, setQuitDelId] = useState<string | null>(null);
   const plan = useAuth((x) => x.plan);
   const habitLimit = hasBackend && !isProPlan(plan) ? config.limits.free.habits : Infinity;
 
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
+    const tm = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(tm);
   }, []);
 
   const startAdd = () => {
@@ -100,7 +103,7 @@ function useTracker() {
       };
       setHabits((l) => [...l, item]);
       setExpandedId(item.id);
-      if (hasBackend) sync(addHabit(name, d, draftRequired, habits.length).catch((e) => { if (String(e?.message).includes('limit:habits')) setLimitOpen(true); }));
+      sync(() => addHabit(name, d, draftRequired, habits.length).catch((e) => { if (String(e?.message).includes('limit:habits')) setLimitOpen(true); }));
     } else {
       const unit = quitDraft.unit.trim();
       const item: Refusal = {
@@ -109,7 +112,7 @@ function useTracker() {
         relapses: 0, best: 0,
       };
       setRefusals((l) => [...l, item]);
-      if (hasBackend) sync(addQuit(name, quitDraft, item.hue));
+      sync(() => addQuit(name, quitDraft, item.hue));
     }
     setComposing(false);
     setDraft('');
@@ -121,7 +124,7 @@ function useTracker() {
       const wasDone = h0.week.includes('today-done');
       if (!wasDone) navigator.vibrate?.(15);
       const full = h0.type === 'counter' ? h0.target ?? 1 : h0.type === 'duration' ? h0.minutes ?? 1 : 1;
-      sync(writeLog(id, wasDone ? 0 : full, !wasDone));
+      sync(() => writeLog(id, wasDone ? 0 : full, !wasDone));
     }
     setHabits((list) => list.map((h) => {
     if (h.id !== id) return h;
@@ -137,21 +140,20 @@ function useTracker() {
   // A6: a slip restarts the timer; the best clean run and slip count are kept
   // audit 3.4: optional note, and a 5-minute undo after a slip
   const [slipNote, setSlipNote] = useState('');
-  const [undo, setUndo] = useState<{ quitId: string; prev: Refusal; relapseId: Promise<string | null> } | null>(null);
-  useEffect(() => { if (!undo) return; const tm = setTimeout(() => setUndo(null), 5 * 60 * 1000); return () => clearTimeout(tm); }, [undo]);
-  const undoSlip = () => {
-    if (!undo) return;
-    const u = undo;
-    setUndo(null);
-    setRefusals((list) => list.map((r) => (r.id === u.quitId ? u.prev : r)));
-    if (hasBackend) sync(u.relapseId.then((rid) => (rid ? undoRelapse(rid) : undefined)));
-  };
   const confirmSlip = () => {
     const id = slipId;
     const prev = refusals.find((r) => r.id === id);
-    const rid = hasBackend && id ? relapse(id, slipNote).catch(() => null) : Promise.resolve(null);
-    if (hasBackend) sync(rid);
-    if (id && prev) setUndo({ quitId: id, prev, relapseId: rid });
+    const note = slipNote;
+    // the relapse id (needed for undo) arrives when the write — possibly queued offline — goes through
+    let gotId: (v: string) => void = () => {};
+    const rid = new Promise<string>((res) => { gotId = res; });
+    if (id) sync(() => relapse(id, note).then(gotId));
+    if (id && prev) {
+      toast.action(t('tracker.relapseLogged'), t('tracker.relapseUndo'), () => {
+        setRefusals((list) => list.map((r) => (r.id === id ? prev : r)));
+        sync(() => rid.then((x) => undoRelapse(x)));
+      }, 5 * 60 * 1000);
+    }
     setSlipNote('');
     setRefusals((list) => list.map((r) => {
       if (r.id !== id) return r;
@@ -162,33 +164,30 @@ function useTracker() {
   };
 
   return {
-    habitDraft, setHabitDraft, quitDraft, setQuitDraft, slipId, setSlipId, confirmSlip, slipNote, setSlipNote, undo, undoSlip,
+    habitDraft, setHabitDraft, quitDraft, setQuitDraft, slipId, setSlipId, confirmSlip, slipNote, setSlipNote,
     view, switchView, now, expandedId, setExpandedId, composing, draft, setDraft, draftRequired, setDraftRequired,
     goalOverrides, setGoalOverrides, goalMenuId, setGoalMenuId, habits, setHabits, refusals, setRefusals,
     startAdd, cancelAdd, confirmAdd, toggleToday, scrollRef,
-    ready: !hasBackend || !!q.data, limitOpen, setLimitOpen, habitLimit,
+    quitDelId, setQuitDelId,
+    ready: !hasBackend || !!q.data, loadError: q.isError && !q.data, retry: () => { void q.refetch(); }, limitOpen, setLimitOpen, habitLimit,
     removeHabit: (id: string) => {
       // audit 4.7: 5 seconds to undo a deletion
       const idx = habits.findIndex((x) => x.id === id);
-      if (idx >= 0) setDeleted({ h: habits[idx], idx });
+      const h = habits[idx];
       setHabits((l) => l.filter((x) => x.id !== id));
-      if (hasBackend) sync(archiveHabit(id));
+      sync(() => archiveHabit(id));
+      if (h) toast.action(t('explain.habitDeleted'), t('explain.undo'), () => {
+        setHabits((l) => { const n = l.slice(); n.splice(Math.min(idx, n.length), 0, h); return n; });
+        sync(() => restoreHabit(h.id));
+      }, 5000);
     },
-    deleted,
-    undoDelete: () => {
-      if (!deleted) return;
-      const d = deleted;
-      setDeleted(null);
-      setHabits((l) => { const n = l.slice(); n.splice(Math.min(d.idx, n.length), 0, d.h); return n; });
-      if (hasBackend) sync(restoreHabit(d.h.id));
-    },
-    removeQuit: (id: string) => { setRefusals((l) => l.filter((x) => x.id !== id)); if (hasBackend) sync(archiveQuit(id)); },
+    removeQuit: (id: string) => { setRefusals((l) => l.filter((x) => x.id !== id)); sync(() => archiveQuit(id)); },
     setSince: (id: string, day: string) => {
       const iso = sinceIso(day);
       setRefusals((l) => l.map((r) => (r.id === id ? { ...r, quit: iso } : r)));
-      if (hasBackend) sync(setQuitSince(id, iso));
+      sync(() => setQuitSince(id, iso));
     },
-    pickGoal: (id: string, g: number) => { setGoalOverrides((o) => ({ ...o, [id]: g })); if (hasBackend) sync(setQuitGoal(id, g)); },
+    pickGoal: (id: string, g: number) => { setGoalOverrides((o) => ({ ...o, [id]: g })); sync(() => setQuitGoal(id, g)); },
   };
 }
 type St = ReturnType<typeof useTracker>;
@@ -200,7 +199,7 @@ export function Tracker() {
   const hd = useHeader();
   const navigate = useNavigate();
   const mobile = !isDesktop;
-  if (!st.ready) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
+  if (!st.ready) return <PageState error={st.loadError} onRetry={st.retry} />;
 
   const seg = (
     <Segmented
@@ -216,12 +215,7 @@ export function Tracker() {
     <ConfirmDialog open={st.limitOpen} title={t('tracker.limitTitle')} body={t('tracker.limitDesc', { n: st.habitLimit })}
       confirmLabel={t('auth.openPro')} cancelLabel={t('goals.gotIt')} onConfirm={() => navigate('/pro')} onCancel={() => st.setLimitOpen(false)} />
   );
-  const deletedBar = st.deleted && (
-    <div className={s.undoBar} role="status">
-      <span>{t('explain.habitDeleted')}</span>
-      <button type="button" className={s.undoBtn} onClick={st.undoDelete}>{t('explain.undo')}</button>
-    </div>
-  );
+
   const body = st.view === 'habits' ? <HabitsView t={t} st={st} mobile={mobile} /> : <RefusalsView t={t} st={st} mobile={mobile} />;
 
   if (isDesktop) {
@@ -237,7 +231,7 @@ export function Tracker() {
         {seg}
         {body}
         {limitDialog}
-        {deletedBar}
+        
       </div>
     );
   }
@@ -258,7 +252,7 @@ export function Tracker() {
         {seg}
         {body}
         {limitDialog}
-        {deletedBar}
+        
       </div>
       <button type="button" className={s.fab} onClick={st.startAdd} aria-label={t('common.add')}>
         <Icon name="plus" size={22} sw={2} />
@@ -337,18 +331,24 @@ function HabitsView({ t, st, mobile }: { t: T; st: St; mobile: boolean }) {
 function RefusalsView({ t, st, mobile }: { t: T; st: St; mobile: boolean }) {
   const cards = st.refusals.map((r) => (
     <RefusalCard
-      key={r.id} t={t} r={r} now={st.now} mobile={mobile}
+      key={r.id} t={t} r={r} mobile={mobile}
       goalOverride={st.goalOverrides[r.id]} menuOpen={st.goalMenuId === r.id}
       onToggleMenu={() => st.setGoalMenuId(st.goalMenuId === r.id ? null : r.id)}
       onPickGoal={(g) => { st.pickGoal(r.id, g); st.setGoalMenuId(null); }}
-      onDelete={() => st.removeQuit(r.id)}
+      onDelete={() => st.setQuitDelId(r.id)}
       onSlip={() => st.setSlipId(r.id)}
       onSetSince={(day) => st.setSince(r.id, day)}
     />
   ));
   const composer = st.composing && <Composer t={t} st={st} placeholder={t('tracker.quitPlaceholder')} withRequired={false} />;
+  const delQuit = st.refusals.find((r) => r.id === st.quitDelId);
+  const delDialog = (
+    <ConfirmDialog open={!!delQuit} danger title={t('tracker.quitDeleteTitle', { n: delQuit ? t.pick(delQuit.name) : '' })} body={t('tracker.quitDeleteBody')}
+      confirmLabel={t('common.delete')} cancelLabel={t('common.cancel')}
+      onConfirm={() => { if (delQuit) st.removeQuit(delQuit.id); st.setQuitDelId(null); }} onCancel={() => st.setQuitDelId(null)} />
+  );
   const slipQuit = st.refusals.find((r) => r.id === st.slipId);
-  const slipDays = slipQuit ? Math.floor(Math.max(0, st.now - new Date(slipQuit.quit).getTime()) / 86400000) : 0;
+  const slipDays = slipQuit ? Math.floor(Math.max(0, Date.now() - new Date(slipQuit.quit).getTime()) / 86400000) : 0;
   const slipDialog = (
     <ConfirmDialog open={!!st.slipId} title={t('tracker.relapseTitle')}
       body={(
@@ -359,12 +359,7 @@ function RefusalsView({ t, st, mobile }: { t: T; st: St; mobile: boolean }) {
       )}
       confirmLabel={t('tracker.relapseOk')} cancelLabel={t('common.cancel')} onConfirm={st.confirmSlip} onCancel={() => { st.setSlipId(null); st.setSlipNote(''); }} />
   );
-  const undoBar = st.undo && (
-    <div className={s.undoBar} role="status">
-      <span>{t('tracker.relapseLogged')}</span>
-      <button type="button" className={s.undoBtn} onClick={st.undoSlip}>{t('tracker.relapseUndo')}</button>
-    </div>
-  );
+
   if (mobile) {
     return (
       <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -372,14 +367,14 @@ function RefusalsView({ t, st, mobile }: { t: T; st: St; mobile: boolean }) {
         {cards}
         {composer}
         {slipDialog}
-        {undoBar}
+        {delDialog}
       </div>
     );
   }
   return (
     <div style={{ marginTop: 18 }}>
       {slipDialog}
-      {undoBar}
+      {delDialog}
       <div className={s.intro} style={{ fontSize: 13, lineHeight: 1.5, marginBottom: 14 }}>{t('tracker.quitsIntro')}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)', gap: 14, alignItems: 'start' }}>{cards}</div>
       <div style={{ marginTop: 14, maxWidth: 520 }}>{composer}</div>

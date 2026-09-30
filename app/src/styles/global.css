@@ -3,9 +3,29 @@
 /* Verbatim from the <helmet> blocks of project/*.dc.html */
 * { box-sizing: border-box; scrollbar-width: none; }
 *::-webkit-scrollbar { width: 0; height: 0; display: none; }
-html, body, #root { height: 100%; }
+html, body, #root { width: 100%; min-width: 100%; max-width: 100%; height: 100%; min-height: 100%; margin: 0; }
 /* an app, not a page: no pinch/double-tap zoom, no sideways drift, no rubber-band on the page */
-html, body { overflow: hidden; overscroll-behavior: none; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+html, body { overflow: hidden; overscroll-behavior: none; touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* app feel: no grey tap flash, no double-tap zoom delay; drag surfaces opt in to touch-action: none themselves */
+button, a, [role='button'], [role='checkbox'], [role='switch'], label { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+/* iOS zooms into any field under 16px: every text field is 16px (visual size is set on labels, not inputs) */
+input:not([data-large]), textarea, select { font-size: 16px !important; }
+button { font-family: inherit; }
+/* touch targets: every small control gets an invisible hit area of at least 44×44 around it
+   (the visual size stays as designed); data-hit="off" for controls that sit closer than that */
+:where(button, a, [role='button'], [role='checkbox'], [role='switch'], label):not([data-hit='off']) { position: relative; }
+:where(button, a, [role='button'], [role='checkbox'], [role='switch']):not([data-hit='off'])::before {
+  content: ''; position: absolute; pointer-events: auto;
+  top: min(0px, calc((100% - var(--hit)) / 2)); bottom: min(0px, calc((100% - var(--hit)) / 2));
+  left: min(0px, calc((100% - var(--hit)) / 2)); right: min(0px, calc((100% - var(--hit)) / 2));
+}
+button:disabled { cursor: not-allowed; }
+/* visible keyboard focus everywhere (mouse / touch clicks don't show it) */
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 6px; }
+img, svg { max-width: 100%; }
+/* long user text never pushes the layout sideways */
+p, h1, h2, h3 { overflow-wrap: break-word; }
 [data-scroll] { overflow-x: hidden; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
 body {
   margin: 0;
@@ -18,7 +38,7 @@ a { color: var(--link); text-decoration: none; }
 a:hover { color: var(--link-hover); }
 ::selection { background: rgba(111,160,214,.3); }
 input::placeholder { color: currentColor; opacity: .38; }
-textarea::placeholder { color: rgba(232,237,243,.35); }
+textarea::placeholder { color: rgba(232,237,243,.52); }
 textarea:disabled { opacity: .45; cursor: not-allowed; }
 
 /* Calendar week grid keeps a visible scrollbar (VeyrArc Calendar.dc.html) */
@@ -36,3 +56,19 @@ textarea:disabled { opacity: .45; cursor: not-allowed; }
 @keyframes wwBurst { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--dx),var(--dy)) scale(.3) rotate(200deg); opacity: 0; } }
 @keyframes wwGlowPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(111,160,214,.0); } 50% { box-shadow: 0 0 0 6px rgba(111,160,214,.18); } }
 @keyframes wwPop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+
+/* motion off when the system asks for it; state changes stay visible through colour/content */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* loading skeleton */
+@keyframes skShine { from { background-position: -200px 0; } to { background-position: 200px 0; } }
+.sk { border-radius: 14px; background: linear-gradient(90deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.08) 50%, rgba(255,255,255,.04) 100%) no-repeat; background-size: 400px 100%; background-color: rgba(255,255,255,.04); animation: skShine 1.2s linear infinite; }

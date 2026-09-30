@@ -129,7 +129,7 @@ export function Cta({
   return (
     <button
       type="button" className={cx(s.cta, s[`cta-${variant}`])} data-loading={loading}
-      disabled={disabled && !loading} aria-busy={loading} style={style} {...rest}
+      disabled={disabled || loading} aria-busy={loading} style={style} {...rest}
     >
       {loading ? <span className={spinner} /> : <span>{children}</span>}
     </button>

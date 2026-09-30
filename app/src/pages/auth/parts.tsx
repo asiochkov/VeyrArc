@@ -118,7 +118,7 @@ export function OtpInput({ value, onChange, error, shakeClass }: { value: string
     <div className={`${s.otpRow} ${shakeClass}`}>
       {value.map((d, i) => (
         <input
-          key={i} ref={(el) => { refs.current[i] = el; }} className={s.otpCell} value={d} inputMode="numeric" maxLength={6}
+          key={i} ref={(el) => { refs.current[i] = el; }} className={s.otpCell} data-large value={d} inputMode="numeric" maxLength={6}
           data-filled={!!d} data-err={error || undefined} aria-label={`${i + 1}`}
           onChange={(e) => setAt(i, e.target.value)}
           onPaste={(e) => { e.preventDefault(); setAt(0, e.clipboardData.getData('text')); }}

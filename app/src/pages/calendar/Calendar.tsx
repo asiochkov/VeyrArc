@@ -1,3 +1,4 @@
+import { PageState } from '../../ui/PageState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent, type TouchEvent } from 'react';
 import { Link } from 'react-router-dom';
@@ -7,10 +8,12 @@ import { useHeader } from '../../data/header';
 import { addDays, daysBetween, parseDay, weekStart } from '../../data/model';
 import { buildToday, fetchToday } from '../../data/today';
 import { useAddAction } from '../../app/nav';
-import { useT, type T } from '../../i18n';
+import { translate, useLangStore, useT, type T } from '../../i18n';
+import { toast } from '../../ui/toast';
 import { useAuth } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { hasBackend } from '../../lib/supabase';
+import { mutate } from '../../data/sync';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { calEvents, EV_CAT, EV_FILL, H0, H1, mobileStats, ROW, ROW_M, type EvColor } from '../../mock/calendar';
 import { Icon, type IconName } from '../../ui/Icon';
@@ -18,6 +21,8 @@ import { Avatar, Checkbox, Segmented } from '../../ui/primitives';
 import s from './calendar.module.css';
 
 type View = 'month' | 'week' | 'day';
+/* px a mouse must travel before a press becomes a drag (below that it is a click) */
+const DRAG_THRESHOLD = 8;
 type Stat = { value: string; key: 'habitsDone' | 'daysInRow' | 'daysToGoal'; hue: string; icon: string; span: number };
 const COLORS: EvColor[] = ['blue', 'green', 'red', 'purple'];
 const BD: { c: EvColor; label: { ru: string; en: string } }[] = [
@@ -95,9 +100,7 @@ function useCalendar() {
   const itemsRef = useRef(items);
   itemsRef.current = items;
 
-  const sync = (p: Promise<unknown>) => {
-    void p.then(() => qc.invalidateQueries({ queryKey: ['today'] })).catch(() => q.refetch());
-  };
+  const sync = (run: () => Promise<unknown>) => mutate(run, { rollback: () => { void q.refetch(); }, done: () => { void qc.invalidateQueries({ queryKey: ['today'] }); } });
 
   const stats = useMemo<Stat[]>(() => {
     if (!hasBackend) return mobileStats.map((m) => ({ ...m })) as Stat[];
@@ -128,20 +131,27 @@ function useCalendar() {
   const openEdit = (id: string) => { const ev = itemsRef.current.find((x) => x.id === id); if (ev) setDraft({ isNew: false, ev: { ...ev } }); };
   const commit = (ev: Ev, isNew: boolean) => {
     setItems((l) => (isNew ? [...l, ev] : l.map((x) => (x.id === ev.id ? ev : x))));
-    if (hasBackend) sync(isNew ? createItem(cats.current, ev) : saveItem(cats.current, ev));
+    sync(() => isNew ? createItem(cats.current, ev) : saveItem(cats.current, ev));
     setDraft(null);
   };
   const remove = (id: string) => {
+    const ev = itemsRef.current.find((x) => x.id === id);
     setItems((l) => l.filter((x) => x.id !== id));
-    if (hasBackend) sync(deleteItem(id));
+    sync(() => deleteItem(id));
     setDraft(null);
+    if (!ev) return;
+    const lang = useLangStore.getState().lang;
+    toast.action(translate(lang, 'calendar.deleted'), translate(lang, 'explain.undo'), () => {
+      setItems((l) => [...l, ev]);
+      sync(() => createItem(cats.current, ev));
+    });
   };
   const toggleDone = (id: string) => {
     const ev = itemsRef.current.find((x) => x.id === id);
     if (!ev) return;
     if (!ev.done) navigator.vibrate?.(15);
     setItems((l) => l.map((x) => (x.id === id ? { ...x, done: !x.done } : x)));
-    if (hasBackend) sync(setDone(id, !ev.done));
+    sync(() => setDone(id, !ev.done));
   };
 
   /* ---- drag to move (desktop grid) ---- */
@@ -152,7 +162,7 @@ function useCalendar() {
     const move = (ev: globalThis.PointerEvent) => {
       const d = drag.current;
       if (!d) return;
-      if (!d.moved && Math.abs(ev.clientY - d.y0) < 5) return;
+      if (!d.moved && Math.abs(ev.clientY - d.y0) < DRAG_THRESHOLD) return;
       d.moved = true;
       const snap = Math.round(((ev.clientY - d.y0) / ROW) * 4) / 4;
       const len = d.e - d.s;
@@ -165,7 +175,7 @@ function useCalendar() {
       if (!d) return;
       if (!d.moved) { openEdit(d.id); return; }
       const ev = itemsRef.current.find((x) => x.id === d.id);
-      if (ev && hasBackend) sync(saveItem(cats.current, ev));
+      if (ev && hasBackend) sync(() => saveItem(cats.current, ev));
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
@@ -173,6 +183,8 @@ function useCalendar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const startDrag = (id: string, e: PointerEvent) => {
+    // touch: a finger on a block must still scroll the grid — tap opens the editor, times are set there
+    if (e.pointerType === 'touch' || e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
     const ev = itemsRef.current.find((x) => x.id === id)!;
@@ -187,7 +199,7 @@ function useCalendar() {
   const goToday = () => { setSel(today); };
 
   return {
-    ready: !on || !!q.data, today, sel, setSel, cursor, setCursor, view, setView, monthOpen, setMonthOpen, week0,
+    ready: !on || !!q.data, loadError: q.isError && !q.data, retry: () => { void q.refetch(); }, today, sel, setSel, cursor, setCursor, view, setView, monthOpen, setMonthOpen, week0,
     items, now, stats, draft, setDraft, openNew, openEdit, commit, remove, toggleDone, startDrag, shift, goToday,
   };
 }
@@ -212,7 +224,7 @@ export function Calendar() {
     return () => setHandler(null);
   });
 
-  if (!st.ready) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
+  if (!st.ready) return <PageState error={st.loadError} onRetry={st.retry} />;
   return isDesktop ? <DesktopCalendar t={t} st={st} initials={hd.initials} /> : <MobileCalendar t={t} st={st} initials={hd.initials} />;
 }
 
@@ -280,8 +292,8 @@ function TimeBox({ label, value, onChange }: { label: string; value: number; onC
           onChange={(e) => e.target.value && onChange(parseHm(e.target.value))} />
       </div>
       <div className={s.steps}>
-        <button type="button" className={s.step} onClick={() => onChange(value + 0.25)} aria-label="+15">+</button>
-        <button type="button" className={s.step} onClick={() => onChange(value - 0.25)} aria-label="−15">−</button>
+        <button type="button" className={s.step} data-hit="off" onClick={() => onChange(value - 0.25)} aria-label={`${label} −15`}>−</button>
+        <button type="button" className={s.step} data-hit="off" onClick={() => onChange(value + 0.25)} aria-label={`${label} +15`}>+</button>
       </div>
     </div>
   );
@@ -374,8 +386,10 @@ function EventBlock({ st, ev, h0, wide }: { st: St; ev: Ev; h0: number; wide: bo
     <div
       className={s.ev} data-sel={st.draft?.ev.id === ev.id} data-done={ev.done}
       style={{ top: (ev.s! - h0) * ROW + 2, height: Math.max(18, (ev.e! - ev.s!) * ROW - 5), background: EV_FILL[ev.c] }}
+      role="button" tabIndex={0} aria-label={`${ev.title}, ${fmt(ev.s!)}–${fmt(ev.e!)}`}
       onPointerDown={(e) => st.startDrag(ev.id, e)}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => { e.stopPropagation(); if ((e.nativeEvent as globalThis.PointerEvent).pointerType !== 'mouse') st.openEdit(ev.id); }}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); st.openEdit(ev.id); } }}
     >
       <div className={s.evTitle} style={{ fontSize: wide ? 13 : 12 }}>{ev.title}</div>
       {(ev.e! - ev.s!) >= 0.75 && <div className={s.evTime}>{fmt(ev.s!)}–{fmt(ev.e!)}</div>}
@@ -502,7 +516,7 @@ function DesktopCalendar({ t, st, initials }: { t: T; st: St; initials: string }
         {st.view === 'month' && (
           <div style={{ marginTop: 20, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <div className={s.grid7} style={{ gap: 8, marginBottom: 8 }}>
-              {dows.map((w) => <div key={w} style={{ font: '700 11px var(--font-mono)', letterSpacing: '.08em', color: 'rgba(232,237,243,.4)', padding: '0 4px' }}>{w}</div>)}
+              {dows.map((w) => <div key={w} style={{ font: '700 11px var(--font-mono)', letterSpacing: '.08em', color: 'rgba(232,237,243,.56)', padding: '0 4px' }}>{w}</div>)}
             </div>
             <div className={s.grid7} style={{ flex: 1, gridAutoRows: '1fr', gap: 8 }}>
               {monthCells(st.cursor).map((day) => {
@@ -562,7 +576,7 @@ function MobileCalendar({ t, st, initials }: { t: T; st: St; initials: string })
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Link to="/" className={s.mBack} aria-label={t('nav.today')}><Icon name="back" size={18} sw={2} /></Link>
           <div>
-            <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.24em', color: 'rgba(232,237,243,.34)' }}>{t('common.brandCaps')}</div>
+            <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.24em', color: 'rgba(232,237,243,.5)' }}>{t('common.brandCaps')}</div>
             <div style={{ font: '800 22px/1.1 var(--font-ui)', marginTop: 5 }}>{t('calendar.planner')}</div>
           </div>
         </div>
@@ -574,7 +588,7 @@ function MobileCalendar({ t, st, initials }: { t: T; st: St; initials: string })
           <button type="button" className={s.mMonthBtn} onClick={() => { st.setCursor(monthStart(st.sel)); st.setMonthOpen(!st.monthOpen); }} aria-expanded={st.monthOpen}>
             {monthName} <span style={{ display: 'inline-grid', placeItems: 'center', transition: 'transform .2s', transform: `rotate(${st.monthOpen ? 180 : 0}deg)`, color: 'rgba(232,237,243,.5)' }}><Icon name="chevronDown" size={18} sw={2} /></span>
           </button>
-          <div style={{ font: '400 12px var(--font-ui)', color: 'rgba(232,237,243,.45)', marginTop: 4 }}>
+          <div style={{ font: '400 12px var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 4 }}>
             {st.sel === st.today ? t('calendar.tasksToday', { n: dayItems.length }) : t('calendar.tasksOn', { n: dayItems.length, d: dayLabel(t, st.sel) })}
           </div>
         </div>

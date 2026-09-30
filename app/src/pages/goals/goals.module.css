@@ -52,7 +52,7 @@
 .legend { display: flex; align-items: center; gap: 6px; font: 600 10.5px var(--font-ui); color: var(--t-45); }
 .noteCard { cursor: pointer; background: var(--card); border: 1px solid var(--ice-10); border-radius: 16px; }
 
-.recapWrap { position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow-y: auto; overflow-x: hidden; padding: 120px 24px 90px; display: flex; justify-content: center; align-items: flex-start; }
+.recapWrap { position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow-y: auto; overflow-x: hidden; padding: calc(120px + var(--safe-top)) 24px calc(90px + var(--safe-bottom)); display: flex; justify-content: center; align-items: flex-start; }
 .recap { width: 100%; max-width: 420px; background: var(--bg); border: 1px solid var(--ice-10); border-radius: 28px; padding: 32px 28px; display: flex; flex-direction: column; }
 .recapTile { background: var(--w-05); border-radius: 16px; padding: 14px 6px; text-align: center; }
 

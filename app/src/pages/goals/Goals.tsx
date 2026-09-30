@@ -1,3 +1,4 @@
+import { PageState } from '../../ui/PageState';
 import { useEffect, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { useAddAction } from '../../app/nav';
@@ -6,7 +7,7 @@ import { useIsDesktop } from '../../lib/useIsDesktop';
 import { type Goal } from '../../mock/goals';
 import { useHeader } from '../../data/header';
 import { Icon } from '../../ui/Icon';
-import { Avatar, MoodFace, Segmented } from '../../ui/primitives';
+import { Avatar, ConfirmDialog, MoodFace, Segmented } from '../../ui/primitives';
 import s from './goals.module.css';
 import { parseYmd, useGoals, ymd, type GoalsState } from './useGoals';
 
@@ -25,7 +26,7 @@ export function Goals() {
     return () => setHandler(null);
   });
 
-  if (!g.ready) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
+  if (!g.ready) return <PageState error={g.loadError} onRetry={g.retry} />;
   return (
     <>
       {isDesktop ? <Desktop t={t} g={g} /> : <Mobile t={t} g={g} />}
@@ -69,14 +70,18 @@ function Chips({ t, g, m }: { t: T; g: GoalsState; m: boolean }) {
 
 function MenuAndForms({ t, g, m }: { t: T; g: GoalsState; m: boolean }) {
   const menuOpen = !!g.menuGoalId && !g.renaming && g.goals.some((x) => x.id === g.menuGoalId);
+  const delGoal = g.goals.find((x) => x.id === g.menuGoalId);
   return (
     <>
+      <ConfirmDialog open={g.confirmDelete && !!delGoal} danger title={t('goals.deleteTitle', { n: delGoal ? t.pick(delGoal.title) : '' })} body={t('goals.deleteBody')}
+        confirmLabel={t('common.delete')} cancelLabel={t('common.cancel')}
+        onConfirm={() => { g.setConfirmDelete(false); g.menu.remove(); }} onCancel={() => g.setConfirmDelete(false)} />
       {menuOpen && (
         <div className={s.menu} style={m ? undefined : { maxWidth: 300 }}>
           <button type="button" className={s.menuItem} onClick={g.menu.rename}>{t('goals.rename')}</button>
           <button type="button" className={s.menuItem} onClick={g.menu.complete}>{t('goals.complete')}</button>
-          <button type="button" className={s.menuItem} style={{ color: '#D96A5B' }} onClick={g.menu.remove}>{t('goals.delete')}</button>
-          <button type="button" className={s.menuItem} style={{ color: 'rgba(232,237,243,.4)', fontSize: 12 }} onClick={g.menu.close}>{t('goals.close')}</button>
+          <button type="button" className={s.menuItem} style={{ color: '#D96A5B' }} onClick={() => g.setConfirmDelete(true)}>{t('goals.delete')}</button>
+          <button type="button" className={s.menuItem} style={{ color: 'rgba(232,237,243,.56)', fontSize: 12 }} onClick={g.menu.close}>{t('goals.close')}</button>
         </div>
       )}
       {g.renaming && (
@@ -275,7 +280,7 @@ function MonthView({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
       <div className={s.card} style={{ marginTop: m ? 10 : 14, borderRadius: 20, padding: m ? '16px 14px' : '22px 26px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: m ? '6px 2px' : '8px 4px' }}>
           {t.list('weekdays.short').map((w) => (
-            <div key={w} style={{ textAlign: 'center', font: `700 ${m ? 9 : 10}px var(--font-mono)`, letterSpacing: m ? '.08em' : '.1em', color: 'rgba(232,237,243,.35)' }}>{w}</div>
+            <div key={w} style={{ textAlign: 'center', font: `700 ${m ? 9 : 10}px var(--font-mono)`, letterSpacing: m ? '.08em' : '.1em', color: 'rgba(232,237,243,.52)' }}>{w}</div>
           ))}
           {cells.map((c, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -285,7 +290,7 @@ function MonthView({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
                 if (st === 'done') Object.assign(style, { background: goal.hue, color: '#06121f' });
                 else if (st === 'partial') Object.assign(style, { background: 'transparent', border: `2px solid ${goal.hue}`, color: goal.hue });
                 else if (st === 'missed') Object.assign(style, { background: 'rgba(217,106,91,.14)', color: '#D96A5B' });
-                else Object.assign(style, { background: 'rgba(255,255,255,.05)', color: 'rgba(232,237,243,.45)' });
+                else Object.assign(style, { background: 'rgba(255,255,255,.05)', color: 'rgba(232,237,243,.6)' });
                 if (c.date === g.today) style.boxShadow = '0 0 0 2px #E8A54B';
                 return <button type="button" className={s.dayCell} style={style} onClick={() => { g.setScreen('day'); g.setViewDate(c.date); }}>{c.n}</button>;
               })()}
@@ -307,7 +312,7 @@ function MonthView({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
           const d2 = parseYmd(n.key);
           return (
             <div key={n.key} className={s.noteCard} style={{ padding: m ? '14px 16px' : '16px 18px' }} onClick={() => { g.setScreen('day'); g.setViewDate(n.key); }}>
-              <div style={{ font: `700 ${m ? 10.5 : 11}px var(--font-mono)`, color: 'rgba(232,237,243,.45)' }}>{pad(d2.getDate())}.{pad(d2.getMonth() + 1)} {t.list('weekdaysLower')[d2.getDay()]}</div>
+              <div style={{ font: `700 ${m ? 10.5 : 11}px var(--font-mono)`, color: 'rgba(232,237,243,.6)' }}>{pad(d2.getDate())}.{pad(d2.getMonth() + 1)} {t.list('weekdaysLower')[d2.getDay()]}</div>
               <div style={{ font: '500 13px/1.5 var(--font-ui)', color: 'rgba(232,237,243,.8)', marginTop: m ? 6 : 8 }}>{text(t, n.diary)}</div>
             </div>
           );
@@ -345,7 +350,7 @@ function Desktop({ t, g }: { t: T; g: GoalsState }) {
     <div className={s.desktop}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.26em', color: 'rgba(232,237,243,.34)' }}>{t('common.brandCaps')}</div>
+          <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.26em', color: 'rgba(232,237,243,.5)' }}>{t('common.brandCaps')}</div>
           <div style={{ font: '800 34px/1 var(--font-ui)', letterSpacing: '-.01em', marginTop: 10 }}>{t('goals.title')}</div>
         </div>
         <Avatar initials={useHeader().initials} />
@@ -380,7 +385,7 @@ function Mobile({ t, g }: { t: T; g: GoalsState }) {
     <div className={s.mobileScroll} data-scroll>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.26em', color: 'rgba(232,237,243,.34)' }}>{t('common.brandCaps')}</div>
+          <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.26em', color: 'rgba(232,237,243,.5)' }}>{t('common.brandCaps')}</div>
           <div style={{ font: '800 28px/1.1 var(--font-ui)', marginTop: 8 }}>{t('goals.title')}</div>
         </div>
         <Avatar initials={useHeader().initials} />
@@ -413,7 +418,7 @@ function Recap({ t, g }: { t: T; g: GoalsState }) {
   return createPortal(
     <div className={s.recapWrap}>
       <div className={s.recap}>
-        <div style={{ font: '700 10px var(--font-mono)', letterSpacing: '.22em', color: 'rgba(232,237,243,.4)', textAlign: 'center' }}>{t('goals.recapTitle')}</div>
+        <div style={{ font: '700 10px var(--font-mono)', letterSpacing: '.22em', color: 'rgba(232,237,243,.56)', textAlign: 'center' }}>{t('goals.recapTitle')}</div>
         <div style={{ font: '800 26px var(--font-ui)', textAlign: 'center', marginTop: 10 }}>{t.pick(r.goal.title)}</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginTop: 22 }}>
           {[[r.pct + '%', t('goals.recapDays')], [r.best, t('goals.recapBest')], [r.notes, t('goals.recapNotes')]].map(([v, l], i) => (

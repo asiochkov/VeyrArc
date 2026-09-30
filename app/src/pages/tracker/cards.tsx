@@ -2,6 +2,7 @@ import { buildGrid, habitRate, QUIT_GOALS, type Refusal, type TrackerHabit } fro
 import { formatNumber, type T } from '../../i18n';
 import { Icon } from '../../ui/Icon';
 import { localDay } from './ComposerOptions';
+import { useNow } from '../../lib/useNow';
 import s from './tracker.module.css';
 
 const MISS = 'rgba(229,57,43,.62)';
@@ -48,7 +49,7 @@ export function HabitCard({
           return (
             <div key={i} className={s.wcol}>
               <button type="button" className={s.wdot} data-s={mark} style={{ ...style, cursor: done || isToday ? 'pointer' : 'default' }}
-                onClick={isToday ? onToggleToday : undefined}>
+                data-hit="off" aria-label={labels[i]} aria-pressed={done} disabled={!isToday} onClick={isToday ? onToggleToday : undefined}>
                 {done && <Icon name="check" size={13} sw={3.2} />}
               </button>
               <span className={s.wlabel} style={isToday ? { color: h.hue } : undefined}>{labels[i]}</span>
@@ -91,11 +92,12 @@ export function sinceLabel(t: T, iso: string) {
 }
 
 export function RefusalCard({
-  t, r, now, mobile, goalOverride, menuOpen, onToggleMenu, onPickGoal, onDelete, onSlip, onSetSince,
+  t, r, mobile, goalOverride, menuOpen, onToggleMenu, onPickGoal, onDelete, onSlip, onSetSince,
 }: {
-  t: T; r: Refusal; now: number; mobile: boolean; goalOverride?: number; menuOpen: boolean;
+  t: T; r: Refusal; mobile: boolean; goalOverride?: number; menuOpen: boolean;
   onToggleMenu: () => void; onPickGoal: (g: number) => void; onDelete: () => void; onSlip: () => void; onSetSince: (day: string) => void;
 }) {
+  const now = useNow(1000); // only this card ticks every second
   const totalSec = Math.floor(Math.max(0, now - new Date(r.quit).getTime()) / 1000);
   const days = Math.floor(totalSec / 86400);
   const hh = Math.floor((totalSec % 86400) / 3600);

@@ -1,3 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
+import { useHeader } from '../../data/header';
+import { buildToday, fetchToday } from '../../data/today';
+import { fetchAccountStats } from '../../data/profile';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
@@ -10,6 +14,8 @@ import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
 import { Cta, PhotoImg } from '../../ui/primitives';
 import { pickPhoto, saveAvatar } from '../../lib/avatar';
+import { toast } from '../../ui/toast';
+import { mutate } from '../../data/sync';
 import s from './auth.module.css';
 import { AuthLayout, up } from './AuthLayout';
 import { DEFAULT_HOME, DIR_ICONS, DIRS, TIME_OPTS, useFlow, type DirId } from './flow';
@@ -70,7 +76,7 @@ export function Onboarding() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 24 }}>
                 <span className={s.avatarLg} style={{ overflow: 'hidden' }}>{photo ? <PhotoImg src={photo} /> : initials}</span>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6, flex: 'none' }}>
-                  <button type="button" className={s.ghostSm} onClick={() => { void pickPhoto().then((u) => { if (u) { setPhoto(u); if (hasBackend) void saveAvatar(u).catch(() => {}); } }); }}>{t('auth.addPhoto')}</button>
+                  <button type="button" className={s.ghostSm} onClick={() => { void pickPhoto().then((u) => { if (u) { setPhoto(u); if (hasBackend) void saveAvatar(u).catch(() => toast.error(t('common.saveFailed'))); } }); }}>{t('auth.addPhoto')}</button>
                   <span className={s.small}>{t('auth.optional')}</span>
                 </div>
               </div>
@@ -94,7 +100,7 @@ export function Onboarding() {
                         <span className={s.dirIcon}><Icon name={DIR_ICONS[id]} size={18} sw={1.8} /></span>
                         <span style={{ flex: 1, minWidth: 0, font: '700 15px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t(`auth.dirs.${id}`)}</span>
                         {cnt > 0 && <span className={s.dirCount}>{cnt}</span>}
-                        <span style={{ display: 'grid', color: 'rgba(232,237,243,.38)', transition: 'transform .2s', transform: `rotate(${open ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
+                        <span style={{ display: 'grid', color: 'rgba(232,237,243,.54)', transition: 'transform .2s', transform: `rotate(${open ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
                       </button>
                       {open && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 14px 14px', animation: 'wwUp .3s ease both' }}>
@@ -269,7 +275,7 @@ export function FirstHome() {
                   if (done === 0 && !on) setBurst((b) => b + 1);
                   setChecked((c) => ({ ...c, [h.ru]: !c[h.ru] }));
                   const item = created[h.ru];
-                  if (hasBackend && item?.kind === 'habit') void setHabitDone(item.id, !on).catch(() => {});
+                  if (hasBackend && item?.kind === 'habit') mutate(() => setHabitDone(item.id, !on));
                 }}>
                   <span className={s.homeBox} data-on={on}>{on && <Icon name="check" size={14} sw={3.2} />}</span>
                   <span style={{ flex: 1, minWidth: 0, font: '600 15px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s', color: on ? 'rgba(232,237,243,.58)' : 'var(--text)' }}>{t.pick(h)}</span>
@@ -311,6 +317,16 @@ export function Account() {
   const [secOpen, setSecOpen] = useState(false);
   const [appleLinked, setAppleLinked] = useState(false);
   const [modal, setModal] = useState<AccountModal>(null);
+  const hasEmail = !!session?.user.email;
+  const googleLinked = !!session?.user.identities?.some((x) => x.provider === 'google');
+  // real numbers for the header (the design's sample numbers only without a backend)
+  const hd = useHeader();
+  const qToday = useQuery({ queryKey: ['today'], queryFn: fetchToday, enabled: hasBackend && !!session });
+  const qStats = useQuery({ queryKey: ['accountStats'], queryFn: fetchAccountStats, enabled: hasBackend && !!session });
+  const streakNow = hasBackend ? (qToday.data ? buildToday(qToday.data, { initials: '', freezesAllowed: 1 }).stats.streak : '—') : 14;
+  const statHabits = hasBackend ? (qStats.data?.habitsDone ?? '—') : 186;
+  const statFocus = hasBackend ? (qStats.data?.focusHours ?? '—') : 42;
+  const arcDay = hasBackend ? hd.arcDay : 14, arcLen = hasBackend ? hd.arcLength : 90;
   const initials = ((f.pname || f.first || 'А')[0] + ((f.last || 'П')[0] || '')).toUpperCase();
   const chev = <span className={s.chev}><Icon name="chevron" size={16} sw={2} /></span>;
 
@@ -320,14 +336,14 @@ export function Account() {
         <div className={dir > 0 ? s.screenL : s.screenR}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...up(0) }}>
             <div className={s.h2}>{t('auth.account')}</div>
-            <button type="button" className={s.planBadge} data-pro={plan === 'pro'} onClick={() => setPlan(plan === 'free' ? 'pro' : 'free')}>{plan === 'free' ? 'Free' : 'Pro'}</button>
+            <button type="button" className={s.planBadge} data-pro={plan === 'pro'} onClick={() => (hasBackend ? navigate('/pro') : setPlan(plan === 'free' ? 'pro' : 'free'))}>{plan === 'free' ? 'Free' : 'Pro'}</button>
           </div>
 
           <div className={s.accHeader} style={up(1)}>
             <div className={s.accGlow} />
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 16 }}>
               <button type="button" className={s.avatarLg} style={{ overflow: 'hidden', border: 'none', cursor: 'pointer', padding: 0 }} aria-label={t('auth.addPhoto')}
-                onClick={() => { void pickPhoto().then((u) => { if (u) void saveAvatar(u).catch(() => {}); }); }}>
+                onClick={() => { void pickPhoto().then((u) => { if (u) void saveAvatar(u).then(() => toast.success(t('auth.photoSaved'))).catch(() => toast.error(t('common.saveFailed'))); }); }}>
                 {profile?.avatar_url ? <PhotoImg src={profile.avatar_url} /> : initials}
               </button>
               <div style={{ minWidth: 0, flex: 1 }}>
@@ -338,14 +354,14 @@ export function Account() {
             </div>
             <div className={s.arcPill}>
               <Icon name="snowSm" size={14} sw={1.8} />
-              <span>{t('auth.arcPillA')}<span style={{ fontFamily: 'var(--font-mono)' }}>14</span>{t('auth.arcPillOf')}<span style={{ fontFamily: 'var(--font-mono)' }}>90</span></span>
+              <span>{t('auth.arcPillA')}<span style={{ fontFamily: 'var(--font-mono)' }}>{arcDay}</span>{t('auth.arcPillOf')}<span style={{ fontFamily: 'var(--font-mono)' }}>{arcLen}</span></span>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 10, marginTop: 12, ...up(2) }}>
-            <div className={s.stat}><span className={s.statIcon}><Icon name="flame" size={16} sw={1.8} /></span><span className={s.statNum}>14</span><span className={s.statLabel}>{t('auth.statStreak')}</span></div>
-            <div className={s.stat}><span className={s.statIcon}><Icon name="check" size={14} sw={2.6} /></span><span className={s.statNum}>186</span><span className={s.statLabel}>{t('auth.statHabits')}</span></div>
-            <div className={s.stat}><span className={s.statIcon}><Icon name="bolt" size={15} sw={1.6} /></span><span className={s.statNum}>{t('units.h', { h: 42 })}</span><span className={s.statLabel}>{t('auth.statFocus')}</span></div>
+            <div className={s.stat}><span className={s.statIcon}><Icon name="flame" size={16} sw={1.8} /></span><span className={s.statNum}>{streakNow}</span><span className={s.statLabel}>{t('auth.statStreak')}</span></div>
+            <div className={s.stat}><span className={s.statIcon}><Icon name="check" size={14} sw={2.6} /></span><span className={s.statNum}>{statHabits}</span><span className={s.statLabel}>{t('auth.statHabits')}</span></div>
+            <div className={s.stat}><span className={s.statIcon}><Icon name="bolt" size={15} sw={1.6} /></span><span className={s.statNum}>{t('units.h', { h: statFocus })}</span><span className={s.statLabel}>{t('auth.statFocus')}</span></div>
           </div>
 
           {plan === 'free' && (
@@ -360,15 +376,16 @@ export function Account() {
           )}
 
           <div className={s.list} style={up(4)}>
-            <button type="button" className={s.row}><span className={s.rowIcon}><Icon name="user" size={18} sw={1.8} /></span><span className={s.rowText}>{t('auth.personal')}</span>{chev}</button>
+            <button type="button" className={s.row} onClick={() => setModal('name')}><span className={s.rowIcon}><Icon name="user" size={18} sw={1.8} /></span><span className={s.rowText}>{t('auth.personal')}</span>{chev}</button>
             <button type="button" className={s.row} onClick={() => setSecOpen(!secOpen)}>
               <span className={s.rowIcon}><Icon name="shield" size={18} sw={1.8} /></span><span className={s.rowText}>{t('auth.security')}</span>
               <span className={s.chev} style={{ transition: 'transform .2s', transform: `rotate(${secOpen ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
             </button>
             {secOpen && (
               <div className={s.subList}>
-                <button type="button" className={s.subRow}><span style={{ flex: 1, textAlign: 'left' }}>{t('auth.changePassword')}</span>{chev}</button>
-                <div className={s.subRow}><span style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}><Icon name="google" size={18} /><span>Google</span></span><span className={s.linked}><Icon name="check" size={14} sw={2.6} /> {t('auth.linked')}</span></div>
+                {(!hasBackend || hasEmail) && <button type="button" className={s.subRow} onClick={() => setModal('password')}><span style={{ flex: 1, textAlign: 'left' }}>{t('auth.changePassword')}</span>{chev}</button>}
+                {(!hasBackend || googleLinked) && <div className={s.subRow}><span style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}><Icon name="google" size={18} /><span>Google</span></span><span className={s.linked}><Icon name="check" size={14} sw={2.6} /> {t('auth.linked')}</span></div>}
+                {hasBackend && !hasEmail && <div className={s.subRow} style={{ cursor: 'default' }}><span style={{ flex: 1, color: 'var(--text-muted)' }}>{t('auth.guestSecurity')}</span></div>}
                 {config.auth.apple && (
                   <div className={s.subRow}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}><Icon name="apple" size={18} /><span>Apple</span></span>

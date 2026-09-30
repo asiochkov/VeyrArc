@@ -1,5 +1,6 @@
+import { PageState } from '../../ui/PageState';
 import { useState, type CSSProperties, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useT, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { HEAT_COLORS, REC_GRADIENTS, type HistRange, type Period } from '../../mock/profile';
@@ -11,14 +12,15 @@ import { useAuth, isProPlan } from '../../lib/auth';
 import { hasBackend } from '../../lib/supabase';
 
 const ProfileCtx = createContext<ProfileData>(MOCK_PROFILE);
-function useProfileData(): ProfileData | null {
+function useProfileData(): { data: ProfileData | null; error: boolean; retry: () => void } {
   const { session, plan } = useAuth();
   const hd = useHeader();
   const q = useQuery({ queryKey: ['profile'], queryFn: fetchProfile, enabled: hasBackend && !!session });
-  return useMemo(() => {
+  const data = useMemo(() => {
     if (!hasBackend) return MOCK_PROFILE;
     return q.data ? buildProfile(q.data, { pro: isProPlan(plan), initials: hd.initials }) : null;
   }, [q.data, plan?.plan, hd.initials]);
+  return { data, error: q.isError && !q.data, retry: () => { void q.refetch(); } };
 }
 import { Icon, type IconName } from '../../ui/Icon';
 import { InfoDialog, PhotoImg, ProgressRing, Segmented } from '../../ui/primitives';
@@ -57,8 +59,8 @@ export function Profile() {
   const t = useT();
   const isDesktop = useIsDesktop();
   const p = useProfile();
-  const data = useProfileData();
-  if (!data) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
+  const { data, error, retry } = useProfileData();
+  if (!data) return <PageState error={error} onRetry={retry} />;
   return (
     <ProfileCtx.Provider value={data}>
       {isDesktop ? <Desktop t={t} p={p} /> : <Mobile t={t} p={p} />}
@@ -167,6 +169,7 @@ const quitDay = (d: number, h: number, r: number): CSSProperties => ({ height: h
 /* ---------------- desktop ---------------- */
 
 function Desktop({ t, p }: { t: T; p: P }) {
+  const navigate = useNavigate();
   const photo = useAuth((x) => x.profile?.avatar_url);
   const D = useContext(ProfileCtx);
   const blur = blurOf(D.PROFILE_IS_PRO);
@@ -192,12 +195,12 @@ function Desktop({ t, p }: { t: T; p: P }) {
     <div className={s.desktop}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button type="button" className={s.menuBtn} style={{ width: 38, height: 38 }} onClick={() => p.setMenuOpen(!p.menuOpen)}><Icon name="menu" size={18} sw={2} /></button>
-          <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.26em', color: 'rgba(232,237,243,.34)' }}>{t('common.brandCaps')}</div>
+          <button type="button" className={s.menuBtn} style={{ width: 38, height: 38 }} aria-label={t('common.menu')} aria-expanded={p.menuOpen} onClick={() => p.setMenuOpen(!p.menuOpen)}><Icon name="menu" size={18} sw={2} /></button>
+          <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.26em', color: 'rgba(232,237,243,.5)' }}>{t('common.brandCaps')}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {D.PROFILE_IS_PRO && <span className={s.proBadge}>{t('profile.proBadge')}</span>}
-          <button type="button" className={s.avatarBtn} style={{ width: 40, height: 40, fontSize: 12, overflow: 'hidden' }}>{photo ? <PhotoImg src={photo} /> : D.initials}</button>
+          <button type="button" className={s.avatarBtn} style={{ width: 40, height: 40, fontSize: 12, overflow: 'hidden' }} aria-label={t('auth.account')} onClick={() => navigate('/settings/account')}>{photo ? <PhotoImg src={photo} /> : D.initials}</button>
         </div>
       </div>
       {p.menuOpen && <Menu t={t} m={false} />}
@@ -209,7 +212,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
             <button type="button" onClick={() => p.setExplain(true)} style={{ ...cap(10, '.2em'), background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t('profile.index')} ⓘ</button>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 10 }}>
               <span style={{ font: '800 64px/1 var(--font-mono)', letterSpacing: '-.02em' }}>{d.value}</span>
-              <span style={{ font: '600 13px var(--font-mono)', color: 'rgba(232,237,243,.4)' }}>{t('profile.of1000')}</span>
+              <span style={{ font: '600 13px var(--font-mono)', color: 'rgba(232,237,243,.56)' }}>{t('profile.of1000')}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
               <span style={{ font: '700 15px var(--font-mono)', color: d.deltaColor }}>{d.deltaLabel}</span>
@@ -221,7 +224,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
             <ProgressRing size={120} r={50} strokeWidth={9} pct={d.value / 1000}>
               <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ font: '700 20px var(--font-mono)' }}>{d.pct}%</div>
-                <div style={{ font: '600 9px var(--font-ui)', color: 'rgba(232,237,243,.4)', marginTop: 2 }}>{t('profile.ofGoal')}</div>
+                <div style={{ font: '600 9px var(--font-ui)', color: 'rgba(232,237,243,.56)', marginTop: 2 }}>{t('profile.ofGoal')}</div>
               </div>
             </ProgressRing>
           </div>
@@ -231,12 +234,12 @@ function Desktop({ t, p }: { t: T; p: P }) {
       <div className={s.bento}>
         {card('habits', <>
           {arrow}
-          {head('checklist', '#6FA0D6', t('profile.habits'), <span style={{ font: '600 11px var(--font-mono)', color: 'rgba(232,237,243,.4)', whiteSpace: 'nowrap' }}>{t('profile.streakAvg', { n: D.habitsCard.streakAvg })}</span>)}
+          {head('checklist', '#6FA0D6', t('profile.habits'), <span style={{ font: '600 11px var(--font-mono)', color: 'rgba(232,237,243,.56)', whiteSpace: 'nowrap' }}>{t('profile.streakAvg', { n: D.habitsCard.streakAvg })}</span>)}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginTop: 14 }}>
             {D.habitsCard.types.map((h) => (
               <div key={h.key} style={{ textAlign: 'center' }}>
                 <div style={{ font: '700 18px var(--font-mono)' }}>{h.pct}%</div>
-                <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.45)', marginTop: 3 }}>{t(`profile.types.${h.key}`)}</div>
+                <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 3 }}>{t(`profile.types.${h.key}`)}</div>
               </div>
             ))}
           </div>
@@ -269,7 +272,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
           {head('target', '#E8A54B', t('profile.goals'))}
           <div>
             <div style={{ font: '700 30px var(--font-mono)' }}>{D.goalsCard.active}</div>
-            <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.45)' }}>{t('profile.activeDot')}<span style={mono}>{D.goalsCard.avgPct}%</span>{t('profile.done')}</div>
+            <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.6)' }}>{t('profile.activeDot')}<span style={mono}>{D.goalsCard.avgPct}%</span>{t('profile.done')}</div>
           </div>
           <div style={{ font: '600 11px var(--font-ui)', color: '#E8A54B', marginTop: 10 }}>{t.pick(D.goalsCard.nearestDeadline)}</div>
         </>, { display: 'flex', flexDirection: 'column', justifyContent: 'space-between' })}
@@ -278,7 +281,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
           {head('clipboard', '#9B87D6', t('profile.planner'))}
           <div>
             <div style={{ font: '700 30px var(--font-mono)' }}>{D.plannerCard.pct}%</div>
-            <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.45)' }}><span style={mono}>{D.plannerCard.done}</span>{t('profile.of')}<span style={mono}>{D.plannerCard.planned}</span></div>
+            <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.6)' }}><span style={mono}>{D.plannerCard.done}</span>{t('profile.of')}<span style={mono}>{D.plannerCard.planned}</span></div>
           </div>
           <div style={{ font: '600 11px var(--font-ui)', color: '#D96A5B', marginTop: 10 }}><span style={mono}>{D.plannerCard.overdue}</span>{t('profile.overdue')}</div>
         </>, { display: 'flex', flexDirection: 'column', justifyContent: 'space-between' })}
@@ -286,13 +289,13 @@ function Desktop({ t, p }: { t: T; p: P }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <div>
               <div style={cap(10, '.18em')}>{t('profile.activity')}</div>
-              <div style={{ font: '400 11px var(--font-ui)', color: 'rgba(232,237,243,.4)', marginTop: 4 }}>{t('profile.activityDesc')}</div>
+              <div style={{ font: '400 11px var(--font-ui)', color: 'rgba(232,237,243,.56)', marginTop: 4 }}>{t('profile.activityDesc')}</div>
             </div>
-            <span style={{ font: '600 11px var(--font-mono)', color: 'rgba(232,237,243,.4)', whiteSpace: 'nowrap' }}>{t('profile.series', { n: D.heatBestStreak })}</span>
+            <span style={{ font: '600 11px var(--font-mono)', color: 'rgba(232,237,243,.56)', whiteSpace: 'nowrap' }}>{t('profile.series', { n: D.heatBestStreak })}</span>
           </div>
           <div style={{ marginTop: 14, paddingLeft: 26 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12,1fr)', gap: 3, marginBottom: 4 }}>
-              {weekLabels.map((w, i) => <div key={i} style={{ font: '600 9px var(--font-mono)', color: 'rgba(232,237,243,.35)' }}>{w}</div>)}
+              {weekLabels.map((w, i) => <div key={i} style={{ font: '600 9px var(--font-mono)', color: 'rgba(232,237,243,.52)' }}>{w}</div>)}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 'none' }}>
@@ -303,7 +306,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 14, paddingLeft: 26, font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 14, paddingLeft: 26, font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>
             {t('profile.less')}
             {HEAT_COLORS.map((c) => <span key={c} style={{ width: 10, height: 10, borderRadius: 3, background: c }} />)}
             {t('profile.more')}
@@ -321,8 +324,8 @@ function Desktop({ t, p }: { t: T; p: P }) {
         <div className={s.card} style={{ gridArea: 'arc', position: 'relative', borderRadius: 20, padding: 22, overflow: 'hidden' }}>
           <div style={cap(10, '.18em')}>{t('profile.arcCompare')}</div>
           <div style={{ ...blur, display: 'flex', gap: 20, marginTop: 14, alignItems: 'flex-end' }}>
-            <div><div style={{ font: '700 22px var(--font-mono)' }}>{D.arcCompare.current}</div><div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.45)' }}>{t('profile.arcN', { n: D.arcCompare.currentN })}</div></div>
-            <div><div style={{ font: '700 22px var(--font-mono)', color: 'rgba(232,237,243,.5)' }}>{D.arcCompare.previous}</div><div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.45)' }}>{t('profile.arcN', { n: D.arcCompare.previousN })}</div></div>
+            <div><div style={{ font: '700 22px var(--font-mono)' }}>{D.arcCompare.current}</div><div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.6)' }}>{t('profile.arcN', { n: D.arcCompare.currentN })}</div></div>
+            <div><div style={{ font: '700 22px var(--font-mono)', color: 'rgba(232,237,243,.5)' }}>{D.arcCompare.previous}</div><div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.6)' }}>{t('profile.arcN', { n: D.arcCompare.previousN })}</div></div>
             <div style={{ font: '700 13px var(--font-mono)', color: '#5FBF9B' }}>{t('profile.pts', { d: (D.arcCompare.delta >= 0 ? '+' : '') + D.arcCompare.delta })}</div>
           </div>
           {!D.PROFILE_IS_PRO && <Lock t={t} />}
@@ -333,7 +336,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 10 }}>
           <div>
             <div style={cap(10, '.18em')}>{t('profile.history')}</div>
-            <div style={{ font: '800 22px var(--font-ui)', marginTop: 6 }}>{d.value} <span style={{ font: '600 12px var(--font-ui)', color: 'rgba(232,237,243,.45)' }}>{d.status}</span></div>
+            <div style={{ font: '800 22px var(--font-ui)', marginTop: 6 }}>{d.value} <span style={{ font: '600 12px var(--font-ui)', color: 'rgba(232,237,243,.6)' }}>{d.status}</span></div>
           </div>
           <Segmented variant="range" value={p.histRange} onChange={p.setHistRange}
             options={(['3m', '6m', '1y'] as HistRange[]).map((id) => ({ id, label: t(`profile.ranges.${id}`) }))} />
@@ -357,7 +360,7 @@ function Stat({ v, l, color }: { v: ReactNode; l: string; color?: string }) {
   return (
     <div>
       <div style={{ font: '700 26px var(--font-mono)', color }}>{v}</div>
-      <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.45)' }}>{l}</div>
+      <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.6)' }}>{l}</div>
     </div>
   );
 }
@@ -365,6 +368,7 @@ function Stat({ v, l, color }: { v: ReactNode; l: string; color?: string }) {
 /* ---------------- mobile ---------------- */
 
 function Mobile({ t, p }: { t: T; p: P }) {
+  const navigate = useNavigate();
   const photo = useAuth((x) => x.profile?.avatar_url);
   const D = useContext(ProfileCtx);
   const blur = blurOf(D.PROFILE_IS_PRO);
@@ -377,15 +381,15 @@ function Mobile({ t, p }: { t: T; p: P }) {
   const mhead = (icon: IconName, color: string, label: string, gap = 8) => (
     <div style={{ display: 'flex', alignItems: 'center', gap }}><CardIcon name={icon} color={color} /><span style={{ ...mcap, whiteSpace: 'nowrap' }}>{label}</span></div>
   );
-  const small: CSSProperties = { font: '500 10.5px var(--font-ui)', color: 'rgba(232,237,243,.4)', marginTop: 8, whiteSpace: 'nowrap' };
+  const small: CSSProperties = { font: '500 10.5px var(--font-ui)', color: 'rgba(232,237,243,.56)', marginTop: 8, whiteSpace: 'nowrap' };
   const monoText = (v: ReactNode, color = '#E8EDF3') => <span style={{ ...mono, color }}>{v}</span>;
 
   return (
     <>
       <div style={{ flex: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0' }}>
-        <button type="button" className={s.menuBtn} style={{ width: 44, height: 44 }} onClick={() => p.setMenuOpen(!p.menuOpen)}><Icon name="menu" size={18} sw={2} /></button>
+        <button type="button" className={s.menuBtn} style={{ width: 44, height: 44 }} aria-label={t('common.menu')} aria-expanded={p.menuOpen} onClick={() => p.setMenuOpen(!p.menuOpen)}><Icon name="menu" size={18} sw={2} /></button>
         {D.PROFILE_IS_PRO && <span className={s.proBadge}>{t('profile.proBadge')}</span>}
-        <button type="button" className={s.avatarBtn} style={{ width: 36, height: 36, fontSize: 11, overflow: 'hidden' }}>{photo ? <PhotoImg src={photo} /> : D.initials}</button>
+        <button type="button" className={s.avatarBtn} style={{ width: 36, height: 36, fontSize: 11, overflow: 'hidden' }} aria-label={t('auth.account')} onClick={() => navigate('/settings/account')}>{photo ? <PhotoImg src={photo} /> : D.initials}</button>
       </div>
       {p.menuOpen && <Menu t={t} m />}
 
@@ -398,7 +402,7 @@ function Mobile({ t, p }: { t: T; p: P }) {
               <ProgressRing size={170} r={50} strokeWidth={9} pct={d.value / 1000}>
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ font: '800 46px/1 var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}>{d.value}</div>
-                  <div style={{ font: '600 11px var(--font-mono)', color: 'rgba(232,237,243,.4)', marginTop: 4 }}>{t('profile.of1000')}</div>
+                  <div style={{ font: '600 11px var(--font-mono)', color: 'rgba(232,237,243,.56)', marginTop: 4 }}>{t('profile.of1000')}</div>
                 </div>
               </ProgressRing>
             </div>
@@ -423,7 +427,7 @@ function Mobile({ t, p }: { t: T; p: P }) {
               {D.habitsCard.types.slice(0, 3).map((h) => (
                 <div key={h.key} style={{ background: 'rgba(255,255,255,.04)', borderRadius: 12, padding: '9px 10px' }}>
                   <div style={{ font: '700 15px var(--font-mono)' }}>{h.pct}%</div>
-                  <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.45)', marginTop: 2 }}>{t(`profile.types.${h.key}`)}</div>
+                  <div style={{ font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 2 }}>{t(`profile.types.${h.key}`)}</div>
                 </div>
               ))}
             </div>
@@ -454,31 +458,31 @@ function Mobile({ t, p }: { t: T; p: P }) {
               <span style={{ font: '500 11px var(--font-ui)', color: 'rgba(232,237,243,.5)' }}>{t('profile.active')}</span>
             </div>
             <div className={s.mbar}><div style={{ height: '100%', borderRadius: 3, background: '#E8A54B', width: D.goalsCard.avgPct + '%' }} /></div>
-            <div style={{ font: '500 10.5px var(--font-ui)', color: 'rgba(232,237,243,.45)', marginTop: 8 }}>{monoText(D.goalsCard.avgPct + '%')}{t('profile.onAverage')}</div>
+            <div style={{ font: '500 10.5px var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 8 }}>{monoText(D.goalsCard.avgPct + '%')}{t('profile.onAverage')}</div>
           </>)}
 
           {mcard(<>
             {mhead('clipboard', '#9B87D6', t('profile.planner'))}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 14 }}><span style={{ font: '700 30px/1 var(--font-mono)' }}>{D.plannerCard.pct}%</span></div>
             <div className={s.mbar}><div style={{ height: '100%', borderRadius: 3, background: '#9B87D6', width: D.plannerCard.pct + '%' }} /></div>
-            <div style={{ ...small, color: 'rgba(232,237,243,.45)' }}>{monoText(D.plannerCard.done + '/' + D.plannerCard.planned)} · <span style={{ color: '#D96A5B' }}><span style={mono}>{D.plannerCard.overdue}</span>{t('profile.overdue')}</span></div>
+            <div style={{ ...small, color: 'rgba(232,237,243,.6)' }}>{monoText(D.plannerCard.done + '/' + D.plannerCard.planned)} · <span style={{ color: '#D96A5B' }}><span style={mono}>{D.plannerCard.overdue}</span>{t('profile.overdue')}</span></div>
           </>)}
 
           {mcard(<>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
               <span style={{ ...mcap, whiteSpace: 'nowrap' }}>{t('profile.activity6')}</span>
-              <span style={{ font: '600 10.5px var(--font-ui)', color: 'rgba(232,237,243,.45)', whiteSpace: 'nowrap' }}>{t('profile.seriesPrefix')}{monoText(D.heatBestStreak, '#A8CBEF')}{t('profile.days')}</span>
+              <span style={{ font: '600 10.5px var(--font-ui)', color: 'rgba(232,237,243,.6)', whiteSpace: 'nowrap' }}>{t('profile.seriesPrefix')}{monoText(D.heatBestStreak, '#A8CBEF')}{t('profile.days')}</span>
             </div>
-            <div style={{ font: '400 11.5px/1.45 var(--font-ui)', color: 'rgba(232,237,243,.45)', marginTop: 6 }}>{t('profile.activity6Desc')}</div>
+            <div style={{ font: '400 11.5px/1.45 var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 6 }}>{t('profile.activity6Desc')}</div>
             <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
               <div style={{ display: 'grid', gridTemplateRows: 'repeat(7,1fr)', gap: 4, flex: 'none' }}>
-                {t.list('weekdays.short').map((w) => <div key={w} style={{ font: '600 8.5px var(--font-mono)', color: 'rgba(232,237,243,.35)', display: 'flex', alignItems: 'center', height: '100%' }}>{w}</div>)}
+                {t.list('weekdays.short').map((w) => <div key={w} style={{ font: '600 8.5px var(--font-mono)', color: 'rgba(232,237,243,.52)', display: 'flex', alignItems: 'center', height: '100%' }}>{w}</div>)}
               </div>
               <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(7,18px)', gridAutoFlow: 'column', gap: 4 }}>
                 {D.heatLevels.slice(0, 42).map((l, i) => <div key={i} style={{ borderRadius: 4, background: HEAT_COLORS[l] }} />)}
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 5, marginTop: 10, font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 5, marginTop: 10, font: '600 10px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>
               0{HEAT_COLORS.map((c) => <span key={c} style={{ width: 11, height: 11, borderRadius: 3, background: c }} />)}5+
             </div>
           </>, { gridColumn: '1 / -1' })}

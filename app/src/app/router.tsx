@@ -11,11 +11,13 @@ import { Today } from '../pages/today/Today';
 import { Tracker } from '../pages/tracker/Tracker';
 import { PreviewLayout, PreviewScreens } from '../preview/PreviewScreens';
 import { AppShell } from './AppShell';
+import { CrashScreen } from './ErrorBoundary';
 import { GuestOnly, RequireAuth } from './AuthGate';
 
 const routes: RouteObject[] = [
   {
     element: <RequireAuth><AppShell chrome="app" /></RequireAuth>,
+    errorElement: <CrashScreen />,
     children: [
       { path: '/', element: <Today /> },
       { path: '/habits', element: <Tracker /> },
@@ -26,12 +28,14 @@ const routes: RouteObject[] = [
   },
   {
     element: <RequireAuth><AppShell chrome="settings" /></RequireAuth>,
+    errorElement: <CrashScreen />,
     children: [
       { path: '/settings', element: <Settings /> },
     ],
   },
   {
     element: <AppShell chrome="bare" />,
+    errorElement: <CrashScreen />,
     children: [
       { path: '/welcome', element: <GuestOnly><Welcome /></GuestOnly> },
       { path: '/onboarding', element: <Onboarding /> },

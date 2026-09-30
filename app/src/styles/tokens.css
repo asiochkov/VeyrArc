@@ -4,6 +4,26 @@
  * exact alpha used in the design; do not round or merge them.
  */
 :root {
+  /* safe areas (notch, home indicator) — use these, not env() directly */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  /* text hierarchy */
+  --text-primary: var(--text);
+  --text-secondary: rgba(232,237,243,.72);
+  --text-muted: rgba(232,237,243,.56);
+  --text-disabled: rgba(232,237,243,.32);
+  /* layers */
+  --z-sheet: 60;
+  --z-banner: 70;
+  --z-toast: 80;
+  /* motion */
+  --dur-fast: .18s;
+  --dur: .22s;
+  /* minimum touch target */
+  --hit: 44px;
+
   /* base */
   --bg: #05070A;
   --text: #E8EDF3;
@@ -61,13 +81,13 @@
   --t-25: rgba(232,237,243,.25);
   --t-28: rgba(232,237,243,.28);
   --t-30: rgba(232,237,243,.3);
-  --t-32: rgba(232,237,243,.32);
-  --t-34: rgba(232,237,243,.34);
-  --t-35: rgba(232,237,243,.35);
-  --t-38: rgba(232,237,243,.38);
-  --t-40: rgba(232,237,243,.4);
-  --t-42: rgba(232,237,243,.42);
-  --t-45: rgba(232,237,243,.45);
+  --t-32: rgba(232,237,243,.5);
+  --t-34: rgba(232,237,243,.5);
+  --t-35: rgba(232,237,243,.52);
+  --t-38: rgba(232,237,243,.54);
+  --t-40: rgba(232,237,243,.56);
+  --t-42: rgba(232,237,243,.58);
+  --t-45: rgba(232,237,243,.6);
   --t-50: rgba(232,237,243,.5);
   --t-55: rgba(232,237,243,.55);
   --t-58: rgba(232,237,243,.58);

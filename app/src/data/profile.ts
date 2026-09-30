@@ -196,3 +196,14 @@ export function buildProfile(r: Raw, opts: { pro: boolean; initials: string }): 
     initials: opts.initials,
   };
 }
+
+/** Account header numbers: habits ticked in total and focus hours (the streak comes from Today). */
+export async function fetchAccountStats() {
+  const [logs, focus] = await Promise.all([
+    db().from('habit_logs').select('habit_id', { count: 'exact', head: true }).eq('done', true),
+    db().from('focus_sessions').select('minutes').eq('completed', true),
+  ]);
+  for (const x of [logs, focus]) if (x.error) throw x.error;
+  const minutes = (focus.data as { minutes: number }[]).reduce((a, x) => a + x.minutes, 0);
+  return { habitsDone: logs.count ?? 0, focusHours: Math.round((minutes / 60) * 10) / 10 };
+}
