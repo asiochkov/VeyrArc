@@ -66,4 +66,4 @@
 .saveState { display: inline-flex; align-items: center; gap: 5px; font: 600 11px var(--font-ui); color: var(--t-45); transition: color .2s; }
 .saveState[data-state='saved'] { color: #5FBF9B; }
 .saveState[data-state='error'] { color: #E5877A; }
-.moodBtn[aria-pressed='true'] { background: rgba(232,165,75,.14); border-radius: 8px; }
+.moodBtn[aria-pressed='true'] { background: rgba(111,160,214,.14); border-radius: 8px; }

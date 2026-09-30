@@ -74,7 +74,7 @@ export function Settings() {
 
   const groups: [Group, string][] = [
     ['account', t('settings.account')], ['app', t('settings.app')], ['notif', t('settings.notifications')],
-    ['pro', t('settings.pro')], ['arc', t('settings.arc')], ['data', t('settings.data')],
+    ['arc', t('settings.arc')], ['pro', t('settings.pro')], ['data', t('settings.data')],
   ];
   const show = (g: Group) => !isDesktop || group === g;
 
@@ -166,6 +166,34 @@ export function Settings() {
           </div>
         </div>
       )}
+      {show('arc') && (
+        <div>
+          <div className={s.groupTitle}>{t('settings.arc')}</div>
+          <div className={s.list}>
+            <Row icon="archive" label={t('settings.archive')} onClick={() => setArchiveOpen(!archiveOpen)}>
+              <span style={{ color: 'rgba(232,237,243,.52)', display: 'grid', transition: 'transform .2s', transform: `rotate(${archiveOpen ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
+            </Row>
+            {archiveOpen && (
+              <div style={{ padding: '4px 18px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {arcs.map((a) => (
+                  <div key={a.n} className={s.arcItem}>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: 'block', font: '700 13.5px var(--font-ui)' }}>Arc {a.n}</span>
+                      <span style={{ display: 'block', font: '500 11.5px var(--font-mono)', color: 'rgba(232,237,243,.6)', marginTop: 3, whiteSpace: 'nowrap' }}>{t.pick(a.dates)}</span>
+                    </span>
+                    <span style={{ textAlign: 'right', flex: 'none' }}>
+                      <span style={{ display: 'block', font: '700 16px var(--font-mono)', color: '#A8CBEF' }}>{a.pct}</span>
+                      <span style={{ display: 'block', font: '600 9px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{a.current ? t('settings.current') : t('settings.completed')}</span>
+                    </span>
+                  </div>
+                ))}
+                <Link to="/profile" className={s.compare}>{t('settings.compare')} <Icon name="chevron" size={13} sw={2.2} /></Link>
+              </div>
+            )}
+            <Row icon="snow" label={t('settings.newArc')} onClick={() => setArcModal(true)}>{chev}</Row>
+          </div>
+        </div>
+      )}
       {show('pro') && (
         <div>
           <div className={s.groupTitle}>{t('settings.pro')}</div>
@@ -196,34 +224,6 @@ export function Settings() {
             <Link to="/pro" className={s.manage}>{t('settings.manage')}</Link>
           </div>
           )}
-        </div>
-      )}
-      {show('arc') && (
-        <div>
-          <div className={s.groupTitle}>{t('settings.arc')}</div>
-          <div className={s.list}>
-            <Row icon="archive" label={t('settings.archive')} onClick={() => setArchiveOpen(!archiveOpen)}>
-              <span style={{ color: 'rgba(232,237,243,.52)', display: 'grid', transition: 'transform .2s', transform: `rotate(${archiveOpen ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
-            </Row>
-            {archiveOpen && (
-              <div style={{ padding: '4px 18px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {arcs.map((a) => (
-                  <div key={a.n} className={s.arcItem}>
-                    <span style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: 'block', font: '700 13.5px var(--font-ui)' }}>Arc {a.n}</span>
-                      <span style={{ display: 'block', font: '500 11.5px var(--font-mono)', color: 'rgba(232,237,243,.6)', marginTop: 3, whiteSpace: 'nowrap' }}>{t.pick(a.dates)}</span>
-                    </span>
-                    <span style={{ textAlign: 'right', flex: 'none' }}>
-                      <span style={{ display: 'block', font: '700 16px var(--font-mono)', color: '#A8CBEF' }}>{a.pct}</span>
-                      <span style={{ display: 'block', font: '600 9px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{a.current ? t('settings.current') : t('settings.completed')}</span>
-                    </span>
-                  </div>
-                ))}
-                <Link to="/profile" className={s.compare}>{t('settings.compare')} <Icon name="chevron" size={13} sw={2.2} /></Link>
-              </div>
-            )}
-            <Row icon="snow" label={t('settings.newArc')} onClick={() => setArcModal(true)}>{chev}</Row>
-          </div>
         </div>
       )}
       {show('data') && (

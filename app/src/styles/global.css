@@ -13,12 +13,14 @@ input:not([data-large]), textarea, select { font-size: 16px !important; }
 button { font-family: inherit; }
 /* touch targets: every small control gets an invisible hit area of at least 44×44 around it
    (the visual size stays as designed); data-hit="off" for controls that sit closer than that */
-:where(button, a, [role='button'], [role='checkbox'], [role='switch'], label):not([data-hit='off']) { position: relative; }
-:where(button, a, [role='button'], [role='checkbox'], [role='switch']):not([data-hit='off'])::before {
+:where(button, a, [role='button'], [role='checkbox'], [role='switch'], label):where(:not([data-hit='off'])) { position: relative; }
+:where(button, a, [role='button'], [role='checkbox'], [role='switch']):where(:not([data-hit='off']))::before {
   content: ''; position: absolute; pointer-events: auto;
   top: min(0px, calc((100% - var(--hit)) / 2)); bottom: min(0px, calc((100% - var(--hit)) / 2));
   left: min(0px, calc((100% - var(--hit)) / 2)); right: min(0px, calc((100% - var(--hit)) / 2));
 }
+/* links inside running text / inside another control keep their own size (they would cover the words around them) */
+:where(button, p, label, li, span, [role='button']) :where(a, button)::before { display: none; }
 button:disabled { cursor: not-allowed; }
 /* visible keyboard focus everywhere (mouse / touch clicks don't show it) */
 :focus { outline: none; }

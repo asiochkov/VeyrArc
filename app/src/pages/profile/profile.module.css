@@ -40,3 +40,9 @@
 .hscroll { display: flex; overflow-x: auto; padding-bottom: 4px; }
 .rec { flex: none; border-radius: 18px; padding: 18px; color: #fff; }
 .recIcon { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.14); display: grid; place-items: center; }
+
+/* hierarchy: current arc under the score, secondary analytics behind «Больше аналитики» */
+.arcLine { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; margin-top: 14px; font: 600 12px var(--font-ui); color: var(--text-secondary); }
+.arcTrack { flex: 1; height: 4px; border-radius: 3px; background: var(--w-06); overflow: hidden; }
+.arcTrack > span { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.moreBtn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 16px; border: 1px solid var(--ice-10); background: transparent; color: var(--link); font: 700 13px var(--font-ui); cursor: pointer; }

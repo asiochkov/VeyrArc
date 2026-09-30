@@ -96,7 +96,7 @@
 - **До этапа 3:**
   - B23 — гостевой режим через anonymous sign-in.
   - B24 — слово «тренировки» на Welcome.
-  - B25 — домен: **решено, `veyrarc.com`**.
+  - B25 — домен: **решено, `veyrarc.online`** (единый канонический домен; `VITE_SITE_URL`).
   - B26 — доступы: Supabase, Google OAuth, Resend, Render.
   - B27 — лимит OTP 45с.
 - **До этапа 4 по разделам:** B1–B22.

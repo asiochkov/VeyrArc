@@ -12,18 +12,18 @@ export function BottomBar() {
   const ready = useNavReady(active);
 
   return (
-    <nav className={s.bar}>
+    <nav className={s.bar} aria-label={t('nav.label')}>
       {NAV.map((n) =>
         n.id === active ? (
           <div key={n.id} className={`${s.active} ${ready ? s.ready : ''}`} aria-current="page">
             <span className={s.activeIcon}>
-              <Icon name={n.icon} size={28} />
+              <Icon name={n.icon} size={24} />
             </span>
             <span className={s.activeLabel}>{t(n.label)}</span>
           </div>
         ) : (
           <Link key={n.id} to={n.to} className={s.item} aria-label={t(n.label)}>
-            <Icon name={n.icon} size={28} />
+            <Icon name={n.icon} size={24} />
           </Link>
         ),
       )}

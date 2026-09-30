@@ -166,6 +166,7 @@ export function DayOne() {
   const { f, habits, time, setCreated } = useFlow();
   const [holdP, setHoldP] = useState(0);
   const [celebrate, setCelebrate] = useState(false);
+  const [saveErr, setSaveErr] = useState(false);
   const raf = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => { cancelAnimationFrame(raf.current); clearTimeout(timer.current); }, []);
@@ -181,11 +182,11 @@ export function DayOne() {
       if (p >= 1) {
         setCelebrate(true);
         if (navigator.vibrate) navigator.vibrate(30);
-        const wait = new Promise((r) => { timer.current = setTimeout(r, 900); });
-        const save = hasBackend
-          ? saveOnboarding({ name: f.pname, habits, time }).then(setCreated).catch(() => {})
-          : Promise.resolve();
-        void Promise.all([wait, save]).then(() => navigate('/start'));
+        setSaveErr(false);
+        const wait = new Promise((r) => { timer.current = setTimeout(r, 600); });
+        const save = hasBackend ? saveOnboarding({ name: f.pname, habits, time }).then(setCreated) : Promise.resolve();
+        // the start only counts once it is saved: on failure the user sees why and holds again
+        void Promise.all([wait, save]).then(() => navigate('/start'), () => { setCelebrate(false); setHoldP(0); setSaveErr(true); });
         return;
       }
       raf.current = requestAnimationFrame(tick);
@@ -215,7 +216,9 @@ export function DayOne() {
             >{t('auth.imIn')}</button>
             {celebrate && <Burst n={18} spread={120} />}
           </div>
-          <div className={s.small} style={{ marginTop: 20, minHeight: 20, ...up(4) }}>{celebrate ? t('auth.go') : holdP > 0 ? t('auth.holding') : t('auth.holdHint')}</div>
+          <div className={s.small} role={saveErr ? 'alert' : undefined} style={{ marginTop: 20, minHeight: 20, ...up(4), ...(saveErr ? { color: 'var(--error)' } : {}) }}>
+            {saveErr ? t('auth.startFailed') : celebrate ? t('auth.go') : holdP > 0 ? t('auth.holding') : t('auth.holdHint')}
+          </div>
         </div>
       )}
     </AuthLayout>
@@ -284,6 +287,9 @@ export function FirstHome() {
             })}
           </div>
 
+          {done === 0 && hasBackend && (
+            <button type="button" className={s.linkBtn} style={{ display: 'block', width: '100%', textAlign: 'center', marginTop: 18 }} onClick={() => navigate('/')}>{t('auth.toApp')}</button>
+          )}
           {done > 0 && (
             <div className={s.saveCard}>
               <div style={{ font: '800 17px var(--font-ui)' }}>{t('auth.signupTitle')}</div>

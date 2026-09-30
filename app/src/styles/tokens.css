@@ -37,8 +37,9 @@
   --gold-3: #f0c877;
   --gold-ink: #241a06;
   --gold-text: #f2e2c4;
-  --amber: #E8A54B;          /* active navigation, goals accent */
-  --amber-hi: #f0b565;
+  /* UI accent for active navigation / goals controls: icy blue (gold is kept for Pro only) */
+  --amber: #6FA0D6;
+  --amber-hi: #8db5e0;
   --success: #5FBF9B;
   --violet: #9B87D6;
   --error: #E5645A;
@@ -151,8 +152,8 @@
   --gold-35: rgba(232,183,94,.35);
 
   /* amber fills: rgba(232,165,75,a) */
-  --amber-14: rgba(232,165,75,.14);
-  --amber-50: rgba(232,165,75,.5);
+  --amber-14: rgba(111,160,214,.14);
+  --amber-50: rgba(111,160,214,.5);
 
   /* white alphas */
   --w-03: rgba(255,255,255,.03);

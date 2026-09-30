@@ -189,7 +189,8 @@ function Desktop({ t, p }: { t: T; p: P }) {
       {right}
     </div>
   );
-  const arrow = <div className={s.arrow}><Icon name="arrow" size={13} sw={2.2} /></div>;
+  // the corner arrow opens the section the card summarises
+  const arrow = (to: string, label: string) => <Link to={to} className={s.arrow} aria-label={label}><Icon name="arrow" size={13} sw={2.2} /></Link>;
 
   return (
     <div className={s.desktop}>
@@ -233,7 +234,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
 
       <div className={s.bento}>
         {card('habits', <>
-          {arrow}
+          {arrow('/habits', t('nav.habits'))}
           {head('checklist', '#6FA0D6', t('profile.habits'), <span style={{ font: '600 11px var(--font-mono)', color: 'rgba(232,237,243,.56)', whiteSpace: 'nowrap' }}>{t('profile.streakAvg', { n: D.habitsCard.streakAvg })}</span>)}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginTop: 14 }}>
             {D.habitsCard.types.map((h) => (
@@ -246,7 +247,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
           <div style={{ marginTop: 14 }}>{spark(D.habitsSpark, 220, 34, '#6FA0D6')}</div>
         </>)}
         {card('quit', <>
-          {arrow}
+          {arrow('/habits', t('nav.habits'))}
           {head('banProfile', '#5FBF9B', t('profile.quits'))}
           <div style={{ display: 'flex', gap: 22, marginTop: 12 }}>
             <Stat v={D.quitCard.streak} l={t('profile.daysInRow')} color="#5FBF9B" />
@@ -258,7 +259,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
           </div>
         </>)}
         {card('workouts', <>
-          {arrow}
+          {arrow('/', t('nav.today'))}
           {head('bolt', '#6FA0D6', t('profile.focus'))}
           <div style={{ display: 'flex', gap: 26, marginTop: 12, alignItems: 'flex-end' }}>
             <Stat v={D.focusCard.sessions} l={t('profile.sessions')} />
@@ -268,7 +269,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
           <div style={{ marginTop: 14 }}>{bars(D.focusCard.history, 200, 34, '#6FA0D6')}</div>
         </>)}
         {card('goals', <>
-          {arrow}
+          {arrow('/goals', t('nav.goals'))}
           {head('target', '#E8A54B', t('profile.goals'))}
           <div>
             <div style={{ font: '700 30px var(--font-mono)' }}>{D.goalsCard.active}</div>
@@ -277,7 +278,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
           <div style={{ font: '600 11px var(--font-ui)', color: '#E8A54B', marginTop: 10 }}>{t.pick(D.goalsCard.nearestDeadline)}</div>
         </>, { display: 'flex', flexDirection: 'column', justifyContent: 'space-between' })}
         {card('tasks', <>
-          {arrow}
+          {arrow('/calendar', t('nav.calendar'))}
           {head('clipboard', '#9B87D6', t('profile.planner'))}
           <div>
             <div style={{ font: '700 30px var(--font-mono)' }}>{D.plannerCard.pct}%</div>
@@ -369,6 +370,8 @@ function Stat({ v, l, color }: { v: ReactNode; l: string; color?: string }) {
 
 function Mobile({ t, p }: { t: T; p: P }) {
   const navigate = useNavigate();
+  const hd = useHeader();
+  const [more, setMore] = useState(false);
   const photo = useAuth((x) => x.profile?.avatar_url);
   const D = useContext(ProfileCtx);
   const blur = blurOf(D.PROFILE_IS_PRO);
@@ -411,12 +414,13 @@ function Mobile({ t, p }: { t: T; p: P }) {
               <span style={{ font: '700 13px var(--font-ui)', color: '#5FBF9B' }}>{d.status}</span>
             </div>
           </div>
+          <div className={s.arcLine}>{t('profile.currentArc', { d: hd.arcDay, n: hd.arcLength })}<span className={s.arcTrack}><span style={{ width: Math.round((hd.arcDay / hd.arcLength) * 100) + '%' }} /></span></div>
           <PeriodSeg t={t} p={p} m />
         </div>
 
         <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12 }}>
           {mcard(<>
-            <div className={s.arrowM}><Icon name="arrow" size={13} sw={2.2} /></div>
+            <Link to="/habits" className={s.arrowM} aria-label={t('nav.habits')}><Icon name="arrow" size={13} sw={2.2} /></Link>
             {mhead('checklist', '#6FA0D6', t('profile.habits'), 9)}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 14 }}>
               <span style={{ font: '700 34px/1 var(--font-mono)' }}>{D.habitsCard.total}%</span>
@@ -488,6 +492,17 @@ function Mobile({ t, p }: { t: T; p: P }) {
           </>, { gridColumn: '1 / -1' })}
 
           {mcard(<>
+            <span style={{ ...mcap, whiteSpace: 'nowrap' }}>{t('profile.achievements')}</span>
+            <Achievements t={t} m />
+          </>, { gridColumn: '1 / -1' })}
+
+          <button type="button" className={s.moreBtn} aria-expanded={more} onClick={() => setMore(!more)} style={{ gridColumn: '1 / -1' }}>
+            {t(more ? 'profile.lessStats' : 'profile.moreStats')}
+            <span style={{ display: 'grid', transition: 'transform .2s', transform: `rotate(${more ? 180 : 0}deg)` }}><Icon name="chevronDown" size={16} sw={2} /></span>
+          </button>
+          {more && (
+            <>
+          {mcard(<>
             <span style={{ ...mcap, whiteSpace: 'nowrap' }}>{t('profile.correlationWeek')}</span>
             <div style={{ ...blur, font: '700 15px/1.45 var(--font-ui)', color: '#E8EDF3', marginTop: 10, textWrap: 'pretty' } as CSSProperties}>{t.pick(D.correlation)}</div>
             {!D.PROFILE_IS_PRO && <Lock t={t} />}
@@ -509,11 +524,6 @@ function Mobile({ t, p }: { t: T; p: P }) {
           </>, { gridColumn: '1 / -1', overflow: 'hidden' })}
 
           {mcard(<>
-            <span style={{ ...mcap, whiteSpace: 'nowrap' }}>{t('profile.achievements')}</span>
-            <Achievements t={t} m />
-          </>, { gridColumn: '1 / -1' })}
-
-          {mcard(<>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
               <span style={{ ...mcap, whiteSpace: 'nowrap' }}>{t('profile.history')}</span>
               <Segmented variant="rangeSm" value={p.histRange} onChange={p.setHistRange}
@@ -525,9 +535,11 @@ function Mobile({ t, p }: { t: T; p: P }) {
             </div>
             <div style={{ marginTop: 10 }}>{spark(hist, 340, 80, '#6FA0D6')}</div>
           </>, { gridColumn: '1 / -1' })}
+            </>
+          )}
         </div>
 
-        <Recs t={t} m />
+        {more && <Recs t={t} m />}
       </div>
     </>
   );

@@ -1,3 +1,4 @@
+import { toast } from '../../ui/toast';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useT } from '../../i18n';
@@ -70,7 +71,7 @@ export function Signup() {
     void run('signup', async () => {
       try {
         const kind = await signUpOrLink({ first: f.first, last: f.last, email: f.email, pw: f.pw });
-        if (kind === 'done') { navigate(nextPath()); return; }
+        if (kind === 'done') { toast.success(t('auth.accountDone')); navigate(nextPath()); return; }
         setPending({ kind, email: f.email, pw: f.pw });
         navigate('/verify');
       } catch (e) {
@@ -144,7 +145,8 @@ export function Verify() {
         try {
           await verifyEmail(pending?.kind ?? 'signup', email, otp.join(''), pending?.pw ?? '');
           setOk(true);
-          setTimeout(() => navigate(nextPath()), 1100);
+          toast.success(t('auth.accountDone'));
+          setTimeout(() => navigate(nextPath()), 500);
         } catch { setErr(true); shake('otp'); }
       });
       return;

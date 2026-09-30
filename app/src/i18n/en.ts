@@ -3,6 +3,7 @@ import type { Dict } from './ru';
 /* EN strings come from project/i18n.js and the Settings DICT where they exist. */
 export const en: Dict = {
   nav: {
+    label: 'Navigation',
     today: 'Today',
     habits: 'Habits',
     calendar: 'Calendar',
@@ -93,6 +94,9 @@ export const en: Dict = {
   weekdaysLower: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
   monthsShortCap: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   profile: {
+    currentArc: 'Arc · day {d} of {n}',
+    moreStats: 'More analytics',
+    lessStats: 'Show less',
     index: 'DISCIPLINE INDEX',
     of1000: '/ 1000',
     ofGoal: 'OF GOAL',
@@ -169,6 +173,9 @@ export const en: Dict = {
     cancel: 'Cancel',
   },
   auth: {
+    accountDone: 'Account created — your progress is saved',
+    startFailed: 'Couldn’t save your start. Check your connection and hold again.',
+    toApp: 'Go to the app',
     guestSecurity: 'You are a guest. Save your progress with an email sign-up to set a password here.',
     photoSaved: 'Photo updated',
     badge: 'VEYRARC · 90 DAYS',

@@ -217,7 +217,7 @@ AppShell (Rail + BottomBar с анимацией раскрытия) · Header (
   **Решено 23.09: да.**
 - B24. Welcome содержит «Привычки, **тренировки** и прогресс…». Вы просили нигде не упоминать фитнес, но текст вставлен дословно. Оставить?
   **Решено 23.09: нет** — «тренировки» → «цели» («Привычки, цели и прогресс…» / «Habits, goals and progress…»).
-- B25. ~~Домен `winterwork.com`~~ → **решено 23.09: `veyrarc.com`** (OAuth redirect, Resend, PWA).
+- B25. ~~Домен `winterwork.com`~~ → **решено: `veyrarc.online`** (OAuth redirect, Resend, PWA; `VITE_SITE_URL`).
 - B26. Понадобятся ваши доступы:
   - Supabase: проект, ключи.
   - Google OAuth client.

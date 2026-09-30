@@ -61,7 +61,7 @@
   gap: 4px;
   cursor: pointer;
   overflow: hidden;
-  transition: height .38s var(--spring), background-color .38s var(--spring);
+  transition: height .2s var(--spring), background-color .2s ease;
 }
 .active.ready {
   height: 66px;

@@ -61,6 +61,4 @@ export async function flushQueue() {
 }
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => { void flushQueue(); });
-  // leaving with unsent changes: the browser asks to stay
-  window.addEventListener('beforeunload', (e) => { if (queue.length) e.preventDefault(); });
 }

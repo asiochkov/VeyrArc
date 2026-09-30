@@ -221,7 +221,7 @@ function TasksCard({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
           <span className={s.hint} style={{ marginRight: 4 }}>{t('goals.mood')}</span>
           {[0, 1, 2, 3, 4].map((i) => (
             <button key={i} type="button" className={s.moodBtn} aria-pressed={entry.mood === i} onClick={() => g.patchEntry(goal.id, g.viewDate, { mood: entry.mood === i ? null : i })}>
-              <MoodFace level={i} size={18} color={entry.mood === i ? '#E8A54B' : 'rgba(232,237,243,.4)'} />
+              <MoodFace level={i} size={18} color={entry.mood === i ? 'var(--accent)' : 'rgba(232,237,243,.4)'} />
             </button>
           ))}
         </div>
@@ -291,7 +291,7 @@ function MonthView({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
                 else if (st === 'partial') Object.assign(style, { background: 'transparent', border: `2px solid ${goal.hue}`, color: goal.hue });
                 else if (st === 'missed') Object.assign(style, { background: 'rgba(217,106,91,.14)', color: '#D96A5B' });
                 else Object.assign(style, { background: 'rgba(255,255,255,.05)', color: 'rgba(232,237,243,.6)' });
-                if (c.date === g.today) style.boxShadow = '0 0 0 2px #E8A54B';
+                if (c.date === g.today) style.boxShadow = '0 0 0 2px var(--accent)';
                 return <button type="button" className={s.dayCell} style={style} onClick={() => { g.setScreen('day'); g.setViewDate(c.date); }}>{c.n}</button>;
               })()}
             </div>
@@ -325,7 +325,7 @@ function MonthView({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
 function Empty({ t, g, m }: { t: T; g: GoalsState; m: boolean }) {
   return (
     <div style={{ marginTop: m ? 50 : 60, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: m ? 12 : 14 }}>
-      <div style={{ color: '#E8A54B' }}><Icon name="target" size={40} /></div>
+      <div style={{ color: 'var(--accent)' }}><Icon name="target" size={40} /></div>
       <div style={{ font: `800 ${m ? 19 : 22}px var(--font-ui)` }}>{t('goals.emptyTitle')}</div>
       <div style={{ font: `400 ${m ? 12.5 : 13}px var(--font-ui)`, color: 'rgba(232,237,243,.5)', maxWidth: m ? 260 : 280 }}>{t('goals.emptyDesc')}</div>
       {!g.addingGoal && <button type="button" className={s.amberPill} style={{ marginTop: 6, padding: m ? '12px 22px' : '12px 24px', fontSize: 13 }} onClick={g.startAddGoal}>{t('goals.emptyCta')}</button>}
@@ -428,7 +428,7 @@ function Recap({ t, g }: { t: T; g: GoalsState }) {
             </div>
           ))}
         </div>
-        <button type="button" onClick={() => g.setRecapGoalId(null)} style={{ marginTop: 24, width: '100%', background: '#E8A54B', color: '#06121f', border: 'none', borderRadius: 14, padding: '14px 0', font: '700 14px var(--font-ui)', cursor: 'pointer' }}>
+        <button type="button" onClick={() => g.setRecapGoalId(null)} style={{ marginTop: 24, width: '100%', background: 'var(--accent)', color: '#06121f', border: 'none', borderRadius: 14, padding: '14px 0', font: '700 14px var(--font-ui)', cursor: 'pointer' }}>
           {t('goals.done')}
         </button>
       </div>

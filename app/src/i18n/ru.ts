@@ -8,6 +8,7 @@ export type Messages = { [key: string]: string | Plural | Messages };
 
 export const ru = {
   nav: {
+    label: 'Навигация',
     today: 'Сегодня',
     habits: 'Привычки',
     calendar: 'Календарь',
@@ -98,6 +99,9 @@ export const ru = {
   weekdaysLower: ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'],
   monthsShortCap: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
   profile: {
+    currentArc: 'Arc · день {d} из {n}',
+    moreStats: 'Больше аналитики',
+    lessStats: 'Свернуть аналитику',
     index: 'ИНДЕКС ДИСЦИПЛИНЫ',
     of1000: '/ 1000',
     ofGoal: 'ОТ ЦЕЛИ',
@@ -174,6 +178,9 @@ export const ru = {
     cancel: 'Отмена',
   },
   auth: {
+    accountDone: 'Аккаунт создан — прогресс сохранён',
+    startFailed: 'Не удалось сохранить старт. Проверь интернет и удержи кнопку ещё раз.',
+    toApp: 'Перейти в приложение',
     guestSecurity: 'Сейчас ты гость. Сохрани прогресс — зарегистрируйся по email, и здесь появится смена пароля.',
     photoSaved: 'Фото обновлено',
     badge: 'VEYRARC · 90 ДНЕЙ',

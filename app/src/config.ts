@@ -1,8 +1,12 @@
 /* Product configuration. Values the design does not specify live here. */
+const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) || 'https://veyrarc.online';
 export const config = {
   /* Decision B25: production domain (OAuth redirects, Resend sender, PWA scope). */
   site: {
-    domain: 'veyrarc.online',
+    /* single source: VITE_SITE_URL (default https://veyrarc.online) */
+    url: SITE_URL,
+    domain: new URL(SITE_URL).host,
+    support: `support@${new URL(SITE_URL).host}`,
   },
   auth: {
     /* Sign in with Apple needs a paid Apple Developer account (decision B26). */
