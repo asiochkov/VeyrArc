@@ -12,7 +12,7 @@ export type Profile = {
   id: string; first_name: string | null; last_name: string | null; nickname: string | null;
   lang: 'ru' | 'en'; timezone: string; water_unit: 'ml' | 'oz'; directions: string[];
   reminder_time: string | null; notify_habits: boolean; notify_summary: boolean; notify_focus: boolean; notify_arc: boolean;
-  onboarded_at: string | null;
+  onboarded_at: string | null; avatar_url?: string | null;
 };
 export type Plan = { plan: 'free' | 'pro'; period: 'monthly' | 'yearly' | null; status: string; renews_at: string | null };
 

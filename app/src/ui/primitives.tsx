@@ -1,3 +1,4 @@
+import { useAuth } from '../lib/auth';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
 import { Icon } from './Icon';
 import s from './ui.module.css';
@@ -14,12 +15,18 @@ export function SectionLabel({ children, style }: { children: ReactNode; style?:
 
 /* Sizes used in the design: 36/38/40/52/64 with font 11/12/12/16/22 */
 export function Avatar({ initials, size = 38, fontSize = 12, onClick }: { initials: string; size?: number; fontSize?: number; onClick?: () => void }) {
-  const style = { width: size, height: size, fontSize };
+  const photo = useAuth((x) => x.profile?.avatar_url);
+  const style = { width: size, height: size, fontSize, overflow: 'hidden' as const };
+  const inner = photo ? <PhotoImg src={photo} /> : initials;
   return onClick ? (
-    <button type="button" className={s.avatar} style={{ ...style, cursor: 'pointer' }} onClick={onClick}>{initials}</button>
+    <button type="button" className={s.avatar} style={{ ...style, cursor: 'pointer' }} onClick={onClick}>{inner}</button>
   ) : (
-    <div className={s.avatar} style={style}>{initials}</div>
+    <div className={s.avatar} style={style}>{inner}</div>
   );
+}
+/* the user's photo filling any round avatar container */
+export function PhotoImg({ src }: { src: string }) {
+  return <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }} />;
 }
 
 export function CircleButton({ children, style, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) {

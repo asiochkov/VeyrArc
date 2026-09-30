@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { config } from '../../config';
-import { addGoalTask, completeGoal, createGoal, deleteGoal, fetchGoals, renameGoal, saveEntry } from '../../data/goals';
+import { addGoalTask, completeGoal, createGoal, deleteGoal, deleteGoalTask, fetchGoals, renameGoal, renameGoalTask, saveEntry } from '../../data/goals';
 import { useAuth, isProPlan } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { hasBackend } from '../../lib/supabase';
@@ -27,7 +27,8 @@ export function useGoals() {
   useEffect(() => { if (q.data) { setGoals(q.data.goals); setEntries(q.data.entries); } }, [q.data]);
   const sync = (p: Promise<unknown>) => { void p.catch(() => {}).finally(() => { void qc.invalidateQueries({ queryKey: ['goals'] }); }); };
   const entryTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
-  const [adhoc, setAdhoc] = useState<Record<string, string[]>>({});
+  // diary save indicator per goal|day
+  const [saveState, setSaveState] = useState<Record<string, 'saving' | 'saved' | 'error'>>({});
   const [screen, setScreen] = useState<'day' | 'month'>('day');
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(hasBackend ? null : 'travel');
   const [viewDate, setViewDate] = useState(TODAY);
@@ -35,15 +36,16 @@ export function useGoals() {
   const [addingGoal, setAddingGoal] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [newGoalName, setNewGoalName] = useState('');
-  const [newGoalType, setNewGoalType] = useState<'process' | 'number'>('process');
+  const [newGoalStep, setNewGoalStep] = useState('');
   const [newGoalDeadline, setNewGoalDeadline] = useState('');
   const [menuGoalId, setMenuGoalId] = useState<string | null>(null);
   const [renaming, setRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [streakPanelOpen, setStreakPanelOpen] = useState(false);
-  const [adhocOpen, setAdhocOpen] = useState(false);
-  const [adhocText, setAdhocText] = useState('');
+  const [stepOpen, setStepOpen] = useState(false);
+  const [stepText, setStepText] = useState('');
+  const [editingSteps, setEditingSteps] = useState(false);
   const [recapGoalId, setRecapGoalId] = useState<string | null>(null);
 
   const active = goals.filter((g) => g.status === 'active');
@@ -58,7 +60,13 @@ export function useGoals() {
     if (hasBackend) {
       // diary typing is debounced; checks and mood save at once
       clearTimeout(entryTimers.current[key]);
-      entryTimers.current[key] = setTimeout(() => { void saveEntry(goalId, date, next).catch(() => {}); }, 'diary' in patch ? 700 : 0);
+      const diary = 'diary' in patch;
+      if (diary) setSaveState((x) => ({ ...x, [key]: 'saving' }));
+      entryTimers.current[key] = setTimeout(() => {
+        void saveEntry(goalId, date, next)
+          .then(() => { if (diary) setSaveState((x) => ({ ...x, [key]: 'saved' })); })
+          .catch(() => setSaveState((x) => ({ ...x, [key]: 'error' })));
+      }, diary ? 700 : 0);
     }
   };
 
@@ -95,19 +103,23 @@ export function useGoals() {
   const startAddGoal = () => {
     setAddingGoal(true);
     setLimitReached(active.length >= limit);
-    setNewGoalName(''); setNewGoalType('process'); setNewGoalDeadline('');
+    setNewGoalName(''); setNewGoalStep(''); setNewGoalDeadline('');
   };
 
-  const confirmAddGoal = (defaultTask: { ru: string; en: string }) => {
+  const newId = () => (hasBackend ? crypto.randomUUID() : 'x' + Date.now() + Math.random().toString(36).slice(2, 6));
+  const confirmAddGoal = () => {
     const name = newGoalName.trim();
-    if (!name) { setAddingGoal(false); return; }
-    const id = hasBackend ? crypto.randomUUID() : 'g' + Date.now();
-    const taskId = hasBackend ? crypto.randomUUID() : 'a';
+    if (!name) return;
+    const id = newId();
+    const step = newGoalStep.trim();
+    const steps = step ? [{ id: newId(), text: step }] : [];
     const g: Goal = {
       id, title: { ru: name, en: name }, hue: GOAL_HUES[goals.length % GOAL_HUES.length], status: 'active', startDate: TODAY,
-      bestStreak: 0, type: newGoalType, deadline: newGoalDeadline || undefined, tasks: [{ id: taskId, text: defaultTask, detail: { ru: '', en: '' } }],
+      bestStreak: 0, type: 'process', deadline: newGoalDeadline || undefined, tasks: steps.map((x) => ({ id: x.id, text: { ru: x.text, en: x.text }, detail: { ru: '', en: '' } })),
     };
-    if (hasBackend) sync(createGoal({ id, title: name, hue: g.hue, type: newGoalType, deadline: newGoalDeadline, taskId, task: defaultTask[document.documentElement.lang === 'en' ? 'en' : 'ru'] }));
+    if (hasBackend) sync(createGoal({ id, title: name, hue: g.hue, deadline: newGoalDeadline, steps }));
+    setViewDate(TODAY);
+    setStepOpen(!step);
     setGoals((l) => [...l, g]);
     setSelectedGoalId(id);
     setAddingGoal(false);
@@ -136,16 +148,28 @@ export function useGoals() {
     },
   };
 
-  const confirmAdhoc = () => {
+  /* daily steps of the selected goal */
+  const patchTasks = (goalId: string, fn: (tasks: Goal['tasks']) => Goal['tasks']) => setGoals((l) => l.map((x) => (x.id === goalId ? { ...x, tasks: fn(x.tasks) } : x)));
+  const addStep = () => {
     if (!selected) return;
-    const text = adhocText.trim();
-    if (!text) return;
-    const key = selected.id + '|' + viewDate;
-    // backend: an added task becomes one of the goal's daily tasks (B11)
-    if (hasBackend) { sync(addGoalTask(selected.id, text, selected.tasks.length)); setAdhocText(''); setAdhocOpen(false); return; }
-    setAdhoc((a) => ({ ...a, [key]: (a[key] || []).concat([text]) }));
-    setAdhocText('');
-    setAdhocOpen(false);
+    const text = stepText.trim().slice(0, 160);
+    if (!text) { setStepOpen(false); return; }
+    const id = newId();
+    patchTasks(selected.id, (ts) => [...ts, { id, text: { ru: text, en: text }, detail: { ru: '', en: '' } }]);
+    if (hasBackend) sync(addGoalTask(id, selected.id, text, selected.tasks.length));
+    setStepText('');
+  };
+  const renameStep = (id: string, text: string) => {
+    if (!selected) return;
+    const v = text.trim().slice(0, 160);
+    if (!v) return;
+    patchTasks(selected.id, (ts) => ts.map((x) => (x.id === id ? { ...x, text: { ru: v, en: v } } : x)));
+    if (hasBackend) sync(renameGoalTask(id, v));
+  };
+  const removeStep = (id: string) => {
+    if (!selected) return;
+    patchTasks(selected.id, (ts) => ts.filter((x) => x.id !== id));
+    if (hasBackend) sync(deleteGoalTask(id));
   };
 
   const shiftMonth = (delta: number) => setViewMonth((v) => { const dt = new Date(v.y, v.m + delta, 1); return { y: dt.getFullYear(), m: dt.getMonth() }; });
@@ -153,10 +177,11 @@ export function useGoals() {
   return {
     today: TODAY, limit, ready: !hasBackend || !!q.data,
     goals, entries, active, completed, selected, screen, setScreen, setSelectedGoalId, viewDate, setViewDate, viewMonth, shiftMonth,
-    addingGoal, setAddingGoal, limitReached, newGoalName, setNewGoalName, newGoalType, setNewGoalType, newGoalDeadline, setNewGoalDeadline,
+    addingGoal, setAddingGoal, limitReached, newGoalName, setNewGoalName, newGoalStep, setNewGoalStep, newGoalDeadline, setNewGoalDeadline,
     startAddGoal, confirmAddGoal, menuGoalId, setMenuGoalId, renaming, setRenaming, renameValue, setRenameValue, menu,
-    expandedTaskId, setExpandedTaskId, streakPanelOpen, setStreakPanelOpen, adhocOpen, setAdhocOpen, adhocText, setAdhocText, confirmAdhoc,
-    adhocItems: selected ? adhoc[selected.id + '|' + viewDate] || [] : [],
+    expandedTaskId, setExpandedTaskId, streakPanelOpen, setStreakPanelOpen,
+    stepOpen, setStepOpen, stepText, setStepText, addStep, renameStep, removeStep, editingSteps, setEditingSteps,
+    saveState: selected ? saveState[selected.id + '|' + viewDate] : undefined,
     getEntry, patchEntry, dayStatus, computeStreak, recap, recapGoalId, setRecapGoalId,
   };
 }

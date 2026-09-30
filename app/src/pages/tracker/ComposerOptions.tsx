@@ -13,10 +13,14 @@ import s from './tracker.module.css';
  */
 
 export type HabitDraft = { type: HabitType; target: number; unit: string; minutes: number; cadence: Cadence; category: Category; icon: IconName; hue: string };
-export type QuitDraft = { unit: string; norm: number };
+export type QuitDraft = { unit: string; norm: number; since: string };
 
 export const defaultHabitDraft = (hue: string): HabitDraft => ({ type: 'binary', target: 8, unit: '', minutes: 20, cadence: 'daily', category: 'body', icon: 'doc', hue });
-export const defaultQuitDraft = (): QuitDraft => ({ unit: '', norm: 1 });
+export const defaultQuitDraft = (): QuitDraft => ({ unit: '', norm: 1, since: localDay() });
+/* YYYY-MM-DD in the device time zone */
+export const localDay = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+/* the timer starts now for today, at local midnight for an earlier day */
+export const sinceIso = (day: string) => (day >= localDay() ? new Date().toISOString() : new Date(day + 'T00:00:00').toISOString());
 
 function Label({ children }: { children: ReactNode }) {
   return <div className={s.optLabel}>{children}</div>;
@@ -104,6 +108,8 @@ export function QuitOptions({ t, d, set }: { t: T; d: QuitDraft; set: (patch: Pa
       <input className={s.optInput} value={d.unit} placeholder={t('tracker.phQuitUnit')} onChange={(e) => set({ unit: e.target.value })} />
       <Label>{t('tracker.optNorm')}</Label>
       <Stepper value={d.norm} onChange={(norm) => set({ norm })} />
+      <Label>{t('tracker.optSince')}</Label>
+      <input className={s.optInput} type="date" value={d.since} max={localDay()} onChange={(e) => e.target.value && set({ since: e.target.value })} />
     </div>
   );
 }

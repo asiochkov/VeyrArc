@@ -27,9 +27,9 @@ export async function fetchGoals() {
 
 const ok = <T extends { error: unknown }>(r: T) => { if (r.error) throw r.error; return r; };
 
-export async function createGoal(g: { id: string; title: string; hue: string; type: 'process' | 'number'; deadline?: string; taskId: string; task: string }) {
-  ok(await db().from('goals').insert({ id: g.id, title: g.title, hue: g.hue, type: g.type, deadline: g.deadline || null }));
-  ok(await db().from('goal_tasks').insert({ id: g.taskId, goal_id: g.id, text: g.task }));
+export async function createGoal(g: { id: string; title: string; hue: string; deadline?: string; steps: { id: string; text: string }[] }) {
+  ok(await db().from('goals').insert({ id: g.id, title: g.title, hue: g.hue, type: 'process', deadline: g.deadline || null }));
+  if (g.steps.length) ok(await db().from('goal_tasks').insert(g.steps.map((x, i) => ({ id: x.id, goal_id: g.id, text: x.text, sort: i }))));
 }
 export const renameGoal = async (id: string, title: string) => { ok(await db().from('goals').update({ title }).eq('id', id)); };
 export const completeGoal = async (id: string, best: number) => { ok(await db().from('goals').update({ status: 'completed', completed_at: new Date().toISOString(), best_streak: best }).eq('id', id)); };
@@ -40,4 +40,6 @@ export async function saveEntry(goalId: string, day: string, e: Entry) {
     diary: typeof e.diary === 'string' ? e.diary : e.diary.ru, mood: e.mood == null ? null : e.mood + 1,
   }));
 }
-export const addGoalTask = async (goalId: string, text: string, sort: number) => { ok(await db().from('goal_tasks').insert({ goal_id: goalId, text, sort })); };
+export const addGoalTask = async (id: string, goalId: string, text: string, sort: number) => { ok(await db().from('goal_tasks').insert({ id, goal_id: goalId, text, sort })); };
+export const renameGoalTask = async (id: string, text: string) => { ok(await db().from('goal_tasks').update({ text }).eq('id', id)); };
+export const deleteGoalTask = async (id: string) => { ok(await db().from('goal_tasks').delete().eq('id', id)); };

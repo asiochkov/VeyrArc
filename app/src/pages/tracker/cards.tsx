@@ -1,6 +1,7 @@
 import { buildGrid, habitRate, QUIT_GOALS, type Refusal, type TrackerHabit } from '../../mock/tracker';
 import { formatNumber, type T } from '../../i18n';
 import { Icon } from '../../ui/Icon';
+import { localDay } from './ComposerOptions';
 import s from './tracker.module.css';
 
 const MISS = 'rgba(229,57,43,.62)';
@@ -90,10 +91,10 @@ export function sinceLabel(t: T, iso: string) {
 }
 
 export function RefusalCard({
-  t, r, now, mobile, goalOverride, menuOpen, onToggleMenu, onPickGoal, onDelete, onSlip,
+  t, r, now, mobile, goalOverride, menuOpen, onToggleMenu, onPickGoal, onDelete, onSlip, onSetSince,
 }: {
   t: T; r: Refusal; now: number; mobile: boolean; goalOverride?: number; menuOpen: boolean;
-  onToggleMenu: () => void; onPickGoal: (g: number) => void; onDelete: () => void; onSlip: () => void;
+  onToggleMenu: () => void; onPickGoal: (g: number) => void; onDelete: () => void; onSlip: () => void; onSetSince: (day: string) => void;
 }) {
   const totalSec = Math.floor(Math.max(0, now - new Date(r.quit).getTime()) / 1000);
   const days = Math.floor(totalSec / 86400);
@@ -115,7 +116,12 @@ export function RefusalCard({
           <div className={s.iconWrap} style={{ background: r.hue + '26', color: r.hue }}><Icon name={r.icon} size={17} /></div>
           <div style={{ minWidth: 0 }}>
             <div className={s.name}>{t.pick(r.name)}</div>
-            <div className={s.since}>{sinceLabel(t, r.quit)}</div>
+            {/* tap the date to move the start of the count */}
+            <label className={s.since + ' ' + s.sinceEdit}>
+              {sinceLabel(t, r.quit)} <Icon name="pencil" size={9} />
+              <input type="date" className={s.sinceInput} value={localDay(new Date(r.quit))} max={localDay()} aria-label={t('tracker.optSince')}
+                onChange={(e) => e.target.value && onSetSince(e.target.value)} />
+            </label>
           </div>
         </div>
         {/* A6: the "saved" block is shown on desktop too (the design has it on mobile only) */}

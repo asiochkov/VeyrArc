@@ -1,5 +1,5 @@
 /* VeyrArc Settings.dc.html */
-.scroll { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; }
+.scroll { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 .back { width: 44px; height: 44px; flex: none; border-radius: 50%; background: var(--card); border: 1px solid rgba(168,203,239,.1); display: grid; place-items: center; color: var(--t-75); cursor: pointer; padding: 0; }
 .back:hover { color: var(--t-75); }
 .groupTitle { font: 700 10px var(--font-mono); letter-spacing: .2em; color: var(--t-40); text-transform: uppercase; margin: 0 4px 10px; }

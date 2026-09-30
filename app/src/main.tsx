@@ -11,6 +11,9 @@ import './styles/global.css';
 
 document.documentElement.lang = useLangStore.getState().lang;
 initAuth();
+// iOS Safari ignores user-scalable=no: block pinch-zoom gestures explicitly
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('touchmove', (e) => { if ((e as TouchEvent & { scale?: number }).scale !== undefined && (e as TouchEvent & { scale: number }).scale !== 1) e.preventDefault(); }, { passive: false });
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } });
 

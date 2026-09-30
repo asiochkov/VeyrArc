@@ -21,7 +21,7 @@
 .wordmark { font: 800 19px var(--font-ui); letter-spacing: -.01em; }
 
 /* main column */
-.main { position: relative; flex: 1; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.main { position: relative; flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
 .hero { position: absolute; left: 0; right: 0; top: 0; overflow: hidden; pointer-events: none; }
 .heroGlow {
   position: absolute; inset: -30% -20% 0;

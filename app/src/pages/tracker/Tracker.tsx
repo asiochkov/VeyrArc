@@ -6,7 +6,7 @@ import { useAddAction } from '../../app/nav';
 import { useT, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { useHeader } from '../../data/header';
-import { addHabit, addQuit, archiveHabit, archiveQuit, buildTracker, restoreHabit, fetchTracker, relapse, setQuitGoal, undoRelapse } from '../../data/tracker';
+import { addHabit, addQuit, archiveHabit, archiveQuit, buildTracker, restoreHabit, fetchTracker, relapse, setQuitGoal, setQuitSince, undoRelapse } from '../../data/tracker';
 import { writeLog } from '../../data/today';
 import { hasBackend } from '../../lib/supabase';
 import { useAuth, isProPlan } from '../../lib/auth';
@@ -14,7 +14,7 @@ import { HABIT_PALETTE, refusals as seedRefusals, trackerHabits, type Refusal, t
 import { Icon } from '../../ui/Icon';
 import { Avatar, ConfirmDialog, Segmented } from '../../ui/primitives';
 import { HabitCard, RefusalCard } from './cards';
-import { defaultHabitDraft, defaultQuitDraft, HabitOptions, QuitOptions, type HabitDraft, type QuitDraft } from './ComposerOptions';
+import { defaultHabitDraft, defaultQuitDraft, HabitOptions, QuitOptions, sinceIso, type HabitDraft, type QuitDraft } from './ComposerOptions';
 import s from './tracker.module.css';
 
 type View = 'habits' | 'refusals';
@@ -105,7 +105,7 @@ function useTracker() {
       const unit = quitDraft.unit.trim();
       const item: Refusal = {
         id: 'r' + Date.now(), name: text, icon: 'ban', hue: HABIT_PALETTE[refusals.length % HABIT_PALETTE.length],
-        quit: new Date().toISOString(), savedLabel: unit ? undefined : 'slips', unit: unit || undefined, savedUnit: quitDraft.norm,
+        quit: sinceIso(quitDraft.since), savedLabel: unit ? undefined : 'slips', unit: unit || undefined, savedUnit: quitDraft.norm,
         relapses: 0, best: 0,
       };
       setRefusals((l) => [...l, item]);
@@ -183,6 +183,11 @@ function useTracker() {
       if (hasBackend) sync(restoreHabit(d.h.id));
     },
     removeQuit: (id: string) => { setRefusals((l) => l.filter((x) => x.id !== id)); if (hasBackend) sync(archiveQuit(id)); },
+    setSince: (id: string, day: string) => {
+      const iso = sinceIso(day);
+      setRefusals((l) => l.map((r) => (r.id === id ? { ...r, quit: iso } : r)));
+      if (hasBackend) sync(setQuitSince(id, iso));
+    },
     pickGoal: (id: string, g: number) => { setGoalOverrides((o) => ({ ...o, [id]: g })); if (hasBackend) sync(setQuitGoal(id, g)); },
   };
 }
@@ -338,6 +343,7 @@ function RefusalsView({ t, st, mobile }: { t: T; st: St; mobile: boolean }) {
       onPickGoal={(g) => { st.pickGoal(r.id, g); st.setGoalMenuId(null); }}
       onDelete={() => st.removeQuit(r.id)}
       onSlip={() => st.setSlipId(r.id)}
+      onSetSince={(day) => st.setSince(r.id, day)}
     />
   ));
   const composer = st.composing && <Composer t={t} st={st} placeholder={t('tracker.quitPlaceholder')} withRequired={false} />;

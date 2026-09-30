@@ -2,6 +2,7 @@ import { DIRS, type DirId } from '../pages/auth/flow';
 import type { IconName } from '../ui/Icon';
 import { useLangStore } from '../i18n';
 import { useAuth } from './auth';
+import { takePendingAvatar } from './avatar';
 import { isoDay } from './day';
 import { db } from './supabase';
 
@@ -27,7 +28,9 @@ export async function saveOnboarding(v: { name: string; habits: string[]; time: 
   const picked = DIRS.flatMap(([dir, list]) => list.filter((h) => v.habits.includes(h.ru)).map((h) => ({ dir, h })));
   const directions = [...new Set(picked.map((p) => p.dir))];
 
+  const avatar = takePendingAvatar();
   const prof = await db().from('profiles').update({
+    ...(avatar ? { avatar_url: avatar } : {}),
     first_name: v.name.trim() || null, lang, directions, reminder_time: v.time,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, onboarded_at: new Date().toISOString(),
   }).eq('id', uid);

@@ -95,29 +95,32 @@ function MenuAndForms({ t, g, m }: { t: T; g: GoalsState; m: boolean }) {
           <button type="button" className={s.goldPill} style={m ? undefined : { marginTop: 4 }} onClick={() => g.setAddingGoal(false)}>{t('goals.gotIt')}</button>
         </div>
       )}
-      {g.addingGoal && !g.limitReached && (
-        <div className={s.form} style={{ marginTop: m ? 12 : 14, padding: m ? 16 : 20, maxWidth: m ? undefined : 380 }}>
-          <input className={s.field} style={{ borderRadius: 12, padding: '10px 14px', fontSize: 13 }} value={g.newGoalName}
-            onChange={(e) => g.setNewGoalName(e.target.value)} placeholder={t('goals.namePlaceholder')} />
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button type="button" className={s.typeBtn} aria-pressed={g.newGoalType === 'process'} onClick={() => g.setNewGoalType('process')}>{t('goals.typeProcess')}</button>
-            <button type="button" className={s.typeBtn} aria-pressed={g.newGoalType === 'number'} onClick={() => g.setNewGoalType('number')}>{t('goals.typeNumber')}</button>
-          </div>
-          {m ? (
-            <input type="date" className={s.field} style={{ borderRadius: 10, padding: '8px 10px', fontSize: 12 }} value={g.newGoalDeadline} onChange={(e) => g.setNewGoalDeadline(e.target.value)} />
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ font: '600 11px var(--font-ui)', color: 'rgba(232,237,243,.5)' }}>{t('goals.deadlineOpt')}</span>
-              <input type="date" className={s.field} style={{ flex: 1, borderRadius: 10, padding: '7px 10px', fontSize: 12 }} value={g.newGoalDeadline} onChange={(e) => g.setNewGoalDeadline(e.target.value)} />
-            </div>
-          )}
-          <div style={{ display: 'flex', gap: 8, marginTop: m ? 0 : 4 }}>
-            <button type="button" className={s.cancelBtn} onClick={() => g.setAddingGoal(false)}>{t('goals.cancel')}</button>
-            <button type="button" className={s.createBtn} onClick={() => g.confirmAddGoal({ ru: 'Добавьте задание на сегодня', en: 'Add a task for today' })}>{t('goals.create')}</button>
-          </div>
-        </div>
-      )}
+      {g.addingGoal && !g.limitReached && <GoalForm t={t} g={g} m={m} />}
     </>
+  );
+}
+
+function GoalForm({ t, g, m }: { t: T; g: GoalsState; m: boolean }) {
+  const can = !!g.newGoalName.trim();
+  return (
+    <div className={s.form} style={{ marginTop: m ? 12 : 14, padding: m ? 16 : 20, maxWidth: m ? undefined : 420, textAlign: 'left', width: '100%' }}>
+      <input className={s.field} style={{ borderRadius: 12, padding: '11px 14px', fontSize: 16 }} value={g.newGoalName} autoFocus maxLength={80}
+        onChange={(e) => g.setNewGoalName(e.target.value)} placeholder={t('goals.namePlaceholder')} />
+      <div>
+        <div className={s.caps} style={{ fontSize: 9 }}>{t('goals.stepLabel')}</div>
+        <input className={s.field} style={{ width: '100%', marginTop: 7, borderRadius: 12, padding: '10px 14px', fontSize: 16 }} value={g.newGoalStep} maxLength={160}
+          onChange={(e) => g.setNewGoalStep(e.target.value)} placeholder={t('goals.stepPlaceholder')} onKeyDown={(e) => { if (e.key === 'Enter' && can) g.confirmAddGoal(); }} />
+        <div className={s.hint} style={{ marginTop: 6 }}>{t('goals.stepFormHint')}</div>
+      </div>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ font: '600 11px var(--font-ui)', color: 'rgba(232,237,243,.5)', flex: 'none' }}>{t('goals.deadlineOpt')}</span>
+        <input type="date" className={s.field} style={{ flex: 1, minWidth: 0, borderRadius: 10, padding: '7px 10px', fontSize: 13, colorScheme: 'dark' }} value={g.newGoalDeadline} min={g.today} onChange={(e) => g.setNewGoalDeadline(e.target.value)} />
+      </label>
+      <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
+        <button type="button" className={s.cancelBtn} onClick={() => g.setAddingGoal(false)}>{t('goals.cancel')}</button>
+        <button type="button" className={s.createBtn} disabled={!can} style={can ? undefined : { opacity: .45 }} onClick={g.confirmAddGoal}>{t('goals.create')}</button>
+      </div>
+    </div>
   );
 }
 
@@ -148,21 +151,42 @@ function TasksCard({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
   const entry = g.getEntry(goal.id, g.viewDate);
   const streak = g.computeStreak(goal);
   const best = Math.max(goal.bestStreak, streak);
+  const doneN = goal.tasks.filter((x) => entry.tasksDone[x.id]).length;
+  const counted = goal.tasks.length > 0 && doneN === goal.tasks.length;
+  const future = g.viewDate > g.today;
+  const editing = g.editingSteps;
   return (
     <div className={s.card} style={{ borderRadius: 20, padding: m ? 18 : 24, marginTop: m ? 12 : undefined }}>
-      <div className={s.caps}>{t('goals.tasks')}</div>
-      <div style={{ marginTop: m ? 10 : 14, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+        <div className={s.caps}>{t('goals.tasks')}{goal.tasks.length > 0 && <span style={{ color: goal.hue, marginLeft: 8 }}>{doneN}/{goal.tasks.length}</span>}</div>
+        {goal.tasks.length > 0 && (
+          <button type="button" className={s.linkBtn} onClick={() => { g.setEditingSteps(!editing); g.setStepOpen(false); }}>
+            {editing ? t('goals.doneEditing') : t('goals.editSteps')}
+          </button>
+        )}
+      </div>
+      <div className={s.hint} style={{ marginTop: 6 }}>{goal.tasks.length ? t('goals.stepsHint') : t('goals.stepsEmpty')}</div>
+      <div style={{ marginTop: m ? 8 : 10, display: 'flex', flexDirection: 'column', gap: 2 }}>
         {goal.tasks.map((task) => {
           const done = !!entry.tasksDone[task.id];
           const detail = t.pick(task.detail);
+          if (editing) {
+            return (
+              <div key={task.id} className={s.taskRow} style={{ padding: '8px 0', display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input className={s.adhocInput} style={{ fontSize: 16 }} defaultValue={t.pick(task.text)} maxLength={160} aria-label={t('goals.editSteps')}
+                  onBlur={(e) => { if (e.target.value.trim() !== t.pick(task.text)) g.renameStep(task.id, e.target.value); }} />
+                <button type="button" className={s.delStep} onClick={() => g.removeStep(task.id)} aria-label={t('goals.delete')}><Icon name="trash" size={15} /></button>
+              </div>
+            );
+          }
           return (
             <div key={task.id} className={s.taskRow} style={{ padding: m ? '9px 0' : '10px 0' }}>
               <div style={{ display: 'flex', gap: m ? 11 : 12, alignItems: 'flex-start' }}>
-                <button type="button" role="checkbox" aria-checked={done} className={s.check}
-                  onClick={() => g.patchEntry(goal.id, g.viewDate, { tasksDone: { ...entry.tasksDone, [task.id]: !done } })}>
+                <button type="button" role="checkbox" aria-checked={done} className={s.check} disabled={future} style={future ? { opacity: .35 } : undefined}
+                  onClick={() => { if (!done) navigator.vibrate?.(15); g.patchEntry(goal.id, g.viewDate, { tasksDone: { ...entry.tasksDone, [task.id]: !done } }); }}>
                   {done && <Icon name="check" size={14} sw={3} />}
                 </button>
-                <div className={s.taskText} style={{ fontSize: m ? 13.5 : 14 }} onClick={() => detail && g.setExpandedTaskId(g.expandedTaskId === task.id ? null : task.id)}>{t.pick(task.text)}</div>
+                <div className={s.taskText} data-done={done} style={{ fontSize: m ? 13.5 : 14, alignSelf: 'center' }} onClick={() => detail && g.setExpandedTaskId(g.expandedTaskId === task.id ? null : task.id)}>{t.pick(task.text)}</div>
               </div>
               {g.expandedTaskId === task.id && (
                 <div className={s.taskDetail} style={{ marginLeft: m ? 38 : 40, marginTop: m ? 5 : 6, fontSize: m ? 11.5 : 12 }}>{detail}</div>
@@ -170,23 +194,28 @@ function TasksCard({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
             </div>
           );
         })}
-        {g.adhocItems.map((a, i) => (
-          <div key={i} className={s.adhoc} style={{ gap: m ? 11 : 12, padding: m ? '7px 0' : '8px 0' }}>
-            <span style={{ color: '#E8A54B' }}>·</span><span style={{ font: `500 ${m ? 12.5 : 13}px var(--font-ui)`, color: 'rgba(232,237,243,.7)' }}>{a}</span>
+        {(g.stepOpen || goal.tasks.length === 0) ? (
+          <div className={s.taskRow} style={{ padding: '10px 0', display: 'flex', gap: 8 }}>
+            <input className={s.adhocInput} style={{ fontSize: 16 }} value={g.stepText} autoFocus={g.stepOpen} maxLength={160} onChange={(e) => g.setStepText(e.target.value)}
+              placeholder={t('goals.stepPlaceholder')} onKeyDown={(e) => { if (e.key === 'Enter') g.addStep(); if (e.key === 'Escape') g.setStepOpen(false); }} />
+            <button type="button" className={s.adhocAdd} style={{ padding: '8px 14px' }} onClick={g.addStep}>{t('goals.add')}</button>
           </div>
-        ))}
+        ) : (
+          <button type="button" className={s.addStepBtn} onClick={() => { g.setStepOpen(true); g.setEditingSteps(false); }}>
+            <Icon name="plus" size={16} sw={2} />{t('goals.addStep')}
+          </button>
+        )}
       </div>
+      {counted && <div className={s.counted} style={{ color: goal.hue, background: goal.hue + '1f' }}><Icon name="check" size={13} sw={3} />{t('goals.dayCounted')}</div>}
 
       <div className={s.footer} style={{ marginTop: m ? 14 : 18, paddingTop: m ? 14 : 16 }}>
-        <button type="button" className={s.streakBtn} onClick={() => g.setStreakPanelOpen(!g.streakPanelOpen)}>
+        <button type="button" className={s.streakBtn} onClick={() => g.setStreakPanelOpen(!g.streakPanelOpen)} aria-label={t('goals.streakNow', { n: streak })}>
           <span><Icon name="flame" size={18} /></span><span style={{ font: `700 ${m ? 13 : 14}px var(--font-mono)` }}>{streak}</span>
         </button>
-        <button type="button" className={s.plusBtn} style={{ width: m ? 30 : 32, height: m ? 30 : 32, ...hit(m ? 7 : 6) }} onClick={() => g.setAdhocOpen(!g.adhocOpen)}>
-          <Icon name="plus" size={22} sw={2} />
-        </button>
-        <div style={{ display: 'flex', gap: m ? 3 : 4 }}>
+        <div style={{ display: 'flex', gap: m ? 3 : 4, alignItems: 'center' }}>
+          <span className={s.hint} style={{ marginRight: 4 }}>{t('goals.mood')}</span>
           {[0, 1, 2, 3, 4].map((i) => (
-            <button key={i} type="button" className={s.moodBtn} onClick={() => g.patchEntry(goal.id, g.viewDate, { mood: i })}>
+            <button key={i} type="button" className={s.moodBtn} aria-pressed={entry.mood === i} onClick={() => g.patchEntry(goal.id, g.viewDate, { mood: entry.mood === i ? null : i })}>
               <MoodFace level={i} size={18} color={entry.mood === i ? '#E8A54B' : 'rgba(232,237,243,.4)'} />
             </button>
           ))}
@@ -195,12 +224,6 @@ function TasksCard({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
       {g.streakPanelOpen && (
         <div className={s.panel} style={{ marginTop: m ? 10 : 12, padding: m ? '10px 12px' : '12px 14px', fontSize: m ? 11.5 : 12 }}>
           <span>{t(m ? 'goals.streakNowShort' : 'goals.streakNow', { n: streak })}</span><span>{t('goals.streakBest', { n: best })}</span>
-        </div>
-      )}
-      {g.adhocOpen && (
-        <div style={{ marginTop: m ? 10 : 12, display: 'flex', gap: 8 }}>
-          <input className={s.adhocInput} style={{ fontSize: m ? 12 : 12.5 }} value={g.adhocText} onChange={(e) => g.setAdhocText(e.target.value)} placeholder={t('goals.adhocPlaceholder')} />
-          <button type="button" className={s.adhocAdd} style={{ padding: m ? '8px 12px' : '8px 14px' }} onClick={g.confirmAdhoc}>{m ? '+' : t('goals.add')}</button>
         </div>
       )}
     </div>
@@ -212,10 +235,19 @@ function DiaryCard({ t, g, m, goal }: { t: T; g: GoalsState; m: boolean; goal: G
   const isFuture = g.viewDate > g.today;
   const allDone = goal.tasks.length > 0 && goal.tasks.every((task) => entry.tasksDone[task.id]);
   const ph = isFuture ? t('goals.phFuture') : allDone ? t('goals.phDone') : t('goals.phMissed');
+  const st = g.saveState;
   return (
     <div className={s.card} style={{ borderRadius: 20, padding: m ? 16 : 24, display: 'flex', flexDirection: 'column', gap: m ? 10 : 14, marginTop: m ? 12 : undefined }}>
-      <div style={{ font: `600 ${m ? 12.5 : 13}px var(--font-ui)`, color: 'rgba(232,237,243,.6)' }}>{t('goals.diary')}</div>
-      <textarea className={s.diary} style={{ minHeight: m ? 120 : 180, padding: m ? 12 : 14, fontSize: m ? 13 : 13.5 }}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ font: `600 ${m ? 12.5 : 13}px var(--font-ui)`, color: 'rgba(232,237,243,.6)' }}>{t('goals.diary')}</div>
+        {st && (
+          <div className={s.saveState} data-state={st} aria-live="polite">
+            {st === 'saved' && <Icon name="check" size={12} sw={3} />}
+            {t(st === 'saving' ? 'goals.saving' : st === 'saved' ? 'goals.saved' : 'goals.saveError')}
+          </div>
+        )}
+      </div>
+      <textarea className={s.diary} style={{ minHeight: m ? 120 : 180, padding: m ? 12 : 14, fontSize: m ? 16 : 13.5 }} maxLength={4000}
         value={text(t, entry.diary)} disabled={isFuture} placeholder={ph}
         onChange={(e) => g.patchEntry(goal.id, g.viewDate, { diary: e.target.value })} />
     </div>
@@ -291,13 +323,8 @@ function Empty({ t, g, m }: { t: T; g: GoalsState; m: boolean }) {
       <div style={{ color: '#E8A54B' }}><Icon name="target" size={40} /></div>
       <div style={{ font: `800 ${m ? 19 : 22}px var(--font-ui)` }}>{t('goals.emptyTitle')}</div>
       <div style={{ font: `400 ${m ? 12.5 : 13}px var(--font-ui)`, color: 'rgba(232,237,243,.5)', maxWidth: m ? 260 : 280 }}>{t('goals.emptyDesc')}</div>
-      <button type="button" className={s.amberPill} style={{ marginTop: 6, padding: m ? '12px 22px' : '12px 24px', fontSize: 13 }} onClick={g.startAddGoal}>{t('goals.emptyCta')}</button>
-      {g.addingGoal && (
-        <div style={{ marginTop: 10, maxWidth: m ? undefined : 320, width: m ? '100%' : undefined, display: 'flex', gap: 8 }}>
-          <input className={s.pillInput} style={{ padding: '9px 16px' }} value={g.newGoalName} onChange={(e) => g.setNewGoalName(e.target.value)} placeholder={t('goals.namePlaceholder')} />
-          <button type="button" className={s.amberPill} style={{ padding: '9px 16px' }} onClick={() => g.confirmAddGoal({ ru: 'Добавьте задание на сегодня', en: 'Add a task for today' })}>{t('goals.create')}</button>
-        </div>
-      )}
+      {!g.addingGoal && <button type="button" className={s.amberPill} style={{ marginTop: 6, padding: m ? '12px 22px' : '12px 24px', fontSize: 13 }} onClick={g.startAddGoal}>{t('goals.emptyCta')}</button>}
+      {g.addingGoal && <GoalForm t={t} g={g} m={m} />}
     </div>
   );
 }

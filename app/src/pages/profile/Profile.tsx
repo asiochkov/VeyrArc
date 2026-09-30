@@ -21,7 +21,7 @@ function useProfileData(): ProfileData | null {
   }, [q.data, plan?.plan, hd.initials]);
 }
 import { Icon, type IconName } from '../../ui/Icon';
-import { InfoDialog, ProgressRing, Segmented } from '../../ui/primitives';
+import { InfoDialog, PhotoImg, ProgressRing, Segmented } from '../../ui/primitives';
 import s from './profile.module.css';
 
 /* VeyrArc Profile.dc.html */
@@ -167,6 +167,7 @@ const quitDay = (d: number, h: number, r: number): CSSProperties => ({ height: h
 /* ---------------- desktop ---------------- */
 
 function Desktop({ t, p }: { t: T; p: P }) {
+  const photo = useAuth((x) => x.profile?.avatar_url);
   const D = useContext(ProfileCtx);
   const blur = blurOf(D.PROFILE_IS_PRO);
   const d = derived(t, p, D);
@@ -196,7 +197,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {D.PROFILE_IS_PRO && <span className={s.proBadge}>{t('profile.proBadge')}</span>}
-          <button type="button" className={s.avatarBtn} style={{ width: 40, height: 40, fontSize: 12 }}>{D.initials}</button>
+          <button type="button" className={s.avatarBtn} style={{ width: 40, height: 40, fontSize: 12, overflow: 'hidden' }}>{photo ? <PhotoImg src={photo} /> : D.initials}</button>
         </div>
       </div>
       {p.menuOpen && <Menu t={t} m={false} />}
@@ -364,6 +365,7 @@ function Stat({ v, l, color }: { v: ReactNode; l: string; color?: string }) {
 /* ---------------- mobile ---------------- */
 
 function Mobile({ t, p }: { t: T; p: P }) {
+  const photo = useAuth((x) => x.profile?.avatar_url);
   const D = useContext(ProfileCtx);
   const blur = blurOf(D.PROFILE_IS_PRO);
   const d = derived(t, p, D);
@@ -383,7 +385,7 @@ function Mobile({ t, p }: { t: T; p: P }) {
       <div style={{ flex: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0' }}>
         <button type="button" className={s.menuBtn} style={{ width: 44, height: 44 }} onClick={() => p.setMenuOpen(!p.menuOpen)}><Icon name="menu" size={18} sw={2} /></button>
         {D.PROFILE_IS_PRO && <span className={s.proBadge}>{t('profile.proBadge')}</span>}
-        <button type="button" className={s.avatarBtn} style={{ width: 36, height: 36, fontSize: 11 }}>{D.initials}</button>
+        <button type="button" className={s.avatarBtn} style={{ width: 36, height: 36, fontSize: 11, overflow: 'hidden' }}>{photo ? <PhotoImg src={photo} /> : D.initials}</button>
       </div>
       {p.menuOpen && <Menu t={t} m />}
 

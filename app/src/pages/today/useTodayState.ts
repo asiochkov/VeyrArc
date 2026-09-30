@@ -148,7 +148,7 @@ export function useTodayState() {
 
   return {
     ready: !!view, habits, moodSel, setMoodSel, activeTab, setActiveTab, flashId, actions, pomo,
-    week: view?.week ?? weekStates, planner: view?.planner ?? [], stats,
+    week: (view?.week ?? weekStates).map((d) => (d === 'today' && hasBackend && keptToday ? 'today-done' : d)), planner: view?.planner ?? [], stats,
     doneN, dayPct, catBody: catFrac('Тело'), catMind: catFrac('Разум'), catDisc: catFrac('Дисциплина'),
   };
 }

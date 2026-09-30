@@ -13,7 +13,7 @@ import { hasBackend } from '../../lib/supabase';
 import { useLangStore, useT, type Lang, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { Icon, type IconName } from '../../ui/Icon';
-import { ConfirmDialog, Segmented } from '../../ui/primitives';
+import { ConfirmDialog, PhotoImg, Segmented } from '../../ui/primitives';
 import s from './settings.module.css';
 
 /* VeyrArc Settings.dc.html */
@@ -124,7 +124,7 @@ export function Settings() {
         <div>
           <div className={s.groupTitle}>{t('settings.account')}</div>
           <button type="button" className={s.accountBtn} onClick={() => navigate('/settings/account')}>
-            <span className={s.avatar}>{account.initials}</span>
+            <span className={s.avatar} style={{ overflow: 'hidden' }}>{profile?.avatar_url ? <PhotoImg src={profile.avatar_url} /> : account.initials}</span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: 'block', font: '700 16px var(--font-ui)' }}>{account.name}</span>
               <span style={{ display: 'block', font: '500 12.5px var(--font-ui)', color: 'rgba(232,237,243,.5)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{account.email}</span>

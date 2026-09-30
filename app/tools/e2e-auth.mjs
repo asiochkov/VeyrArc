@@ -45,7 +45,7 @@ try {
   await page.waitForURL('**/start', { timeout: 10000 }); log('onboarding saved → /start');
 
   await page.getByRole('button', { name: /Вода 8 стаканов/ }).click();
-  await page.getByRole('button', { name: 'Продолжить' }).click();
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
   await page.waitForURL('**/signup'); log('first check-in → save progress → /signup');
 
   await page.getByPlaceholder('напр. Иван').fill('Тест');
@@ -54,7 +54,7 @@ try {
   await page.getByPlaceholder('минимум 8 символов').fill('Str0ngPass!');
   await page.getByText('Я принимаю').click();
   const t0 = Date.now();
-  await page.getByRole('button', { name: 'Продолжить' }).click();
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
   await page.waitForURL('**/verify'); log('guest linked to email, code sent');
   await typeCode(page, '000000');
   await page.getByRole('button', { name: 'Подтвердить' }).click();
@@ -94,7 +94,7 @@ try {
   await page.getByRole('button', { name: 'Отправить код' }).click();
   await page.getByRole('button', { name: 'Ввести код' }).click();
   await typeCode(page, await code(t1));
-  await page.getByRole('button', { name: 'Продолжить' }).click();
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
   await page.getByPlaceholder('минимум 8 символов').fill('N3wPassword!');
   await page.locator('input[type="password"]').nth(1).fill('N3wPassword!');
   await page.getByRole('button', { name: 'Сохранить пароль' }).click();

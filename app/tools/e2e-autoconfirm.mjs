@@ -10,12 +10,12 @@ const fill = async (em) => {
   await page.getByPlaceholder('напр. ivan@mail.ru').fill(em);
   await page.getByPlaceholder('минимум 8 символов').fill('Str0ngPass!');
   await page.getByText('Я принимаю').click();
-  await page.getByRole('button', { name: 'Продолжить' }).click();
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
 };
 try {
   await guestOnboard(page, { 'Тело': ['Холодный душ'] });
   await page.getByRole('button', { name: /Холодный душ/ }).click();
-  await page.getByRole('button', { name: 'Продолжить' }).click();
+  await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
   await page.waitForURL('**/signup');
   await fill(email);
   await page.waitForURL(APP + '/', { timeout: 15000 }); log('guest → sign-up → straight to Today (no code step)');

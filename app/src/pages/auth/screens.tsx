@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useT } from '../../i18n';
 import { google, nextPath, resendEmail, sendReset, setNewPassword, signIn, signUpOrLink, startGuest, verifyEmail, verifyReset } from '../../lib/auth';
@@ -52,10 +52,12 @@ export function Signup() {
   const [showPw, setShowPw] = useState(false);
   const [agree, setAgree] = useState(false);
   const [serverErr, setServerErr] = useState('');
+  // the name was already given in onboarding — don't ask twice
+  useEffect(() => { if (!f.first && f.pname) setF('first', f.pname); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const { loading, load, run } = useLoad();
   const errs = {
     first: !f.first.trim() ? t('auth.errFirst') : '',
-    last: !f.last.trim() ? t('auth.errLast') : '',
+    last: '', // last name is optional
     email: !f.email ? t('auth.errEmail') : !emailRe.test(f.email) ? t('auth.errEmailBad') : '',
     pw: f.pw.length < 8 ? t('auth.errPw') : '',
   };

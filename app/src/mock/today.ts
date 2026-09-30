@@ -21,7 +21,7 @@ export const todayHabits: TodayHabit[] = [
   { id: 'social', type: 'binary', icon: 'shield', title: { ru: 'Соцсети — стоп', en: 'Social media — stop' }, cat: { ru: 'Дисциплина · утро', en: 'Discipline · morning' }, streak: 3, checked: false, dots: [1, 1, 1, 0, 0, 0, 0] },
 ];
 
-export type DayState = 'done' | 'freeze' | 'today' | 'empty';
+export type DayState = 'done' | 'freeze' | 'today' | 'today-done' | 'empty';
 export const weekStates: DayState[] = ['done', 'freeze', 'done', 'today', 'empty', 'empty', 'empty'];
 
 export const plannerToday: { time: L; text: L; accent?: boolean }[] = [

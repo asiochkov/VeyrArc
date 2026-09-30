@@ -62,7 +62,7 @@ function Week({ t, size, state }: { t: T; size: 'd' | 'm'; state: State }) {
             <div className={s.circle} data-state={ds} style={{ width: sz, height: sz }}>
               {ds === 'freeze' && <Icon name="snow" size={Math.round(sz * 0.5)} sw={1.6} />}
             </div>
-            <span style={{ font: `600 ${d ? 14 : 11}px var(--font-ui)`, color: ds === 'today' ? '#E8B75E' : 'rgba(232,237,243,.4)' }}>{labels[i]}</span>
+            <span style={{ font: `600 ${d ? 14 : 11}px var(--font-ui)`, color: ds === 'today' || ds === 'today-done' ? '#E8B75E' : 'rgba(232,237,243,.4)' }}>{labels[i]}</span>
           </div>
         ))}
       </div>

@@ -8,7 +8,8 @@ import { saveOnboarding, setHabitDone } from '../../lib/onboarding';
 import { askPermission, notificationsSupported } from '../../lib/reminders';
 import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
-import { Cta } from '../../ui/primitives';
+import { Cta, PhotoImg } from '../../ui/primitives';
+import { pickPhoto, saveAvatar } from '../../lib/avatar';
 import s from './auth.module.css';
 import { AuthLayout, up } from './AuthLayout';
 import { DEFAULT_HOME, DIR_ICONS, DIRS, TIME_OPTS, useFlow, type DirId } from './flow';
@@ -43,6 +44,7 @@ export function Onboarding() {
   const [ob, setOb] = useState(0);
   const [sdir, setSdir] = useState<1 | -1>(1);
   const [focus, setFocus] = useState<DirId | null>('body');
+  const [photo, setPhoto] = useState<string | null>(useAuth.getState().profile?.avatar_url ?? null);
   const initials = ((f.pname || f.first || 'А')[0] + ((f.last || 'П')[0] || '')).toUpperCase();
   const valid = ob === 0 ? !!f.pname.trim() : ob === 1 ? habits.length >= 1 : true;
   const next = () => { if (ob < 2) { setSdir(1); setOb(ob + 1); } else navigate('/day-one'); };
@@ -66,9 +68,9 @@ export function Onboarding() {
             <div key="s0" className={slide}>
               <div className={s.h1} style={{ marginTop: 26 }}>{t('auth.obNameTitle')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 24 }}>
-                <span className={s.avatarLg}>{initials}</span>
+                <span className={s.avatarLg} style={{ overflow: 'hidden' }}>{photo ? <PhotoImg src={photo} /> : initials}</span>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6, flex: 'none' }}>
-                  <button type="button" className={s.ghostSm}>{t('auth.addPhoto')}</button>
+                  <button type="button" className={s.ghostSm} onClick={() => { void pickPhoto().then((u) => { if (u) { setPhoto(u); if (hasBackend) void saveAvatar(u).catch(() => {}); } }); }}>{t('auth.addPhoto')}</button>
                   <span className={s.small}>{t('auth.optional')}</span>
                 </div>
               </div>
@@ -168,12 +170,12 @@ export function DayOne() {
     const t0 = performance.now();
     cancelAnimationFrame(raf.current);
     const tick = (now: number) => {
-      const p = Math.min(1, (now - t0) / 1500);
+      const p = Math.min(1, (now - t0) / 800); // shorter hold: sign-up felt slow
       setHoldP(p);
       if (p >= 1) {
         setCelebrate(true);
         if (navigator.vibrate) navigator.vibrate(30);
-        const wait = new Promise((r) => { timer.current = setTimeout(r, 1400); });
+        const wait = new Promise((r) => { timer.current = setTimeout(r, 900); });
         const save = hasBackend
           ? saveOnboarding({ name: f.pname, habits, time }).then(setCreated).catch(() => {})
           : Promise.resolve();
@@ -281,6 +283,8 @@ export function FirstHome() {
               <div style={{ font: '800 17px var(--font-ui)' }}>{t('auth.signupTitle')}</div>
               <div className={s.small} style={{ marginTop: 6 }}>{t('auth.signupSub')}</div>
               <Cta style={{ marginTop: 14 }} onClick={() => navigate(hasBackend && session && !isAnon(session) ? '/' : '/signup')}>{t('auth.continue')}</Cta>
+              {/* faster start: sign-up can wait, the guest keeps everything */}
+              {hasBackend && <button type="button" className={s.linkBtn} style={{ marginTop: 12, display: 'block', width: '100%', textAlign: 'center' }} onClick={() => navigate('/')}>{t('auth.later')}</button>}
             </div>
           )}
         </div>
@@ -322,7 +326,10 @@ export function Account() {
           <div className={s.accHeader} style={up(1)}>
             <div className={s.accGlow} />
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 16 }}>
-              <span className={s.avatarLg}>{initials}</span>
+              <button type="button" className={s.avatarLg} style={{ overflow: 'hidden', border: 'none', cursor: 'pointer', padding: 0 }} aria-label={t('auth.addPhoto')}
+                onClick={() => { void pickPhoto().then((u) => { if (u) void saveAvatar(u).catch(() => {}); }); }}>
+                {profile?.avatar_url ? <PhotoImg src={profile.avatar_url} /> : initials}
+              </button>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ font: '800 20px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? [f.first, f.last].filter(Boolean).join(' ') : (f.pname || f.first || 'Анна') + ' ' + (f.last || 'Петрова')}</div>
                 <div className={s.muted} style={{ font: '600 13px var(--font-ui)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? (f.nick ? '@' + f.nick : '') : '@' + (f.nick || 'anna.arc')}</div>
