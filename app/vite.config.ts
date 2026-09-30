@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     // Installable app + offline shell. Not in the Artifact preview build (the host blocks service workers).
     mode !== 'preview' && VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png', 'favicon-32.png', 'apple-touch-icon.png', 'logo-mark.png'],
+      includeAssets: ['push-sw.js', 'favicon.png', 'favicon-32.png', 'apple-touch-icon.png', 'logo-mark.png'],
       manifest: {
         name: 'VeyrArc',
         short_name: 'VeyrArc',
@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        importScripts: ['push-sw.js'],
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         // the browser only fetches the subsets it needs; keep the offline cache to Latin + Cyrillic
         globIgnores: ['**/*-{greek,vietnamese,latin-ext,cyrillic-ext}-*.woff2'],

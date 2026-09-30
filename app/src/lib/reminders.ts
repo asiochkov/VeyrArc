@@ -14,8 +14,9 @@ export const notificationsSupported = () => typeof window !== 'undefined' && 'No
 
 export async function askPermission() {
   if (!notificationsSupported()) return false;
-  if (Notification.permission === 'granted') return true;
-  return (await Notification.requestPermission()) === 'granted';
+  const ok = Notification.permission === 'granted' || (await Notification.requestPermission()) === 'granted';
+  if (ok) void import('./push').then((m) => m.subscribePush()).catch(() => {});
+  return ok;
 }
 
 async function show(title: string, body: string, tag: string) {

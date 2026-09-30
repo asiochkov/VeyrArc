@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { runMaintenance } from '../lib/maintenance';
 import { startReminders } from '../lib/reminders';
+import { onAppOpen } from '../lib/push';
 import { Navigate } from 'react-router-dom';
 import { isAnon, useAuth } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
@@ -17,6 +18,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     if (!hasBackend || !uid || !onboarded || ran.current === uid) return;
     ran.current = uid;
     void runMaintenance(qc).catch(() => {});
+    onAppOpen();
   }, [uid, onboarded, qc]);
   useEffect(() => (hasBackend && uid && onboarded ? startReminders(qc) : undefined), [uid, onboarded, qc]);
   if (!hasBackend) return children;

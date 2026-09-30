@@ -8,6 +8,8 @@
  * --auth     auth settings: email OTP (6 digits), guests, 45s resend (B27),
  *            Resend SMTP, RU/EN email templates, redirect URLs
  * --render   put the project URL + anon key into the Render site and redeploy
+ * --push     VAPID secrets, deploy Edge Function push-reminders, pg_cron every 15 min
+ *            (VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY in the environment)
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -108,6 +110,33 @@ if (all || flags.has('--auth')) {
   console.log('auth', { autoconfirm: now.mailer_autoconfirm, anonymous: now.external_anonymous_users_enabled, otp: now.mailer_otp_length, resendEvery: now.smtp_max_frequency, smtp: now.smtp_host, google: now.external_google_enabled });
 }
 
+/* ---------------- push ---------------- */
+if (flags.has('--push')) {
+  const pub = process.env.VAPID_PUBLIC_KEY, priv = process.env.VAPID_PRIVATE_KEY;
+  if (!pub || !priv) throw new Error('VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY missing');
+  const cron = (await import('node:crypto')).randomBytes(24).toString('hex');
+  await sb('POST', `/v1/projects/${ref}/secrets`, [
+    { name: 'VAPID_PUBLIC_KEY', value: pub }, { name: 'VAPID_PRIVATE_KEY', value: priv }, { name: 'CRON_SECRET', value: cron },
+  ]);
+  const code = fs.readFileSync(path.join(root, 'supabase/functions/push-reminders/index.ts'));
+  const form = new FormData();
+  form.append('metadata', JSON.stringify({ entrypoint_path: 'index.ts', name: 'push-reminders', verify_jwt: false }));
+  form.append('file', new Blob([code], { type: 'application/typescript' }), 'index.ts');
+  const res = await fetch(`https://api.supabase.com/v1/projects/${ref}/functions/deploy?slug=push-reminders`, { method: 'POST', body: form });
+  const txt = await res.text();
+  if (!res.ok) throw new Error('function deploy → ' + res.status + ' ' + txt.slice(0, 300));
+  console.log('function', JSON.parse(txt).status ?? 'deployed');
+  const url = `https://${ref}.supabase.co/functions/v1/push-reminders`;
+  await sql(`create extension if not exists pg_cron; create extension if not exists pg_net;
+    select cron.unschedule(jobid) from cron.job where jobname = 'push-reminders';
+    select cron.schedule('push-reminders', '*/15 * * * *', $cron$ select net.http_post(url := '${url}', headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', '${cron}'), body := '{}'::jsonb) $cron$);`);
+  console.log('cron scheduled every 15 min');
+  // Render needs the public key for the subscription
+  const envs = (await render('GET', `/services/${RENDER_SERVICE}/env-vars`)).map((e) => e.envVar).filter((e) => e.key !== 'VITE_VAPID_PUBLIC_KEY');
+  await render('PUT', `/services/${RENDER_SERVICE}/env-vars`, [...envs.map(({ key, value }) => ({ key, value })), { key: 'VITE_VAPID_PUBLIC_KEY', value: pub }]);
+  console.log('render env VITE_VAPID_PUBLIC_KEY set');
+}
+
 /* ---------------- render ---------------- */
 if (all || flags.has('--render')) {
   const keys = await sb('GET', `/v1/projects/${ref}/api-keys?reveal=true`);
@@ -118,6 +147,7 @@ if (all || flags.has('--render')) {
     { key: 'VITE_SUPABASE_URL', value: `https://${ref}.supabase.co` },
     { key: 'VITE_SUPABASE_ANON_KEY', value: anon.api_key },
     { key: 'VITE_AUTH_GOOGLE', value: process.env.GOOGLE_CLIENT_ID ? '1' : '0' },
+    ...(await render('GET', `/services/${RENDER_SERVICE}/env-vars`)).map((e) => e.envVar).filter((e) => e.key === 'VITE_VAPID_PUBLIC_KEY').map(({ key, value }) => ({ key, value })),
   ]);
   const dep = await render('POST', `/services/${RENDER_SERVICE}/deploys`, { clearCache: 'do_not_clear' });
   console.log('render deploy', dep.id, dep.status);

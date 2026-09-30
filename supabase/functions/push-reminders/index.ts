@@ -1,0 +1,83 @@
+// VeyrArc · push reminders (UX audit 3.6 / 5.7). Called every 15 minutes by pg_cron.
+//  - reminder: at the user's reminder time (onboarding), if habits are left for today
+//  - evening:  21:00–23:00 local, if habits are still left («успей до полуночи»)
+//  - silence:  19:00–21:00 local, if the app was not opened for 3+ days
+// Each kind goes out at most once per local day (push_log).
+import webpush from 'npm:web-push@3.6.7';
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
+webpush.setVapidDetails('mailto:support@veyrarc.online', Deno.env.get('VAPID_PUBLIC_KEY')!, Deno.env.get('VAPID_PRIVATE_KEY')!);
+
+type Lang = 'ru' | 'en';
+const plural = (lang: Lang, n: number, one: string, few: string, many: string) => {
+  if (lang === 'en') return n === 1 ? one : many;
+  const m10 = n % 10, m100 = n % 100;
+  return m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? few : many;
+};
+const TEXT = {
+  reminder: (l: Lang, n: number) => l === 'en'
+    ? { title: 'Time to check in', body: `${n} ${plural(l, n, 'habit', '', 'habits')} left for today` }
+    : { title: 'Время отметить привычки', body: `Осталось ${n} ${plural(l, n, 'привычка', 'привычки', 'привычек')} на сегодня` },
+  evening: (l: Lang, n: number) => l === 'en'
+    ? { title: 'Make it before midnight', body: `${n} ${plural(l, n, 'habit is', '', 'habits are')} still open — keep your streak` }
+    : { title: 'Успей до полуночи', body: `${n} ${plural(l, n, 'привычка не отмечена', 'привычки не отмечены', 'привычек не отмечено')} — сохрани серию` },
+  silence: (l: Lang) => l === 'en'
+    ? { title: 'Your Arc is on pause', body: 'Three days without check-ins. One small step today brings the index back.' }
+    : { title: 'Твой Arc на паузе', body: 'Три дня без отметок. Один маленький шаг сегодня — и индекс снова растёт.' },
+};
+
+function local(tz: string) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', weekday: 'short',
+  }).formatToParts(new Date()).map((p) => [p.type, p.value]));
+  return { day: `${parts.year}-${parts.month}-${parts.day}`, hm: `${parts.hour}:${parts.minute}`, wd: parts.weekday as string };
+}
+const addHours = (hm: string, h: number) => { const [a, b] = hm.split(':').map(Number); return `${String(Math.min(23, a + h)).padStart(2, '0')}:${String(b).padStart(2, '0')}`; };
+const scheduled = (cadence: string, wd: string) => cadence === 'weekdays' ? !['Sat', 'Sun'].includes(wd) : cadence === 'weekends' ? ['Sat', 'Sun'].includes(wd) : true;
+
+Deno.serve(async (req) => {
+  if (req.headers.get('x-cron-secret') !== Deno.env.get('CRON_SECRET')) return new Response('forbidden', { status: 403 });
+  const { data: subs } = await sb.from('push_subscriptions').select('*');
+  const byUser = new Map<string, typeof subs>();
+  for (const s of subs ?? []) byUser.set(s.user_id, [...(byUser.get(s.user_id) ?? []), s]);
+  let sent = 0;
+
+  for (const [uid, list] of byUser) {
+    const { data: p } = await sb.from('profiles').select('timezone, reminder_time, notify_habits, last_seen_at, lang').eq('id', uid).maybeSingle();
+    if (!p) continue;
+    const lang: Lang = p.lang === 'en' ? 'en' : 'ru';
+    const { day, hm, wd } = local(p.timezone || 'Europe/Moscow');
+
+    const undone = async () => {
+      const { data: habits } = await sb.from('habits').select('id, cadence').eq('user_id', uid).is('archived_at', null);
+      const today = (habits ?? []).filter((h) => scheduled(h.cadence, wd));
+      if (!today.length) return 0;
+      const { data: logs } = await sb.from('habit_logs').select('habit_id').eq('user_id', uid).eq('day', day).eq('done', true);
+      const done = new Set((logs ?? []).map((l) => l.habit_id));
+      return today.filter((h) => !done.has(h.id)).length;
+    };
+
+    let kind: 'reminder' | 'evening' | 'silence' | null = null;
+    let msg: { title: string; body: string } | null = null;
+    const rt = p.reminder_time?.slice(0, 5);
+    if (p.notify_habits && rt && hm >= rt && hm < addHours(rt, 2)) { const n = await undone(); if (n) { kind = 'reminder'; msg = TEXT.reminder(lang, n); } }
+    if (!kind && p.notify_habits && hm >= '21:00' && hm < '23:00') { const n = await undone(); if (n) { kind = 'evening'; msg = TEXT.evening(lang, n); } }
+    if (!kind && p.last_seen_at && Date.now() - new Date(p.last_seen_at).getTime() > 3 * 86400000 && hm >= '19:00' && hm < '21:00') { kind = 'silence'; msg = TEXT.silence(lang); }
+    if (!kind || !msg) continue;
+
+    const { error: dup } = await sb.from('push_log').insert({ user_id: uid, kind, day });
+    if (dup) continue; // already sent today
+
+    for (const s of list!) {
+      try {
+        await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...msg, tag: kind, url: '/' }));
+        sent++;
+      } catch (e) {
+        const code = (e as { statusCode?: number }).statusCode;
+        if (code === 404 || code === 410) await sb.from('push_subscriptions').delete().eq('id', s.id);
+      }
+    }
+  }
+  return Response.json({ users: byUser.size, sent });
+});
