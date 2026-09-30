@@ -67,11 +67,12 @@ export function Strength({ pw }: { pw: string }) {
 
 export function SocialRow({ loading, onGoogle, onApple, style }: { loading: string | null; onGoogle: () => void; onApple: () => void; style?: CSSProperties }) {
   // Apple sign-in is behind config.auth.apple (decision B26); with it off Google spans the row.
+  if (!config.auth.google && !config.auth.apple) return null;
   return (
     <div style={{ display: 'grid', gridTemplateColumns: config.auth.apple ? '1fr 1fr' : '1fr', gap: 10, marginTop: 26, ...style }}>
-      <button type="button" className={s.social} onClick={onGoogle}>
+      {config.auth.google && <button type="button" className={s.social} onClick={onGoogle}>
         {loading === 'google' ? <span className={s.spinnerSm} /> : <Icon name="google" size={18} />}<span>Google</span>
-      </button>
+      </button>}
       {config.auth.apple && (
         <button type="button" className={s.social} onClick={onApple}>
           {loading === 'apple' ? <span className={s.spinnerSm} /> : <Icon name="apple" size={18} />}<span>Apple</span>
@@ -83,6 +84,8 @@ export function SocialRow({ loading, onGoogle, onApple, style }: { loading: stri
 
 export function OrDivider({ style }: { style?: CSSProperties }) {
   const t = useT();
+  // no social buttons → keep the gap between the subtitle and the form
+  if (!config.auth.google && !config.auth.apple) return <div style={{ height: 26 }} />;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '22px 0', ...style }}>
       <span className={s.hr} /><span className={s.or}>{t('auth.or')}</span><span className={s.hr} />

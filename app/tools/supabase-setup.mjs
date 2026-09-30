@@ -70,39 +70,42 @@ if (all || flags.has('--auth')) {
   const dom = domains.find((d) => d.name === DOMAIN);
   if (!dom) throw new Error(`Resend domain ${DOMAIN} missing`);
   console.log('resend domain', dom.name, dom.status);
-  const key = await resend('POST', '/api-keys', { name: `supabase-smtp-${Date.now()}`, permission: 'sending_access', domain_id: dom.id });
+  // until the domain is verified no email can be delivered: sign-up then skips the code step
+  const mailReady = dom.status === 'verified';
+  const key = mailReady ? await resend('POST', '/api-keys', { name: `supabase-smtp-${Date.now()}`, permission: 'sending_access', domain_id: dom.id }) : null;
 
   const foot = ['Код действует 1 час. Если это были не вы — просто проигнорируйте письмо.', 'The code is valid for 1 hour. If this wasn’t you, ignore this email.'];
   const cfg = {
-    site_url: `https://${DOMAIN}`,
+    site_url: process.env.SITE_URL || RENDER_URL,
     uri_allow_list: [`https://${DOMAIN}/**`, `https://www.${DOMAIN}/**`, `${RENDER_URL}/**`, 'http://localhost:5173/**', 'http://localhost:4173/**'].join(','),
     external_anonymous_users_enabled: true,
     security_manual_linking_enabled: true,
     external_email_enabled: true,
-    mailer_autoconfirm: false,
+    mailer_autoconfirm: !mailReady,
     mailer_secure_email_change_enabled: false,
     mailer_otp_length: 6,
     mailer_otp_exp: 3600,
     smtp_max_frequency: 45,
-    rate_limit_email_sent: 60,
     password_min_length: 8,
-    smtp_host: 'smtp.resend.com', smtp_port: '465', smtp_user: 'resend', smtp_pass: key.token,
-    smtp_admin_email: `no-reply@${DOMAIN}`, smtp_sender_name: 'VeyrArc',
-    mailer_subjects_confirmation: 'VeyrArc: код подтверждения / confirmation code',
-    mailer_templates_confirmation_content: mail(['Подтверди email', 'Введи этот код в приложении, чтобы сохранить прогресс.'], ['Confirm your email', 'Enter this code in the app to save your progress.'], `${foot[0]}<br>${foot[1]}`),
-    mailer_subjects_email_change: 'VeyrArc: код подтверждения / confirmation code',
-    mailer_templates_email_change_content: mail(['Подтверди email', 'Введи этот код в приложении, чтобы сохранить прогресс.'], ['Confirm your email', 'Enter this code in the app to save your progress.'], `${foot[0]}<br>${foot[1]}`),
-    mailer_subjects_recovery: 'VeyrArc: сброс пароля / password reset',
-    mailer_templates_recovery_content: mail(['Сброс пароля', 'Введи этот код в приложении, чтобы задать новый пароль.'], ['Reset your password', 'Enter this code in the app to set a new password.'], `${foot[0]}<br>${foot[1]}`),
-    mailer_subjects_magic_link: 'VeyrArc: код входа / sign-in code',
-    mailer_templates_magic_link_content: mail(['Код для входа', 'Введи этот код в приложении.'], ['Your sign-in code', 'Enter this code in the app.'], `${foot[0]}<br>${foot[1]}`),
+    ...(mailReady ? {
+      smtp_host: 'smtp.resend.com', smtp_port: '465', smtp_user: 'resend', smtp_pass: key.token,
+      smtp_admin_email: `no-reply@${DOMAIN}`, smtp_sender_name: 'VeyrArc', rate_limit_email_sent: 60,
+      mailer_subjects_confirmation: 'VeyrArc: код подтверждения / confirmation code',
+      mailer_templates_confirmation_content: mail(['Подтверди email', 'Введи этот код в приложении, чтобы сохранить прогресс.'], ['Confirm your email', 'Enter this code in the app to save your progress.'], `${foot[0]}<br>${foot[1]}`),
+      mailer_subjects_email_change: 'VeyrArc: код подтверждения / confirmation code',
+      mailer_templates_email_change_content: mail(['Подтверди email', 'Введи этот код в приложении, чтобы сохранить прогресс.'], ['Confirm your email', 'Enter this code in the app to save your progress.'], `${foot[0]}<br>${foot[1]}`),
+      mailer_subjects_recovery: 'VeyrArc: сброс пароля / password reset',
+      mailer_templates_recovery_content: mail(['Сброс пароля', 'Введи этот код в приложении, чтобы задать новый пароль.'], ['Reset your password', 'Enter this code in the app to set a new password.'], `${foot[0]}<br>${foot[1]}`),
+      mailer_subjects_magic_link: 'VeyrArc: код входа / sign-in code',
+      mailer_templates_magic_link_content: mail(['Код для входа', 'Введи этот код в приложении.'], ['Your sign-in code', 'Enter this code in the app.'], `${foot[0]}<br>${foot[1]}`),
+    } : {}),
   };
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     Object.assign(cfg, { external_google_enabled: true, external_google_client_id: process.env.GOOGLE_CLIENT_ID, external_google_secret: process.env.GOOGLE_CLIENT_SECRET });
   }
   await sb('PATCH', `/v1/projects/${ref}/config/auth`, cfg);
   const now = await sb('GET', `/v1/projects/${ref}/config/auth`);
-  console.log('auth', { anonymous: now.external_anonymous_users_enabled, otp: now.mailer_otp_length, resendEvery: now.smtp_max_frequency, smtp: now.smtp_host, google: now.external_google_enabled });
+  console.log('auth', { autoconfirm: now.mailer_autoconfirm, anonymous: now.external_anonymous_users_enabled, otp: now.mailer_otp_length, resendEvery: now.smtp_max_frequency, smtp: now.smtp_host, google: now.external_google_enabled });
 }
 
 /* ---------------- render ---------------- */
@@ -114,6 +117,7 @@ if (all || flags.has('--render')) {
     { key: 'NODE_VERSION', value: '22' },
     { key: 'VITE_SUPABASE_URL', value: `https://${ref}.supabase.co` },
     { key: 'VITE_SUPABASE_ANON_KEY', value: anon.api_key },
+    { key: 'VITE_AUTH_GOOGLE', value: process.env.GOOGLE_CLIENT_ID ? '1' : '0' },
   ]);
   const dep = await render('POST', `/services/${RENDER_SERVICE}/deploys`, { clearCache: 'do_not_clear' });
   console.log('render deploy', dep.id, dep.status);

@@ -68,6 +68,7 @@ export function Signup() {
     void run('signup', async () => {
       try {
         const kind = await signUpOrLink({ first: f.first, last: f.last, email: f.email, pw: f.pw });
+        if (kind === 'done') { navigate(nextPath()); return; }
         setPending({ kind, email: f.email, pw: f.pw });
         navigate('/verify');
       } catch (e) {

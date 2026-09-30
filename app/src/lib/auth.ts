@@ -78,17 +78,28 @@ export async function startGuest() {
 }
 
 /** Sign-up form. A guest keeps their user id: the email is attached to it. */
-export async function signUpOrLink(v: { first: string; last: string; email: string; pw: string }): Promise<'signup' | 'link'> {
+/**
+ * Sign-up form. A guest keeps their user id: the email is attached to it.
+ * 'done' = the project confirms emails automatically (no code step), the account is ready.
+ */
+export async function signUpOrLink(v: { first: string; last: string; email: string; pw: string }): Promise<'signup' | 'link' | 'done'> {
   const session = useAuth.getState().session;
   const meta = { first_name: v.first.trim(), last_name: v.last.trim(), lang: useLangStore.getState().lang };
   if (session && isAnon(session)) {
-    const { error } = await db().auth.updateUser({ email: v.email, data: meta }, { emailRedirectTo: redirectTo() });
+    const { data, error } = await db().auth.updateUser({ email: v.email, data: meta }, { emailRedirectTo: redirectTo() });
     if (error) throw error;
     await db().from('profiles').update({ first_name: meta.first_name, last_name: meta.last_name }).eq('id', session.user.id);
+    if (data.user?.email === v.email) {
+      const r = await db().auth.updateUser({ password: v.pw });
+      if (r.error) throw r.error;
+      await useAuth.getState().loadProfile();
+      return 'done';
+    }
     return 'link';
   }
-  const { error } = await db().auth.signUp({ email: v.email, password: v.pw, options: { data: meta, emailRedirectTo: redirectTo() } });
+  const { data, error } = await db().auth.signUp({ email: v.email, password: v.pw, options: { data: meta, emailRedirectTo: redirectTo() } });
   if (error) throw error;
+  if (data.session) { useAuth.setState({ session: data.session }); await useAuth.getState().loadProfile(); return 'done'; }
   return 'signup';
 }
 

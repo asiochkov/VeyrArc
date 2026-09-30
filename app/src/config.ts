@@ -7,7 +7,8 @@ export const config = {
   auth: {
     /* Sign in with Apple needs a paid Apple Developer account (decision B26). */
     apple: false,
-    google: true,
+    /* shown only once Google OAuth keys are set in Supabase (VITE_AUTH_GOOGLE=1); always shown in the design preview */
+    google: import.meta.env.VITE_AUTH_GOOGLE === '1' || !import.meta.env.VITE_SUPABASE_URL,
   },
   arc: {
     lengthDays: 90,
