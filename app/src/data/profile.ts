@@ -176,10 +176,10 @@ export function buildProfile(r: Raw, opts: { pro: boolean; initials: string }): 
     },
     heatBestStreak: Math.max(best, current), heatLevels,
     achievements: [
-      { ...M.achievements[0], unlocked: Math.max(best, current) >= 7 },
-      { ...M.achievements[1], unlocked: r.goals.length > 0 },
-      { ...M.achievements[2], unlocked: r.quits.some((q, i) => Math.max(q.best_days, cleanDays[i]) >= 30) },
-      { ...M.achievements[3], unlocked: r.logs.filter((l) => l.done).length >= 100 },
+      { ...M.achievements[0], unlocked: Math.max(best, current) >= 7, progress: `${Math.min(7, Math.max(best, current))}/7` },
+      { ...M.achievements[1], unlocked: r.goals.length > 0, progress: '0/1' },
+      { ...M.achievements[2], unlocked: r.quits.some((q, i) => Math.max(q.best_days, cleanDays[i]) >= 30), progress: `${Math.min(30, Math.max(0, ...r.quits.map((q, i) => Math.max(q.best_days, cleanDays[i]))))}/30` },
+      { ...M.achievements[3], unlocked: r.logs.filter((l) => l.done).length >= 100, progress: `${Math.min(100, r.logs.filter((l) => l.done).length)}/100` },
     ],
     correlation: {
       ru: 'Паттерны появятся, когда наберётся хотя бы 2 недели отметок и настроения.',

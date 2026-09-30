@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { config } from '../../config';
 import { addGoalTask, completeGoal, createGoal, deleteGoal, fetchGoals, renameGoal, saveEntry } from '../../data/goals';
-import { useAuth } from '../../lib/auth';
+import { useAuth, isProPlan } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { hasBackend } from '../../lib/supabase';
 import { entries as seedEntries, FREE_GOAL_LIMIT, GOAL_HUES, goals as seedGoals, GOALS_TODAY, type Entry, type Goal } from '../../mock/goals';
@@ -19,7 +19,7 @@ const EMPTY: Entry = { tasksDone: {}, diary: '', mood: null };
 export function useGoals() {
   const TODAY = hasBackend ? isoDay() : GOALS_TODAY;
   const { session, plan } = useAuth();
-  const limit = hasBackend ? (plan?.plan === 'pro' ? config.limits.pro.goals : config.limits.free.goals) : FREE_GOAL_LIMIT;
+  const limit = hasBackend ? (isProPlan(plan) ? config.limits.pro.goals : config.limits.free.goals) : FREE_GOAL_LIMIT;
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ['goals'], queryFn: fetchGoals, enabled: hasBackend && !!session, refetchOnWindowFocus: false });
   const [goals, setGoals] = useState<Goal[]>(hasBackend ? [] : seedGoals);

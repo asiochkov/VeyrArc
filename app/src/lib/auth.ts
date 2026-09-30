@@ -34,7 +34,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     if (!uid) { set({ profile: null, plan: null }); return; }
     const [p, s] = await Promise.all([
       db().from('profiles').select('*').eq('id', uid).maybeSingle(),
-      db().from('subscriptions').select('plan, period, status, renews_at').eq('user_id', uid).maybeSingle(),
+      db().from('subscriptions').select('plan, period, status, renews_at, trial_used_at').eq('user_id', uid).maybeSingle(),
     ]);
     const profile = (p.data as Profile | null) ?? null;
     set({ profile, plan: (s.data as Plan | null) ?? null });
@@ -161,4 +161,14 @@ export async function deleteAccount() {
 /** Where to go after signing in: onboarding until it has been completed once. */
 export function nextPath() {
   return useAuth.getState().profile?.onboarded_at ? '/' : '/onboarding';
+}
+
+/** Active Pro (paid or the 7-day trial) — mirrors public.is_pro() in the database. */
+export const isProPlan = (p: Plan | null) => !!p && p.plan === 'pro' && p.status === 'active' && (!p.renews_at || new Date(p.renews_at) > new Date());
+export const trialUsed = (p: Plan | null) => !!(p as (Plan & { trial_used_at?: string | null }) | null)?.trial_used_at;
+
+export async function startTrial() {
+  const { error } = await db().rpc('start_trial');
+  if (error) throw error;
+  await useAuth.getState().loadProfile();
 }

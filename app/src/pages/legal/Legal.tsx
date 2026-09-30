@@ -8,7 +8,7 @@ import { Icon } from '../../ui/Icon';
  * Google's consent screen. Built from the app's type and colours.
  */
 type Doc = { title: string; updated: string; sections: [string, string][] };
-const CONTACT = 'support@veyrarc.com';
+const CONTACT = 'support@veyrarc.online';
 
 const DOCS: Record<'terms' | 'privacy', Record<'ru' | 'en', Doc>> = {
   terms: {

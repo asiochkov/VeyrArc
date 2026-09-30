@@ -20,8 +20,8 @@ try {
   await page.locator('[class*="addBtn"]').click();
   await page.getByText('Кофе').waitFor(); log('quit added');
   await page.waitForTimeout(800);
-  await page.locator('[class*="hueCard"]').filter({ hasText: 'Кофе' }).getByRole('button', { name: 'Срыв' }).click();
-  await page.getByRole('button', { name: 'Отметить' }).last().click();
+  await page.locator('[class*="hueCard"]').filter({ hasText: 'Кофе' }).getByRole('button', { name: 'Отметить срыв' }).click();
+  await page.getByRole('button', { name: 'Я оступился' }).last().click();
   await page.waitForTimeout(800);
   await page.reload();
   await page.getByText('Отжимания').waitFor();

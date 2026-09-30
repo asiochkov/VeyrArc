@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '../..');
-const DOMAIN = process.env.VEYRARC_DOMAIN || 'veyrarc.com';
+const DOMAIN = process.env.VEYRARC_DOMAIN || 'veyrarc.online';
 const RENDER_SERVICE = 'srv-datp16qd0e5s73d09g10';
 const RENDER_URL = 'https://veyrarc.onrender.com';
 const flags = new Set(process.argv.slice(2));
@@ -77,7 +77,7 @@ if (all || flags.has('--auth')) {
   const foot = ['Код действует 1 час. Если это были не вы — просто проигнорируйте письмо.', 'The code is valid for 1 hour. If this wasn’t you, ignore this email.'];
   const cfg = {
     site_url: process.env.SITE_URL || RENDER_URL,
-    uri_allow_list: [`https://${DOMAIN}/**`, `https://www.${DOMAIN}/**`, `${RENDER_URL}/**`, 'http://localhost:5173/**', 'http://localhost:4173/**'].join(','),
+    uri_allow_list: [`https://${DOMAIN}/**`, `https://app.${DOMAIN}/**`, `https://www.${DOMAIN}/**`, `${RENDER_URL}/**`, 'http://localhost:5173/**', 'http://localhost:4173/**'].join(','),
     external_anonymous_users_enabled: true,
     security_manual_linking_enabled: true,
     external_email_enabled: true,

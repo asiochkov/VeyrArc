@@ -4,8 +4,10 @@ export const APP = process.env.APP_URL || 'http://localhost:4173';
 export const log = (...a) => console.log('✓', ...a);
 
 export async function open(viewport = { width: 390, height: 844 }) {
-  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
-  const page = await browser.newPage({ viewport });
+  // E2E_PROXY=1: reach a real Supabase through the environment's HTTPS proxy
+  const proxy = process.env.E2E_PROXY && process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: 'localhost,127.0.0.1' } : undefined;
+  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, proxy });
+  const page = await browser.newPage({ viewport, ignoreHTTPSErrors: !!proxy });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   return { browser, page, errors };

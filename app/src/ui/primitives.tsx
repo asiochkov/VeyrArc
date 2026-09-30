@@ -95,7 +95,8 @@ export function StepButton({ children, ...rest }: ButtonHTMLAttributes<HTMLButto
 }
 
 /* Five-level face from Today/Training moodFace() */
-const MOUTHS = ['M9 16.6 q3 -2 6 0', 'M9 15.9 q3 -0.8 6 0', 'M9 15.5 h6', 'M9 15 q3 1.9 6 0', 'M9 14.5 q3 3 6 0'];
+/* five clearly different states (UX audit 4.6): deep frown → slight frown → flat → smile → big smile */
+const MOUTHS = ['M8.2 17 q3.8 -3.6 7.6 0', 'M9 16.2 q3 -1.6 6 0', 'M9 15.5 h6', 'M9 14.8 q3 2.4 6 0', 'M8 14 q4 4.6 8 0 z'];
 export function MoodFace({ level, color, size = 20 }: { level: number; color: string; size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">

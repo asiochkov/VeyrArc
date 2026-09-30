@@ -147,7 +147,8 @@ function DesktopToday({ t, state }: { t: T; state: State }) {
             <span className={s.cardTitle}>{t('today.planner')}</span>
             <span className={s.cardCount}>{t('today.plannerCount', { n: plannerToday.length })}</span>
           </div>
-          <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column' }}>{plannerToday.length === 0 && <div className={s.planRow}><span className={s.planText} style={{ color: 'rgba(232,237,243,.45)' }}>{t('today.plannerEmpty')}</span></div>}
+
             {plannerToday.map((it, i) => (
               <div key={i} className={s.planRow}>
                 <span className={s.planTime} data-accent={!!it.accent}>{t.pick(it.time)}</span>
@@ -366,7 +367,8 @@ function MobileToday({ t, state }: { t: T; state: State }) {
           <span className={s.cardTitle} style={{ fontSize: 18 }}>{t('today.planner')}</span>
           <span className={s.cardCount} style={{ fontSize: 12 }}>{t('today.plannerCount', { n: plannerToday.length })}</span>
         </div>
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 10 }}>{plannerToday.length === 0 && <div className={s.planRow}><span className={s.planText} style={{ color: 'rgba(232,237,243,.45)' }}>{t('today.plannerEmpty')}</span></div>}
+
           {plannerToday.map((it, i) => (
             <div key={i} className={s.planRow}>
               <span className={s.planTime} data-accent={!!it.accent}>{t.pick(it.time)}</span>

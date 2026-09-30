@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createContext, useContext, useMemo } from 'react';
 import { buildProfile, fetchProfile, MOCK_PROFILE, type ProfileData } from '../../data/profile';
 import { useHeader } from '../../data/header';
-import { useAuth } from '../../lib/auth';
+import { useAuth, isProPlan } from '../../lib/auth';
 import { hasBackend } from '../../lib/supabase';
 
 const ProfileCtx = createContext<ProfileData>(MOCK_PROFILE);
@@ -17,7 +17,7 @@ function useProfileData(): ProfileData | null {
   const q = useQuery({ queryKey: ['profile'], queryFn: fetchProfile, enabled: hasBackend && !!session });
   return useMemo(() => {
     if (!hasBackend) return MOCK_PROFILE;
-    return q.data ? buildProfile(q.data, { pro: plan?.plan === 'pro', initials: hd.initials }) : null;
+    return q.data ? buildProfile(q.data, { pro: isProPlan(plan), initials: hd.initials }) : null;
   }, [q.data, plan?.plan, hd.initials]);
 }
 import { Icon, type IconName } from '../../ui/Icon';
@@ -148,6 +148,8 @@ function Achievements({ t, m }: { t: T; m: boolean }) {
             <Icon name={a.icon} size={20} color={a.unlocked ? '#06121f' : 'rgba(232,237,243,.35)'} />
           </div>
           <span style={{ font: `600 ${m ? 9.5 : 10.5}px var(--font-ui)`, color: a.unlocked ? 'rgba(232,237,243,.75)' : 'rgba(232,237,243,.35)', textAlign: m ? 'center' : undefined }}>{t.pick(a.label)}</span>
+          {/* audit 4.3: a locked achievement shows how close it is */}
+          {!a.unlocked && a.progress && <span style={{ font: '600 9.5px var(--font-mono)', color: '#E8A54B' }}>{a.progress}</span>}
         </div>
       ))}
     </div>

@@ -18,11 +18,11 @@ export const heatBestStreak = 21;
 export const heatLevels = Array.from({ length: 84 }, (_, i) => (i * 7 + 3) % 5);
 export const HEAT_COLORS = ['rgba(255,255,255,.05)', 'rgba(111,160,214,.28)', 'rgba(111,160,214,.5)', 'rgba(111,160,214,.75)', '#6FA0D6'];
 
-export const achievements: { label: L; icon: IconName; unlocked: boolean }[] = [
+export const achievements: { label: L; icon: IconName; unlocked: boolean; progress?: string }[] = [
   { label: { ru: '7 дней подряд', en: '7 days in a row' }, icon: 'flame', unlocked: true },
   { label: { ru: 'Первая цель', en: 'First goal' }, icon: 'target', unlocked: true },
-  { label: { ru: '30 дней без срыва', en: '30 days slip-free' }, icon: 'checklist', unlocked: false },
-  { label: { ru: 'Мастер привычек', en: 'Habit master' }, icon: 'trophy', unlocked: false },
+  { label: { ru: '30 дней без срыва', en: '30 days slip-free' }, icon: 'checklist', unlocked: false, progress: '12/30' },
+  { label: { ru: 'Мастер привычек', en: 'Habit master' }, icon: 'trophy', unlocked: false, progress: '82/100' },
 ];
 
 export const correlation: L = {

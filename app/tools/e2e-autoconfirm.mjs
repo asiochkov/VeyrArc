@@ -1,6 +1,8 @@
 /* Sign-up when the project confirms emails automatically (no code step): guest linking and a fresh sign-up. */
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
 const { browser, page, errors } = await open();
+page.on('response', async (r) => { if (r.status() >= 400 && r.url().includes('supabase')) console.log('HTTP', r.status(), r.request().method(), r.url().slice(0, 110), (await r.text().catch(() => '')).slice(0, 200)); });
+page.on('console', (m) => { if (m.type() === 'error') console.log('console', m.text().slice(0, 200)); });
 const email = `ac+${Date.now()}@veyrarc.test`;
 const fill = async (em) => {
   await page.getByPlaceholder('напр. Иван').fill('Тест');

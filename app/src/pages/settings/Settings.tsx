@@ -3,7 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { useHeader } from '../../data/header';
 import { daysBetween } from '../../data/model';
 import { exportData, fetchArcs, startNewArc, updateProfile } from '../../data/settings';
-import { useAuth, userEmail } from '../../lib/auth';
+import { useAuth, userEmail, isProPlan } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { askPermission } from '../../lib/reminders';
 import { Link, useNavigate } from 'react-router-dom';
@@ -55,7 +55,7 @@ export function Settings() {
   const account = hasBackend
     ? { name: [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || userEmail(session), email: userEmail(session), initials: hd.initials }
     : { name: ACCOUNT.name, email: ACCOUNT.email, initials: hd.initials };
-  const isPro = hasBackend ? plan?.plan === 'pro' : true;
+  const isPro = hasBackend ? isProPlan(plan) : true;
   const renew = hasBackend && plan?.renews_at
     ? new Date(plan.renews_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })
     : t.pick(ACCOUNT.renew);

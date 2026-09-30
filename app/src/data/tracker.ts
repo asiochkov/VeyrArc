@@ -84,5 +84,6 @@ export async function addQuit(name: string, d: QuitDraft, hue: string) {
   ok(await db().from('quits').insert({ name, hue, icon: 'ban', unit: d.unit.trim() || null, per_day: d.norm }));
 }
 export const archiveQuit = async (id: string) => { ok(await db().from('quits').update({ archived_at: new Date().toISOString() }).eq('id', id)); };
-export const relapse = async (id: string) => { ok(await db().rpc('log_relapse', { p_quit: id })); };
+export const relapse = async (id: string, note?: string) => (ok(await db().rpc('log_relapse', { p_quit: id, p_note: note ?? null })).data as { id: string }).id;
+export const undoRelapse = async (relapseId: string) => { ok(await db().rpc('undo_relapse', { p_relapse: relapseId })); };
 export const setQuitGoal = async (id: string, g: number) => { ok(await db().from('quits').update({ goal_days: g }).eq('id', id)); };

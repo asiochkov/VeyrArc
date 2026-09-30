@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { config } from '../../config';
 import { buildToday, fetchToday, writeFocus, writeLog, writeMood, type TodayView } from '../../data/today';
-import { useAuth } from '../../lib/auth';
+import { useAuth, isProPlan } from '../../lib/auth';
 import { hasBackend } from '../../lib/supabase';
 import { plannerToday, todayHabits, todayStats, weekStates, type TodayHabit } from '../../mock/today';
 import { isDone } from './HabitRow';
@@ -20,7 +20,7 @@ export function useTodayState() {
   const view = useMemo<TodayView | null>(() => {
     if (!hasBackend) return MOCK;
     if (!q.data) return null;
-    return buildToday(q.data, { initials, freezesAllowed: plan?.plan === 'pro' ? config.limits.pro.freezesPerWeek : config.limits.free.freezesPerWeek });
+    return buildToday(q.data, { initials, freezesAllowed: isProPlan(plan) ? config.limits.pro.freezesPerWeek : config.limits.free.freezesPerWeek });
   }, [q.data, initials, plan?.plan]);
 
   const [habits, setHabits] = useState<TodayHabit[]>(view?.habits ?? []);

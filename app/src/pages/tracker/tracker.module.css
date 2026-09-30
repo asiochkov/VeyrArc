@@ -134,6 +134,19 @@
 .slipRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; }
 .slipMeta { font: 600 10px var(--font-mono); letter-spacing: .06em; color: var(--t-45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .slipBtn {
-  height: 30px; padding: 0 12px; border-radius: 10px; flex: none; cursor: pointer; background: transparent;
-  border: 1px solid var(--miss-border); color: #E5645A; font: 700 11px var(--font-ui);
+  /* audit 3.4: neutral, not an alarm — the dialog carries the weight */
+  height: 30px; padding: 0 12px; border-radius: 10px; flex: none; cursor: pointer; background: var(--w-05);
+  border: 1px solid var(--w-09); color: var(--t-55); font: 700 11px var(--font-ui);
 }
+.slipNote {
+  display: block; width: 100%; margin-top: 14px; min-height: 64px; resize: vertical; box-sizing: border-box;
+  background: var(--w-05); border: 1px solid var(--ice-16); border-radius: 12px; padding: 10px 12px;
+  font: 500 13px/1.45 var(--font-ui); color: var(--text); outline: none;
+}
+.undoBar {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 40;
+  display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 16px; border-radius: 14px; max-width: calc(100vw - 32px);
+  background: rgba(13,17,22,.96); border: 1px solid var(--ice-16); box-shadow: 0 10px 30px rgba(0,0,0,.5);
+  font: 600 13px var(--font-ui); color: var(--text); white-space: nowrap;
+}
+.undoBtn { height: 32px; padding: 0 12px; border-radius: 10px; border: none; background: var(--accent); color: var(--ink); font: 700 12px var(--font-ui); cursor: pointer; }

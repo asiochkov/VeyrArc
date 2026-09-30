@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
 import { config } from '../../config';
 import { useLangStore, useT } from '../../i18n';
-import { deleteAccount, isAnon, signOut, useAuth, userEmail } from '../../lib/auth';
+import { deleteAccount, isAnon, signOut, useAuth, userEmail, isProPlan } from '../../lib/auth';
 import { saveOnboarding, setHabitDone } from '../../lib/onboarding';
 import { askPermission, notificationsSupported } from '../../lib/reminders';
 import { hasBackend } from '../../lib/supabase';
@@ -300,7 +300,7 @@ export function Account() {
   const f = hasBackend
     ? { ...flow.f, pname: profile?.first_name ?? '', first: profile?.first_name ?? '', last: profile?.last_name ?? '', nick: profile?.nickname ?? '', email: userEmail(session) }
     : flow.f;
-  const plan = hasBackend ? (realPlan?.plan === 'pro' ? 'pro' : 'free') : flow.plan;
+  const plan = hasBackend ? (isProPlan(realPlan) ? 'pro' : 'free') : flow.plan;
   const setPlan = hasBackend ? () => {} : flow.setPlan;
   const lang = useLangStore((x) => x.lang);
   const setLang = useLangStore((x) => x.setLang);

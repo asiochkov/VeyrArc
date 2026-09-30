@@ -8,7 +8,7 @@
 
 ---
 
-## 1. Домен veyrarc.com
+## 1. Домен veyrarc.online
 
 Домен уже куплен?
 - **Да** — запомните, где он куплен: там будем добавлять DNS-записи для почты и сайта.
@@ -46,7 +46,7 @@
 ## 4. Resend — письма с кодом и уведомления
 
 1. Зайдите на **resend.com** → Sign up.
-2. **Domains → Add Domain** → `veyrarc.com`. Регион: **EU (Ireland)**.
+2. **Domains → Add Domain** → `veyrarc.online`. Регион: **EU (Ireland)**.
 3. Resend покажет 3–4 DNS-записи (MX, TXT/SPF, TXT/DKIM). Добавьте их у регистратора домена (шаг 1) в раздел DNS: тип, имя и значение — один в один. Потом нажмите **Verify** в Resend. Проверка занимает от минут до пары часов.
 4. **API Keys → Create API Key**:
    - Name: `veyrarc`
@@ -60,7 +60,7 @@
 1. Зайдите на **render.com** → Get Started → войдите через **GitHub**. Когда спросит доступ к репозиториям, выберите `asiochkov/veyrarc`.
 2. **Account Settings → API Keys → Create API Key** → имя `claude` → скопируйте ключ → `RENDER_API_KEY`.
 
-Сам сайт я создам через API: статический сайт из ветки, бесплатный план. Когда он заработает, дам 2 DNS-записи для `veyrarc.com`.
+Сам сайт я создам через API: статический сайт из ветки, бесплатный план. Когда он заработает, дам 2 DNS-записи для `veyrarc.online`.
 
 ## 6. Настройки среды Claude — ключи и доступ к сети
 
@@ -77,7 +77,7 @@
 | `GOOGLE_CLIENT_SECRET` | шаг 3.4 |
 | `RESEND_API_KEY` | шаг 4.4 |
 | `RENDER_API_KEY` | шаг 5.2 |
-| `VEYRARC_DOMAIN` | `veyrarc.com` |
+| `VEYRARC_DOMAIN` | `veyrarc.online` |
 | `VEYRARC_REPO` | `asiochkov/veyrarc` |
 
 **Network access** — разрешите эти адреса или выберите уровень доступа, который их включает:
@@ -103,8 +103,8 @@ api.render.com
   - вход по email с 6-значным кодом;
   - гостевой режим;
   - Google;
-  - адреса `https://veyrarc.com` и адрес Render;
-  - письма через Resend с адреса `no-reply@veyrarc.com`;
+  - адреса `https://veyrarc.online` и адрес Render;
+  - письма через Resend с адреса `no-reply@veyrarc.online`;
   - шаблоны писем RU/EN в стиле приложения.
 - **B27 (повторная отправка кода).** Кнопка «Отправить ещё раз» в дизайне появляется через 45 секунд. Supabase по умолчанию разрешает новое письмо только через 60. Выставлю в Supabase 45 секунд, чтобы кнопка и сервер совпадали.
 
