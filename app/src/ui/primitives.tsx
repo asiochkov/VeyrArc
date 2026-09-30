@@ -133,6 +133,22 @@ export function Spinner({ kind = 'md' }: { kind?: 'md' | 'sm' | 'light' }) {
   return <span className={kind === 'sm' ? s.spinnerSm : kind === 'light' ? s.spinnerLight : s.spinner} />;
 }
 
+/* One-button explainer built from the ConfirmDialog modal (UX audit 4.3). */
+export function InfoDialog({ open, title, body, okLabel, onClose }: { open: boolean; title: ReactNode; body: ReactNode; okLabel: ReactNode; onClose: () => void }) {
+  if (!open) return null;
+  return (
+    <div className={s.overlay} onClick={onClose}>
+      <div className={s.modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+        <div className={s.modalTitle}>{title}</div>
+        <div className={s.modalBody}>{body}</div>
+        <div className={s.modalActions}>
+          <button type="button" className={s.modalConfirm} onClick={onClose}>{okLabel}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ConfirmDialog({
   open, title, body, confirmLabel, cancelLabel, danger = false, onConfirm, onCancel,
 }: {

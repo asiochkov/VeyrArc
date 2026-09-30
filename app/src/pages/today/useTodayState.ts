@@ -63,13 +63,14 @@ export function useTodayState() {
   const actions = (h: TodayHabit) => ({
     onToggle: () => {
       if (h.type !== 'binary') return;
+      if (!h.checked) navigator.vibrate?.(15);
       patch(h.id, () => ({ checked: !h.checked }));
       if (hasBackend) save(writeLog(h.id, h.checked ? 0 : 1, true));
     },
     onInc: () => {
       if (h.type !== 'counter' || h.count >= h.goal) return;
       patch(h.id, () => ({ count: h.count + 1 }));
-      if (h.count + 1 >= h.goal) flash(h.id);
+      if (h.count + 1 >= h.goal) { flash(h.id); navigator.vibrate?.(15); }
       if (hasBackend) save(writeLog(h.id, h.count + 1, h.count + 1 >= h.goal));
     },
     onDec: () => {

@@ -80,6 +80,7 @@ export async function addHabit(name: string, d: HabitDraft, required: boolean, s
   }));
 }
 export const archiveHabit = async (id: string) => { ok(await db().from('habits').update({ archived_at: new Date().toISOString() }).eq('id', id)); };
+export const restoreHabit = async (id: string) => { ok(await db().from('habits').update({ archived_at: null }).eq('id', id)); };
 export async function addQuit(name: string, d: QuitDraft, hue: string) {
   ok(await db().from('quits').insert({ name, hue, icon: 'ban', unit: d.unit.trim() || null, per_day: d.norm }));
 }

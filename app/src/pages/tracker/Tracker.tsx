@@ -6,7 +6,7 @@ import { useAddAction } from '../../app/nav';
 import { useT, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { useHeader } from '../../data/header';
-import { addHabit, addQuit, archiveHabit, archiveQuit, buildTracker, fetchTracker, relapse, setQuitGoal, undoRelapse } from '../../data/tracker';
+import { addHabit, addQuit, archiveHabit, archiveQuit, buildTracker, restoreHabit, fetchTracker, relapse, setQuitGoal, undoRelapse } from '../../data/tracker';
 import { writeLog } from '../../data/today';
 import { hasBackend } from '../../lib/supabase';
 import { useAuth, isProPlan } from '../../lib/auth';
@@ -55,6 +55,8 @@ function useTracker() {
   const [quitDraft, setQuitDraft] = useState<QuitDraft>(defaultQuitDraft());
   const [slipId, setSlipId] = useState<string | null>(null);
   const [limitOpen, setLimitOpen] = useState(false);
+  const [deleted, setDeleted] = useState<{ h: TrackerHabit; idx: number } | null>(null);
+  useEffect(() => { if (!deleted) return; const tm = setTimeout(() => setDeleted(null), 5000); return () => clearTimeout(tm); }, [deleted]);
   const plan = useAuth((x) => x.plan);
   const habitLimit = hasBackend && !isProPlan(plan) ? config.limits.free.habits : Infinity;
 
@@ -117,6 +119,7 @@ function useTracker() {
     const h0 = habits.find((h) => h.id === id);
     if (hasBackend && h0) {
       const wasDone = h0.week.includes('today-done');
+      if (!wasDone) navigator.vibrate?.(15);
       const full = h0.type === 'counter' ? h0.target ?? 1 : h0.type === 'duration' ? h0.minutes ?? 1 : 1;
       sync(writeLog(id, wasDone ? 0 : full, !wasDone));
     }
@@ -164,7 +167,21 @@ function useTracker() {
     goalOverrides, setGoalOverrides, goalMenuId, setGoalMenuId, habits, setHabits, refusals, setRefusals,
     startAdd, cancelAdd, confirmAdd, toggleToday, scrollRef,
     ready: !hasBackend || !!q.data, limitOpen, setLimitOpen, habitLimit,
-    removeHabit: (id: string) => { setHabits((l) => l.filter((x) => x.id !== id)); if (hasBackend) sync(archiveHabit(id)); },
+    removeHabit: (id: string) => {
+      // audit 4.7: 5 seconds to undo a deletion
+      const idx = habits.findIndex((x) => x.id === id);
+      if (idx >= 0) setDeleted({ h: habits[idx], idx });
+      setHabits((l) => l.filter((x) => x.id !== id));
+      if (hasBackend) sync(archiveHabit(id));
+    },
+    deleted,
+    undoDelete: () => {
+      if (!deleted) return;
+      const d = deleted;
+      setDeleted(null);
+      setHabits((l) => { const n = l.slice(); n.splice(Math.min(d.idx, n.length), 0, d.h); return n; });
+      if (hasBackend) sync(restoreHabit(d.h.id));
+    },
     removeQuit: (id: string) => { setRefusals((l) => l.filter((x) => x.id !== id)); if (hasBackend) sync(archiveQuit(id)); },
     pickGoal: (id: string, g: number) => { setGoalOverrides((o) => ({ ...o, [id]: g })); if (hasBackend) sync(setQuitGoal(id, g)); },
   };
@@ -194,6 +211,12 @@ export function Tracker() {
     <ConfirmDialog open={st.limitOpen} title={t('tracker.limitTitle')} body={t('tracker.limitDesc', { n: st.habitLimit })}
       confirmLabel={t('auth.openPro')} cancelLabel={t('goals.gotIt')} onConfirm={() => navigate('/pro')} onCancel={() => st.setLimitOpen(false)} />
   );
+  const deletedBar = st.deleted && (
+    <div className={s.undoBar} role="status">
+      <span>{t('explain.habitDeleted')}</span>
+      <button type="button" className={s.undoBtn} onClick={st.undoDelete}>{t('explain.undo')}</button>
+    </div>
+  );
   const body = st.view === 'habits' ? <HabitsView t={t} st={st} mobile={mobile} /> : <RefusalsView t={t} st={st} mobile={mobile} />;
 
   if (isDesktop) {
@@ -209,6 +232,7 @@ export function Tracker() {
         {seg}
         {body}
         {limitDialog}
+        {deletedBar}
       </div>
     );
   }
@@ -229,6 +253,7 @@ export function Tracker() {
         {seg}
         {body}
         {limitDialog}
+        {deletedBar}
       </div>
       <button type="button" className={s.fab} onClick={st.startAdd} aria-label={t('common.add')}>
         <Icon name="plus" size={22} sw={2} />

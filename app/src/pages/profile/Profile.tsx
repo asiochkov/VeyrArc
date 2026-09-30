@@ -21,7 +21,7 @@ function useProfileData(): ProfileData | null {
   }, [q.data, plan?.plan, hd.initials]);
 }
 import { Icon, type IconName } from '../../ui/Icon';
-import { ProgressRing, Segmented } from '../../ui/primitives';
+import { InfoDialog, ProgressRing, Segmented } from '../../ui/primitives';
 import s from './profile.module.css';
 
 /* VeyrArc Profile.dc.html */
@@ -48,7 +48,8 @@ function useProfile() {
   const [period, setPeriod] = useState<Period>('month');
   const [histRange, setHistRange] = useState<HistRange>('6m');
   const [menuOpen, setMenuOpen] = useState(false);
-  return { period, setPeriod, histRange, setHistRange, menuOpen, setMenuOpen };
+  const [explain, setExplain] = useState(false);
+  return { period, setPeriod, histRange, setHistRange, menuOpen, setMenuOpen, explain, setExplain };
 }
 type P = ReturnType<typeof useProfile>;
 
@@ -58,7 +59,12 @@ export function Profile() {
   const p = useProfile();
   const data = useProfileData();
   if (!data) return <div style={{ flex: 1, background: 'var(--bg)' }} />;
-  return <ProfileCtx.Provider value={data}>{isDesktop ? <Desktop t={t} p={p} /> : <Mobile t={t} p={p} />}</ProfileCtx.Provider>;
+  return (
+    <ProfileCtx.Provider value={data}>
+      {isDesktop ? <Desktop t={t} p={p} /> : <Mobile t={t} p={p} />}
+      <InfoDialog open={p.explain} title={t('explain.indexTitle')} body={t('explain.indexBody')} okLabel={t('explain.ok')} onClose={() => p.setExplain(false)} />
+    </ProfileCtx.Provider>
+  );
 }
 
 /* ---------------- shared ---------------- */
@@ -199,7 +205,7 @@ function Desktop({ t, p }: { t: T; p: P }) {
         <div className={s.heroGlow} />
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 24 }}>
           <div style={{ minWidth: 220 }}>
-            <div style={cap(10, '.2em')}>{t('profile.index')}</div>
+            <button type="button" onClick={() => p.setExplain(true)} style={{ ...cap(10, '.2em'), background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t('profile.index')} ⓘ</button>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 10 }}>
               <span style={{ font: '800 64px/1 var(--font-mono)', letterSpacing: '-.02em' }}>{d.value}</span>
               <span style={{ font: '600 13px var(--font-mono)', color: 'rgba(232,237,243,.4)' }}>{t('profile.of1000')}</span>
@@ -385,7 +391,7 @@ function Mobile({ t, p }: { t: T; p: P }) {
         <div className={s.hero} style={{ background: 'linear-gradient(170deg,rgba(111,160,214,.16),rgba(13,17,22,.9) 70%)', border: '1px solid rgba(168,203,239,.14)', borderRadius: 26, padding: '22px 20px 18px' }}>
           <div className={s.heroGlow} />
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ ...mcap, whiteSpace: 'nowrap' }}>{t('profile.index')}</div>
+            <button type="button" onClick={() => p.setExplain(true)} style={{ ...mcap, whiteSpace: 'nowrap', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>{t('profile.index')} ⓘ</button>
             <div style={{ marginTop: 14 }}>
               <ProgressRing size={170} r={50} strokeWidth={9} pct={d.value / 1000}>
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

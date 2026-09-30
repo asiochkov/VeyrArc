@@ -435,6 +435,15 @@ export const en: Dict = {
     focusTitle: 'Focus session complete',
     focusBody: 'Nice work. Take a short break.',
   },
+  explain: {
+    ok: 'Got it',
+    freezeTitle: 'Streak freeze',
+    freezeBody: 'Miss a day and a freeze keeps your streak automatically. Free plan: 1 a week, Pro: 2. The counter resets on Monday.',
+    indexTitle: 'How the index works',
+    indexBody: 'The discipline index is a number from 0 to 1000 for the chosen period. It is made of: habits — 35%, kept days — 15%, slip-free quits — 15%, goals — 15%, planner — 10%, focus — 5%, mood check-ins — 5%. The steadier you go, the higher it is. 650+ is steady, 720+ is great.',
+    habitDeleted: 'Habit deleted',
+    undo: 'Undo',
+  },
   categories: {
     body: 'Body',
     mind: 'Mind',

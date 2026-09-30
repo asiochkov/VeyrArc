@@ -21,6 +21,22 @@ try {
   await page.waitForTimeout(1200);
   log('after undo:', sql(`select extract(day from now()-clean_since)::int || ' days, best ' || best_days from quits where user_id='${uid}'`), '| relapses:', sql(`select count(*) from quit_relapses where user_id='${uid}'`));
 
+  // undo a habit deletion
+  await page.getByRole('button', { name: 'Привычки' }).click();
+  await page.locator('[class*="hueCard"]').filter({ hasText: 'Холодный душ' }).getByRole('button', { name: 'Удалить' }).click();
+  await page.getByText('Привычка удалена').waitFor();
+  await page.getByRole('button', { name: 'Отменить' }).click();
+  await page.waitForTimeout(1000);
+  log('habit after undo delete:', sql(`select name || ' archived=' || (archived_at is not null) from habits where user_id='${uid}'`), '| on screen:', await page.getByText('Холодный душ').count());
+  // explainers
+  await page.goto(APP + '/');
+  await page.getByRole('button', { name: /заморозка/ }).click();
+  log('freeze explainer:', (await page.locator('[role="dialog"]').innerText()).split('\n')[0]);
+  await page.getByRole('button', { name: 'Понятно' }).click();
+  await page.goto(APP + '/profile');
+  await page.getByRole('button', { name: /ИНДЕКС ДИСЦИПЛИНЫ/i }).first().click();
+  log('index explainer:', (await page.locator('[role="dialog"]').innerText()).split('\n')[0]);
+  await page.getByRole('button', { name: 'Понятно' }).click();
   await page.goto(APP + '/pro');
   await page.getByRole('button', { name: /Попробовать 7 дней бесплатно/ }).click();
   await page.waitForURL(APP + '/');

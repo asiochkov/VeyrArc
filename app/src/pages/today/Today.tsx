@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { useT, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { Icon } from '../../ui/Icon';
-import { Avatar, MoodFace, ProgressRing, Segmented } from '../../ui/primitives';
+import { useState } from 'react';
+import { Avatar, InfoDialog, MoodFace, ProgressRing, Segmented } from '../../ui/primitives';
 import { HabitRow } from './HabitRow';
 import s from './today.module.css';
 import { useTodayState } from './useTodayState';
@@ -44,14 +45,16 @@ function Week({ t, size, state }: { t: T; size: 'd' | 'm'; state: State }) {
   const st = state.stats;
   const labels = t.list('weekdays.short');
   const sz = d ? 64 : 28;
+  const [freezeInfo, setFreezeInfo] = useState(false);
   return (
     <div className={s.card} style={{ marginTop: d ? 24 : 22, padding: d ? '20px 26px' : '16px 18px' }}>
       <div className={s.weekHead}>
         <div className={s.weekLabel}>{t('today.thisWeek')}</div>
-        <div className={s.freeze}>
+        <button type="button" className={s.freeze} onClick={() => setFreezeInfo(true)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
           <Icon name="snow" size={13} />
           <span>{t('today.freeze')}<span className={s.mono}>{st.freezesUsed}/{st.freezesAllowed}</span></span>
-        </div>
+        </button>
+        <InfoDialog open={freezeInfo} title={t('explain.freezeTitle')} body={t('explain.freezeBody')} okLabel={t('explain.ok')} onClose={() => setFreezeInfo(false)} />
       </div>
       <div className={s.weekRow} style={d ? { alignItems: 'center', marginTop: 18, padding: '0 4px' } : { marginTop: 14 }}>
         {state.week.map((ds, i) => (
