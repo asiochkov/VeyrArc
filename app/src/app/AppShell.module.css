@@ -10,6 +10,9 @@
   background: var(--bg);
   transition: opacity .15s ease; /* language cross-fade */
 }
+/* iOS home-screen app with a translucent status bar: WebKit makes the viewport shorter than the
+   screen by the status-bar height, which left an empty strip at the bottom — --app-h (lib/pwa.ts) is the real screen height */
+:global(html[data-fit-screen]) .root { bottom: auto; height: var(--app-h); }
 .fading {
   opacity: 0;
 }

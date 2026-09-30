@@ -17,3 +17,25 @@ export function startPwa() {
     },
   });
 }
+
+/*
+ * Home-screen app on iOS: the viewport can come out shorter than the screen by the status-bar
+ * height (translucent status bar), leaving a strip under the bottom bar. In standalone mode the
+ * app is always full-screen, so the shell takes the real screen height instead.
+ */
+export function fitStandaloneHeight() {
+  const standalone = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  // iOS only: on Android screen.height includes the system bars
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!standalone || !ios) return;
+  const apply = () => {
+    const portrait = window.innerHeight >= window.innerWidth;
+    // iOS reports screen size in portrait regardless of rotation
+    const full = portrait ? Math.max(screen.height, screen.width) : Math.min(screen.height, screen.width);
+    document.documentElement.style.setProperty('--app-h', Math.max(full, window.innerHeight) + 'px');
+    document.documentElement.setAttribute('data-fit-screen', '');
+  };
+  apply();
+  window.addEventListener('resize', apply);
+  window.addEventListener('orientationchange', () => setTimeout(apply, 300));
+}
