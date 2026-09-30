@@ -1,9 +1,13 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { execSync } from 'node:child_process'
+
+const BUILD = (process.env.RENDER_GIT_COMMIT || (() => { try { return execSync('git rev-parse HEAD').toString() } catch { return 'dev' } })()).trim().slice(0, 7)
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  define: { __BUILD__: JSON.stringify(BUILD) },
   resolve: mode === 'preview' ? { alias: { 'virtual:pwa-register': '/src/lib/stubs/pwa-register.ts' } } : undefined,
   plugins: [
     react(),

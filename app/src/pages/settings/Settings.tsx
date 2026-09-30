@@ -233,7 +233,7 @@ export function Settings() {
             <Row icon="download" label={t('settings.export')} onClick={() => { if (hasBackend) void exportData().then(() => toast.success(t('settings.exported'))).catch(() => toast.error(t('common.loadFailed'))); }}>{chev}</Row>
             <Row icon="trashPlain" label={t('settings.del')} danger onClick={() => setAccModal('del1')} />
           </div>
-          <div style={{ marginTop: 14, textAlign: 'center', font: '500 11px var(--font-mono)', color: 'rgba(232,237,243,.28)' }}>{t('settings.version', { v: ACCOUNT.version })}</div>
+          <div style={{ marginTop: 14, textAlign: 'center', font: '500 11px var(--font-mono)', color: 'var(--text-muted)' }}>{t('settings.version', { v: `${ACCOUNT.version} · ${__BUILD__}` })}</div>
         </div>
       )}
     </div>
