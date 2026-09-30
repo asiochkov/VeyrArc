@@ -12,6 +12,16 @@ try {
   await water.getByRole('button', { name: '+' }).click();
   await page.locator('[class*="moodBtn"]').nth(4).click();
   await page.waitForTimeout(800);
+  // leave and come back without a reload: the cached day must show what was just saved
+  await page.getByRole('link', { name: 'Трекер' }).or(page.locator('a[href="/habits"]')).first().click();
+  await page.waitForURL('**/habits');
+  await page.locator('a[href="/"]').first().click();
+  await rows.first().waitFor();
+  await page.waitForTimeout(600);
+  const moodBack = await page.locator('[class*="moodBtn"]').nth(4).getAttribute('aria-pressed');
+  const riseBack = await page.getByRole('checkbox', { name: 'Ранний подъём' }).getAttribute('aria-checked');
+  log('after leaving and coming back: mood 5 =', moodBack, '| rise =', riseBack);
+  if (moodBack !== 'true' || riseBack !== 'true') throw new Error('state lost when coming back to Today');
   const streakBefore = await page.locator('[class*="bigMono"]').first().innerText();
   await page.reload();
   await rows.first().waitFor();

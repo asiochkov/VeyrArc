@@ -7,7 +7,7 @@
   background: var(--bar);
   border-top: 1px solid var(--ice-10);
   /* 14px bottom as in the design; the safe-area inset is 0 outside iOS home-indicator devices */
-  padding: 10px 8px calc(14px + var(--safe-bottom));
+  padding: 10px 8px max(12px, calc(4px + var(--safe-bottom)));
   backdrop-filter: blur(12px);
 }
 

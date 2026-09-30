@@ -10,11 +10,13 @@ import { Toaster } from './ui/toast';
 import { router } from './app/router';
 import { useLangStore } from './i18n';
 import { initAuth, useAuth } from './lib/auth';
+import { startPwa } from './lib/pwa';
 import './styles/fonts';
 import './styles/global.css';
 
 document.documentElement.lang = useLangStore.getState().lang;
 initAuth();
+startPwa();
 // iOS Safari ignores user-scalable=no: block pinch-zoom gestures explicitly
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('touchmove', (e) => { if ((e as TouchEvent & { scale?: number }).scale !== undefined && (e as TouchEvent & { scale: number }).scale !== 1) e.preventDefault(); }, { passive: false });

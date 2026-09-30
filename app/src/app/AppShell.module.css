@@ -1,5 +1,8 @@
 .root {
-  height: 100dvh;
+  /* pinned to the screen edges: in an iOS home-screen app 100dvh is the screen minus the status bar,
+     which left an empty strip under the bottom bar */
+  position: fixed;
+  inset: 0;
   /* iPhone: keep content below the status bar / Dynamic Island (standalone PWA draws under it) */
   padding: var(--safe-top) var(--safe-right) 0 var(--safe-left);
   box-sizing: border-box;

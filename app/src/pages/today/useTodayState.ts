@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { config } from '../../config';
 import { buildToday, fetchToday, writeFocus, writeLog, writeMood, type TodayView } from '../../data/today';
@@ -24,7 +24,9 @@ export function useTodayState() {
 
   const [habits, setHabits] = useState<TodayHabit[]>(view?.habits ?? []);
   const [moodSel, setMood] = useState(view?.stats.moodSel ?? 2);
-  useEffect(() => { if (view) { setHabits(view.habits); setMood(view.stats.moodSel); } }, [view]);
+  // server data replaces the screen state only when none of our writes is still on its way
+  const inFlight = useRef(0);
+  useEffect(() => { if (view && inFlight.current === 0) { setHabits(view.habits); setMood(view.stats.moodSel); } }, [view]);
 
   const [flashId, setFlashId] = useState<string | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -35,7 +37,14 @@ export function useTodayState() {
   }, []);
 
   // a refused write rolls back to the server state (refetch) and shows a toast (data/sync.ts)
-  const save = (run: () => Promise<unknown>) => mutate(run, { rollback: () => { void q.refetch(); } });
+  // after a write the cached day is refreshed, so leaving and coming back shows what was saved
+  const qc = useQueryClient();
+  const settle = () => { inFlight.current = Math.max(0, inFlight.current - 1); if (inFlight.current === 0) { void qc.invalidateQueries({ queryKey: ['today'] }); void qc.invalidateQueries({ queryKey: ['profile'] }); } };
+  const save = (run: () => Promise<unknown>) => {
+    if (!hasBackend) return;
+    inFlight.current++;
+    mutate(run, { rollback: settle, done: settle });
+  };
   const patch = useCallback((id: string, fn: (h: TodayHabit) => Partial<TodayHabit>) => {
     setHabits((list) => list.map((h) => (h.id === id ? ({ ...h, ...fn(h) } as TodayHabit) : h)));
   }, []);

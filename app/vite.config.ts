@@ -4,11 +4,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  resolve: mode === 'preview' ? { alias: { 'virtual:pwa-register': '/src/lib/stubs/pwa-register.ts' } } : undefined,
   plugins: [
     react(),
     // Installable app + offline shell. Not in the Artifact preview build (the host blocks service workers).
     mode !== 'preview' && VitePWA({
       registerType: 'autoUpdate',
+      // registered in src/lib/pwa.ts (update check each time the app comes back to the foreground)
+      injectRegister: false,
       includeAssets: ['push-sw.js', 'favicon.png', 'favicon-32.png', 'apple-touch-icon.png', 'logo-mark.png'],
       manifest: {
         name: 'VeyrArc',
