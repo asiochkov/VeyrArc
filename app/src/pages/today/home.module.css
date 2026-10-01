@@ -42,7 +42,7 @@ button.tile:active, a.tile:active { transform: scale(.97); }
 .wide.tile { min-height: 150px; }
 
 /* light («on») and pale variants */
-.tileLight { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; box-shadow: 0 14px 40px rgba(0,89,255,.28); }
+.tileLight { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; box-shadow: 0 14px 40px rgba(0,60,200,.22); }
 .tilePale { background: #FFFFFF; color: #030923; }
 .tilePale .tileSub { color: rgba(3,9,35,.55) !important; }
 .tilePale .circleWhite { background: var(--c-on); color: #fff; }
@@ -125,7 +125,7 @@ button.circle:disabled { opacity: .35; cursor: default; }
   .tile, .head, .tabs, .dayStack > span, .arcBar > i, .swap, .tile[data-just-on='true'] { animation: none !important; }
 }
 .tile { box-shadow: var(--c-edge); }
-.tileLight, .tileMint { box-shadow: 0 14px 40px rgba(0,89,255,.28); }
+.tileLight, .tileMint { box-shadow: 0 14px 40px rgba(0,60,200,.22); }
 .tilePale { box-shadow: 0 14px 40px rgba(255,255,255,.08); }
 .tilePale .circleWhite { background: var(--c-on); color: #fff; }
 .tilePale .tileName, .tilePale .bigNum { color: #030923; }

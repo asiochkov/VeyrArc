@@ -23,6 +23,7 @@ import s from './calendar.module.css';
 type View = 'month' | 'week' | 'day';
 /* px a mouse must travel before a press becomes a drag (below that it is a click) */
 const DRAG_THRESHOLD = 8;
+const fmtH = (x: number) => `${String(Math.floor(x)).padStart(2, '0')}:${String(Math.round((x % 1) * 60)).padStart(2, '0')}`;
 const COLORS: EvColor[] = ['blue', 'green', 'red', 'purple'];
 const BD: { c: EvColor; label: { ru: string; en: string } }[] = [
   { c: 'blue', label: { ru: 'Встречи', en: 'Meetings' } },
@@ -84,13 +85,13 @@ function useCalendar() {
   const outside = !!sys && (from < addDays(sys.day, -400) || to > addDays(sys.day, 120));
   const extra = useQuery({ queryKey: ['calendar', from, to], queryFn: () => fetchCalendar(from, to), enabled: on && outside, refetchOnWindowFocus: false, placeholderData: (p) => p });
   const cats = sys?.cats ?? [];
-  const [dragOver, setDragOver] = useState<{ id: string; s: number; e: number } | null>(null);
+  const [dragOver, setDragOver] = useState<{ id: string; s: number; e: number; day: string } | null>(null);
   const items = useMemo<Ev[]>(() => {
     if (!sys) return [];
     const base = toEvents({ items: sys.plan, cats: sys.cats });
     const more = extra.data ? toEvents(extra.data).filter((x) => !base.some((b) => b.id === x.id)) : [];
     const all = [...base, ...more];
-    return dragOver ? all.map((x) => (x.id === dragOver.id ? { ...x, s: dragOver.s, e: dragOver.e } : x)) : all;
+    return dragOver ? all.map((x) => (x.id === dragOver.id ? { ...x, s: dragOver.s, e: dragOver.e, day: dragOver.day } : x)) : all;
   }, [sys, extra.data, dragOver]);
   const itemsRef = useRef(items);
   itemsRef.current = items;
@@ -130,43 +131,127 @@ function useCalendar() {
     setEventDone(id, !ev.done);
   };
 
-  /* ---- drag to move (desktop grid, mouse only) ---- */
-  const drag = useRef<{ id: string; y0: number; s: number; e: number; moved: boolean; ns: number } | null>(null);
+  /* ---- move / resize a block (mouse: drag at once; finger: hold, then drag) ----
+     snaps to 15 minutes, follows the finger across day columns, scrolls the grid at its edges,
+     a tap without movement opens the editor; after a drop the old time can be restored. */
+  type Drag = {
+    id: string; mode: 'move' | 'resize'; touch: boolean; x0: number; y0: number; x: number; y: number;
+    s: number; e: number; day: string; ns: number; ne: number; nday: string; grab: number;
+    active: boolean; moved: boolean; timer?: ReturnType<typeof setTimeout>; area: HTMLElement; row: number; h0: number; raf?: number;
+  };
+  const drag = useRef<Drag | null>(null);
+  const lastDrag = useRef(0);
   const [now, setNow] = useState(Date.now());
+  const place = (d: Drag) => {
+    // the column under the finger (week view), else the block's own column
+    let col = d.area;
+    if (d.mode === 'move') {
+      const cols = d.area.parentElement?.querySelectorAll<HTMLElement>('[data-day]') ?? [];
+      for (const c of cols) { const r = c.getBoundingClientRect(); if (d.x >= r.left && d.x <= r.right) { col = c; break; } }
+    }
+    const top = col.getBoundingClientRect().top;
+    const hour = d.h0 + (d.y - top) / d.row;
+    const q = (v: number) => Math.round(v * 4) / 4;
+    const len = d.e - d.s;
+    let ns = d.ns, ne = d.ne;
+    if (d.mode === 'move') { ns = Math.max(0, Math.min(24 - len, q(hour - d.grab))); ne = ns + len; }
+    else { ne = Math.max(d.s + 0.25, Math.min(24, q(hour))); }
+    const nday = col.dataset.day ?? d.day;
+    if (ns !== d.ns || ne !== d.ne || nday !== d.nday) {
+      if (d.touch) navigator.vibrate?.(6);
+      d.ns = ns; d.ne = ne; d.nday = nday;
+      setDragOver({ id: d.id, s: ns, e: ne, day: nday });
+    }
+  };
+  const activate = (d: Drag) => {
+    d.active = true;
+    const top = d.area.getBoundingClientRect().top;
+    d.grab = d.h0 + (d.y0 - top) / d.row - d.s;
+    if (d.touch) navigator.vibrate?.(18);
+    document.documentElement.dataset.dragging = '';
+    setDragOver({ id: d.id, s: d.s, e: d.e, day: d.day });
+    // scroll the grid while the finger rests near its top or bottom edge
+    const scroller = d.area.closest<HTMLElement>('.wk-scroll, [data-scroll]');
+    const tick = () => {
+      const x = drag.current;
+      if (!x || !x.active) return;
+      if (scroller) {
+        const r = scroller.getBoundingClientRect();
+        const bottom = Math.min(r.bottom, window.innerHeight - (d.touch ? 110 : 0));
+        const v = x.y < r.top + 60 ? -Math.ceil((r.top + 60 - x.y) / 6) : x.y > bottom - 60 ? Math.ceil((x.y - bottom + 60) / 6) : 0;
+        if (v) { scroller.scrollTop += v; place(x); }
+      }
+      x.raf = requestAnimationFrame(tick);
+    };
+    d.raf = requestAnimationFrame(tick);
+  };
+  const finish = (commit: boolean) => {
+    const d = drag.current;
+    drag.current = null;
+    if (!d) return;
+    clearTimeout(d.timer);
+    if (d.raf) cancelAnimationFrame(d.raf);
+    delete document.documentElement.dataset.dragging;
+    if (!d.active) return; // a plain tap opens the task through its click
+    lastDrag.current = Date.now();
+    setDragOver(null);
+    const cur = itemsRef.current.find((x) => x.id === d.id);
+    if (!cur) return;
+    const ev = { ...cur, s: d.s, e: d.e, day: d.day }; // items already carry the dragged position
+    if (!commit || (d.ns === d.s && d.ne === d.e && d.nday === d.day)) return;
+    navigator.vibrate?.(10);
+    saveEvent(toRow(catsRef.current, { ...ev, s: d.ns, e: d.ne, day: d.nday }), false);
+    toast.action(t0('calendar.moved').replace('{t}', `${fmtH(d.ns)}–${fmtH(d.ne)}`), t0('explain.undo'), () => saveEvent(toRow(catsRef.current, ev), false), 5000);
+  };
   useEffect(() => {
     const tm = setInterval(() => setNow(Date.now()), 30000);
     const move = (ev: globalThis.PointerEvent) => {
       const d = drag.current;
       if (!d) return;
-      if (!d.moved && Math.abs(ev.clientY - d.y0) < DRAG_THRESHOLD) return;
-      d.moved = true;
-      const snap = Math.round(((ev.clientY - d.y0) / ROW) * 4) / 4;
-      const len = d.e - d.s;
-      d.ns = Math.max(0, Math.min(24 - len, d.s + snap));
-      setDragOver({ id: d.id, s: d.ns, e: d.ns + len });
+      d.x = ev.clientX; d.y = ev.clientY;
+      const far = Math.hypot(ev.clientX - d.x0, ev.clientY - d.y0) > DRAG_THRESHOLD;
+      if (!d.active) {
+        if (!far) return;
+        d.moved = true;
+        if (d.touch) { finish(false); return; } // the finger is scrolling, not holding
+        activate(d);
+      }
+      place(d);
     };
-    const up = () => {
-      const d = drag.current;
-      drag.current = null;
-      if (!d) return;
-      if (!d.moved) { openEdit(d.id); return; }
-      const ev = itemsRef.current.find((x) => x.id === d.id);
-      if (ev) saveEvent(toRow(catsRef.current, { ...ev, s: d.ns, e: d.ns + (d.e - d.s) }), false);
-      setDragOver(null);
-    };
+    const up = () => finish(true);
+    const cancel = () => finish(!!drag.current?.active);
+    // once a block is lifted the page must not scroll under the finger
+    const block = (ev: globalThis.TouchEvent) => { if (drag.current?.active) ev.preventDefault(); };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
-    return () => { clearInterval(tm); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointercancel', cancel);
+    window.addEventListener('touchmove', block, { passive: false });
+    return () => {
+      clearInterval(tm);
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', cancel); window.removeEventListener('touchmove', block);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const startDrag = (id: string, e: PointerEvent) => {
-    // touch: a finger on a block must still scroll the grid — tap opens the editor, times are set there
-    if (e.pointerType === 'touch' || e.button !== 0) return;
-    e.preventDefault();
+  const startDrag = (id: string, e: PointerEvent, opts: { row: number; h0: number; mode?: 'move' | 'resize' }) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     e.stopPropagation();
-    const ev = itemsRef.current.find((x) => x.id === id)!;
-    drag.current = { id, y0: e.clientY, s: ev.s ?? 9, e: ev.e ?? 10, moved: false, ns: ev.s ?? 9 };
+    const ev = itemsRef.current.find((x) => x.id === id);
+    const el = (e.currentTarget as HTMLElement).closest<HTMLElement>('[data-ev]');
+    if (!ev || ev.s == null || !el?.parentElement) return;
+    const touch = e.pointerType !== 'mouse';
+    if (!touch) e.preventDefault();
+    const d: Drag = {
+      id, mode: opts.mode ?? 'move', touch, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY,
+      s: ev.s, e: ev.e ?? ev.s + 1, day: ev.day, ns: ev.s, ne: ev.e ?? ev.s + 1, nday: ev.day, grab: 0,
+      active: false, moved: false, area: el.parentElement, row: opts.row, h0: opts.h0,
+    };
+    drag.current = d;
+    if (touch) d.timer = setTimeout(() => { if (drag.current === d && !d.moved) activate(d); }, 350);
   };
+  const dragId = dragOver?.id ?? null;
+  // the click that follows a drag must not open the editor
+  const clickEv = (id: string, e: MouseEvent) => { e.stopPropagation(); if (Date.now() - lastDrag.current > 400) openEdit(id); };
 
   /* ---- navigation ---- */
   const shift = (n: number) => {
@@ -177,7 +262,7 @@ function useCalendar() {
 
   return {
     ready: !!sys, loadError: sq.isError && !sq.data, retry: () => { void sq.refetch(); }, today, sel, setSel, cursor, setCursor, view, setView, monthOpen, setMonthOpen, week0,
-    items, now, links, draft, setDraft, openNew, openEdit, commit, remove, toggleDone, startDrag, shift, goToday,
+    items, now, links, draft, setDraft, openNew, openEdit, commit, remove, toggleDone, startDrag, dragId, clickEv, shift, goToday,
   };
 }
 const t0 = (k: TKey) => translate(useLangStore.getState().lang, k);
@@ -371,18 +456,20 @@ function DayList({ t, st, list, compact }: { t: T; st: St; list: Ev[]; compact?:
 /* ---------------- desktop ---------------- */
 
 function EventBlock({ st, ev, h0, wide }: { st: St; ev: Ev; h0: number; wide: boolean }) {
+  const lifted = st.dragId === ev.id;
   return (
     <div
-      className={s.ev} data-sel={st.draft?.ev.id === ev.id} data-done={ev.done}
+      className={s.ev} data-ev data-drag={lifted} data-sel={st.draft?.ev.id === ev.id} data-done={ev.done}
       style={{ top: (ev.s! - h0) * ROW + 2, height: Math.max(18, (ev.e! - ev.s!) * ROW - 5), background: EV_FILL[ev.c] }}
       role="button" tabIndex={0} aria-label={`${ev.title}, ${fmt(ev.s!)}–${fmt(ev.e!)}`}
-      onPointerDown={(e) => st.startDrag(ev.id, e)}
-      onClick={(e) => { e.stopPropagation(); if ((e.nativeEvent as globalThis.PointerEvent).pointerType !== 'mouse') st.openEdit(ev.id); }}
+      onPointerDown={(e) => st.startDrag(ev.id, e, { row: ROW, h0 })}
+      onClick={(e) => st.clickEv(ev.id, e)}
+      onContextMenu={(e) => e.preventDefault()}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); st.openEdit(ev.id); } }}
     >
       <div className={s.evTitle} style={{ fontSize: wide ? 13 : 12 }}>{ev.title}</div>
-      {(ev.e! - ev.s!) >= 0.75 && <div className={s.evTime}>{fmt(ev.s!)}–{fmt(ev.e!)}</div>}
-      <span className={s.grip} />
+      {((ev.e! - ev.s!) >= 0.75 || lifted) && <div className={s.evTime}>{fmt(ev.s!)}–{fmt(ev.e!)}</div>}
+      <span className={s.grip} onPointerDown={(e) => st.startDrag(ev.id, e, { row: ROW, h0, mode: 'resize' })} />
     </div>
   );
 }
@@ -491,7 +578,7 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
               </div>
               <div className={s.cols} style={{ height: (h1 - h0) * ROW, marginTop: 20 }}>
                 {days.map((d) => (
-                  <div key={d} className={s.col} data-today={d === st.today} onClick={(e) => colClick(d, e)}>
+                  <div key={d} className={s.col} data-day={d} data-today={d === st.today} onClick={(e) => colClick(d, e)}>
                     {d === st.today && <NowLine now={st.now} h0={h0} row={ROW} />}
                     {st.items.filter((ev) => ev.day === d && ev.s != null).map((ev) => <EventBlock key={ev.id} st={st} ev={ev} h0={h0} wide={st.view === 'day'} />)}
                   </div>
@@ -588,9 +675,9 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
           const has = st.items.some((x) => x.day === d);
           return (
             <button key={d} type="button" className={s.selBtn} aria-pressed={on} data-today={d === st.today} onClick={() => st.setSel(d)}>
-              <span style={{ font: 'var(--fw-regular) 17px var(--font-ui)', color: on ? '#06121f' : '#E8EDF3' }}>{parseDay(d).getDate()}</span>
-              <span style={{ font: 'var(--fw-regular) 10px var(--font-mono)', color: on ? 'rgba(6,18,31,.65)' : 'rgba(232,237,243,.4)' }}>{dows[i]}</span>
-              <span className={s.selDot} style={{ opacity: has ? 1 : 0, background: on ? '#06121f' : 'var(--accent)' }} />
+              <span style={{ font: 'var(--fw-regular) 17px var(--font-ui)', color: on ? '#fff' : '#E8EDF3' }}>{parseDay(d).getDate()}</span>
+              <span style={{ font: 'var(--fw-regular) 10px var(--font-mono)', color: on ? 'rgba(255,255,255,.75)' : 'rgba(232,237,243,.4)' }}>{dows[i]}</span>
+              <span className={s.selDot} style={{ opacity: has ? 1 : 0, background: on ? '#fff' : 'var(--accent)' }} />
             </button>
           );
         })}
@@ -613,17 +700,22 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
       )}
       {dayItems.length === 0 && <div style={{ margin: '0 0 10px' }}><EmptyState compact title={t('empty.freeDay')} sub={t('calendar.emptyDay')} /></div>}
 
+      {timed.length > 0 && <div className={s.holdHint}><Icon name="move" size={13} sw={1.8} />{t('calendar.holdHint')}</div>}
       <div style={{ display: 'flex' }}>
         <div style={{ width: 48, flex: 'none', display: 'flex', flexDirection: 'column', paddingTop: 2 }}>
           {hours.map((h) => <div key={h} className={s.mHour}>{h}</div>)}
         </div>
-        <div className={s.mArea} style={{ height: (h1 - h0 + 1) * ROW_M }} onClick={areaClick}>
+        <div className={s.mArea} data-day={st.sel} style={{ height: (h1 - h0 + 1) * ROW_M }} onClick={areaClick}>
           {st.sel === st.today && <NowLine now={st.now} h0={h0} row={ROW_M} />}
           {timed.map((ev) => (
-            <button key={ev.id} type="button" className={s.mEv} data-done={ev.done} onClick={() => st.openEdit(ev.id)}
+            <button key={ev.id} type="button" className={s.mEv} data-ev data-drag={st.dragId === ev.id} data-done={ev.done}
+              onPointerDown={(e) => st.startDrag(ev.id, e, { row: ROW_M, h0 })}
+              onClick={(e) => st.clickEv(ev.id, e)}
+              onContextMenu={(e) => e.preventDefault()}
               style={{ top: (ev.s! - h0) * ROW_M + 2, height: Math.max(26, (ev.e! - ev.s!) * ROW_M - 6), background: EV_FILL[ev.c] }}>
               <div className={s.mEvTitle}>{ev.title}</div>
-              {(ev.e! - ev.s!) >= 0.75 && <div className={s.evTime}>{fmt(ev.s!)}–{fmt(ev.e!)}</div>}
+              {((ev.e! - ev.s!) >= 0.75 || st.dragId === ev.id) && <div className={s.evTime}>{fmt(ev.s!)}–{fmt(ev.e!)}</div>}
+              <span className={s.mGrip} onPointerDown={(e) => st.startDrag(ev.id, e, { row: ROW_M, h0, mode: 'resize' })} />
             </button>
           ))}
         </div>

@@ -33,9 +33,9 @@ button.tl, a.tl { cursor: pointer; }
 button.tl:active, a.tl:active { transform: scale(.97); }
 .tl-auto { min-height: 0; }
 .tl-pad { padding: 18px; }
-.tl-light { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; box-shadow: 0 14px 40px rgba(0,89,255,.28); }
+.tl-light { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; box-shadow: 0 14px 40px rgba(0,60,200,.22); }
 a.tl-light, a.tl-light:hover { color: #FFFFFF; }
-.tl-pale { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; box-shadow: 0 14px 40px rgba(0,89,255,.28); }
+.tl-pale { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; box-shadow: 0 14px 40px rgba(0,60,200,.22); }
 .tl-mint { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; }
 .tl-ghost { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .tl-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }

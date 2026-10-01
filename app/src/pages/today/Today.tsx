@@ -373,7 +373,7 @@ function MoodTile({ t, d, style }: TileProps) {
       <span className={h.moods} data-picked={sel != null}>
         {[4, 3, 2, 1, 0].map((k) => (
           <button key={k} type="button" className={h.mood} aria-pressed={sel === k} aria-label={words[k]} onClick={() => { navigator.vibrate?.(10); logMood(sel === k ? null : k); }}>
-            <MoodFace level={k} color={sel === k ? '#0059FF' : 'rgba(232,237,243,.75)'} />
+            <MoodFace level={k} color={sel === k ? '#004BE0' : 'rgba(232,237,243,.75)'} />
           </button>
         ))}
       </span>

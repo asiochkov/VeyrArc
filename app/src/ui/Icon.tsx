@@ -26,6 +26,7 @@ const STROKE: Record<string, El[]> = {
   chevron: [p('M9 6l6 6-6 6')],
   arrowRight: [p('M5 12h14'), p('M13 6l6 6-6 6')],
   minus: [p('M6 12h12')],
+  move: [p('M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3')],
   chevronLeft: [p('M15 6l-6 6 6 6')],
   chevronDown: [p('M6 9l6 6 6-6')],
   back: [p('M15 6l-6 6 6 6')],

@@ -21,3 +21,28 @@
 .badge { position: absolute; top: -10px; right: 12px; font: var(--fw-bold) 10px var(--font-mono); background: var(--gold); color: var(--gold-ink); border-radius: 999px; padding: 4px 9px; }
 .cta { width: 100%; margin-top: 20px; min-height: 54px; border: none; border-radius: 999px; background: linear-gradient(90deg, #E8B75E, #d9a94f); color: #241a06; font: var(--fw-heavy) 15px var(--font-ui); cursor: pointer; box-shadow: 0 10px 26px rgba(232,183,94,.28); }
 .note { margin-top: 12px; font: var(--fw-medium) 12px var(--font-ui); color: var(--t-45); text-align: center; }
+
+/* ---- palette: white / blue / navy, thin type, tiles ---- */
+.glow { background: radial-gradient(closest-side, rgba(0,75,224,.38), rgba(4,26,83,.18) 60%, transparent); }
+.cardDesktop { background: var(--c-tile); background-image: var(--c-glow); border: none; box-shadow: var(--c-edge), 0 30px 80px rgba(0,0,0,.6); border-radius: 34px; }
+.cardMobile { animation: proIn 560ms var(--ease-out-strong) both; }
+@keyframes proIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.close { background: var(--c-raise); color: #fff; transition: transform var(--dur-fast) var(--ease-out); }
+.close:active { transform: scale(.9); }
+.crown { width: 64px; height: 64px; border-radius: 50%; background: var(--c-on); background-image: var(--c-glow-on); color: #fff; box-shadow: 0 14px 40px rgba(0,60,200,.4); }
+.title { font: var(--fw-regular) 34px/1.05 var(--font-ui); letter-spacing: -.035em; color: #fff; }
+.subtitle { font: var(--fw-regular) 14px/1.5 var(--font-ui); color: rgba(232,237,243,.55); }
+.perks { gap: 6px; }
+.perk { padding: 10px 12px; border-radius: 22px; background: var(--c-tile); background-image: var(--c-glow); box-shadow: var(--c-edge); animation: proIn 520ms var(--ease-out-strong) both; animation-delay: calc(var(--i, 0) * 50ms + 120ms); }
+.perkIcon { width: 40px; height: 40px; border-radius: 50%; background: var(--c-raise); border: none; color: #fff; }
+.perkText { font: var(--fw-regular) 14px/1.4 var(--font-ui); letter-spacing: -.01em; }
+.plan { border-radius: 26px; background: var(--c-tile); background-image: var(--c-glow); border: none; box-shadow: var(--c-edge); transition: background-color 320ms var(--ease-out-strong), color 320ms, transform 160ms var(--ease-out); }
+.plan:active { transform: scale(.97); }
+.plan[aria-pressed='true'] { background: #fff; background-image: none; border: none; color: #030923; box-shadow: 0 14px 40px rgba(255,255,255,.08); }
+.plan[aria-pressed='true'] .planSub { color: rgba(3,9,35,.55); }
+.planTitle { font: var(--fw-regular) 15px var(--font-ui); letter-spacing: -.01em; }
+.badge { font: var(--fw-medium) 10px var(--font-ui); background: var(--c-on); color: #fff; }
+.cta { border-radius: 999px; background: var(--c-on); background-image: var(--c-glow-on); color: #fff; font: var(--fw-medium) 15px var(--font-ui); box-shadow: 0 14px 34px rgba(0,60,200,.35); transition: transform 160ms var(--ease-out); }
+.cta:active { transform: scale(.97); }
+.note { font: var(--fw-regular) 12px/1.5 var(--font-ui); color: rgba(232,237,243,.42); }
+@media (prefers-reduced-motion: reduce) { .cardMobile, .perk { animation: none; } }

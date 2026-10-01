@@ -267,3 +267,22 @@
 .head > div:last-child { flex-wrap: wrap; }
 .todayBtn { flex: none; }
 .monthTitle { overflow: visible; }
+
+/* ---- hold to move ---- */
+.ev, .mEv { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: pan-y; transition: transform 200ms var(--ease-out-strong), box-shadow 200ms var(--ease-out-strong), top 140ms var(--ease-out), height 140ms var(--ease-out); }
+.ev:active, .mEv:active { transform: scale(.98); }
+.ev[data-drag='true'], .mEv[data-drag='true'] {
+  z-index: 30; transform: scale(1.04); cursor: grabbing;
+  box-shadow: 0 22px 44px rgba(0,0,0,.6), 0 0 0 2px rgba(255,255,255,.9);
+  transition: transform 200ms var(--ease-spring), box-shadow 200ms var(--ease-out-strong), top 90ms linear, height 90ms linear;
+  animation: lift 260ms var(--ease-spring);
+}
+@keyframes lift { 0% { transform: scale(1); } 60% { transform: scale(1.07); } 100% { transform: scale(1.04); } }
+.ev[data-drag='true'] .grip, .mEv[data-drag='true'] .mGrip { opacity: 1; }
+.ev:hover .grip { opacity: 1; }
+.grip { cursor: ns-resize; height: 10px; bottom: 0; background: none; }
+.grip::after, .mGrip::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 26px; height: 4px; margin-left: -13px; border-radius: 4px; background: rgba(255,255,255,.55); }
+.mGrip { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; opacity: 0; transition: opacity 160ms; }
+html[data-dragging], html[data-dragging] * { cursor: grabbing !important; }
+.holdHint { display: flex; align-items: center; gap: 6px; margin: 0 0 10px 48px; font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.42); }
+@media (prefers-reduced-motion: reduce) { .ev[data-drag='true'], .mEv[data-drag='true'] { animation: none; } }

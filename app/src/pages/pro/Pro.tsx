@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { isProPlan, startTrial, trialUsed, useAuth } from '../../lib/auth';
 import { hasBackend } from '../../lib/supabase';
@@ -46,7 +46,7 @@ export function Pro() {
       <div className={s.subtitle}>{t('pro.subtitle')}</div>
       <div className={s.perks}>
         {perks.map((p, i) => (
-          <div key={i} className={s.perk}>
+          <div key={i} className={s.perk} style={{ '--i': i } as CSSProperties}>
             <span className={s.perkIcon}><Icon name={PERK_ICONS[i]} size={18} sw={1.8} /></span>
             <span className={s.perkText}>{p}</span>
           </div>

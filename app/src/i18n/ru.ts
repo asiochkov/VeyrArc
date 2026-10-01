@@ -103,6 +103,8 @@ export const ru = {
     linkNone: 'Ничего',
     weekBreakdown: 'Неделя по категориям',
     deleted: 'Задача удалена',
+    moved: 'Перенесено на {t}',
+    holdHint: 'Удерживайте задачу, чтобы перенести',
     prev: 'Назад',
     next: 'Вперёд',
     editTask: 'Задача',

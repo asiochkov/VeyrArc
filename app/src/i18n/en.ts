@@ -98,6 +98,8 @@ export const en: Dict = {
     linkNone: 'Nothing',
     weekBreakdown: 'Week by category',
     deleted: 'Task deleted',
+    moved: 'Moved to {t}',
+    holdHint: 'Press and hold a task to move it',
     prev: 'Previous',
     next: 'Next',
     editTask: 'Task',

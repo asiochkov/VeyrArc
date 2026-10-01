@@ -2,12 +2,12 @@
 
 export type EvColor = 'blue' | 'green' | 'red' | 'purple';
 
-export const EV_FILL: Record<EvColor, string> = { blue: '#4E86BE', green: '#43A483', red: '#C25749', purple: '#8670C4' };
+export const EV_FILL: Record<EvColor, string> = { blue: '#004BE0', green: '#0B7358', red: '#A8352B', purple: '#5236B8' };
 export const EV_CAT: Record<EvColor, { tag: 'meeting' | 'work' | 'deadline' | 'review'; hue: string }> = {
-  blue: { tag: 'meeting', hue: '#5B9BD5' },
-  green: { tag: 'work', hue: '#5FBF9B' },
-  red: { tag: 'deadline', hue: '#D96A5B' },
-  purple: { tag: 'review', hue: '#9B87D6' },
+  blue: { tag: 'meeting', hue: '#2D6CF0' },
+  green: { tag: 'work', hue: '#1F9C79' },
+  red: { tag: 'deadline', hue: '#D0503F' },
+  purple: { tag: 'review', hue: '#7A5FE0' },
 };
 
 export const ROW = 64;       // desktop px per hour

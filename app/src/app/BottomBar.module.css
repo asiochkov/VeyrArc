@@ -17,7 +17,7 @@
 .fab {
   flex: none; width: 64px; height: 64px; border-radius: 50%; border: none; background: var(--c-on); color: #FFFFFF;
   display: grid; place-items: center; cursor: pointer; pointer-events: auto;
-  box-shadow: 0 10px 30px rgba(0,89,255,.45); transition: transform var(--dur-fast) var(--ease-out);
+  box-shadow: 0 10px 30px rgba(0,60,200,.4); transition: transform var(--dur-fast) var(--ease-out);
 }
 .fab:active { transform: scale(.92); }
 @media (prefers-reduced-motion: reduce) { .dock { animation: none; } }
