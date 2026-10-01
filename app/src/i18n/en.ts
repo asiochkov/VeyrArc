@@ -874,6 +874,7 @@ export const en: Dict = {
     streakTitle: 'Streak', streakHint: 'All Core done in a day — +1',
     daysInRow: { one: 'day in a row', other: 'days in a row' },
     todayMark: 'today',
+    markDone: 'Mark as done', markUndo: 'Undo',
     scoreDelta: '{d} to index', index: 'index {n}',
     stateDone: 'done', stateSoon: 'soon', stateNow: 'now',
     core: 'Core', extra: 'Extra', doneAll: 'done {a}/{b}', doneOf: '{a} of {b}',

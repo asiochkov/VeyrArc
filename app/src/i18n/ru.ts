@@ -879,6 +879,7 @@ export const ru = {
     streakTitle: 'Серия', streakHint: 'Все Core за день — +1 к серии',
     daysInRow: { one: 'день подряд', few: 'дня подряд', many: 'дней подряд', other: 'дня подряд' },
     todayMark: 'сегодня',
+    markDone: 'Отметить выполненным', markUndo: 'Снять отметку',
     scoreDelta: '{d} к индексу', index: 'индекс {n}',
     stateDone: 'готово', stateSoon: 'скоро', stateNow: 'сейчас',
     core: 'Основные', extra: 'Дополнительные', doneAll: 'готово {a}/{b}', doneOf: '{a} из {b}',

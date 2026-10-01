@@ -321,6 +321,8 @@ function HabitTile({ t, hb, style }: { t: T; hb: HabitT; style: React.CSSPropert
   const inc = () => { if (hb.type !== 'counter' || hb.count >= hb.goal) return; const v = hb.count + 1; if (v >= hb.goal) navigator.vibrate?.(15); logHabit(hb.id, v, v >= hb.goal); };
   const dec = () => { if (hb.type !== 'counter') return; const v = Math.max(0, hb.count - 1); logHabit(hb.id, v, v >= hb.goal); };
   const play = () => { if (done || hb.type !== 'duration') return; setTimer((x) => (x.endsAt ? { endsAt: null, left } : { endsAt: Date.now() + left * 1000, left })); };
+  const finishNow = () => { setTimer({ endsAt: null, left: 0 }); navigator.vibrate?.(15); logHabit(hb.id, hb.type === 'duration' ? hb.minutes : 1, true); };
+  const undoDuration = () => { setTimer({ endsAt: null, left: hb.type === 'duration' ? hb.minutes * 60 : 0 }); logHabit(hb.id, 0, false); };
   const running = !!timer.endsAt;
   const on = done || running;
   const pad = (v: number) => String(v).padStart(2, '0');
@@ -339,8 +341,19 @@ function HabitTile({ t, hb, style }: { t: T; hb: HabitT; style: React.CSSPropert
         </span>
       )}
       {hb.type === 'duration' && !done && (
-        <button type="button" className={`${h.circle} ${running ? h.circleInk : ''}`} onClick={play} aria-label={running ? t('pomo.pause') : t('pomo.start')}>
-          <Icon name={running ? 'pause' : 'play'} size={16} sw={1.8} />
+        <span className={h.stepCol}>
+          <button type="button" className={`${h.circle} ${running ? h.circleInk : ''}`} onClick={play} aria-label={running ? t('pomo.pause') : t('pomo.start')}>
+            <Icon name={running ? 'pause' : 'play'} size={16} sw={1.8} />
+          </button>
+          {/* done without waiting for the timer (read already, worked out elsewhere…) */}
+          <button type="button" className={h.circle} onClick={finishNow} aria-label={t('home.markDone')}>
+            <Icon name="check" size={16} sw={2.2} />
+          </button>
+        </span>
+      )}
+      {hb.type === 'duration' && done && (
+        <button type="button" className={h.circle} onClick={undoDuration} aria-label={t('home.markUndo')}>
+          <Icon name="reset" size={15} sw={1.8} />
         </button>
       )}
       {hb.type === 'binary' && hb.core && <span className={h.coreDot} title="Core" />}
