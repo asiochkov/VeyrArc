@@ -239,23 +239,31 @@ function ArcTile({ t, d, style }: TileProps) {
   const [info, setInfo] = useState<'streak' | 'freeze' | null>(null);
   const dows = t.list('weekdays.short');
   const s = d.view.stats;
-  const fill: Record<string, string> = { earned: 'var(--c-on)', frozen: '#7FA6FF', broken: 'var(--dot-coral)', open: 'var(--c-raise)', 'at-risk': 'var(--dot-sand)', future: 'var(--c-tile-2)', none: 'var(--c-tile-2)' };
   return (
-    <div className={`${h.tile} ${h.wide}`} style={style}>
-      <span className={h.tileTop}>
-        <span className={h.dayStack}>
-          {d.week.map((w, k) => (
-            <span key={w.day} style={{ background: fill[w.status] ?? 'var(--c-tile-2)', zIndex: 7 - k }} data-dark={['open', 'future', 'none'].includes(w.status)} data-today={w.day === d.day} title={t(`cockpit.status.${w.status}`)}>
-              {dows[k].slice(0, 2)}
-            </span>
-          ))}
+    <div className={`${h.tile} ${h.wide} ${h.arcTile}`} style={style}>
+      {/* the streak first: what it is, and how many days in a row — big, top right */}
+      <span className={h.arcHead}>
+        <button type="button" className={h.streakWhat} onClick={() => setInfo('streak')}>
+          <span className={h.streakLabel}><Icon name="flame" size={16} sw={1.8} />{t('home.streakTitle')}</span>
+          <span className={h.tileSub}>{t('home.streakHint')}</span>
+        </button>
+        <span className={h.streakBig} data-on={s.streak > 0}>
+          <b key={s.streak}>{s.streak}</b>
+          <small>{t('home.daysInRow', { n: s.streak })}</small>
         </span>
-        <button type="button" className={h.circle} onClick={() => setInfo('freeze')} aria-label={t('explain.freezeTitle')}><Icon name="snowSm" size={17} /></button>
+      </span>
+      <span className={h.week}>
+        {d.week.map((w, k) => (
+          <span key={w.day} className={h.wd} data-s={w.status} data-today={w.day === d.day} title={t(`cockpit.status.${w.status}`)}>
+            <i>{dows[k].slice(0, 2)}</i>
+            {w.day === d.day && <em>{t('home.todayMark')}</em>}
+          </span>
+        ))}
       </span>
       <span className={h.tileText}>
-        <span className={h.tileName}>Arc {roman(d.arc?.number ?? 1)} · {t('home.dayOf', { d: s.arcDay, l: s.arcLength })}</span>
+        <span className={h.arcName}>Arc {roman(d.arc?.number ?? 1)} · {t('home.dayOf', { d: s.arcDay, l: s.arcLength })}</span>
         <span className={h.tileSub}>
-          <button type="button" className={h.inlineBtn} onClick={() => setInfo('streak')}>{t('home.streak', { n: s.streak })}</button> · {t('home.freeze', { a: d.freezes.used, b: d.freezes.allowed })} · {t('home.best', { n: s.streakRecord })}
+          <button type="button" className={h.inlineBtn} onClick={() => setInfo('freeze')}><Icon name="snowSm" size={12} /> {t('home.freeze', { a: d.freezes.used, b: d.freezes.allowed })}</button> · {t('home.best', { n: s.streakRecord })}
         </span>
         <span className={h.arcBar}><i style={{ width: (s.arcDay / s.arcLength) * 100 + '%' }} /></span>
       </span>
