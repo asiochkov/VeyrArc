@@ -1,3 +1,4 @@
+import { config } from '../config';
 import { createBrowserRouter, createMemoryRouter, type RouteObject } from 'react-router-dom';
 import { Login, Reset, Signup, Verify, Welcome } from '../pages/auth/screens';
 import { Account, DayOne, Onboarding } from '../pages/auth/screens2';
@@ -78,7 +79,7 @@ const routes: RouteObject[] = [
       { path: '/login', element: <GuestOnly><Login /></GuestOnly> },
       { path: '/reset', element: <Reset /> },
       { path: '/arc/recap/:id', element: <RequireAuth><Recap /></RequireAuth> },
-      { path: '/pro', element: <Pro /> },
+      { path: '/pro', element: config.beta ? <Navigate to="/" replace /> : <Pro /> },
       { path: '/terms', element: <Legal doc="terms" /> },
       { path: '/privacy', element: <Legal doc="privacy" /> },
       { path: '/settings/account', element: <RequireAuth><Account /></RequireAuth> },

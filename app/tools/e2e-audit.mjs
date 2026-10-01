@@ -1,4 +1,4 @@
-/* Audit fixes: slip with note + 5-min undo; 7-day Pro trial lifts the habit limit. Needs the local backend. */
+/* Audit fixes: slip with note + 5-min undo; beta has no subscription screens. Needs the local backend. */
 import { execSync } from 'node:child_process';
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
 const sql = (q) => execSync(`psql -h 127.0.0.1 -p 54322 -U postgres -tAc "${q.replace(/"/g, '\\"')}"`).toString().trim();
@@ -38,12 +38,9 @@ try {
   await page.getByRole('button', { name: /Индекс дисциплины/i }).first().click();
   log('index explainer:', (await page.locator('[role="dialog"]').innerText()).split('\n')[0]);
   await page.getByRole('dialog').getByRole('button', { name: 'Ок' }).click();
-  await page.goto(APP + '/pro');
-  await page.getByRole('button', { name: /Попробовать 7 дней бесплатно/ }).click();
-  await page.waitForURL(APP + '/');
-  log('trial:', sql(`select plan || ' until ' || renews_at::date from subscriptions where user_id='${uid}'`));
-  await page.goto(APP + '/pro');
-  log('pro screen now:', (await page.locator('button').filter({ hasText: /Pro активен/ }).count()) ? 'Pro активен' : '??');
+  // beta: no subscription anywhere — /pro leads home
+  await page.goto(APP + '/pro'); await page.waitForURL(APP + '/');
+  log('beta: /pro redirects home');
   console.log(errors.length ? 'page errors: ' + errors.join(' | ') : 'no page errors');
 } catch (e) {
   await page.screenshot({ path: '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/e2e-fail.png' });

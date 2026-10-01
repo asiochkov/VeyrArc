@@ -1,4 +1,4 @@
-/* Free Core limit (6th Core), recovery banner → manual freeze of a missed yesterday, arc rollover after 90 days → Arc Recap. Needs the local backend (psql). */
+/* Beta: no Core limit (6th and 7th Core), recovery banner → manual freeze of a missed yesterday, arc rollover after 90 days → Arc Recap. Needs the local backend (psql). */
 import { execSync } from 'node:child_process';
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
 const sql = (q) => execSync(`psql -h 127.0.0.1 -p 54322 -U postgres -tAc "${q.replace(/"/g, '\\"')}"`).toString().trim();
@@ -14,11 +14,10 @@ try {
   await page.waitForTimeout(800);
   await page.locator('[data-zone="extra"]').getByRole('button', { name: /Шестая/ }).click();
   await page.getByRole('button', { name: 'В Core' }).click();
-  await page.getByText('Core — до 5 привычек').waitFor(); log('6th Core on Free → limit dialog');
-  let dbErr = '';
-  try { sql(`set role authenticated; select set_config('request.jwt.claim.sub','${uid}',false); insert into habits (user_id, name, core) values ('${uid}','Седьмая', true)`); } catch (e) { dbErr = String(e.message).match(/limit:core/)?.[0] ?? String(e.message).slice(0, 80); }
-  log('database refuses the 6th Core too:', dbErr);
-  if (dbErr !== 'limit:core') throw new Error('no database Core limit');
+  // beta: everything open — the 6th Core goes in, the database takes a 7th too
+  await page.locator('[data-zone="core"]').getByText('Шестая').waitFor(); log('beta: 6th habit moved to Core, no limit');
+  sql(`set role authenticated; select set_config('request.jwt.claim.sub','${uid}',false); insert into habits (user_id, name, core) values ('${uid}','Седьмая', true)`);
+  log('beta: database accepts a 7th Core:', sql(`select count(*) from habits where user_id='${uid}' and core`));
 
   // history: habits exist since 3 days ago, the day before yesterday done, yesterday missed
   sql(`update habits set created_at = now() - interval '3 days' where user_id='${uid}'`);

@@ -279,7 +279,7 @@ export function Account() {
         <div className={dir > 0 ? s.screenL : s.screenR}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...up(0) }}>
             <div className={s.h2}>{t('auth.account')}</div>
-            <button type="button" className={s.planBadge} data-pro={plan === 'pro'} onClick={() => (hasBackend ? navigate('/pro') : setPlan(plan === 'free' ? 'pro' : 'free'))}>{plan === 'free' ? 'Free' : 'Pro'}</button>
+            {!config.beta && <button type="button" className={s.planBadge} data-pro={plan === 'pro'} onClick={() => (hasBackend ? navigate('/pro') : setPlan(plan === 'free' ? 'pro' : 'free'))}>{plan === 'free' ? 'Free' : 'Pro'}</button>}
           </div>
 
           <div className={s.accHeader} style={up(1)}>
@@ -307,7 +307,7 @@ export function Account() {
             <div className={s.stat}><span className={s.statIcon}><Icon name="bolt" size={15} sw={1.6} /></span><span className={s.statNum}>{t('units.h', { h: statFocus })}</span><span className={s.statLabel}>{t('auth.statFocus')}</span></div>
           </div>
 
-          {plan === 'free' && (
+          {plan === 'free' && !config.beta && (
             <div className={s.upsell} style={up(3)}>
               <span className={s.upsellIcon}><Icon name="lock" size={20} sw={1.8} /></span>
               <div style={{ flex: '1 1 calc(100% - 56px)', minWidth: 0 }}>
@@ -352,7 +352,7 @@ export function Account() {
                 <button type="button" className={s.segBtn} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button>
               </div>
             </div>
-            <Link to="/pro" className={s.row}><span className={s.rowIcon}><Icon name="crown" size={18} sw={1.8} /></span><span className={s.rowText}>{t('auth.subscription')}</span><span className={s.rowValue}>{plan === 'free' ? 'Free' : 'Pro'}</span>{chev}</Link>
+            {!config.beta && <Link to="/pro" className={s.row}><span className={s.rowIcon}><Icon name="crown" size={18} sw={1.8} /></span><span className={s.rowText}>{t('auth.subscription')}</span><span className={s.rowValue}>{plan === 'free' ? 'Free' : 'Pro'}</span>{chev}</Link>}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18, ...up(5) }}>

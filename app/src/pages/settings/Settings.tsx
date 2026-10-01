@@ -1,3 +1,4 @@
+import { config } from '../../config';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState, type ReactNode } from 'react';
 import { useHeader } from '../../data/header';
@@ -99,7 +100,7 @@ export function Settings() {
   const groups: [Group, string][] = [
     ['account', t('settings.account')], ['appearance', t('settings.appearance')], ['notif', t('settings.notifications')],
     ['arc', t('settings.arc')], ['plan', t('settings.plan')], ['data', t('settings.dataPrivacy')], ['about', t('settings.about')],
-  ];
+  ].filter(([g]) => !(config.beta && g === 'plan')) as [Group, string][];
   const show = (g: Group) => !isDesktop || group === g;
 
   const header = (
@@ -246,7 +247,7 @@ export function Settings() {
           </div>
         </div>
       )}
-      {show('plan') && (
+      {show('plan') && !config.beta && (
         <div>
           <div className={s.groupTitle}>{t('settings.plan')}</div>
           {!isPro ? (

@@ -17,8 +17,8 @@ const DOCS: Record<'terms' | 'privacy', Record<'ru' | 'en', Doc>> = {
       title: 'Условия использования', updated: 'Обновлено 29 сентября 2026',
       sections: [
         ['Сервис', 'VeyrArc — веб-приложение для привычек, отказов от вредного, целей и планирования. Пользуясь им, вы соглашаетесь с этими условиями.'],
-        ['Аккаунт', 'Можно начать без регистрации: данные хранятся в гостевом аккаунте. Чтобы не потерять прогресс, привяжите email или Google. Вы отвечаете за сохранность пароля.'],
-        ['Бесплатный тариф и Pro', 'Бесплатно доступны до 5 привычек, 3 целей и 1 заморозки в неделю. Pro снимает ограничения и открывает расширенную аналитику. Условия оплаты показываются перед оформлением.'],
+        ['Аккаунт', 'Можно начать без регистрации: данные хранятся в гостевом аккаунте. Чтобы не потерять прогресс, привяжите email. Вы отвечаете за сохранность пароля.'],
+        ['Бета-версия', 'Сейчас VeyrArc работает в бета-версии: все функции доступны бесплатно и без ограничений. Никаких платежей и списаний нет. Перед появлением платных возможностей мы заранее сообщим об этом в приложении.'],
         ['Ваш контент', 'Названия привычек, записи дневника и заметки принадлежат вам. Мы храним их только для работы приложения.'],
         ['Ограничения', 'Не используйте сервис для незаконных целей и не пытайтесь получить доступ к чужим данным. VeyrArc не является медицинской рекомендацией.'],
         ['Удаление', 'Аккаунт можно удалить в Настройках → Данные. Все данные удаляются без возможности восстановления.'],
@@ -30,8 +30,8 @@ const DOCS: Record<'terms' | 'privacy', Record<'ru' | 'en', Doc>> = {
       title: 'Terms of use', updated: 'Updated September 29, 2026',
       sections: [
         ['The service', 'VeyrArc is a web app for habits, quitting bad habits, goals and planning. By using it you agree to these terms.'],
-        ['Account', 'You can start without signing up: your data lives in a guest account. Link an email or Google to keep your progress. You are responsible for your password.'],
-        ['Free and Pro', 'The free plan includes up to 5 habits, 3 goals and 1 freeze a week. Pro removes the limits and unlocks advanced analytics. Payment terms are shown before you subscribe.'],
+        ['Account', 'You can start without signing up: your data lives in a guest account. Link an email to keep your progress. You are responsible for your password.'],
+        ['Beta', 'VeyrArc is in beta: every feature is free and unlimited. There are no payments or charges. We will tell you in the app well before any paid features appear.'],
         ['Your content', 'Habit names, journal entries and notes are yours. We store them only to run the app.'],
         ['Acceptable use', 'Do not use the service unlawfully or try to access other people’s data. VeyrArc is not medical advice.'],
         ['Deletion', 'Delete your account in Settings → Data. All data is removed permanently.'],

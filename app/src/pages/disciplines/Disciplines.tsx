@@ -50,7 +50,7 @@ export function Disciplines() {
   return (
     <div className={d.scroll} data-scroll>
       <div className="pg">
-        <AppHeader title={t('nav.disciplines')} sub={<span className={d.headSub}>{t('disc.coreSlots', { n: coreN, m: coreLimit === Infinity ? '∞' : coreLimit })}</span>} />
+        <AppHeader title={t('nav.disciplines')} sub={<span className={d.headSub}>{coreLimit === Infinity ? `Core · ${coreN}` : t('disc.coreSlots', { n: coreN, m: coreLimit })}</span>} />
         <div className="tabs" role="tablist">
           {([['active', t('disc.tabs.active'), data.habits.length], ['quits', t('disc.tabs.quits'), quitsN], ['archive', t('disc.tabs.archive'), archN]] as [Tab, string, number][]).map(([id, label, n]) => (
             <button key={id} type="button" role="tab" className="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}<sup>{n}</sup></button>

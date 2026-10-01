@@ -1,3 +1,4 @@
+import { config } from '../config';
 import type { Session } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { useLangStore } from '../i18n';
@@ -164,7 +165,7 @@ export function nextPath() {
 }
 
 /** Active Pro (paid or the 7-day trial) — mirrors public.is_pro() in the database. */
-export const isProPlan = (p: Plan | null) => !!p && p.plan === 'pro' && p.status === 'active' && (!p.renews_at || new Date(p.renews_at) > new Date());
+export const isProPlan = (p: Plan | null) => config.beta || (!!p && p.plan === 'pro' && p.status === 'active' && (!p.renews_at || new Date(p.renews_at) > new Date()));
 export const trialUsed = (p: Plan | null) => !!(p as (Plan & { trial_used_at?: string | null }) | null)?.trial_used_at;
 
 export async function startTrial() {

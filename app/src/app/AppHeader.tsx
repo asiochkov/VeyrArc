@@ -1,3 +1,4 @@
+import { config } from '../config';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHeader } from '../data/header';
@@ -69,7 +70,7 @@ export function AvatarMenu({ initials }: { initials: string }) {
           {guest && <button type="button" role="menuitem" className={s.item} onClick={() => go('/signup')}><Icon name="shield" size={16} />{t('menu.saveAccount')}</button>}
           <button type="button" role="menuitem" className={s.item} onClick={() => go('/settings/account')}><Icon name="user" size={16} />{t('auth.account')}</button>
           <button type="button" role="menuitem" className={s.item} onClick={() => go('/settings')}><Icon name="gear" size={16} />{t('settings.title')}</button>
-          <button type="button" role="menuitem" className={s.item} onClick={() => go('/pro')}><Icon name="crown" size={16} />{hasBackend && isProPlan(plan) ? t('menu.proActive') : 'Pro'}</button>
+          {!config.beta && <button type="button" role="menuitem" className={s.item} onClick={() => go('/pro')}><Icon name="crown" size={16} />{hasBackend && isProPlan(plan) ? t('menu.proActive') : 'Pro'}</button>}
           <div className={s.sep} />
           <button type="button" role="menuitem" className={s.item} onClick={() => { setOpen(false); if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}>
             <Icon name="back" size={16} />{t('account.logout')}
