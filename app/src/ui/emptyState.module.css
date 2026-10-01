@@ -1,10 +1,10 @@
-.box { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 20px; border-radius: 30px; background: #141519; animation: esIn 520ms var(--ease-out-strong) both; }
+.box { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 20px; border-radius: 30px; background: var(--c-tile); background-image: var(--c-glow); animation: esIn 520ms var(--ease-out-strong) both; }
 .box[data-compact='true'] { padding: 16px 18px; }
 @keyframes esIn { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
 .title { font: var(--fw-regular) 17px var(--font-ui); letter-spacing: -.02em; color: var(--text); }
 .sub { font: var(--fw-regular) 13px/1.45 var(--font-ui); color: rgba(232,237,243,.5); }
 .row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-.cta { min-height: 44px; padding: 0 18px; border-radius: 999px; border: none; background: #F3F4F6; color: #0B0C0E; font: var(--fw-regular) 14px var(--font-ui); cursor: pointer; transition: transform var(--dur-fast); }
+.cta { min-height: 44px; padding: 0 18px; border-radius: 999px; border: none; background: var(--c-on); color: #FFFFFF; font: var(--fw-regular) 14px var(--font-ui); cursor: pointer; transition: transform var(--dur-fast); }
 .cta:active { transform: scale(.96); }
 .kbd { font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.4); }
 @media (hover: none) { .kbd { display: none; } }

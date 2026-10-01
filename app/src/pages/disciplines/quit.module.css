@@ -1,17 +1,17 @@
 .tile { gap: 16px; min-height: 0; padding: 18px; }
 .topRight { display: flex; gap: 6px; }
 .menu { display: flex; flex-wrap: wrap; gap: 6px; animation: menuIn 260ms var(--ease-out-strong); }
-.menu > button[data-on='true'] { background: #0B0C0E; color: #F3F4F6; }
+.menu > button[data-on='true'] { background: #FFFFFF; color: var(--c-on); }
 @keyframes menuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .counter { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
 .days { font: var(--fw-light) 88px/0.95 var(--font-ui); letter-spacing: -.06em; font-variant-numeric: tabular-nums; }
 .since { position: relative; cursor: pointer; }
 .dateInput { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
 .goal { display: flex; flex-direction: column; gap: 8px; padding: 0 4px; }
-.track { height: 6px; border-radius: 6px; background: rgba(11,12,14,.08); overflow: hidden; }
-.track > i { display: block; height: 100%; border-radius: 6px; background: #0B0C0E; transform-origin: left; animation: grow 900ms var(--ease-out-strong) 200ms both; }
+.track { height: 6px; border-radius: 6px; background: rgba(255,255,255,.18); overflow: hidden; }
+.track > i { display: block; height: 100%; border-radius: 6px; background: #FFFFFF; transform-origin: left; animation: grow 900ms var(--ease-out-strong) 200ms both; }
 @keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
 .miles { display: flex; justify-content: space-between; }
-.miles > span { font: var(--fw-regular) 11px var(--font-ui); color: rgba(11,12,14,.35); font-variant-numeric: tabular-nums; }
-.miles > span[data-on='true'] { color: #0B0C0E; }
-.miles > span[data-next='true'] { color: #0B0C0E; text-decoration: underline; text-underline-offset: 3px; }
+.miles > span { font: var(--fw-regular) 11px var(--font-ui); color: rgba(255,255,255,.5); font-variant-numeric: tabular-nums; }
+.miles > span[data-on='true'] { color: #FFFFFF; }
+.miles > span[data-next='true'] { color: #FFFFFF; text-decoration: underline; text-underline-offset: 3px; }

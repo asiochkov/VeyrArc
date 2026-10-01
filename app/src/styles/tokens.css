@@ -25,12 +25,25 @@
   --hit: 44px;
 
   /* base */
-  --bg: #050506;
+  --bg: #000000;
+  /* palette (style reference): black page, navy tiles with a deep-blue glow, electric blue for «on» */
+  --c-on: #0059FF;
+  --c-on-hi: #2A74FF;
+  --c-navy: #041A53;
+  --c-tile: #030923;
+  --c-tile-2: #0A1640;
+  --c-raise: #0B1E5C;
+  --c-raise-hi: #10297A;
+  --c-field: #071547;
+  --c-sheet: #040C2C;
+  --c-glow: radial-gradient(130% 110% at 0% 0%, rgba(8,40,140,.75) 0%, rgba(4,26,83,.45) 38%, rgba(3,9,35,0) 72%);
+  --c-glow-on: radial-gradient(120% 110% at 0% 0%, #3D82FF 0%, rgba(0,89,255,0) 65%);
+  --c-edge: inset 0 0 0 1px rgba(80,125,255,.14);
   --text: #E8EDF3;
   --text-strong: #F3F6FA;
-  --ink: #06121f;            /* text on accent fills */
-  --accent: #6FA0D6;
-  --link: #A8CBEF;
+  --ink: #FFFFFF;            /* text on accent fills */
+  --accent: #0059FF;
+  --link: #6E9BFF;
   --link-hover: #c8ddf6;
   --gold: #E8B75E;
   --pro: #E8B75E;
@@ -49,14 +62,14 @@
   --now: #8fc2ff;
 
   /* surfaces (Master Changeset 3′: flat elevations, neutral hairlines) */
-  --surface-0: #0B0C0F;
-  --surface-1: #141519;
-  --surface-2: #1C1D22;
-  --surface-3: #17181C;   /* sheet, modal, menu */
+  --surface-0: #02061A;
+  --surface-1: #030923;
+  --surface-2: #071547;
+  --surface-3: #040C2C;   /* sheet, modal, menu */
   --line-contrast: rgba(255,255,255,.16);
   --accent-hover: #85B1E0;
   --accent-press: #5C8EC4;
-  --accent-ink: #06121F;
+  --accent-ink: #FFFFFF;
   --accent-tint: rgba(111,160,214,.14);
   --accent-tint-strong: rgba(111,160,214,.22);
   --accent-tint-weak: rgba(111,160,214,.06);
@@ -69,8 +82,8 @@
   --success-tint: rgba(95,191,155,.14);
   --danger-tint: rgba(229,100,90,.12);
   --warning: #E8A54B;
-  --line: rgba(255,255,255,.06);
-  --line-strong: rgba(255,255,255,.1);
+  --line: rgba(80,125,255,.12);
+  --line-strong: rgba(80,125,255,.2);
   --card: rgba(13,17,22,.85);
   --card-end: rgba(13,17,22,.9);
   --card-92: rgba(13,17,22,.92);
@@ -228,7 +241,7 @@
   --z-nav: 10; --z-fab: 20; --z-popover: 30; --z-docked: 40; --z-tour: 90; --z-modal: 100;
 
   /* plates (§3.2): dark is the default, light is the «switched on» accent — two per screen at most */
-  --plate-dark: #141519;
+  --plate-dark: #030923;
   --plate-dark-ink: var(--text);
   --plate-dark-secondary: var(--text-secondary);
   --plate-dark-glow: radial-gradient(70% 60% at 15% 20%, rgba(255,255,255,.06), transparent 70%);
@@ -241,7 +254,7 @@
   --plate-light-divider: rgba(10,13,18,.08);
 
   /* pastel dots for avatar stacks (§3.9) */
-  --dot-coral: #F2A099; --dot-cream: #F2E6B8; --dot-mint: #B6DBC4; --dot-sky: #B9D4F0; --dot-lilac: #D9C7F0; --dot-sand: #E8D4B5;
+  --dot-coral: #F2A099; --dot-cream: #F2E6B8; --dot-mint: #B6DBC4; --dot-sky: #0059FF; --dot-lilac: #D9C7F0; --dot-sand: #E8D4B5;
 
   /* layout */
   --rail-w: 104px;

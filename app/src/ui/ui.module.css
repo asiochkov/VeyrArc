@@ -23,7 +23,7 @@
 .avatar {
   border-radius: 50%;
   background: var(--dot-sky);
-  color: #0B0C0E;
+  color: #FFFFFF;
   display: grid;
   place-items: center;
   font-family: var(--font-ui);
@@ -52,12 +52,12 @@
 }
 
 /* ---- Segmented: a dark pill track, the chosen item is a white pill (same as the dock) ---- */
-.seg { display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: #141519; }
+.seg { display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: var(--c-tile); background-image: var(--c-glow); }
 .segItem { flex: 1; white-space: nowrap; border: none; border-radius: 999px; cursor: pointer; background: transparent; color: rgba(232,237,243,.5);
   padding: 9px 14px; font: var(--fw-regular) 14px var(--font-ui); letter-spacing: -.01em; transition: background-color var(--dur-base) var(--ease-out-strong), color var(--dur-base) var(--ease-out); }
 .segItem:hover { color: rgba(232,237,243,.8); }
-.segItem[aria-pressed='true'] { background: #F3F4F6; color: #0B0C0E; }
-.segAmber .segItem[aria-pressed='true'] { background: #F3F4F6; }
+.segItem[aria-pressed='true'] { background: var(--c-on); color: #FFFFFF; }
+.segAmber .segItem[aria-pressed='true'] { background: var(--c-on); }
 .seg-calendar .segItem, .seg-range .segItem { flex: none; }
 .seg-rangeSm .segItem { flex: none; padding: 6px 12px; font-size: 12px; }
 .seg-units { flex: none; }
@@ -202,7 +202,7 @@
   overflow-y: auto; overscroll-behavior: contain; z-index: var(--z-modal); animation: fadeIn 200ms var(--ease-out);
 }
 .modal {
-  width: 100%; max-width: 380px; background: #17181C; border: none; border-radius: 32px; padding: 26px 22px 18px;
+  width: 100%; max-width: 380px; background: var(--c-sheet); background-image: var(--c-glow); border: none; border-radius: 32px; padding: 26px 22px 18px;
   display: flex; flex-direction: column; gap: 10px; box-shadow: 0 30px 60px rgba(0,0,0,.55);
   animation: modalIn 420ms var(--ease-out-strong);
 }
@@ -211,9 +211,9 @@
 .modalTitle { font: var(--fw-regular) 22px/1.2 var(--font-ui); letter-spacing: -.025em; }
 .modalBody { font: var(--fw-regular) 14px/1.5 var(--font-ui); color: rgba(232,237,243,.6); }
 .modalActions { display: flex; gap: 10px; margin-top: 10px; }
-.modalCancel { flex: 1; min-height: 52px; border-radius: 999px; border: none; background: #232429; color: var(--text); font: var(--fw-medium) 15px var(--font-ui); cursor: pointer; transition: transform var(--dur-fast) var(--ease-out); }
+.modalCancel { flex: 1; min-height: 52px; border-radius: 999px; border: none; background: var(--c-raise); color: var(--text); font: var(--fw-medium) 15px var(--font-ui); cursor: pointer; transition: transform var(--dur-fast) var(--ease-out); }
 .modalCancel:active, .modalConfirm:active { transform: scale(.96); }
-.modalConfirm { flex: 1; white-space: nowrap; min-height: 52px; border-radius: 999px; border: none; font: var(--fw-medium) 15px var(--font-ui); cursor: pointer; background: #F3F4F6; color: #0B0C0E; transition: transform var(--dur-fast) var(--ease-out); }
+.modalConfirm { flex: 1; white-space: nowrap; min-height: 52px; border-radius: 999px; border: none; font: var(--fw-medium) 15px var(--font-ui); cursor: pointer; background: var(--c-on); color: #FFFFFF; transition: transform var(--dur-fast) var(--ease-out); }
 .modalConfirm[data-danger='true'] { background: #F2A099; color: #1A0705; }
 
 /* ---- Toasts (one system, above the bottom bar and the home indicator) ---- */
@@ -225,22 +225,22 @@
 @media (min-width: 1024px) { .toaster { bottom: 24px; } }
 .toast {
   pointer-events: auto; width: 100%; max-width: 440px; display: flex; align-items: center; gap: 12px;
-  padding: 10px 10px 10px 12px; border-radius: 24px; background: #F3F4F6; color: #0B0C0E; border: none;
+  padding: 10px 10px 10px 12px; border-radius: 24px; background: var(--c-on); color: #FFFFFF; border: none;
   box-shadow: 0 16px 40px rgba(0,0,0,.5); font: var(--fw-medium) 14px/1.35 var(--font-ui); animation: toastIn 420ms var(--ease-out-strong);
 }
 @keyframes toastIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
-.toastIcon { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #DCE5EF; color: #0B0C0E; }
-.toast[data-kind='success'] .toastIcon { color: #0B0C0E; background: var(--dot-mint); }
-.toast[data-kind='error'] .toastIcon { color: #0B0C0E; background: var(--dot-coral); }
+.toastIcon { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--c-on); color: #FFFFFF; }
+.toast[data-kind='success'] .toastIcon { color: #FFFFFF; background: var(--dot-mint); }
+.toast[data-kind='error'] .toastIcon { color: #FFFFFF; background: var(--dot-coral); }
 .toastText { flex: 1; min-width: 0; padding: 6px 0; }
-.toastAction { flex: none; height: 36px; padding: 0 16px; border-radius: 999px; border: none; background: #0B0C0E; color: #F3F4F6; font: var(--fw-medium) 13px var(--font-ui); cursor: pointer; }
-.toastClose { flex: none; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: rgba(11,12,14,.5); display: grid; place-items: center; cursor: pointer; }
+.toastAction { flex: none; height: 36px; padding: 0 16px; border-radius: 999px; border: none; background: #FFFFFF; color: var(--c-on); font: var(--fw-medium) 13px var(--font-ui); cursor: pointer; }
+.toastClose { flex: none; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: rgba(255,255,255,.65); display: grid; place-items: center; cursor: pointer; }
 
 /* ===== tile language overrides ===== */
 .cta { border-radius: 999px; font-weight: var(--fw-regular); letter-spacing: -.01em; transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-base); }
 .cta:active { transform: scale(.97); }
-.cta-primary { background: #F3F4F6; color: #0B0C0E; }
-.cta-ghost { background: #17181C; color: var(--text); border: none; }
+.cta-primary { background: var(--c-on); color: #FFFFFF; }
+.cta-ghost { background: var(--c-sheet); background-image: var(--c-glow); color: var(--text); border: none; }
 .cta-danger { background: #2A1C1B; color: var(--dot-coral); border: none; }
 .cta-dangerSolid { background: #F2A099; color: #1A0705; }
-.cta:disabled { background: #17181C; color: rgba(232,237,243,.3); }
+.cta:disabled { background: var(--c-sheet); background-image: var(--c-glow); color: rgba(232,237,243,.3); }

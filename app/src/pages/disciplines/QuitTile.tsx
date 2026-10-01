@@ -28,7 +28,7 @@ export function QuitTile({
   return (
     <div className={`tl tl-light ${q.tile}`}>
       <div className="tl-top">
-        <span className="cb" style={{ background: `color-mix(in srgb, ${r.hue} 40%, #fff)` }}><Icon name={r.icon} size={18} sw={1.8} /></span>
+        <span className="cb" style={{ background: '#FFFFFF', color: 'var(--c-on)' }}><Icon name={r.icon} size={18} sw={1.8} /></span>
         <span className={q.topRight}>
           <button type="button" className="cb cb-sm" onClick={onToggleMenu} aria-label={t('tracker.nextGoal', { n: nextGoal })}><Icon name="target" size={16} sw={1.8} /></button>
           <button type="button" className="cb cb-sm" onClick={onDelete} aria-label={t('common.delete')}><Icon name="trash" size={15} /></button>

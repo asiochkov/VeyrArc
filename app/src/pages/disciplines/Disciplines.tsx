@@ -147,7 +147,7 @@ function HabitCard({ t, h, db, core, style, onOpen }: { t: T; h: TrackerHabit; d
   return (
     <button type="button" className={`tl ${doneToday ? 'tl-light' : ''}`} style={{ ...style, '--hue': hue } as React.CSSProperties} onClick={onOpen}>
       <span className="tl-top">
-        <span className="cb" style={doneToday ? { background: `color-mix(in srgb, ${hue} 45%, #fff)`, color: '#0B0C0E' } : { color: hue }}><Icon name={h.icon} size={18} sw={1.8} /></span>
+        <span className="cb" style={doneToday ? { background: '#FFFFFF', color: 'var(--c-on)' } : { color: hue }}><Icon name={h.icon} size={18} sw={1.8} /></span>
         <span className={d.streakBadge} title={t('disc.streak')}>{h.streak}{core && <i />}</span>
       </span>
       <span className="tl-text">

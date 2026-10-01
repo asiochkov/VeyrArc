@@ -5,7 +5,7 @@
 }
 .backdrop[data-desktop='true'] { align-items: center; padding: 24px; }
 .panel {
-  width: 100%; max-height: calc(100% - 24px); overflow-y: auto; overscroll-behavior: contain; background: #17181C;
+  width: 100%; max-height: calc(100% - 24px); overflow-y: auto; overscroll-behavior: contain; background: var(--c-sheet); background-image: var(--c-glow);
   border: none; border-radius: 34px; box-shadow: 0 30px 60px rgba(0,0,0,.55);
   padding: 10px 18px calc(20px + var(--safe-bottom)); animation: sheetUp 460ms var(--ease-out-strong); transition: transform .18s ease-out;
 }
@@ -14,7 +14,7 @@
 .grabber { width: 40px; height: 5px; border-radius: 3px; background: rgba(232,237,243,.18); margin: 0 auto 14px; }
 .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .title { font: var(--fw-regular) 22px/1.2 var(--font-ui); letter-spacing: -.025em; min-width: 0; }
-.close { flex: none; width: 40px; height: 40px; border-radius: 50%; border: none; background: #232429; color: var(--text); display: grid; place-items: center; cursor: pointer; transition: transform var(--dur-fast) var(--ease-out); }
+.close { flex: none; width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--c-raise); color: var(--text); display: grid; place-items: center; cursor: pointer; transition: transform var(--dur-fast) var(--ease-out); }
 .close:active { transform: scale(.9); }
 @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
 @keyframes popIn { from { transform: scale(1.04); opacity: 0; } to { transform: none; opacity: 1; } }

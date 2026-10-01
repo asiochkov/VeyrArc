@@ -220,10 +220,10 @@ function ArcTrack({ t, day, len, n, oath }: { t: T; day: number; len: number; n:
   return (
     <button type="button" className={a.arc} onClick={() => setOpen(true)} aria-label={t('arc.oathTitle')}>
       <svg viewBox="0 0 120 66" className={a.arcSvg} aria-hidden="true">
-        <path d="M10 60 A50 50 0 0 1 110 60" fill="none" stroke="rgba(11,12,14,.1)" strokeWidth="5" strokeLinecap="round" />
-        <path d={`M10 60 A50 50 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)}`} fill="none" stroke="#0B0C0E" strokeWidth="5" strokeLinecap="round" />
-        {[30, 60, 90].map((c) => { const [cx, cy] = pt(c / len); return <circle key={c} cx={cx} cy={cy} r="2.4" fill={day >= c ? '#0B0C0E' : 'rgba(11,12,14,.25)'} />; })}
-        <circle cx={x} cy={y} r="5" fill="#0B0C0E" stroke="#DCE5EF" strokeWidth="2.5" />
+        <path d="M10 60 A50 50 0 0 1 110 60" fill="none" stroke="rgba(255,255,255,.2)" strokeWidth="5" strokeLinecap="round" />
+        <path d={`M10 60 A50 50 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)}`} fill="none" stroke="#FFFFFF" strokeWidth="5" strokeLinecap="round" />
+        {[30, 60, 90].map((c) => { const [cx, cy] = pt(c / len); return <circle key={c} cx={cx} cy={cy} r="2.4" fill={day >= c ? '#FFFFFF' : 'rgba(255,255,255,.35)'} />; })}
+        <circle cx={x} cy={y} r="5" fill="#FFFFFF" stroke="var(--c-on)" strokeWidth="2.5" />
       </svg>
       <span className={a.arcLabel}>Arc {roman(n)} · {t('analytics.dayOf', { d: day, l: len })}</span>
       <span className={a.oath}>{oath ? `«${oath}»` : t('arc.noOathShort')}</span>
@@ -237,7 +237,7 @@ function Spark({ vals }: { vals: number[] }) {
   const max = Math.max(1, ...vals);
   return (
     <svg className={a.spark} viewBox={`0 0 ${Math.max(1, vals.length - 1)} 10`} preserveAspectRatio="none" aria-hidden="true">
-      <polyline points={vals.map((v, i) => `${i},${10 - (v / max) * 9}`).join(' ')} fill="none" stroke="#F3F4F6" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+      <polyline points={vals.map((v, i) => `${i},${10 - (v / max) * 9}`).join(' ')} fill="none" stroke="var(--c-on)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
@@ -249,7 +249,7 @@ function History({ vals }: { vals: number[] }) {
   const max = Math.max(1000, ...vals), min = Math.min(0, ...vals);
   return (
     <svg className={a.history} viewBox={`0 0 ${Math.max(1, vals.length - 1)} 100`} preserveAspectRatio="none" role="img" aria-label={vals.join(', ')}>
-      <polyline points={vals.map((v, i) => `${i},${100 - ((v - min) / (max - min)) * 96}`).join(' ')} fill="none" stroke="#F3F4F6" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+      <polyline points={vals.map((v, i) => `${i},${100 - ((v - min) / (max - min)) * 96}`).join(' ')} fill="none" stroke="var(--c-on)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

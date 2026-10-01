@@ -147,8 +147,8 @@
 .obBar > span { display: block; height: 100%; background: #6FA0D6; transition: width .3s ease; }
 
 /* ===== tile language overrides ===== */
-.obStep { border-radius: 24px; border: none; background: #141519; backdrop-filter: none; }
-.obStep[data-on='true'] { background: #F3F4F6; color: #0B0C0E; border: none; }
-.ctaSm { height: 44px; padding: 0 18px; border-radius: 999px; background: #F3F4F6; color: #0B0C0E; font: var(--fw-regular) 14px var(--font-ui); }
-.field { height: 56px; border-radius: 22px; padding: 0 20px; font: var(--fw-regular) 17px var(--font-ui); letter-spacing: -.01em; background: #17181C; }
-.field:focus { box-shadow: 0 0 0 2px rgba(243,244,246,.22); background: #1C1D22; }
+.obStep { border-radius: 24px; border: none; background: var(--c-tile); background-image: var(--c-glow); backdrop-filter: none; }
+.obStep[data-on='true'] { background: var(--c-on); color: #FFFFFF; border: none; }
+.ctaSm { height: 44px; padding: 0 18px; border-radius: 999px; background: var(--c-on); color: #FFFFFF; font: var(--fw-regular) 14px var(--font-ui); }
+.field { height: 56px; border-radius: 22px; padding: 0 20px; font: var(--fw-regular) 17px var(--font-ui); letter-spacing: -.01em; background: var(--c-sheet); background-image: var(--c-glow); }
+.field:focus { box-shadow: 0 0 0 2px rgba(243,244,246,.22); background: var(--c-field); }

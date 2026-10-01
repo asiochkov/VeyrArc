@@ -8,7 +8,7 @@ html, body, #root { width: 100%; min-width: 100%; max-width: 100%; height: 100%;
 /* an app, not a page: no pinch/double-tap zoom, no sideways drift, no rubber-band on the page */
 html[data-fit-screen], html[data-fit-screen] body { min-height: var(--app-h); }
 /* below the shell (if iOS reports a short viewport) the page shows the bottom bar's colour, not a dark strip */
-html { background: #090c10; } /* = var(--bar) without alpha; the body keeps var(--bg) */
+html { background: #000; } /* = var(--bar) without alpha; the body keeps var(--bg) */
 html, body { overflow: hidden; overscroll-behavior: none; touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* app feel: no grey tap flash, no double-tap zoom delay; drag surfaces opt in to touch-action: none themselves */
 button, a, [role='button'], [role='checkbox'], [role='switch'], label { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
@@ -145,7 +145,7 @@ html[data-density='compact'] { --hit: 40px; }
 
 /* overlapping circles (§3.9) */
 .avatar-stack { display: flex; align-items: center; }
-.avatar-stack > span { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: var(--fw-semibold) 11px var(--font-ui); color: #0A0D12; margin-left: -8px; box-shadow: 0 0 0 2px var(--plate-dark); }
+.avatar-stack > span { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: var(--fw-semibold) 11px var(--font-ui); color: #FFFFFF; margin-left: -8px; box-shadow: 0 0 0 2px var(--plate-dark); }
 .avatar-stack > span:first-child { margin-left: 0; }
 
 /* orchestrated screen entry (§4.2): children rise one after another, once on mount */
@@ -174,7 +174,7 @@ html[data-density='compact'] { --hit: 40px; }
 .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--line-strong); }
 .btn-secondary:hover { background: var(--surface-1); border-color: var(--line-contrast); }
 .btn-danger { background: var(--danger); color: #fff; }
-.btn-plate { background: #0A0D12; color: #F2F4F7; }  /* black pill on a light plate */
+.btn-plate { background: #FFFFFF; color: #F2F4F7; }  /* black pill on a light plate */
 .btn-plate:active, .btn-secondary:active, .btn-danger:active { transform: scale(.98); }
 .btn-sm { height: 36px; padding: 0 14px; font-size: var(--fs-13); }
 :is(.btn-primary, .btn-secondary, .btn-danger, .btn-plate):disabled { opacity: .45; }

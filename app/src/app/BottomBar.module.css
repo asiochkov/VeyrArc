@@ -1,23 +1,23 @@
 .dock {
   position: fixed; z-index: var(--z-docked); left: 0; right: 0; bottom: 0;
   display: flex; align-items: center; gap: 8px; padding: 10px 10px max(10px, var(--safe-bottom));
-  background: linear-gradient(to top, rgba(5,7,10,.92) 40%, rgba(5,7,10,0)); pointer-events: none;
+  background: linear-gradient(to top, rgba(0,0,0,.92) 40%, rgba(0,0,0,0)); pointer-events: none;
   animation: dockIn 520ms var(--ease-out-strong) both;
 }
 @keyframes dockIn { from { transform: translateY(100%); opacity: .4; } to { transform: none; opacity: 1; } }
 .bar {
   flex: 1; display: flex; justify-content: space-around; align-items: center; height: 64px; padding: 0 6px;
-  border-radius: var(--r-pill); background: rgba(23,24,28,.88); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
-  box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.05); pointer-events: auto;
+  border-radius: var(--r-pill); background: rgba(3,9,35,.82); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(80,125,255,.16); pointer-events: auto;
 }
 .item { position: relative; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: rgba(232,237,243,.42); transition: color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
 .item:hover { color: rgba(232,237,243,.75); }
 .item:active { transform: scale(.9); }
-.item[data-active='true'] { color: #0B0C0E; background: #F3F4F6; }
+.item[data-active='true'] { color: #FFFFFF; background: var(--c-on); }
 .fab {
-  flex: none; width: 64px; height: 64px; border-radius: 50%; border: none; background: #F3F4F6; color: #0B0C0E;
+  flex: none; width: 64px; height: 64px; border-radius: 50%; border: none; background: var(--c-on); color: #FFFFFF;
   display: grid; place-items: center; cursor: pointer; pointer-events: auto;
-  box-shadow: 0 10px 30px rgba(0,0,0,.45); transition: transform var(--dur-fast) var(--ease-out);
+  box-shadow: 0 10px 30px rgba(0,89,255,.45); transition: transform var(--dur-fast) var(--ease-out);
 }
 .fab:active { transform: scale(.92); }
 @media (prefers-reduced-motion: reduce) { .dock { animation: none; } }
