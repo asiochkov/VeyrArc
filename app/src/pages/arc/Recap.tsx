@@ -18,7 +18,7 @@ import r from './recap.module.css';
  * or from the sidebar archive at any time.
  */
 type Stage = 'intro' | 'reveal' | 'complete';
-const COLORS = ['#6FA0D6', '#A8CBEF', '#C8A66A', '#9B87D6', '#5FBF9B'];
+const COLORS = ['#2D6CF0', '#FFFFFF', '#004BE0', '#6E9BFF', '#5FBF9B'];
 const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 export function Recap() {

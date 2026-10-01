@@ -140,8 +140,8 @@ function GoalChip({ t, goal, selected, onPick, onComplete }: { t: T; goal: GoalD
   return (
     <div className={g.chipWrap} ref={ref}>
       <button type="button" role="tab" aria-selected={selected} className={g.chip} onClick={onPick} onContextMenu={(e) => { e.preventDefault(); setMenu(true); }}
-        style={selected ? { background: goal.hue, color: '#06121f', borderColor: goal.hue } : undefined}>
-        <span className={g.chipDot} style={{ background: selected ? '#06121f' : goal.hue }} />{goal.title}
+        style={selected ? { background: goal.hue, color: '#FFFFFF', borderColor: goal.hue } : undefined}>
+        <span className={g.chipDot} style={{ background: selected ? '#FFFFFF' : goal.hue }} />{goal.title}
       </button>
       {selected && <button type="button" className={g.more} onClick={() => setMenu(!menu)} aria-label={t('goals.menu')} aria-expanded={menu}><Icon name="menu" size={14} sw={2} /></button>}
       {menu && (
@@ -267,7 +267,7 @@ function DayView({ t, sys, goal, today }: { t: T; sys: SystemRaw; goal: GoalDb; 
           {[0, 1, 2, 3, 4].map((i) => (
             <button key={i} type="button" className={g.moodBtn} aria-pressed={mood === i + 1} aria-label={words[i]} disabled={future}
               onClick={() => logMood(mood === i + 1 ? null : i, date)}>
-              <MoodFace level={i} size={18} color={mood === i + 1 ? '#A8CBEF' : 'rgba(232,237,243,.45)'} />
+              <MoodFace level={i} size={18} color={mood === i + 1 ? '#FFFFFF' : 'rgba(232,237,243,.45)'} />
             </button>
           ))}
         </div>
@@ -330,7 +330,7 @@ function MonthView({ t, sys, goal, today }: { t: T; sys: SystemRaw; goal: GoalDb
             const st = statusOf(sys, goal, d, today);
             return (
               <span key={d} className={g.cell} data-s={st} data-today={d === today} aria-label={`${i + 1}: ${t(`goals.status.${st}`)}`}
-                style={st === 'done' ? { background: goal.hue, color: '#06121f' } : st === 'partial' ? { boxShadow: `inset 0 0 0 2px ${goal.hue}` } : undefined}>{i + 1}</span>
+                style={st === 'done' ? { background: goal.hue, color: '#FFFFFF' } : st === 'partial' ? { boxShadow: `inset 0 0 0 2px ${goal.hue}` } : undefined}>{i + 1}</span>
             );
           })}
         </div>

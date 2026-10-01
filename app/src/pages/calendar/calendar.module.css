@@ -50,7 +50,7 @@
   background: repeating-linear-gradient(to bottom, transparent, transparent 63px, rgba(168,203,239,.06) 63px, rgba(168,203,239,.06) 64px);
 }
 .col[data-today='true'] {
-  background: repeating-linear-gradient(to bottom, rgba(111,160,214,.09), rgba(111,160,214,.09) 63px, rgba(111,160,214,.14) 63px, rgba(111,160,214,.14) 64px);
+  background: repeating-linear-gradient(to bottom, rgba(0,75,224,.09), rgba(0,75,224,.09) 63px, rgba(0,75,224,.14) 63px, rgba(0,75,224,.14) 64px);
 }
 .ev { position: absolute; left: 4px; right: 4px; border-radius: 12px; padding: 8px 10px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.22); touch-action: pan-y; user-select: none; }
 .ev[data-sel='true'] { outline: 2px solid #E8EDF3; outline-offset: 1px; }
@@ -165,7 +165,7 @@
 .select { width: 100%; height: 40px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--w-04); color: var(--text); color-scheme: dark; }
 .hintSmall { flex-basis: 100%; font: var(--fw-regular) 11px var(--font-ui); color: var(--text-muted); margin-left: 28px; }
 .doneRow input[type='checkbox'] { width: 18px; height: 18px; accent-color: var(--accent); }
-.focusBtn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(111,160,214,.4); background: rgba(111,160,214,.08); color: var(--link); font: var(--fw-semibold) 13px var(--font-ui); cursor: pointer; }
+.focusBtn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(0,75,224,.4); background: rgba(0,75,224,.08); color: var(--link); font: var(--fw-semibold) 13px var(--font-ui); cursor: pointer; }
 .weekBox { margin-top: 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-1); }
 .weekSum { list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 14px; font: var(--fw-semibold) 13px var(--font-ui); cursor: pointer; }
 .weekSum::-webkit-details-marker { display: none; }
@@ -284,5 +284,5 @@
 .grip::after, .mGrip::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 26px; height: 4px; margin-left: -13px; border-radius: 4px; background: rgba(255,255,255,.55); }
 .mGrip { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; opacity: 0; transition: opacity 160ms; }
 html[data-dragging], html[data-dragging] * { cursor: grabbing !important; }
-.holdHint { display: flex; align-items: center; gap: 6px; margin: 0 0 10px 48px; font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.42); }
+.holdHint { display: flex; align-items: center; gap: 6px; margin: 0 0 10px 48px; line-height: 1.35; font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.42); }
 @media (prefers-reduced-motion: reduce) { .ev[data-drag='true'], .mEv[data-drag='true'] { animation: none; } }

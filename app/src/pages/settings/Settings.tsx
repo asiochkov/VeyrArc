@@ -233,7 +233,7 @@ export function Settings() {
                       <span style={{ display: 'block', font: 'var(--fw-medium) 12px var(--font-mono)', color: 'rgba(232,237,243,.6)', marginTop: 3, whiteSpace: 'nowrap' }}>{t.pick(a.dates)}</span>
                     </span>
                     <span style={{ textAlign: 'right', flex: 'none' }}>
-                      <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-mono)', color: '#A8CBEF' }}>{a.pct}</span>
+                      <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-mono)', color: '#FFFFFF' }}>{a.pct}</span>
                       <span style={{ display: 'block', font: 'var(--fw-regular) 9px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{a.current ? t('settings.current') : t('settings.completed')}</span>
                     </span>
                   </Link>

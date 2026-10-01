@@ -20,7 +20,7 @@ import s from './auth.module.css';
 import { AuthLayout, up } from './AuthLayout';
 import { DIR_ICONS, DIRS, TIME_OPTS, useFlow, type DirId } from './flow';
 
-const BURST_COLORS = ['#6FA0D6', '#A8CBEF', '#E8A54B', '#9B87D6', '#5FBF9B'];
+const BURST_COLORS = ['#2D6CF0', '#FFFFFF', '#004BE0', '#6E9BFF', '#5FBF9B'];
 
 /* confetti from burst(n, spread, colors) */
 function Burst({ n, spread }: { n: number; spread: number }) {
@@ -73,7 +73,7 @@ export function Onboarding() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8 }}>
               {stepLabels.map((label, i) => (
                 <button key={i} type="button" className={s.obStep} data-on={i === ob} onClick={() => { if (i <= ob) go(i); }}>
-                  <span className={s.obNum} style={i === ob ? undefined : { color: i < ob ? '#A8CBEF' : 'rgba(232,237,243,.38)' }}>{'0' + (i + 1)}</span>
+                  <span className={s.obNum} style={i === ob ? undefined : { color: i < ob ? '#FFFFFF' : 'rgba(232,237,243,.38)' }}>{'0' + (i + 1)}</span>
                   <span className={s.obLabel}>{label}</span>
                 </button>
               ))}
@@ -217,18 +217,18 @@ export function DayOne() {
       {({ dir, isDesktop }) => (
         <div className={dir > 0 ? s.screenL : s.screenR} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: isDesktop ? 560 : 640 }}>
           <div style={{ font: 'var(--fw-heavy) 50px/1.04 var(--font-ui)', letterSpacing: '-.03em', ...up(1) }}>{t('auth.day1')}</div>
-          <div style={{ font: 'var(--fw-heavy) 50px/1.04 var(--font-ui)', letterSpacing: '-.03em', color: '#A8CBEF', ...up(2) }}>{t('auth.ready')}</div>
+          <div style={{ font: 'var(--fw-heavy) 50px/1.04 var(--font-ui)', letterSpacing: '-.03em', color: '#FFFFFF', ...up(2) }}>{t('auth.ready')}</div>
           <div style={{ position: 'relative', width: 156, height: 156, marginTop: 46, ...up(3) }}>
             <svg width="156" height="156" viewBox="0 0 156 156" style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}>
               <circle cx="78" cy="78" r="74" fill="none" stroke="rgba(168,203,239,.12)" strokeWidth="4" />
-              <circle cx="78" cy="78" r="74" fill="none" stroke={celebrate ? '#5FBF9B' : '#6FA0D6'} strokeWidth="4" strokeLinecap="round" strokeDasharray="464.96" strokeDashoffset={(464.96 * (1 - holdP)).toFixed(1)} />
+              <circle cx="78" cy="78" r="74" fill="none" stroke={celebrate ? '#1F9C79' : '#2D6CF0'} strokeWidth="4" strokeLinecap="round" strokeDasharray="464.96" strokeDashoffset={(464.96 * (1 - holdP)).toFixed(1)} />
             </svg>
             <button
               type="button" onPointerDown={holdStart} onPointerUp={holdEnd} onPointerLeave={holdEnd} onPointerCancel={holdEnd} onContextMenu={(e) => e.preventDefault()}
               style={{
                 position: 'absolute', inset: 12, borderRadius: '50%', border: 'none', cursor: 'pointer', touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none',
                 font: 'var(--fw-heavy) 17px var(--font-ui)', transition: 'transform .15s, background-color .3s', transform: `scale(${holdP > 0 && !celebrate ? 0.94 : 1})`,
-                background: celebrate ? '#5FBF9B' : '#F3F6FA', color: celebrate ? '#fff' : '#06121f', boxShadow: '0 14px 40px rgba(111,160,214,.25)',
+                background: celebrate ? '#0B7358' : 'var(--c-on)', color: celebrate ? '#fff' : '#FFFFFF', boxShadow: '0 14px 40px rgba(0,75,224,.25)',
               }}
             >{t('auth.imIn')}</button>
             {celebrate && <Burst n={18} spread={120} />}
@@ -332,7 +332,7 @@ export function Account() {
                 {config.auth.apple && (
                   <div className={s.subRow}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}><Icon name="apple" size={18} /><span>Apple</span></span>
-                    <button type="button" onClick={() => setAppleLinked(!appleLinked)} style={{ height: 34, padding: '0 14px', borderRadius: 10, cursor: 'pointer', font: 'var(--fw-bold) 12px var(--font-ui)', ...(appleLinked ? { background: 'transparent', border: '1px solid rgba(168,203,239,.12)', color: 'rgba(232,237,243,.58)' } : { background: '#6FA0D6', border: 'none', color: '#06121f' }) }}>
+                    <button type="button" onClick={() => setAppleLinked(!appleLinked)} style={{ height: 34, padding: '0 14px', borderRadius: 10, cursor: 'pointer', font: 'var(--fw-bold) 12px var(--font-ui)', ...(appleLinked ? { background: 'transparent', border: '1px solid rgba(168,203,239,.12)', color: 'rgba(232,237,243,.58)' } : { background: '#2D6CF0', border: 'none', color: '#FFFFFF' }) }}>
                       {appleLinked ? t('auth.unlink') : t('auth.link')}
                     </button>
                   </div>

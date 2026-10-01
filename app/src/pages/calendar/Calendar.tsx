@@ -371,7 +371,7 @@ function Editor({ t, st, d }: { t: T; st: St; d: Draft }) {
       <input className={s.titleInput} value={ev.title} placeholder={t('calendar.taskName')} autoFocus={d.isNew} maxLength={120}
         onChange={(e) => set({ title: e.target.value })} onKeyDown={(e) => { if (e.key === 'Enter') save(); }} />
       <div className={s.dateRow}>
-        <span style={{ color: '#6FA0D6', display: 'grid' }}><Icon name="cal" size={16} /></span>
+        <span style={{ color: '#2D6CF0', display: 'grid' }}><Icon name="cal" size={16} /></span>
         <input className={s.dateInput} type="date" value={ev.day} aria-label={t('calendar.date')} onChange={(e) => e.target.value && set({ day: e.target.value })} />
         <span className={s.dateText}>{dayLabel(t, ev.day)}</span>
       </div>
@@ -428,7 +428,7 @@ function Editor({ t, st, d }: { t: T; st: St; d: Draft }) {
       <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         {!d.isNew && <button type="button" className={s.delBtn} onClick={() => st.remove(ev.id)} aria-label={t('calendar.deleteTask')}><Icon name="trash" size={16} /></button>}
         {!d.isNew && ev.focus && !ev.done && ev.day === st.today && (
-          <button type="button" className={s.delBtn} style={{ color: 'var(--link)', borderColor: 'rgba(111,160,214,.4)', background: 'rgba(111,160,214,.1)' }}
+          <button type="button" className={s.delBtn} style={{ color: 'var(--link)', borderColor: 'rgba(0,75,224,.4)', background: 'rgba(0,75,224,.1)' }}
             onClick={() => { st.setDraft(null); pomo.openSheet({ eventId: ev.id, label: ev.title, goalId: ev.linkedGoalId ?? undefined }); }} aria-label={t('cockpit.now.focus')}><Icon name="bolt" size={16} /></button>
         )}
         <button type="button" className={s.saveBtn} style={{ marginTop: 0 }} onClick={save}>{d.isNew ? t('calendar.createTask') : t('calendar.save')}</button>

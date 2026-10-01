@@ -85,3 +85,4 @@ textarea.field { padding: 14px 18px; min-height: 96px; resize: vertical; line-he
 @keyframes tlIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes tlRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .tl, .tabs, .caption { animation: none !important; } }
+button.cb-white:disabled { background: var(--c-raise); color: rgba(255,255,255,.5); opacity: 1; }

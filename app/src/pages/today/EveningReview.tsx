@@ -63,7 +63,7 @@ export function EveningReview({ open, onClose }: { open: boolean; onClose: () =>
           <div className={c.moods} style={{ marginTop: 14 }}>
             {[0, 1, 2, 3, 4].map((i) => (
               <button key={i} type="button" className={c.moodBtn} aria-pressed={mood === i} aria-label={words[i]} onClick={() => setMood(i)}>
-                <MoodFace level={i} color={mood === i ? '#A8CBEF' : 'rgba(232,237,243,.45)'} />
+                <MoodFace level={i} color={mood === i ? '#FFFFFF' : 'rgba(232,237,243,.45)'} />
               </button>
             ))}
           </div>
