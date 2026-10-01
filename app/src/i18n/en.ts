@@ -548,6 +548,7 @@ export const en: Dict = {
     monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   },
   pomo: {
+    hidden: 'Timer keeps running — see the Focus tile',
     pause: 'Pause',
     stop: 'Stop',
     title: 'Focus',

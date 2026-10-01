@@ -1,3 +1,4 @@
+import { toast } from './toast';
 import { useEffect, useState } from 'react';
 import { useT } from '../i18n';
 import { isoDay } from '../lib/day';
@@ -107,7 +108,7 @@ export function DockedPomodoro() {
   const st = useTick();
   const full = st.lengths[st.tab] * 60;
   const active = !!st.endsAt || (st.left > 0 && st.left < full);
-  if (!active || st.open) return null;
+  if (!active || st.open || !st.docked) return null;
   const pct = 1 - st.left / full;
   return (
     <div className={s.dock} role="region" aria-label={t('pomo.title')}>
@@ -120,6 +121,14 @@ export function DockedPomodoro() {
       </button>
       <button type="button" className={s.dockBtn} onClick={pomo.toggle} aria-label={t(st.endsAt ? 'today.pomoPause' : 'today.pomoStart')}>
         <Icon name={st.endsAt ? 'pause' : 'play'} size={16} />
+      </button>
+      <button type="button" className={s.dockClose} aria-label={t('common.close')} onClick={() => {
+        pomo.hideDock();
+        // a running timer keeps going: say where it is and offer to stop it
+        if (st.endsAt) toast.action(t('pomo.hidden'), t('pomo.stop'), () => pomo.reset(), 5000);
+        else pomo.reset();
+      }}>
+        <Icon name="close" size={14} sw={2} />
       </button>
     </div>
   );

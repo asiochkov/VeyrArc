@@ -24,6 +24,7 @@ type State = {
   lengths: Lengths;
   link: PomoLink;
   finished: number;        // bumps when a session ends (for a short «done» state)
+  docked: boolean;         // the mini timer over the screens (closed with ×, back on the next start)
 };
 const KEY = 'veyrarc.pomo';
 const load = (): Partial<State> => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } };
@@ -31,7 +32,7 @@ const saved = load();
 
 export const usePomodoro = create<State>(() => ({
   open: false, tab: (saved.tab ?? 0) as PomoTab, left: saved.left ?? DEFAULT_LENGTHS[0] * 60, endsAt: saved.endsAt ?? null,
-  lengths: saved.lengths ?? DEFAULT_LENGTHS, link: saved.link ?? {}, finished: 0,
+  lengths: saved.lengths ?? DEFAULT_LENGTHS, link: saved.link ?? {}, finished: 0, docked: true,
 }));
 usePomodoro.subscribe((s) => {
   try { localStorage.setItem(KEY, JSON.stringify({ tab: s.tab, left: s.left, endsAt: s.endsAt, lengths: s.lengths, link: s.link })); } catch { /* no storage */ }
@@ -53,7 +54,8 @@ export const pomo = {
   closeSheet: () => usePomodoro.setState({ open: false }),
   setTab: (tab: PomoTab) => usePomodoro.setState((s) => ({ tab, endsAt: null, left: s.lengths[tab] * 60 })),
   setLink: (link: PomoLink) => usePomodoro.setState({ link }),
-  start: (link?: PomoLink) => usePomodoro.setState((s) => ({ endsAt: Date.now() + remaining(s) * 1000, link: link ?? s.link })),
+  start: (link?: PomoLink) => usePomodoro.setState((s) => ({ endsAt: Date.now() + remaining(s) * 1000, link: link ?? s.link, docked: true })),
+  hideDock: () => usePomodoro.setState({ docked: false }),
   pause: () => usePomodoro.setState((s) => ({ left: remaining(s), endsAt: null })),
   toggle: () => (usePomodoro.getState().endsAt ? pomo.pause() : pomo.start()),
   reset: () => usePomodoro.setState((s) => ({ endsAt: null, left: s.lengths[s.tab] * 60 })),

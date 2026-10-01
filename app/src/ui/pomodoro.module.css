@@ -31,3 +31,10 @@
 .dockLabel { font: var(--fw-medium) 11px var(--font-ui); color: var(--text-muted); max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dockBtn { width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--accent); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
 @keyframes dockIn { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---- dock in the palette, with a close button ---- */
+.dock { padding: 6px; gap: 6px; border-radius: 999px; border: none; background: var(--c-tile); background-image: var(--c-glow); box-shadow: var(--c-edge), 0 14px 36px rgba(0,0,0,.6); }
+.dockClock { font: var(--fw-regular) 16px var(--font-ui); letter-spacing: -.02em; }
+.dockBtn { width: 40px; height: 40px; border-radius: 50%; background: var(--c-on); color: #fff; transition: transform 160ms var(--ease-out); }
+.dockClose { width: 32px; height: 32px; margin-right: 2px; border-radius: 50%; border: none; background: var(--c-raise); color: rgba(255,255,255,.75); display: grid; place-items: center; cursor: pointer; transition: transform 160ms var(--ease-out); }
+.dockBtn:active, .dockClose:active { transform: scale(.88); }
