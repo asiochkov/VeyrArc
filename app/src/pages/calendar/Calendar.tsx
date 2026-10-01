@@ -640,6 +640,23 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
     const dx = e.changedTouches[0].clientX - w.x, dy = e.changedTouches[0].clientY - w.y;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) st.setSel(addDays(st.sel, dx < 0 ? 7 : -7));
   };
+  // open on «now»: today scrolls to the current time (a third from the top), another day to its
+  // first task — the morning hours stay above, a swipe away
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const areaRef = useRef<HTMLDivElement>(null);
+  const opened = useRef(false);
+  useEffect(() => {
+    const sc = scrollRef.current, area = areaRef.current;
+    if (!sc || !area || !st.ready) return;
+    const first = !opened.current;
+    if (!first && st.sel !== st.today) return; // picking another day keeps the day strip in view
+    opened.current = true;
+    const nd = new Date();
+    const target = st.sel === st.today ? nd.getHours() + nd.getMinutes() / 60 : timed[0]?.s ?? 8;
+    const y = area.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop + (Math.max(h0, target) - h0) * ROW_M - sc.clientHeight * 0.3;
+    sc.scrollTo({ top: Math.max(0, y), behavior: first ? 'auto' : 'smooth' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [st.sel, st.ready]);
   const areaClick = (e: MouseEvent<HTMLDivElement>) => {
     if (e.target !== e.currentTarget) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -647,7 +664,7 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
   };
 
   return (
-    <div className={s.mobileScroll} data-scroll data-fixed-scale>
+    <div ref={scrollRef} className={s.mobileScroll} data-scroll data-fixed-scale>
       <AppHeader title={t('nav.planner')} />
 
       <div style={{ marginTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -705,7 +722,7 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
         <div style={{ width: 48, flex: 'none', display: 'flex', flexDirection: 'column', paddingTop: 2 }}>
           {hours.map((h) => <div key={h} className={s.mHour}>{h}</div>)}
         </div>
-        <div className={s.mArea} data-day={st.sel} style={{ height: (h1 - h0 + 1) * ROW_M }} onClick={areaClick}>
+        <div ref={areaRef} className={s.mArea} data-day={st.sel} style={{ height: (h1 - h0 + 1) * ROW_M }} onClick={areaClick}>
           {st.sel === st.today && <NowLine now={st.now} h0={h0} row={ROW_M} />}
           {timed.map((ev) => (
             <button key={ev.id} type="button" className={s.mEv} data-ev data-drag={st.dragId === ev.id} data-done={ev.done}

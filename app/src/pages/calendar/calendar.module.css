@@ -286,3 +286,7 @@
 html[data-dragging], html[data-dragging] * { cursor: grabbing !important; }
 .holdHint { display: flex; align-items: center; gap: 6px; margin: 0 0 10px 48px; line-height: 1.35; font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.42); }
 @media (prefers-reduced-motion: reduce) { .ev[data-drag='true'], .mEv[data-drag='true'] { animation: none; } }
+
+/* done tasks fade back (filter, not opacity: the entry animation owns opacity) */
+.ev[data-done='true'], .mEv[data-done='true'], .allDayItem[data-done='true'] { filter: saturate(.25) brightness(.55); }
+.ev[data-done='true'] .evTitle, .mEv[data-done='true'] .mEvTitle, .ev[data-done='true'] .evTime, .mEv[data-done='true'] .evTime { color: rgba(255,255,255,.75); text-decoration: line-through; text-decoration-color: rgba(255,255,255,.5); }
