@@ -131,7 +131,7 @@ export const ru = {
     taskName: 'Название задачи',
     createTask: 'Создать задачу',
     newTaskDefault: 'Новая задача',
-    cats: { meeting: 'Встреча', work: 'Работа', deadline: 'Дедлайн', review: 'Ревью' },
+    cats: { meeting: 'Личное', work: 'Работа', deadline: 'Здоровье', review: 'Учёба' },
     planner: 'Планер',
     tasksToday: { one: 'Всего {n} задача на сегодня', few: 'Всего {n} задачи на сегодня', many: 'Всего {n} задач на сегодня', other: 'Всего {n} задачи на сегодня' },
     schedule: 'Расписание',

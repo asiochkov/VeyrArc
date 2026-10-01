@@ -126,7 +126,7 @@ export const en: Dict = {
     taskName: 'Task name',
     createTask: 'Create task',
     newTaskDefault: 'New task',
-    cats: { meeting: 'Meeting', work: 'Work', deadline: 'Deadline', review: 'Review' },
+    cats: { meeting: 'Personal', work: 'Work', deadline: 'Health', review: 'Learning' },
     planner: 'Planner',
     tasksToday: { one: '{n} task today in total', other: '{n} tasks today in total' },
     schedule: 'Schedule',

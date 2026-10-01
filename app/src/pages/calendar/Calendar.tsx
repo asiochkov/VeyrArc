@@ -26,10 +26,10 @@ const DRAG_THRESHOLD = 8;
 const fmtH = (x: number) => `${String(Math.floor(x)).padStart(2, '0')}:${String(Math.round((x % 1) * 60)).padStart(2, '0')}`;
 const COLORS: EvColor[] = ['blue', 'green', 'red', 'purple'];
 const BD: { c: EvColor; label: { ru: string; en: string } }[] = [
-  { c: 'blue', label: { ru: 'Встречи', en: 'Meetings' } },
+  { c: 'blue', label: { ru: 'Личное', en: 'Personal' } },
   { c: 'green', label: { ru: 'Работа', en: 'Work' } },
-  { c: 'red', label: { ru: 'Дедлайны', en: 'Deadlines' } },
-  { c: 'purple', label: { ru: 'Ревью', en: 'Reviews' } },
+  { c: 'red', label: { ru: 'Здоровье', en: 'Health' } },
+  { c: 'purple', label: { ru: 'Учёба', en: 'Learning' } },
 ];
 
 const fmt = (x: number) => {
