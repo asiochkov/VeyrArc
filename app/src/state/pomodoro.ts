@@ -37,6 +37,16 @@ export const usePomodoro = create<State>(() => ({
 usePomodoro.subscribe((s) => {
   try { localStorage.setItem(KEY, JSON.stringify({ tab: s.tab, left: s.left, endsAt: s.endsAt, lengths: s.lengths, link: s.link })); } catch { /* no storage */ }
 });
+// the server sends «session done» when the app is closed: it needs to know when the timer ends
+const focusKey = (s: State) => `${s.endsAt}|${s.tab}|${s.tab === 0 ? s.link.label ?? '' : ''}`;
+let synced = focusKey(usePomodoro.getState());
+const focusProfile = (s: State) => ({ lengths: s.lengths, endsAt: s.endsAt, tab: s.tab, label: s.tab === 0 ? s.link.label ?? null : null });
+usePomodoro.subscribe((s) => {
+  const k = focusKey(s);
+  if (k === synced || !hasBackend || !useAuth.getState().session) return;
+  synced = k;
+  setProfile({ pomodoro: focusProfile(s) });
+});
 // profile lengths win once the profile has loaded
 useAuth.subscribe((a) => {
   const l = a.profile?.pomodoro?.lengths;
@@ -64,7 +74,7 @@ export const pomo = {
     const lengths = [...s.lengths] as Lengths;
     lengths[i] = m;
     usePomodoro.setState({ lengths, left: i === s.tab && !s.endsAt ? m * 60 : s.left });
-    if (hasBackend) setProfile({ pomodoro: { lengths } });
+    if (hasBackend) setProfile({ pomodoro: focusProfile(usePomodoro.getState()) });
   },
   /** called by the ticking views when the countdown reaches zero */
   complete: (sessionNo: number) => {

@@ -47,7 +47,7 @@ export function Settings() {
   const qc = useQueryClient();
   const arcsQ = useSystem((r) => r.arcs);
   const [unitLocal, setUnitLocal] = useState<'ml' | 'oz'>('ml');
-  const [notifLocal, setNotifLocal] = useState({ n1: true, n2: true, n3: true, n4: false });
+  const [notifLocal, setNotifLocal] = useState({ n1: true, n2: true, n3: true, n4: true });
   // backend: values live in the profile row
   const unit = hasBackend ? profile?.water_unit ?? 'ml' : unitLocal;
   const setUnit = (u: 'ml' | 'oz') => { if (hasBackend) setProfile({ water_unit: u }); else setUnitLocal(u); };
@@ -183,8 +183,7 @@ export function Settings() {
           <div className={s.groupTitle}>{t('settings.notifications')}</div>
           <div className={s.list}>
             <DeviceNotif t={t} />
-            {/* n4 (arc start/end) has no server push yet — hidden for the beta */}
-            {(['n1', 'n2', 'n3'] as const).map((k) => (
+            {(['n1', 'n2', 'n3', 'n4'] as const).map((k) => (
               <button key={k} type="button" role="switch" aria-checked={notif[k]} className={s.row} style={{ cursor: 'pointer' }} onClick={() => toggleNotif(k)}>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t(`settings.${k}`)}</span>

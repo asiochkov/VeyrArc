@@ -1,9 +1,15 @@
-// VeyrArc · push reminders (UX audit 3.6 / 5.7). Called every 5 minutes by pg_cron.
+// VeyrArc · push reminders (UX audit 3.6 / 5.7). Called every minute by pg_cron.
 //  - reminder: at the user's reminder time (onboarding), if habits are left for today
 //  - evening:  21:00–23:00 local, if habits are still left («успей до полуночи»)
 //  - silence:  19:00–21:00 local, if the app was not opened for 3+ days
 //  - event:    a planner task with a time starts within 15 minutes (once per task)
 //  - plan:     at the reminder time with no habits left but tasks planned for today
+//  - overdue:  at the reminder time, yesterday's unfinished tasks
+//  - goals:    20:00 local, goal steps not ticked today
+//  - deadline: 10:00 local, a goal deadline today / tomorrow / in 3 days
+//  - quit:     10:00 local, a clean-days milestone (1, 3, 7, 14, 21, 30, 60, 90, 180, 365, the goal)
+//  - arc:      10:00 local, arc milestones (day 30, halfway, 10 days left, the last day)
+//  - focus:    a Pomodoro session ended while the app was closed (profiles.pomodoro.endsAt)
 // Each kind goes out at most once per local day (push_log).
 //  - quiet hours (profiles.quiet_from/quiet_to): nothing is sent inside them; a reminder that
 //    falls inside is moved to the end of the quiet window (Master Changeset task 32)
@@ -39,6 +45,29 @@ const TEXT = {
       : [h[1] ? `привычки ${h[0]}/${h[1]}` : '', e[1] ? `задачи ${e[0]}/${e[1]}` : ''];
     return { title: l === 'en' ? 'Your day' : 'Итог дня', body: parts.filter(Boolean).join(' · ') + (l === 'en' ? '. Close the day in 30 seconds.' : '. Подведи день за 30 секунд.') };
   },
+  overdue: (l: Lang, n: number) => l === 'en'
+    ? { title: 'Left from yesterday', body: `${n} ${plural(l, n, 'task', '', 'tasks')} not done — move them in the planner` }
+    : { title: 'Хвосты со вчера', body: `${n} ${plural(l, n, 'задача не выполнена', 'задачи не выполнены', 'задач не выполнено')} — перенеси в планере` },
+  goals: (l: Lang, title: string, left: number, total: number, more: number) => l === 'en'
+    ? { title: 'Steps to your goals', body: `«${title}»: ${left} of ${total} left${more ? ` and ${more} more ${more === 1 ? 'goal' : 'goals'}` : ''}` }
+    : { title: 'Шаги к целям', body: `«${title}»: осталось ${left} из ${total}${more ? ` и ещё ${more} ${plural(l, more, 'цель', 'цели', 'целей')}` : ''}` },
+  deadline: (l: Lang, title: string, d: number) => l === 'en'
+    ? { title: d === 0 ? 'Deadline today' : d === 1 ? 'Deadline tomorrow' : `Deadline in ${d} days`, body: `Goal «${title}»` }
+    : { title: d === 0 ? 'Дедлайн сегодня' : d === 1 ? 'Дедлайн завтра' : `До дедлайна ${d} ${plural(l, d, 'день', 'дня', 'дней')}`, body: `Цель «${title}»` },
+  quit: (l: Lang, name: string, d: number) => l === 'en'
+    ? { title: `${d} ${d === 1 ? 'day' : 'days'} without «${name}»`, body: 'A new milestone. Keep going.' }
+    : { title: `${d} ${plural(l, d, 'день', 'дня', 'дней')} без «${name}»`, body: 'Новая веха. Так держать.' },
+  arc: (l: Lang, n: string, d: number, len: number) => {
+    const left = len - d;
+    if (l === 'en') return { title: `Arc ${n} · day ${d} of ${len}`, body: left === 0 ? 'The last day — finish strong.' : d * 2 === len ? 'Halfway there.' : left === 10 ? 'Ten days to go.' : 'A third of the way. Keep the rhythm.' };
+    return { title: `Arc ${n} · день ${d} из ${len}`, body: left === 0 ? 'Последний день — заверши сильно.' : d * 2 === len ? 'Половина пути пройдена.' : left === 10 ? 'Осталось десять дней.' : 'Треть пути. Держи ритм.' };
+  },
+  rest: (l: Lang) => l === 'en'
+    ? { title: 'Break is over', body: 'Back to focus — the next session is ready' }
+    : { title: 'Перерыв окончен', body: 'Пора к фокусу — следующая сессия готова' },
+  focus: (l: Lang, label: string | null) => l === 'en'
+    ? { title: 'Focus session done', body: label ? `«${label}» — time for a break` : 'Time for a short break' }
+    : { title: 'Фокус-сессия завершена', body: label ? `«${label}» — время для перерыва` : 'Время для короткого перерыва' },
   silence: (l: Lang) => l === 'en'
     ? { title: 'Your Arc is on pause', body: 'Three days without check-ins. One small step today brings the index back.' }
     : { title: 'Твой Arc на паузе', body: 'Три дня без отметок. Один маленький шаг сегодня — и индекс снова растёт.' },
@@ -54,6 +83,11 @@ const addHours = (hm: string, h: number) => { const [a, b] = hm.split(':').map(N
 // weekday bitmap of the habit (bit 0 = Monday, 127 = every day)
 const WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const scheduled = (days: number | null, wd: string) => ((days ?? 127) & (1 << WD.indexOf(wd))) !== 0;
+
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+const QUIT_STEPS = [1, 3, 7, 14, 21, 30, 60, 90, 180, 365];
+const dayDiff = (a: string, b: string) => Math.round((Date.parse(a + 'T00:00:00Z') - Date.parse(b + 'T00:00:00Z')) / 86400000);
+const shiftDay = (d: string, n: number) => new Date(Date.parse(d + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10);
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type, apikey, x-client-info' };
 /** hm inside [from, to) — the window may cross midnight. */
@@ -95,12 +129,68 @@ Deno.serve(async (req) => {
   let sent = 0;
 
   for (const [uid, list] of byUser) {
-    const { data: p } = await sb.from('profiles').select('timezone, reminder_time, notify_habits, notify_summary, last_seen_at, lang, quiet_from, quiet_to').eq('id', uid).maybeSingle();
+    const { data: p } = await sb.from('profiles').select('timezone, reminder_time, notify_habits, notify_summary, notify_focus, notify_arc, pomodoro, last_seen_at, lang, quiet_from, quiet_to').eq('id', uid).maybeSingle();
     if (!p) continue;
     const lang: Lang = p.lang === 'en' ? 'en' : 'ru';
     const { day, hm, wd } = local(p.timezone || 'Europe/Moscow');
     const qf = p.quiet_from?.slice(0, 5), qt = p.quiet_to?.slice(0, 5);
+    // a focus session the user started ends — goes out even in quiet hours
+    const pom = p.pomodoro as { endsAt?: number | null; label?: string | null; tab?: number } | null;
+    if (p.notify_focus !== false && pom?.endsAt && Date.now() >= pom.endsAt && Date.now() - pom.endsAt < 15 * 60000) {
+      await sb.from('profiles').update({ pomodoro: { ...pom, endsAt: null } }).eq('id', uid);
+      sent += await send(list!, { ...(pom.tab ? TEXT.rest(lang) : TEXT.focus(lang, pom.label ?? null)), tag: 'focus', type: 'focus', url: '/' });
+    }
     if (inQuiet(hm, qf, qt)) continue;
+    /** once per user, kind and local day */
+    const once = async (kind: string) => !(await sb.from('push_log').insert({ user_id: uid, kind, day })).error;
+    const push = async (kind: string, m: { title: string; body: string }, url: string) => {
+      if (await once(kind)) sent += await send(list!, { ...m, tag: kind, type: kind.split(':')[0], url });
+    };
+
+    if (p.notify_habits) {
+      // yesterday's unfinished tasks, at the reminder time
+      const rtm = p.reminder_time?.slice(0, 5);
+      if (rtm && hm >= rtm && hm < addHours(rtm, 2)) {
+        const { count } = await sb.from('plan_items').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('day', shiftDay(day, -1)).eq('done', false);
+        if (count) await push('overdue', TEXT.overdue(lang, count), '/planner');
+      }
+      // goal steps not ticked today
+      if (hm >= '20:00' && hm < '20:30') {
+        const { data: goals } = await sb.from('goals').select('id, title').eq('user_id', uid).eq('status', 'active');
+        const open: { title: string; left: number; total: number }[] = [];
+        for (const g of goals ?? []) {
+          const { data: tasks } = await sb.from('goal_tasks').select('id').eq('goal_id', g.id);
+          if (!tasks?.length) continue;
+          const { data: e } = await sb.from('goal_entries').select('done_task_ids').eq('goal_id', g.id).eq('day', day).maybeSingle();
+          const done = new Set((e?.done_task_ids as string[] | null) ?? []);
+          const left = tasks.filter((x) => !done.has(x.id)).length;
+          if (left) open.push({ title: g.title, left, total: tasks.length });
+        }
+        if (open.length) await push('goals', TEXT.goals(lang, open[0].title, open[0].left, open[0].total, open.length - 1), '/goals');
+      }
+      // goal deadlines
+      if (hm >= '10:00' && hm < '10:30') {
+        const { data: goals } = await sb.from('goals').select('id, title, deadline').eq('user_id', uid).eq('status', 'active').not('deadline', 'is', null);
+        for (const g of goals ?? []) {
+          const d = dayDiff(g.deadline, day);
+          if (d === 0 || d === 1 || d === 3) await push('deadline:' + g.id, TEXT.deadline(lang, g.title, d), '/goals/' + g.id);
+        }
+      }
+    }
+
+    // milestones: clean days and arc days
+    if (p.notify_arc !== false && hm >= '10:00' && hm < '10:30') {
+      const { data: quits } = await sb.from('quits').select('id, name, clean_since, goal_days').eq('user_id', uid).is('archived_at', null);
+      for (const q of quits ?? []) {
+        const d = Math.floor((Date.now() - Date.parse(q.clean_since)) / 86400000);
+        if (d > 0 && (QUIT_STEPS.includes(d) || d === q.goal_days)) await push('quit:' + q.id, TEXT.quit(lang, q.name, d), '/disciplines?tab=quits');
+      }
+      const { data: arc } = await sb.from('arcs').select('number, started_on, length_days').eq('user_id', uid).is('ended_on', null).order('number', { ascending: false }).limit(1).maybeSingle();
+      if (arc) {
+        const d = dayDiff(day, arc.started_on) + 1, len = arc.length_days || 90;
+        if (d === 30 || d * 2 === len || len - d === 10 || d === len) await push('arc', TEXT.arc(lang, ROMAN[arc.number] ?? String(arc.number), d, len), '/');
+      }
+    }
 
     const undone = async () => {
       const { data: habits } = await sb.from('habits').select('id, days').eq('user_id', uid).is('archived_at', null);
