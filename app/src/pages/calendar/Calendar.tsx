@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent, type TouchEvent } from 'react';
 import { AppHeader } from '../../app/AppHeader';
@@ -630,12 +631,14 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
 
       <WeekBreakdown t={t} st={st} />
 
-      {st.draft && (
+      {/* portal: inside the scroll container the bottom bar and the + button were drawn over the sheet */}
+      {st.draft && createPortal(
         <div className={s.sheetOverlay} onClick={() => st.setDraft(null)}>
           <div className={s.sheet} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <Editor key={st.draft.ev.id} t={t} st={st} d={st.draft} />
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

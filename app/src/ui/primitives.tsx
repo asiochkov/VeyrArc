@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useAuth } from '../lib/auth';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
 import { Icon } from './Icon';
@@ -144,7 +145,7 @@ export function Spinner({ kind = 'md' }: { kind?: 'md' | 'sm' | 'light' }) {
 /* One-button explainer built from the ConfirmDialog modal (UX audit 4.3). */
 export function InfoDialog({ open, title, body, okLabel, onClose }: { open: boolean; title: ReactNode; body: ReactNode; okLabel: ReactNode; onClose: () => void }) {
   if (!open) return null;
-  return (
+  return createPortal(
     <div className={s.overlay} onClick={onClose}>
       <div className={s.modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className={s.modalTitle}>{title}</div>
@@ -153,7 +154,8 @@ export function InfoDialog({ open, title, body, okLabel, onClose }: { open: bool
           <button type="button" className={s.modalConfirm} onClick={onClose}>{okLabel}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -164,7 +166,7 @@ export function ConfirmDialog({
   danger?: boolean; onConfirm: () => void; onCancel: () => void;
 }) {
   if (!open) return null;
-  return (
+  return createPortal(
     <div className={s.overlay} onClick={onCancel}>
       <div className={s.modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className={s.modalTitle}>{title}</div>
@@ -174,6 +176,7 @@ export function ConfirmDialog({
           <button type="button" className={s.modalConfirm} data-danger={danger} onClick={onConfirm}>{confirmLabel}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
