@@ -16,7 +16,7 @@
 .dayDot[data-s='broken'] { border-color: rgba(217,106,91,.5); }
 .dayDot[data-s='open'] { border: 1.5px dashed var(--accent); }
 .dayDot[data-s='at-risk'] { border: 1.5px dashed var(--danger); }
-.dayDot[data-today='true'][data-s='earned'] { animation: earn .28s ease-out; }
+.dayDot[data-today='true'][data-s='earned'] { animation: earn 378ms ease-out; }
 @keyframes earn { 50% { transform: scale(.96); } }
 .dayLab { font: var(--fw-semibold) 10px var(--font-mono); color: var(--text-muted); }
 .dayLab[data-today='true'] { color: var(--text); }
@@ -53,7 +53,7 @@
 .partVal { font: var(--fw-semibold) 11px var(--font-mono); text-align: right; }
 
 .now { min-width: 0; }
-.nowInner { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; animation: cross .2s ease-out; }
+.nowInner { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; animation: cross 270ms ease-out; }
 @media (max-width: 420px) { .nowInner { align-items: center; } }
 @keyframes cross { from { opacity: 0; } to { opacity: 1; } }
 .period { font: var(--fw-semibold) 10px var(--font-mono); letter-spacing: .16em; color: var(--text-muted); text-transform: uppercase; }

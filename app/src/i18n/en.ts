@@ -429,6 +429,7 @@ export const en: Dict = {
     recapEvents: 'events',
     completeCta: 'Complete',
     completedToast: 'Goal completed',
+    reopen: 'Back to work', reopened: 'The goal is active again',
     tpl: {
       career: { name: 'Career', title: 'A new job by spring', steps: ['1 application a day', '30 minutes on the portfolio', 'One professional article'] },
       body: { name: 'Body', title: 'Run 10 km', steps: ['Run or walk 30 minutes', 'Stretch 10 minutes', '8 glasses of water'] },

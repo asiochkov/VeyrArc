@@ -124,10 +124,10 @@ html[data-density='compact'] { --hit: 40px; }
 .plate-lift:active { transform: scale(.995); transition-duration: 80ms; }
 /* a plate switching on / off (habit done, focus running) (§4.12) */
 @keyframes plateOn { 0% { transform: scale(.995); } 40% { transform: scale(1.01); } 100% { transform: scale(1); } }
-.plate-light[data-just-on='true'] { animation: plateOn 480ms var(--ease-out-strong); }
+.plate-light[data-just-on='true'] { animation: plateOn 648ms var(--ease-out-strong); }
 
 /* vertical labels (§3.7): beside a plate on wide screens, hidden under 480 px */
-.v-label { writing-mode: vertical-rl; transform: rotate(180deg); font: var(--fw-bold) 11px var(--font-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; user-select: none; opacity: .7; animation: vLabelIn 400ms var(--ease-out) 150ms both; }
+.v-label { writing-mode: vertical-rl; transform: rotate(180deg); font: var(--fw-bold) 11px var(--font-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; user-select: none; opacity: .7; animation: vLabelIn 540ms var(--ease-out) 202ms both; }
 @keyframes vLabelIn { from { opacity: 0; } to { opacity: .7; } }
 .v-row { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 12px; align-items: start; }
 .v-row > .v-label { align-self: stretch; text-align: right; }
@@ -153,13 +153,13 @@ html[data-density='compact'] { --hit: 40px; }
 @keyframes plateLightIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: none; } }
 [data-screen-enter] > * { animation: screenRise var(--dur-enter) var(--ease-out-strong) both; }
 [data-screen-enter] > *:nth-child(1) { animation-delay: 0ms; }
-[data-screen-enter] > *:nth-child(2) { animation-delay: 80ms; }
-[data-screen-enter] > *:nth-child(3) { animation-delay: 160ms; }
-[data-screen-enter] > *:nth-child(4) { animation-delay: 260ms; }
-[data-screen-enter] > *:nth-child(5) { animation-delay: 340ms; }
-[data-screen-enter] > *:nth-child(6) { animation-delay: 420ms; }
-[data-screen-enter] > *:nth-child(7) { animation-delay: 500ms; }
-[data-screen-enter] > *:nth-child(n+8) { animation-delay: 580ms; }
+[data-screen-enter] > *:nth-child(2) { animation-delay: 108ms; }
+[data-screen-enter] > *:nth-child(3) { animation-delay: 216ms; }
+[data-screen-enter] > *:nth-child(4) { animation-delay: 351ms; }
+[data-screen-enter] > *:nth-child(5) { animation-delay: 459ms; }
+[data-screen-enter] > *:nth-child(6) { animation-delay: 567ms; }
+[data-screen-enter] > *:nth-child(7) { animation-delay: 675ms; }
+[data-screen-enter] > *:nth-child(n+8) { animation-delay: 783ms; }
 
 /* collapsible content (§4.7) */
 .collapsible { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--dur-base) var(--ease-out-strong), opacity var(--dur-base) var(--ease-out); }

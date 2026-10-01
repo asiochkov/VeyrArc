@@ -1,6 +1,6 @@
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.tile { position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 4px; min-height: 140px; padding: 14px; border-radius: 28px; border: none; background: var(--c-field); color: var(--text); text-align: left; cursor: pointer; animation: aTile 480ms var(--ease-out-strong) both; transition: transform var(--dur-fast), background-color var(--dur-base); }
-.tile:nth-child(2) { animation-delay: 45ms; } .tile:nth-child(3) { animation-delay: 90ms; } .tile:nth-child(4) { animation-delay: 135ms; }
+.tile { position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 4px; min-height: 140px; padding: 14px; border-radius: 28px; border: none; background: var(--c-field); color: var(--text); text-align: left; cursor: pointer; animation: aTile 648ms var(--ease-out-strong) both; transition: transform var(--dur-fast), background-color var(--dur-base); }
+.tile:nth-child(2) { animation-delay: 61ms; } .tile:nth-child(3) { animation-delay: 122ms; } .tile:nth-child(4) { animation-delay: 182ms; }
 @keyframes aTile { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
 .tile:active { transform: scale(.97); }
 .tile:hover { background: var(--c-raise-hi); }

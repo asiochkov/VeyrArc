@@ -2,7 +2,7 @@
   position: fixed; z-index: var(--z-docked); left: 0; right: 0; bottom: 0;
   display: flex; align-items: center; gap: 8px; padding: 10px 10px max(10px, var(--safe-bottom));
   background: linear-gradient(to top, rgba(0,0,0,.92) 40%, rgba(0,0,0,0)); pointer-events: none;
-  animation: dockIn 520ms var(--ease-out-strong) both;
+  animation: dockIn 702ms var(--ease-out-strong) both;
 }
 @keyframes dockIn { from { transform: translateY(100%); opacity: .4; } to { transform: none; opacity: 1; } }
 .bar {

@@ -5,7 +5,7 @@ import s from './auth.module.css';
 import { useFlow, type Screen } from './flow';
 
 /* 'animation:wwUp .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:i*40ms' */
-export const up = (i: number): CSSProperties => ({ animation: 'wwUp .5s cubic-bezier(.2,.8,.2,1) both', animationDelay: i * 40 + 'ms' });
+export const up = (i: number): CSSProperties => ({ animation: 'wwUp .68s cubic-bezier(.2,.8,.2,1) both', animationDelay: i * 55 + 'ms' });
 
 export function Logo({ light }: { light?: boolean }) {
   return (

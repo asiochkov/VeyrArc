@@ -41,8 +41,8 @@
 .userMail { font: var(--fw-regular) 13px var(--font-ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .userState { font: var(--fw-regular) 11px var(--font-ui); color: rgba(232,237,243,.45); }
 
-.drawerBackdrop { position: fixed; inset: 0; z-index: var(--z-sheet); background: rgba(0,0,0,.75);  animation: fade 220ms ease-out; }
-.drawer { height: 100%; width: min(320px, 86vw); padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); background: var(--bg); border-radius: 0 32px 32px 0; animation: slide 420ms var(--ease-out-strong); }
+.drawerBackdrop { position: fixed; inset: 0; z-index: var(--z-sheet); background: rgba(0,0,0,.75);  animation: fade 297ms ease-out; }
+.drawer { height: 100%; width: min(320px, 86vw); padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); background: var(--bg); border-radius: 0 32px 32px 0; animation: slide 567ms var(--ease-out-strong); }
 .drawer .sidebar { width: 100%; }
 @keyframes slide { from { transform: translateX(-100%); } to { transform: none; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }

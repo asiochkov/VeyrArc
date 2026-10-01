@@ -216,10 +216,10 @@
 
   /* motion (§4) */
   --dur-micro: 100ms;
-  --dur-base: 240ms;
-  --dur-enter: 360ms;
+  --dur-base: 280ms;
+  --dur-enter: 480ms;
   --dur-exit: 180ms;
-  --dur-slow: 600ms;
+  --dur-slow: 800ms;
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-out-strong: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);

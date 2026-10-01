@@ -107,14 +107,14 @@
 /* ===== tile language (style reference: Nothing home UI) — overrides above ===== */
 .page { max-width: 920px; padding: 6px 10px 16px; gap: 14px; }
 @media (min-width: 720px) { .page { padding: 20px 20px 48px; } }
-.toolbar { gap: 8px; animation: aIn 520ms var(--ease-out-strong) 60ms both; }
+.toolbar { gap: 8px; animation: aIn 702ms var(--ease-out-strong) 81ms both; }
 .chip { height: 44px; padding: 0 16px; border-radius: 999px; border: none; background: var(--c-tile); background-image: var(--c-glow); color: rgba(232,237,243,.7); font: var(--fw-regular) 14px var(--font-ui); transition: background-color var(--dur-base), color var(--dur-base), transform var(--dur-fast); }
 .chip:active { transform: scale(.95); }
 .chip[aria-pressed='true'] { background: var(--c-on); color: #FFFFFF; }
-.menu { border-radius: 24px; border: none; background: var(--c-sheet); background-image: var(--c-glow); padding: 6px; box-shadow: 0 20px 48px rgba(0,0,0,.55); animation: aMenu 260ms var(--ease-out-strong); }
+.menu { border-radius: 24px; border: none; background: var(--c-sheet); background-image: var(--c-glow); padding: 6px; box-shadow: 0 20px 48px rgba(0,0,0,.55); animation: aMenu 351ms var(--ease-out-strong); }
 @keyframes aMenu { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .menu > button { height: 44px; border-radius: 999px; padding: 0 16px; font: var(--fw-regular) 14px var(--font-ui); }
-.hero { gap: 12px; padding: 22px 20px; border-radius: 30px; border: none; background: var(--c-on); color: #FFFFFF; animation: aIn 560ms var(--ease-out-strong) 100ms both; }
+.hero { gap: 12px; padding: 22px 20px; border-radius: 30px; border: none; background: var(--c-on); color: #FFFFFF; animation: aIn 756ms var(--ease-out-strong) 135ms both; }
 .q { font: var(--fw-regular) 14px var(--font-ui); letter-spacing: -.01em; color: rgba(255,255,255,.75); text-transform: none; }
 .index { font: var(--fw-light) 76px/0.95 var(--font-ui); letter-spacing: -.06em; }
 .delta { font: var(--fw-regular) 15px var(--font-ui); color: #2E7D5B; }
@@ -128,9 +128,9 @@
 .oath { font: italic var(--fw-regular) 14px/1.4 var(--font-ui); color: rgba(255,255,255,.75); }
 .grid { gap: 8px; }
 @media (min-width: 720px) { .grid { gap: 10px; } }
-.card { gap: 14px; padding: 18px; border-radius: 30px; border: none; background: var(--c-tile); background-image: var(--c-glow); animation: aIn 560ms var(--ease-out-strong) both; }
-.grid > :nth-child(1) { animation-delay: 140ms; } .grid > :nth-child(2) { animation-delay: 185ms; } .grid > :nth-child(3) { animation-delay: 230ms; }
-.grid > :nth-child(4) { animation-delay: 275ms; } .grid > :nth-child(5) { animation-delay: 320ms; } .grid > :nth-child(n+6) { animation-delay: 360ms; }
+.card { gap: 14px; padding: 18px; border-radius: 30px; border: none; background: var(--c-tile); background-image: var(--c-glow); animation: aIn 756ms var(--ease-out-strong) both; }
+.grid > :nth-child(1) { animation-delay: 189ms; } .grid > :nth-child(2) { animation-delay: 250ms; } .grid > :nth-child(3) { animation-delay: 310ms; }
+.grid > :nth-child(4) { animation-delay: 371ms; } .grid > :nth-child(5) { animation-delay: 432ms; } .grid > :nth-child(n+6) { animation-delay: 486ms; }
 @keyframes aIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
 .cardHead { min-height: 46px; }
 .cardTitle { font: var(--fw-regular) 17px var(--font-ui); letter-spacing: -.02em; color: var(--text); text-transform: none; gap: 12px; }

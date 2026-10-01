@@ -1,6 +1,6 @@
 .tile { gap: 16px; min-height: 0; padding: 18px; }
 .topRight { display: flex; gap: 6px; }
-.menu { display: flex; flex-wrap: wrap; gap: 6px; animation: menuIn 260ms var(--ease-out-strong); }
+.menu { display: flex; flex-wrap: wrap; gap: 6px; animation: menuIn 351ms var(--ease-out-strong); }
 .menu > button[data-on='true'] { background: #FFFFFF; color: var(--c-on); }
 @keyframes menuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .counter { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
@@ -9,7 +9,7 @@
 .dateInput { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
 .goal { display: flex; flex-direction: column; gap: 8px; padding: 0 4px; }
 .track { height: 6px; border-radius: 6px; background: rgba(255,255,255,.18); overflow: hidden; }
-.track > i { display: block; height: 100%; border-radius: 6px; background: #FFFFFF; transform-origin: left; animation: grow 900ms var(--ease-out-strong) 200ms both; }
+.track > i { display: block; height: 100%; border-radius: 6px; background: #FFFFFF; transform-origin: left; animation: grow 1215ms var(--ease-out-strong) 270ms both; }
 @keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
 .miles { display: flex; justify-content: space-between; }
 .miles > span { font: var(--fw-regular) 11px var(--font-ui); color: rgba(255,255,255,.5); font-variant-numeric: tabular-nums; }

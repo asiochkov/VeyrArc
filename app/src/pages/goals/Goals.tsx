@@ -143,7 +143,7 @@ function GoalChip({ t, goal, selected, onPick, onComplete }: { t: T; goal: GoalD
         style={selected ? { background: goal.hue, color: '#FFFFFF', borderColor: goal.hue } : undefined}>
         <span className={g.chipDot} style={{ background: selected ? '#FFFFFF' : goal.hue }} />{goal.title}
       </button>
-      {selected && <button type="button" className={g.more} onClick={() => setMenu(!menu)} aria-label={t('goals.menu')} aria-expanded={menu}><Icon name="menu" size={14} sw={2} /></button>}
+      {selected && <button type="button" className={g.more} onClick={() => setMenu(!menu)} aria-label={t('goals.menu')} aria-expanded={menu}><Icon name="dots" size={20} sw={3} /></button>}
       {menu && (
         <div className={g.menu} role="menu">
           <button type="button" role="menuitem" onClick={() => { setMenu(false); setRenaming(true); setName(goal.title); }}>{t('goals.rename')}</button>
@@ -429,6 +429,7 @@ function Empty({ t, sys, onDone, onCustom }: { t: T; sys: SystemRaw; onDone: (id
 
 function Recap({ t, sys, id, onClose, today }: { t: T; sys: SystemRaw; id: string; onClose: () => void; today: string }) {
   const navigate = useNavigate();
+  const [del, setDel] = useState(false);
   const goal = sys.goals.find((x) => x.id === id);
   if (!goal) return null;
   const days = Math.max(1, daysBetween(goal.started_on, today) + 1);
@@ -446,10 +447,15 @@ function Recap({ t, sys, id, onClose, today }: { t: T; sys: SystemRaw; id: strin
           <div key={i} className={g.tile}><b>{v}</b><span>{l}</span></div>
         ))}
       </div>
-      <div className={g.row} style={{ marginTop: 16 }}>
+      <div className={g.row} style={{ marginTop: 16, flexWrap: 'wrap' }}>
         <button type="button" className={g.ghost} onClick={onClose}>{t('common.close')}</button>
         {goal.status === 'active' && <button type="button" className={g.primary} onClick={finish}>{t('goals.completeCta')}</button>}
+        {/* a finished goal can go back to work or be deleted */}
+        {goal.status !== 'active' && <button type="button" className={g.ghost} onClick={() => { updateGoal(id, { status: 'active', completed_at: null }); toast.success(t('goals.reopened')); onClose(); navigate('/goals/' + id); }}>{t('goals.reopen')}</button>}
+        {goal.status !== 'active' && <button type="button" className={g.ghost} style={{ color: 'var(--dot-coral)' }} onClick={() => setDel(true)}>{t('goals.delete')}</button>}
       </div>
+      <ConfirmDialog open={del} danger title={t('goals.deleteTitle', { n: goal.title })} body={t('goals.deleteBody')} confirmLabel={t('common.delete')} cancelLabel={t('common.cancel')}
+        onConfirm={() => { setDel(false); onClose(); deleteGoal(id); toast.success(t('goals.deleted')); }} onCancel={() => setDel(false)} />
     </Sheet>
   );
 }

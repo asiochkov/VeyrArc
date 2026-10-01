@@ -1,5 +1,5 @@
 /* Large-title header (design brief §5.3): 26 px on phones, 34 px on desktop, a quiet line under it. */
-.header { padding-left: 8px; padding-right: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-height: 56px; padding-top: 14px; animation: hdIn 520ms var(--ease-out-strong) both; }
+.header { padding-left: 8px; padding-right: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-height: 56px; padding-top: 14px; animation: hdIn 702ms var(--ease-out-strong) both; }
 @keyframes hdIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .left { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 2px; }
 .menuBtn { flex: none; width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--c-sheet); background-image: var(--c-glow); color: var(--text-secondary); display: grid; place-items: center; cursor: pointer; transition: background-color var(--dur-fast); }

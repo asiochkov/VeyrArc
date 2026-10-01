@@ -1,4 +1,4 @@
-.box { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 20px; border-radius: 30px; background: var(--c-tile); background-image: var(--c-glow); animation: esIn 520ms var(--ease-out-strong) both; }
+.box { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 20px; border-radius: 30px; background: var(--c-tile); background-image: var(--c-glow); animation: esIn 702ms var(--ease-out-strong) both; }
 .box[data-compact='true'] { padding: 16px 18px; }
 @keyframes esIn { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
 .title { font: var(--fw-regular) 17px var(--font-ui); letter-spacing: -.02em; color: var(--text); }

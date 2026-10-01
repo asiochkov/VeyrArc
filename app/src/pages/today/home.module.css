@@ -5,7 +5,7 @@
 @media (min-width: 720px) { .page { padding: 20px 20px 48px; gap: 22px; } }
 
 /* ---- greeting ---- */
-.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 8px 0; animation: rise 520ms var(--ease-out-strong) both; }
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 8px 0; animation: rise 702ms var(--ease-out-strong) both; }
 .hello { margin: 0; font: var(--fw-regular) 38px/1.04 var(--font-ui); letter-spacing: -.035em; color: var(--text-strong); font-variation-settings: 'opsz' 32; }
 @media (min-width: 720px) { .hello { font-size: 48px; } }
 .headSide { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; }
@@ -15,7 +15,7 @@
 .headMeta { font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.55); white-space: nowrap; }
 
 /* ---- «rooms» tabs with superscript counts ---- */
-.tabs { display: flex; gap: 18px; overflow-x: auto; padding: 0 8px; scroll-snap-type: x proximity; animation: rise 520ms var(--ease-out-strong) 60ms both; }
+.tabs { display: flex; gap: 18px; overflow-x: auto; padding: 0 8px; scroll-snap-type: x proximity; animation: rise 702ms var(--ease-out-strong) 81ms both; }
 .tab { flex: none; padding: 6px 0; border: none; background: none; color: rgba(232,237,243,.38); font: var(--fw-regular) 15px var(--font-ui); letter-spacing: -.01em; cursor: pointer; white-space: nowrap; transition: color var(--dur-base) var(--ease-out); }
 .tab:hover { color: rgba(232,237,243,.7); }
 .tab[aria-selected='true'] { color: var(--text-strong); }
@@ -31,7 +31,7 @@
   position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
   min-height: 176px; padding: 14px; border: none; border-radius: 30px; background: var(--c-tile); background-image: var(--c-glow); color: var(--text);
   text-align: left; font-family: var(--font-ui); text-decoration: none; overflow: hidden;
-  animation: tileIn 560ms var(--ease-out-strong) both; animation-delay: calc(var(--i, 0) * 45ms + 100ms);
+  animation: tileIn 756ms var(--ease-out-strong) both; animation-delay: calc(var(--i, 0) * 61ms + 135ms);
   transition: background-color 420ms var(--ease-out-strong), color 420ms var(--ease-out-strong), transform 180ms var(--ease-out);
 }
 a.tile, a.tile:hover { color: var(--text); }
@@ -48,7 +48,7 @@ button.tile:active, a.tile:active { transform: scale(.97); }
 .tilePale .circleWhite { background: var(--c-on); color: #fff; }
 .tilePale .ring { color: var(--c-on); }
 .tileMint { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; }
-.tile[data-just-on='true'] { animation: tileIn 560ms var(--ease-out-strong) both, switchOn 520ms var(--ease-out-strong); animation-delay: calc(var(--i, 0) * 45ms + 100ms), 0ms; }
+.tile[data-just-on='true'] { animation: tileIn 756ms var(--ease-out-strong) both, switchOn 702ms var(--ease-out-strong); animation-delay: calc(var(--i, 0) * 61ms + 135ms), 0ms; }
 @keyframes switchOn { 0% { transform: scale(.96); } 55% { transform: scale(1.015); } 100% { transform: scale(1); } }
 
 .tileTop { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -57,7 +57,7 @@ button.tile:active, a.tile:active { transform: scale(.97); }
 .tileName2 { font: var(--fw-regular) 19px/1.18 var(--font-ui); letter-spacing: -.025em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .tileSub { font: var(--fw-regular) 11.5px/1.35 var(--font-ui); color: rgba(232,237,243,.5); letter-spacing: .005em; }
 .tileLight .tileSub, .tilePale .tileSub, .tileMint .tileSub { color: rgba(255,255,255,.72); }
-.swap { animation: swap 420ms var(--ease-out-strong); }
+.swap { animation: swap 567ms var(--ease-out-strong); }
 @keyframes swap { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* round buttons / icon holders */
@@ -81,13 +81,13 @@ button.circle:disabled { opacity: .35; cursor: default; }
 
 /* arc: overlapping day circles (Family-style) */
 .dayStack { display: flex; align-items: center; padding-left: 2px; }
-.dayStack > span { width: 40px; height: 40px; margin-left: -9px; border-radius: 50%; display: grid; place-items: center; font: var(--fw-medium) 11px var(--font-ui); color: #FFFFFF; box-shadow: 0 0 0 3px var(--c-tile); position: relative; animation: pop 460ms var(--ease-spring) both; animation-delay: calc(var(--i, 0) * 45ms + 260ms); }
+.dayStack > span { width: 40px; height: 40px; margin-left: -9px; border-radius: 50%; display: grid; place-items: center; font: var(--fw-medium) 11px var(--font-ui); color: #FFFFFF; box-shadow: 0 0 0 3px var(--c-tile); position: relative; animation: pop 621ms var(--ease-spring) both; animation-delay: calc(var(--i, 0) * 61ms + 351ms); }
 .dayStack > span:first-child { margin-left: 0; }
 .dayStack > span[data-dark='true'] { color: rgba(232,237,243,.6); }
 .dayStack > span[data-today='true'] { outline: 1.5px solid var(--text-strong); outline-offset: 2px; }
 @keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
 .arcBar { display: block; height: 3px; margin-top: 8px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; }
-.arcBar > i { display: block; height: 100%; background: var(--text-strong); border-radius: 3px; transform-origin: left; animation: grow 900ms var(--ease-out-strong) 300ms both; }
+.arcBar > i { display: block; height: 100%; background: var(--text-strong); border-radius: 3px; transform-origin: left; animation: grow 1215ms var(--ease-out-strong) 405ms both; }
 @keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
 .inlineBtn { padding: 0; border: none; background: none; color: inherit; font: inherit; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(232,237,243,.25); text-underline-offset: 3px; }
 

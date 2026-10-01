@@ -1,14 +1,14 @@
 /* Habit row inside a Today plate (design brief §6.5, §4.4) */
 .row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 0; border-top: 1px solid var(--line); border-radius: var(--r-xs); }
 .row:first-child { border-top: none; }
-.row[data-just-done='true'] { animation: rowFlash 340ms var(--ease-in-out); }
+.row[data-just-done='true'] { animation: rowFlash 459ms var(--ease-in-out); }
 @keyframes rowFlash { 0%, 100% { background: transparent; } 50% { background: var(--accent-tint); } }
 
 .check { flex: none; width: 28px; height: 28px; padding: 0; border-radius: var(--r-xs); border: 2px solid rgba(255,255,255,.2); background: transparent; color: transparent; display: grid; place-items: center; cursor: pointer; transition: border-color var(--dur-fast), background-color var(--dur-fast); }
 .check:active { transform: scale(.92); }
-.check[data-on='true'] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); animation: checkFillIn 260ms var(--ease-out-strong); }
+.check[data-on='true'] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); animation: checkFillIn 351ms var(--ease-out-strong); }
 .check svg path { stroke-dasharray: 24; stroke-dashoffset: 24; }
-.check[data-on='true'] svg path { stroke-dashoffset: 0; animation: checkmarkDraw 180ms 100ms var(--ease-out-strong) both; }
+.check[data-on='true'] svg path { stroke-dashoffset: 0; animation: checkmarkDraw 243ms 135ms var(--ease-out-strong) both; }
 @keyframes checkFillIn { 0% { transform: scale(.92); background: var(--accent-tint-strong); } 60% { transform: scale(1); background: var(--accent); } 100% { transform: scale(1); background: var(--accent); } }
 @keyframes checkmarkDraw { from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; } }
 

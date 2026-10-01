@@ -252,7 +252,7 @@ export function createGoal(g: { id: string; title: string; hue: string; deadline
     if (tasks.length) ok(await db().from('goal_tasks').insert(tasks.map(({ id, goal_id, text, sort }) => ({ id, goal_id, text, sort }))));
   });
 }
-export function updateGoal(id: string, patch: Partial<Pick<GoalDb, 'title' | 'deadline' | 'linked_core_habit_id' | 'status' | 'best_streak'>>) {
+export function updateGoal(id: string, patch: Partial<Pick<GoalDb, 'title' | 'deadline' | 'linked_core_habit_id' | 'status' | 'best_streak' | 'completed_at'>>) {
   patchSystem((r) => ({ ...r, goals: r.goals.map((g) => (g.id === id ? { ...g, ...patch } : g)) }));
   const dbPatch: Record<string, unknown> = { ...patch };
   if (patch.status === 'completed') dbPatch.completed_at = new Date().toISOString();
