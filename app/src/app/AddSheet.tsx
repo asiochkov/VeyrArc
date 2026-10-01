@@ -45,10 +45,10 @@ export function AddSheet() {
         </div>
       ) : (
         <>
-          <div className={s.switch} role="tablist">
+          <div className={s.switch} role="tablist" data-hscroll>
             {TILES.map((x) => (
               <button key={x.id} type="button" role="tab" aria-selected={cur === x.id} className={s.switchBtn} onClick={() => setCur(x.id)}>
-                <Icon name={x.icon} size={14} />{t(`add.tiles.${x.id}`)}
+                <Icon name={x.icon} size={18} />{t(`add.tiles.${x.id}`)}
               </button>
             ))}
           </div>

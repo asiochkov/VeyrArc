@@ -169,3 +169,19 @@
 .partBar { height: 6px; border-radius: 6px; }
 .partBar > span { background: #FFFFFF; }
 .delta, .delta[data-neg='true'], .status[data-s='great'] { color: rgba(255,255,255,.85); }
+
+/* ---- phone bento: quits tall on the left, goals and planner stacked on the right ---- */
+@media (max-width: 719px) {
+  .grid { grid-auto-flow: row dense; }
+  .halfM { grid-column: span 6; padding: 16px; gap: 10px; }
+  .tallM { grid-row: span 2; }
+  .halfM .cardHead { min-height: 40px; }
+  .halfM .cardTitle { font-size: 15px; gap: 8px; }
+  .halfM .cardTitle > svg { padding: 10px; }
+  .halfM .big { font-size: 38px; }
+  .halfM .small { flex-basis: 100%; }
+  .tallM { justify-content: space-between; }
+  .tallM .strip { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+  .tallM .strip > i { height: auto; aspect-ratio: 1; border-radius: 6px; }
+}
+.card, .hero { background-image: none !important; }

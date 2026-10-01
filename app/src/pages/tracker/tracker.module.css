@@ -21,7 +21,7 @@
 .emptySub { font: var(--fw-regular) 13px/1.5 var(--font-ui); color: var(--t-50); margin-top: 6px; }
 .allDone {
   display: flex; align-items: center; gap: 12px;
-  background: linear-gradient(160deg, rgba(0,75,224,.18), rgba(2,7,28,.9) 70%);
+  background: var(--c-tile);
   border: 1px solid var(--blue-30); border-radius: 18px; padding: 14px 18px;
 }
 .allDoneIcon { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--ink); display: grid; place-items: center; flex: none; }

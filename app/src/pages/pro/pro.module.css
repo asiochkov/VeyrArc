@@ -46,3 +46,4 @@
 .cta:active { transform: scale(.97); }
 .note { font: var(--fw-regular) 12px/1.5 var(--font-ui); color: rgba(232,237,243,.42); }
 @media (prefers-reduced-motion: reduce) { .cardMobile, .perk { animation: none; } }
+.glow { display: none; }

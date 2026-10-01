@@ -15,7 +15,7 @@ export function Sheet({ open, onClose, title, children, size = 'auto', label }: 
   const t = useT();
   const desktop = useIsDesktop();
   const panel = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ y0: number; dy: number } | null>(null);
+  const drag = useRef<{ x0: number; y0: number; dy: number; axis?: 'x' | 'y' } | null>(null);
   useEffect(() => {
     if (!open) return;
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -26,19 +26,26 @@ export function Sheet({ open, onClose, title, children, size = 'auto', label }: 
 
   const onStart = (e: TouchEvent) => {
     if ((panel.current?.scrollTop ?? 0) > 0) return;
-    drag.current = { y0: e.touches[0].clientY, dy: 0 };
+    // inside a sideways scroller (chips) a swipe belongs to it, not to the sheet
+    if ((e.target as HTMLElement).closest('[data-hscroll]')) return;
+    drag.current = { x0: e.touches[0].clientX, y0: e.touches[0].clientY, dy: 0 };
   };
   const onMove = (e: TouchEvent) => {
     const d = drag.current;
     if (!d || !panel.current) return;
-    d.dy = Math.max(0, e.touches[0].clientY - d.y0);
+    const dx = e.touches[0].clientX - d.x0, dy = e.touches[0].clientY - d.y0;
+    if (!d.axis) { if (Math.hypot(dx, dy) < 8) return; d.axis = Math.abs(dx) > Math.abs(dy) || dy < 0 ? 'x' : 'y'; }
+    if (d.axis !== 'y') return;
+    d.dy = Math.max(0, dy);
+    panel.current.style.transition = 'none';
     panel.current.style.transform = `translateY(${d.dy}px)`;
   };
   const onEnd = () => {
     const d = drag.current;
     drag.current = null;
     if (!d || !panel.current) return;
-    if (d.dy > panel.current.offsetHeight * 0.3) onClose();
+    panel.current.style.transition = '';
+    if (d.dy > Math.min(140, panel.current.offsetHeight * 0.3)) onClose();
     else panel.current.style.transform = '';
   };
 

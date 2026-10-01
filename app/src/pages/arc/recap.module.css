@@ -39,3 +39,4 @@
 .carry { border-radius: 26px; border: none; background: var(--c-tile); box-shadow: var(--c-edge); padding: 14px 16px; }
 .cta { min-height: 54px; padding: 0 30px; border-radius: 999px; background: var(--c-on); background-image: var(--c-glow-on); font: var(--fw-medium) 15px var(--font-ui); box-shadow: 0 14px 34px rgba(0,60,200,.35); transition: transform 160ms var(--ease-out); }
 .cta:active { transform: scale(.96); }
+.root { background-image: none; }

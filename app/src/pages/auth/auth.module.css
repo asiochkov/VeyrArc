@@ -169,3 +169,8 @@
 .obStep[data-on='true'] { background-image: var(--c-glow-on); }
 .ghostSm, .social { font-weight: var(--fw-medium); }
 .obStep * { font-weight: var(--fw-regular); }
+.accGlow { display: none; }
+.logoMark { background: var(--c-on); }
+.upsell { background: var(--c-tile); }
+.leftGlow, .heroGlow { display: none; }
+.left { background: var(--c-on); }

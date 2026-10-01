@@ -23,3 +23,8 @@
 .primary { min-height: 56px; border-radius: 999px; border: none; background: var(--c-on); color: #FFFFFF; font: var(--fw-regular) 16px var(--font-ui); cursor: pointer; margin-top: 6px; transition: transform var(--dur-fast); }
 .primary:active { transform: scale(.97); }
 .primary:disabled { opacity: .35; cursor: not-allowed; }
+
+/* all four kinds visible at once: a row of small square tiles */
+.switch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; overflow: visible; }
+.switchBtn { flex-direction: column; justify-content: center; gap: 6px; height: 68px; padding: 0 4px; border-radius: 20px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background-color 220ms var(--ease-out), transform 160ms var(--ease-out); }
+.switchBtn:active { transform: scale(.95); }

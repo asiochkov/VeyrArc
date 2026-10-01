@@ -129,3 +129,26 @@ button.circle:disabled { opacity: .35; cursor: default; }
 .tilePale { box-shadow: 0 14px 40px rgba(255,255,255,.08); }
 .tilePale .circleWhite { background: var(--c-on); color: #fff; }
 .tilePale .tileName, .tilePale .bigNum { color: #030923; }
+
+/* ---- bento: one 56px row unit; squares (3), tall (6), wide (2 cols × 3), low wide (2 cols × 2) ---- */
+.grid { grid-auto-rows: 56px; grid-auto-flow: row dense; }
+.grid > .tile { min-height: 0; grid-row: span 3; }
+.grid > .tall { grid-row: span 6; }
+.grid > .low { grid-row: span 2; }
+.grid > .sq { grid-column: span 1; }
+.moodTile { flex-direction: column-reverse; justify-content: space-between; gap: 8px; padding: 14px 14px 14px; }
+.moodTile .tileText { flex-direction: row; align-items: baseline; gap: 8px; }
+.moodTile .mood { width: 46px; height: 46px; }
+.moodTile .mood svg { width: 24px; height: 24px; }
+/* stats stacked in a tall tile */
+.statsTile.tall { flex-direction: column; justify-content: space-between; align-items: stretch; gap: 10px; }
+.statsTile.tall .statCell { flex: 1; justify-content: flex-end; gap: 2px; }
+.statsTile.tall .statCell .circle { width: 36px; height: 36px; margin-bottom: auto; }
+.statsTile.tall .statCell + .statCell { border-top: 1px solid rgba(255,255,255,.06); padding-top: 10px; }
+.tall .events { margin-top: 6px; flex: 1; }
+.tall .event { min-height: 34px; }
+.planLow { flex-direction: row; align-items: center; justify-content: flex-start; gap: 14px; }
+.planLow .tileTop { order: 2; margin-left: auto; gap: 8px; }
+.planLow .tileText { order: 1; }
+.planLow .events { order: 1; flex: 1; min-width: 0; margin: 0; }
+.planLow .tileText { flex: none; }

@@ -94,17 +94,17 @@ export function Analytics() {
             <Bars vals={p.focusCard.history} />
             <div className={a.meta}>{t('analytics.bestFocusDay', { t: t.hm(bestFocus(sys)), n: bestFocusAgo(sys) })}</div>
           </Card>
-          <Card className={a.span4} title={t('profile.quits')} icon="banProfile" to="/disciplines?tab=quits">
+          <Card className={`${a.span4} ${a.halfM} ${a.tallM}`} title={t('profile.quits')} icon="banProfile" to="/disciplines?tab=quits">
             <div className={a.big} style={{ color: 'var(--success)' }}>{p.quitCard.streak}<span className={a.small}>{t('profile.daysNoSlip')}</span></div>
             <div className={a.strip}>{p.quitCard.days.map((x, i) => <i key={i} data-ok={x === 1} />)}</div>
             <div className={a.meta}>{t('analytics.quitMeta', { b: p.quitCard.best, r: p.quitCard.relapses })}</div>
           </Card>
-          <Card className={a.span4} title={t('profile.goals')} icon="target" to="/goals">
+          <Card className={`${a.span4} ${a.halfM}`} title={t('profile.goals')} icon="target" to="/goals">
             <div className={a.big}>{p.goalsCard.active}<span className={a.small}>{t('profile.active')}</span></div>
             <div className={a.bar}><span style={{ width: p.goalsCard.avgPct + '%' }} /></div>
             <div className={a.meta}>{t.pick(p.goalsCard.nearestDeadline) || t('analytics.noDeadline')}</div>
           </Card>
-          <Card className={a.span4} title={t('profile.planner')} icon="clipboard" to="/planner">
+          <Card className={`${a.span4} ${a.halfM}`} title={t('profile.planner')} icon="clipboard" to="/planner">
             <div className={a.big}>{p.plannerCard.pct}%<span className={a.small}>{p.plannerCard.done}/{p.plannerCard.planned}</span></div>
             <div className={a.bar}><span style={{ width: p.plannerCard.pct + '%' }} /></div>
             <div className={a.meta}>{t('analytics.overdue', { n: p.plannerCard.overdue })}</div>

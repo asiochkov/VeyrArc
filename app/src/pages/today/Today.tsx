@@ -81,7 +81,7 @@ export function Today() {
           <ArcTile t={t} d={d} style={n()} />
           {shown.map((x) => <HabitTile key={x.id} t={t} hb={x} style={n()} />)}
           {filter !== 'extra' && core.length === 0 && (
-            <button type="button" className={`${h.tile} ${h.addTile}`} style={n()} onClick={() => navigate('/disciplines')}>
+            <button type="button" className={`${h.tile} ${h.sq} ${h.addTile}`} style={n()} onClick={() => navigate('/disciplines')}>
               <span className={h.circle}><Icon name="plus" size={18} sw={1.8} /></span>
               <span className={h.tileText}><span className={h.tileName}>{t('cockpit.chooseCore')}</span><span className={h.tileSub}>{t('empty.coreSub')}</span></span>
             </button>
@@ -131,7 +131,7 @@ function ScoreTile({ t, d, style }: TileProps) {
   const { score, delta, parts, index } = d.score;
   return (
     <>
-      <button type="button" className={`${h.tile} ${h.tilePale}`} style={style} data-tour="today-score" onClick={() => setInfo(true)} aria-label={t('cockpit.scoreInfo')}>
+      <button type="button" className={`${h.tile} ${h.sq} ${h.tilePale}`} style={style} data-tour="today-score" onClick={() => setInfo(true)} aria-label={t('cockpit.scoreInfo')}>
         <span className={h.tileTop}>
           <span className={`${h.circle} ${h.circleWhite}`}><Icon name="spark" size={18} sw={1.8} /></span>
           <Ring pct={score / 100} />
@@ -215,7 +215,7 @@ function NowTile({ t, d, style, onReview, onOath }: TileProps & { onReview: () =
   }
   const night = period === 'evening' || period === 'night';
   return (
-    <div className={`${h.tile} ${h.tileLight}`} style={style} aria-live="polite" data-tour="today-now">
+    <div className={`${h.tile} ${h.tall} ${h.tileLight}`} style={style} aria-live="polite" data-tour="today-now">
       <span className={h.tileTop}>
         <span className={h.circle} style={{ background: '#FFFFFF', color: 'var(--c-on)' }}><Icon name={night ? 'moon' : 'sun'} size={18} sw={1.8} /></span>
         {run && <button type="button" className={`${h.circle} ${h.circleInk}`} onClick={run} aria-label={sub}><Icon name="arrowRight" size={17} sw={1.8} /></button>}
@@ -337,7 +337,7 @@ function HabitTile({ t, hb, style }: { t: T; hb: HabitT; style: React.CSSPropert
       <span className={h.tileSub}>{status}{hb.streak > 0 ? ` · ${t('home.streak', { n: hb.streak })}` : ''}</span>
     </span>
   );
-  const cls = `${h.tile} ${on ? h.tileLight : ''}`;
+  const cls = `${h.tile} ${h.sq} ${on ? h.tileLight : ''}`;
   return hb.type === 'binary' ? (
     <button type="button" className={cls} style={style} data-just-on={justOn} onClick={toggle} role="checkbox" aria-checked={done} aria-label={t.pick(hb.title)}>{top}{text}</button>
   ) : (
@@ -349,7 +349,7 @@ function FocusTile({ t, d, style }: TileProps) {
   const st = usePomodoro();
   const running = !!st.endsAt;
   return (
-    <div className={`${h.tile} ${h.wide} ${running ? h.tileLight : ''}`} style={style}>
+    <div className={`${h.tile} ${h.sq} ${running ? h.tileLight : ''}`} style={style}>
       <span className={h.tileTop}>
         <span className={h.circle} style={running ? { background: '#FFFFFF', color: 'var(--c-on)' } : undefined}><Icon name="bolt" size={18} sw={1.8} /></span>
         <button type="button" className={`${h.circle} ${running ? h.circleInk : h.circleAccent}`} onClick={() => (running ? pomo.openSheet() : pomo.start())} aria-label={running ? t('pomo.expand') : t('pomo.start')}>
@@ -369,7 +369,7 @@ function MoodTile({ t, d, style }: TileProps) {
   const words = t.list('today.moodWords');
   const sel = d.todayMood == null ? null : d.todayMood - 1;
   return (
-    <div className={`${h.tile} ${h.wide}`} style={style}>
+    <div className={`${h.tile} ${h.wide} ${h.low} ${h.moodTile}`} style={style}>
       <span className={h.moods} data-picked={sel != null}>
         {[0, 1, 2, 3, 4].map((k) => (
           <button key={k} type="button" className={h.mood} aria-pressed={sel === k} aria-label={words[k]} onClick={() => { navigator.vibrate?.(10); logMood(sel === k ? null : k); }}>
@@ -388,14 +388,14 @@ function MoodTile({ t, d, style }: TileProps) {
 function PlanTile({ t, d, style }: TileProps) {
   const nowHm = new Date().toTimeString().slice(0, 5);
   return (
-    <div className={`${h.tile} ${h.wide}`} style={style}>
+    <div className={`${h.tile} ${d.strip.length > 1 ? h.tall : `${h.wide} ${h.low} ${h.planLow}`}`} style={style}>
       <span className={h.tileTop}>
         <Link to="/planner" className={h.circle} aria-label={t('home.plan')}><Icon name="cal" size={18} sw={1.8} /></Link>
         <button type="button" className={h.circle} onClick={() => useAdd.getState().openAdd('event')} aria-label={t('empty.addEvent')}><Icon name="plus" size={16} sw={1.8} /></button>
       </span>
       {d.strip.length > 0 && (
         <span className={h.events}>
-          {d.strip.slice(0, 3).map((p) => {
+          {d.strip.slice(0, 5).map((p) => {
             const cur = !!p.starts_at && p.starts_at.slice(0, 5) <= nowHm && (p.ends_at ?? p.starts_at).slice(0, 5) > nowHm;
             return (
               <Link key={p.id} to="/planner" className={h.event} data-now={cur} data-done={p.done}>
@@ -422,7 +422,7 @@ function StatsTile({ t, d, style }: TileProps) {
     ['trophy', s.bestFocusDayMin ? t.hm(s.bestFocusDayMin) : '—', t('home.statBest')],
   ];
   return (
-    <Link to="/analytics" className={`${h.tile} ${h.wide} ${h.statsTile}`} style={style}>
+    <Link to="/analytics" className={`${h.tile} ${d.strip.length > 1 ? h.tall : h.wide} ${h.statsTile}`} style={style}>
       {items.map(([icon, v, l]) => (
         <span key={l} className={h.statCell}>
           <span className={h.circle}><Icon name={icon} size={17} sw={1.8} /></span>

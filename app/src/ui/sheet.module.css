@@ -1,6 +1,6 @@
 /* Bottom sheet on phones, a centred card on desktop — same tile language as Today. */
 .backdrop {
-  position: fixed; inset: 0; z-index: var(--z-sheet); background: rgba(3,4,6,.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  position: fixed; inset: 0; z-index: var(--z-sheet); background: rgba(0,0,0,.72); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   display: flex; align-items: flex-end; justify-content: center; padding: var(--safe-top) 8px 8px; animation: fadeIn 220ms var(--ease-out);
 }
 .backdrop[data-desktop='true'] { align-items: center; padding: 24px; }
