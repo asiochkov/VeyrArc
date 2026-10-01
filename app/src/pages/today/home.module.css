@@ -152,3 +152,4 @@ button.circle:disabled { opacity: .35; cursor: default; }
 .planLow .tileText { order: 1; }
 .planLow .events { order: 1; flex: 1; min-width: 0; margin: 0; }
 .planLow .tileText { flex: none; }
+@media (max-width: 719px) { .grid > .wideM { grid-column: span 2; } }

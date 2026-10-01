@@ -86,7 +86,8 @@ export function Today() {
               <span className={h.tileText}><span className={h.tileName}>{t('cockpit.chooseCore')}</span><span className={h.tileSub}>{t('empty.coreSub')}</span></span>
             </button>
           )}
-          <FocusTile t={t} d={d} style={n()} />
+          {/* phone grid: one square sits under the score, the rest go in pairs — an odd one would leave a hole */}
+          <FocusTile t={t} d={d} style={n()} fill={(shown.length + (filter !== 'extra' && core.length === 0 ? 1 : 0)) % 2 === 1} />
           <MoodTile t={t} d={d} style={n()} />
           <PlanTile t={t} d={d} style={n()} />
           <StatsTile t={t} d={d} style={n()} />
@@ -204,6 +205,11 @@ function NowTile({ t, d, style, onReview, onOath }: TileProps & { onReview: () =
       call = t('cockpit.now.reviewCall');
       sub = t('cockpit.now.reviewSub', { s: d.view.stats.streak });
       run = onReview;
+      break;
+    case 'setup':
+      call = t('cockpit.now.setupCall');
+      sub = t('cockpit.now.setupSub');
+      run = () => navigate('/disciplines');
       break;
     case 'tomorrow':
       call = t('cockpit.now.tomorrow', { t: a.event.starts_at?.slice(0, 5) ?? '', x: a.event.title });
@@ -345,11 +351,11 @@ function HabitTile({ t, hb, style }: { t: T; hb: HabitT; style: React.CSSPropert
   );
 }
 
-function FocusTile({ t, d, style }: TileProps) {
+function FocusTile({ t, d, style, fill }: TileProps & { fill?: boolean }) {
   const st = usePomodoro();
   const running = !!st.endsAt;
   return (
-    <div className={`${h.tile} ${h.sq} ${running ? h.tileLight : ''}`} style={style}>
+    <div className={`${h.tile} ${h.sq} ${fill ? h.wideM : ''} ${running ? h.tileLight : ''}`} style={style}>
       <span className={h.tileTop}>
         <span className={h.circle} style={running ? { background: '#FFFFFF', color: 'var(--c-on)' } : undefined}><Icon name="bolt" size={18} sw={1.8} /></span>
         <button type="button" className={`${h.circle} ${running ? h.circleInk : h.circleAccent}`} onClick={() => (running ? pomo.openSheet() : pomo.start())} aria-label={running ? t('pomo.expand') : t('pomo.start')}>

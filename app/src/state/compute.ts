@@ -125,6 +125,7 @@ export type NowAction =
   | { kind: 'habit'; habit: HabitRowDb; core: boolean }
   | { kind: 'review' }
   | { kind: 'tomorrow'; event: PlanRow }
+  | { kind: 'setup' }
   | { kind: 'closed' };
 
 export function nowAction(r: { habits: HabitRowDb[]; logs: LogRow[]; plan: PlanRow[]; arcStart: string | null; oath: string | null }, now = new Date(), reviewDone = false): NowAction {
@@ -144,6 +145,8 @@ export function nowAction(r: { habits: HabitRowDb[]; logs: LogRow[]; plan: PlanR
     .filter((x) => x.d >= 0 && x.d <= 15)
     .sort((a, b) => a.d - b.d)[0];
   if (soon) return { kind: 'event', event: soon.p, inMin: soon.d };
+  // no habits yet: pick them first (nothing to close)
+  if (!r.habits.some((h) => !h.archived_at)) return { kind: 'setup' };
   // 2–3. the first open Core habit (then any habit when there is no Core)
   const core = live.filter((h) => h.core);
   const openCore = core.find((h) => !isLogged(ix, h.id, day));

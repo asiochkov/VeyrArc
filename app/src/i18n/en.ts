@@ -682,6 +682,8 @@ export const en: Dict = {
       habitSub: 'First check of the day',
       startTimer: 'Start timer',
       done: 'Done',
+      setupCall: 'Pick 3–5 habits for this Arc',
+      setupSub: 'They become Core — your streak rests on them',
       reviewCall: 'Core done for today',
       reviewSub: 'Streak {s}. Close the day — 30 seconds.',
       review: 'Close the day',

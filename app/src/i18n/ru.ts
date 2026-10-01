@@ -687,6 +687,8 @@ export const ru = {
       habitSub: 'Первая отметка дня',
       startTimer: 'Запустить таймер',
       done: 'Готово',
+      setupCall: 'Выбери 3–5 привычек на эту Arc',
+      setupSub: 'Они станут Core — серия держится на них',
       reviewCall: 'Core на сегодня закрыты',
       reviewSub: 'Серия {s}. Подведи день — 30 секунд.',
       review: 'Подвести день',
