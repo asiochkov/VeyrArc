@@ -2,6 +2,7 @@ import { DIRS, type DirId } from '../pages/auth/flow';
 import type { IconName } from '../ui/Icon';
 import { useLangStore } from '../i18n';
 import { useAuth } from './auth';
+import { markOwnWrite } from '../state/actions';
 import { takePendingAvatar } from './avatar';
 import { db } from './supabase';
 
@@ -23,6 +24,7 @@ export type Created = Record<string, { kind: 'habit' | 'quit'; id: string }>;
 export async function saveOnboarding(v: { name: string; habits: string[]; time: string; oath?: string }): Promise<Created> {
   const uid = useAuth.getState().session?.user.id;
   if (!uid) throw new Error('no session');
+  markOwnWrite(10_000);
   const lang = useLangStore.getState().lang;
   const picked = DIRS.flatMap(([dir, list]) => list.filter((h) => v.habits.includes(h.ru)).map((h) => ({ dir, h })));
   const directions = [...new Set(picked.map((p) => p.dir))];

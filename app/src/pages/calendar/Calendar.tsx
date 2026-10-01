@@ -13,6 +13,7 @@ import { deleteEvent, saveEvent, setEventDone } from '../../state/actions';
 import { pomo } from '../../state/pomodoro';
 import { useSystem } from '../../state/system';
 import { Icon } from '../../ui/Icon';
+import { EmptyState } from '../../ui/EmptyState';
 import { PageState } from '../../ui/PageState';
 import { Checkbox, Segmented } from '../../ui/primitives';
 import { toast } from '../../ui/toast';
@@ -192,7 +193,7 @@ export function Calendar() {
   const t = useT();
   const isDesktop = useIsDesktop();
   const st = useCalendar();
-  if (!st.ready) return <PageState error={st.loadError} onRetry={st.retry} />;
+  if (!st.ready) return <PageState variant="planner" error={st.loadError} onRetry={st.retry} />;
   return isDesktop ? <DesktopCalendar t={t} st={st} /> : <MobileCalendar t={t} st={st} />;
 }
 
@@ -425,7 +426,7 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
             <div className={s.secTitle}>{st.sel === st.today ? t('calendar.upcoming') : dayLabel(t, st.sel)}</div>
             <button type="button" className={s.secLink} onClick={() => st.openNew(st.sel)}>+ {t('common.add')}</button>
           </div>
-          {dayItems.length ? <DayList t={t} st={st} list={dayItems} /> : <div className={s.hint}>{t('calendar.emptyDay')}</div>}
+          {dayItems.length ? <DayList t={t} st={st} list={dayItems} /> : <EmptyState compact title={t('empty.freeDay')} sub={t('calendar.emptyDay')} kbd="C" />}
         </div>
         <div>
           <div className={s.secHead} style={{ marginBottom: 14 }}><div className={s.secTitle}>{t('calendar.breakdown')}</div></div>
@@ -609,7 +610,7 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
           <DayList t={t} st={st} list={untimed} compact />
         </div>
       )}
-      {dayItems.length === 0 && <div className={s.hint} style={{ margin: '0 0 10px' }}>{t('calendar.emptyDay')}</div>}
+      {dayItems.length === 0 && <div style={{ margin: '0 0 10px' }}><EmptyState compact title={t('empty.freeDay')} sub={t('calendar.emptyDay')} /></div>}
 
       <div style={{ display: 'flex' }}>
         <div style={{ width: 48, flex: 'none', display: 'flex', flexDirection: 'column', paddingTop: 2 }}>

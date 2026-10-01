@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { daysBetween } from '../data/model';
 import { arcSummary } from '../state/compute';
+import { markOwnWrite } from '../state/actions';
 import { activeArc, fetchSystem, SYSTEM_KEY } from '../state/system';
 import { isoDay } from './day';
 import { db } from './supabase';
@@ -16,6 +17,7 @@ export async function runMaintenance(qc: QueryClient) {
   const arc = activeArc(sys);
   if (arc && daysBetween(arc.started_on, today) >= arc.length_days) {
     const summary = arcSummary(sys, { ...arc, ended_on: null }, today);
+    markOwnWrite(5000);
     const r = await db().rpc('start_new_arc', { p_summary: summary, p_auto: true });
     if (!r.error) {
       setPendingRecap(arc.id);

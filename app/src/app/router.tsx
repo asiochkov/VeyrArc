@@ -15,6 +15,14 @@ import { AppShell } from './AppShell';
 import { CrashScreen } from './ErrorBoundary';
 import { Navigate, useLocation } from 'react-router-dom';
 
+/* web+veyrarc://<path> deep links and notification links land here (Master Changeset task 30) */
+const DEEP = /^(analytics|planner|goals|disciplines|settings|arc\/recap)(\/[\w-]+)?$/;
+function OpenLink() {
+  const to = new URLSearchParams(useLocation().search).get('to') ?? '';
+  const path = decodeURIComponent(to).replace(/^web\+veyrarc:\/*/i, '').replace(/^\/+/, '').split(/[?#]/)[0];
+  return <Navigate to={DEEP.test(path) ? '/' + path : '/'} replace />;
+}
+
 function Redirect({ to }: { to: string }) {
   const { search, hash } = useLocation();
   return <Navigate to={to + search + hash} replace />;
@@ -53,6 +61,7 @@ const routes: RouteObject[] = [
       { path: '/onboarding', element: <Onboarding /> },
       { path: '/day-one', element: <DayOne /> },
       { path: '/start', element: <Navigate to="/" replace /> },
+      { path: '/open', element: <RequireAuth><OpenLink /></RequireAuth> },
       { path: '/signup', element: <GuestOnly><Signup /></GuestOnly> },
       { path: '/verify', element: <Verify /> },
       { path: '/login', element: <GuestOnly><Login /></GuestOnly> },

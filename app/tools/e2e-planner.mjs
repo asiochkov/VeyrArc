@@ -21,8 +21,10 @@ try {
   await page.getByText('Созвон e2e').first().click();
   const note = await page.locator('textarea').inputValue();
   log('note after reload =', note);
-  await page.goto(APP + '/');
-  await page.getByText('Созвон e2e').first().waitFor(); log('task shows in Today planner');
+  // Today's planner strip shows the next 6 hours: the 12:00 task is visible from 06:00 to 12:00
+  const hr = new Date().getHours();
+  if (hr >= 6 && hr < 12) { await page.goto(APP + '/'); await page.getByText('Созвон e2e').first().waitFor(); log('task shows in Today planner'); }
+  else log('Today strip check skipped (outside 06–12)');
   // Goals: create a goal, tick the task, write diary, reload
   await page.goto(APP + '/goals');
   await page.getByRole('button', { name: /Новая цель|Создать цель|Добавить цель|\+/ }).first().click().catch(() => {});

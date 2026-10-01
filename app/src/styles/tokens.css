@@ -179,7 +179,11 @@
   --font-mono: 'JetBrains Mono', monospace;
 
   /* motion */
-  --spring: cubic-bezier(.34,1.56,.64,1);
+  /* motion (Master Changeset task 33): no overshoot — strong ease-out for entrances, short ease-out for exits */
+  --ease-out-strong: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --dur-enter: .4s;
+  --dur-exit: .18s;
   --ease-screen: cubic-bezier(.2,.8,.2,1);
   --ease-burst: cubic-bezier(.15,.8,.3,1);
 

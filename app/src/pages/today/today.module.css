@@ -118,7 +118,7 @@
   transition: transform .2s ease, opacity .2s ease; transform: scale(1); opacity: .55;
   background: transparent; border: 1.5px solid var(--ice-12);
 }
-.moodBtn[aria-pressed='true'] { transform: scale(1.1); opacity: 1; background: var(--blue-14); border: 1.5px solid var(--ice-40); }
+.moodBtn[aria-pressed='true'] { opacity: 1; background: var(--blue-14); border: 1.5px solid var(--ice-40); }
 .moodNote { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--ice-07); font: 400 12px var(--font-ui); color: var(--t-45); }
 
 /* ---------- pomodoro ---------- */

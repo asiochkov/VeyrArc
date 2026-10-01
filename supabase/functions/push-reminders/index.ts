@@ -3,6 +3,9 @@
 //  - evening:  21:00–23:00 local, if habits are still left («успей до полуночи»)
 //  - silence:  19:00–21:00 local, if the app was not opened for 3+ days
 // Each kind goes out at most once per local day (push_log).
+//  - quiet hours (profiles.quiet_from/quiet_to): nothing is sent inside them; a reminder that
+//    falls inside is moved to the end of the quiet window (Master Changeset task 32)
+//  - test: POST with the user's own access token and {"test": true} sends one test push (task 30)
 import webpush from 'npm:web-push@3.6.7';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
@@ -38,18 +41,52 @@ const addHours = (hm: string, h: number) => { const [a, b] = hm.split(':').map(N
 const WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const scheduled = (days: number | null, wd: string) => ((days ?? 127) & (1 << WD.indexOf(wd))) !== 0;
 
+const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type, apikey, x-client-info' };
+/** hm inside [from, to) — the window may cross midnight. */
+const inQuiet = (hm: string, from?: string | null, to?: string | null) => {
+  if (!from || !to || from === to) return false;
+  return from < to ? hm >= from && hm < to : hm >= from || hm < to;
+};
+async function send(subs: { id: string; endpoint: string; p256dh: string; auth: string }[], payload: Record<string, unknown>) {
+  let n = 0;
+  for (const s of subs) {
+    try {
+      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(payload));
+      n++;
+    } catch (e) {
+      const code = (e as { statusCode?: number }).statusCode;
+      if (code === 404 || code === 410) await sb.from('push_subscriptions').delete().eq('id', s.id);
+    }
+  }
+  return n;
+}
+
 Deno.serve(async (req) => {
-  if (req.headers.get('x-cron-secret') !== Deno.env.get('CRON_SECRET')) return new Response('forbidden', { status: 403 });
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  // a test push to the signed-in user's own devices (Settings → Notifications)
+  if (req.headers.get('x-cron-secret') !== Deno.env.get('CRON_SECRET')) {
+    const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
+    const body = await req.json().catch(() => ({}));
+    const { data: u } = token ? await sb.auth.getUser(token) : { data: { user: null } };
+    if (!u?.user || !body?.test) return new Response('forbidden', { status: 403, headers: cors });
+    const { data: subs } = await sb.from('push_subscriptions').select('*').eq('user_id', u.user.id);
+    const { data: p } = await sb.from('profiles').select('lang').eq('id', u.user.id).maybeSingle();
+    const en = p?.lang === 'en';
+    const n = await send(subs ?? [], { title: en ? 'VeyrArc test' : 'Проверка VeyrArc', body: en ? 'Notifications work on this device.' : 'Уведомления на этом устройстве работают.', tag: 'test', type: 'test', url: '/settings' });
+    return Response.json({ devices: subs?.length ?? 0, sent: n }, { headers: cors });
+  }
   const { data: subs } = await sb.from('push_subscriptions').select('*');
   const byUser = new Map<string, typeof subs>();
   for (const s of subs ?? []) byUser.set(s.user_id, [...(byUser.get(s.user_id) ?? []), s]);
   let sent = 0;
 
   for (const [uid, list] of byUser) {
-    const { data: p } = await sb.from('profiles').select('timezone, reminder_time, notify_habits, last_seen_at, lang').eq('id', uid).maybeSingle();
+    const { data: p } = await sb.from('profiles').select('timezone, reminder_time, notify_habits, last_seen_at, lang, quiet_from, quiet_to').eq('id', uid).maybeSingle();
     if (!p) continue;
     const lang: Lang = p.lang === 'en' ? 'en' : 'ru';
     const { day, hm, wd } = local(p.timezone || 'Europe/Moscow');
+    const qf = p.quiet_from?.slice(0, 5), qt = p.quiet_to?.slice(0, 5);
+    if (inQuiet(hm, qf, qt)) continue;
 
     const undone = async () => {
       const { data: habits } = await sb.from('habits').select('id, days').eq('user_id', uid).is('archived_at', null);
@@ -62,7 +99,8 @@ Deno.serve(async (req) => {
 
     let kind: 'reminder' | 'evening' | 'silence' | null = null;
     let msg: { title: string; body: string } | null = null;
-    const rt = p.reminder_time?.slice(0, 5);
+    const rt0 = p.reminder_time?.slice(0, 5);
+    const rt = rt0 && inQuiet(rt0, qf, qt) ? qt : rt0;
     if (p.notify_habits && rt && hm >= rt && hm < addHours(rt, 2)) { const n = await undone(); if (n) { kind = 'reminder'; msg = TEXT.reminder(lang, n); } }
     if (!kind && p.notify_habits && hm >= '21:00' && hm < '23:00') { const n = await undone(); if (n) { kind = 'evening'; msg = TEXT.evening(lang, n); } }
     if (!kind && p.last_seen_at && Date.now() - new Date(p.last_seen_at).getTime() > 3 * 86400000 && hm >= '19:00' && hm < '21:00') { kind = 'silence'; msg = TEXT.silence(lang); }
@@ -71,15 +109,8 @@ Deno.serve(async (req) => {
     const { error: dup } = await sb.from('push_log').insert({ user_id: uid, kind, day });
     if (dup) continue; // already sent today
 
-    for (const s of list!) {
-      try {
-        await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ ...msg, tag: kind, url: '/' }));
-        sent++;
-      } catch (e) {
-        const code = (e as { statusCode?: number }).statusCode;
-        if (code === 404 || code === 410) await sb.from('push_subscriptions').delete().eq('id', s.id);
-      }
-    }
+    // push contract: type + deep link (the service worker opens `url`)
+    sent += await send(list!, { ...msg, tag: kind, type: kind, url: kind === 'silence' ? '/' : '/?from=push' });
   }
   return Response.json({ users: byUser.size, sent });
 });

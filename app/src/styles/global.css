@@ -60,7 +60,7 @@ textarea:disabled { opacity: .45; cursor: not-allowed; }
 @keyframes wwSpin { to { transform: rotate(360deg); } }
 @keyframes wwBurst { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--dx),var(--dy)) scale(.3) rotate(200deg); opacity: 0; } }
 @keyframes wwGlowPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(111,160,214,.0); } 50% { box-shadow: 0 0 0 6px rgba(111,160,214,.18); } }
-@keyframes wwPop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes wwPop { 0% { transform: scale(.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
 /* motion off when the system asks for it; state changes stay visible through colour/content */
 @media (prefers-reduced-motion: reduce) {
@@ -75,8 +75,9 @@ textarea:disabled { opacity: .45; cursor: not-allowed; }
 }
 
 /* loading skeleton */
-@keyframes skShine { from { background-position: -200px 0; } to { background-position: 200px 0; } }
-.sk { border-radius: 14px; background: linear-gradient(90deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.08) 50%, rgba(255,255,255,.04) 100%) no-repeat; background-size: 400px 100%; background-color: rgba(255,255,255,.04); animation: skShine 1.2s linear infinite; }
+/* skeletons (Master Changeset task 36): flat blocks, a slow 1.4 s pulse */
+@keyframes skPulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+.sk { border-radius: 10px; background: var(--surface-1); border: 1px solid var(--line); animation: skPulse 1.4s ease-in-out infinite; }
 
 /* Compact density (Master Changeset task 14): the page content is drawn at 90 %.
    The planner grid keeps its scale — its drag maths works in unscaled pixels. */

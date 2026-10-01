@@ -2,6 +2,7 @@ import { onlineManager } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useHeader } from '../data/header';
+import { EVENT_ICON, eventText, eventWhen, useEvents } from '../data/events';
 import { useT } from '../i18n';
 import { userEmail, useAuth } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
@@ -92,6 +93,7 @@ export function Sidebar({ collapsed, onToggle, drawer = false }: { collapsed: bo
               <Link to="/goals?new=1" className={s.subMuted} onClick={close}>{t('nav.addGoal')}</Link>
             </div>
           )}
+          <Inbox t={t} />
           {data.past.length > 0 && (
             <>
               <button type="button" className={s.group} onClick={() => setArchOpen(!archOpen)} aria-expanded={archOpen}>
@@ -141,5 +143,26 @@ export function SidebarDrawer() {
         <Sidebar collapsed={false} onToggle={() => {}} drawer />
       </div>
     </div>
+  );
+}
+
+/* Last three events (Master Changeset task 26). */
+function Inbox({ t }: { t: ReturnType<typeof useT> }) {
+  const q = useEvents();
+  const list = (q.data ?? []).slice(0, 3);
+  if (!list.length) return null;
+  return (
+    <>
+      <div className={s.groupStatic}>{t('events.recent')}</div>
+      <div className={s.nested}>
+        {list.map((e) => (
+          <Link key={e.id} to="/analytics" className={s.event}>
+            <Icon name={EVENT_ICON[e.domain] ?? 'check'} size={12} />
+            <span className={s.eventText}>{eventText(t, e)}</span>
+            <span className={s.eventWhen}>{eventWhen(t, e.at)}</span>
+          </Link>
+        ))}
+      </div>
+    </>
   );
 }

@@ -72,7 +72,7 @@ export function Goals() {
     const selected = active.find((x) => x.id === goalId) ?? active[0] ?? null;
     return { sys, active, completed, selected };
   }, [q.data, goalId]);
-  if (!m) return <PageState error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
+  if (!m) return <PageState variant="list" error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
   const { sys, active, completed, selected } = m;
   const setView = (v: 'day' | 'month') => setParams((p) => { const n = new URLSearchParams(p); if (v === 'day') n.delete('view'); else n.set('view', v); return n; }, { replace: true });
   const pick = (id: string) => navigate(`/goals/${id}${view === 'month' ? '?view=month' : ''}`);

@@ -44,3 +44,8 @@
 .drawer .sidebar { width: 100%; border-right: none; }
 @keyframes slide { from { transform: translateX(-100%); } to { transform: none; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.groupStatic { display: flex; align-items: center; min-height: 28px; padding: 0 8px; color: var(--text-muted); font: 700 10px var(--font-mono); letter-spacing: .14em; }
+.event { display: flex; align-items: center; gap: 8px; min-height: 28px; padding: 0 8px 0 12px; border-radius: 6px; color: var(--text-muted); font: 500 12px var(--font-ui); text-decoration: none; min-width: 0; }
+.event:hover { background: var(--w-06); color: var(--text-secondary); }
+.eventText { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eventWhen { flex: none; font: 500 10px var(--font-mono); opacity: .8; }

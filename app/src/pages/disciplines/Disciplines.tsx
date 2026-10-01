@@ -15,6 +15,7 @@ import { addQuit, archiveHabit, archiveQuit, createHabit, deleteHabit, logRelaps
 import { trackerRawOf, useSystem, type SystemRaw } from '../../state/system';
 import { Icon } from '../../ui/Icon';
 import { useAutoTour } from '../../ui/Tour';
+import { EmptyState } from '../../ui/EmptyState';
 import { PageState } from '../../ui/PageState';
 import { ConfirmDialog, Segmented } from '../../ui/primitives';
 import { toast } from '../../ui/toast';
@@ -41,7 +42,7 @@ export function Disciplines() {
   const sys = q.data;
   const data = useMemo(() => (sys ? { ...buildTracker(trackerRawOf(sys)), raw: sys } : null), [sys]);
   useAutoTour('disciplines', !!data && tab === 'active');
-  if (!data) return <PageState error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
+  if (!data) return <PageState variant="list" error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
   const coreN = data.raw.habits.filter((h) => h.core && !h.archived_at).length;
   return (
     <div className={d.scroll} data-scroll>
@@ -243,6 +244,7 @@ function QuitsTab({ t, data }: { t: T; data: ReturnType<typeof buildTracker> & {
   return (
     <div className={d.col}>
       <div className={d.zoneHint}>{t('tracker.quitsIntro')}</div>
+      {data.refusals.length === 0 && !adding && <EmptyState title={t('empty.quitsTitle')} sub={t('empty.quitsSub')} cta={{ label: t('disc.addQuit'), run: () => setAdding(true) }} />}
       <div className={d.quits}>
         {data.refusals.map((r) => (
           <RefusalCard key={r.id} t={t} r={r} mobile={mobile}
@@ -262,7 +264,7 @@ function QuitsTab({ t, data }: { t: T; data: ReturnType<typeof buildTracker> & {
             <button type="button" className={d.addBtn} disabled={!name.trim()} onClick={add}>{t('common.add')}</button>
           </div>
         </div>
-      ) : (
+      ) : data.refusals.length > 0 && (
         <button type="button" className={d.slot} onClick={() => setAdding(true)}><Icon name="plus" size={14} sw={2} />{t('disc.addQuit')}</button>
       )}
       <ConfirmDialog open={!!slipQuit} title={t('tracker.relapseTitle')} confirmLabel={t('tracker.relapseOk')} cancelLabel={t('common.cancel')}
@@ -286,7 +288,7 @@ function ArchiveTab({ t, sys }: { t: T; sys: SystemRaw }) {
   const fmt = (iso: string) => new Date(iso).toLocaleDateString(t.lang === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
   const target = list.find((h) => h.id === del);
   useEffect(() => { if (del && !target) setDel(null); }, [del, target]);
-  if (!list.length) return <div className={d.emptyBox}><b>{t('disc.archiveEmpty')}</b><span>{t('disc.archiveEmptySub')}</span></div>;
+  if (!list.length) return <EmptyState title={t('disc.archiveEmpty')} sub={t('disc.archiveEmptySub')} />;
   return (
     <div className={d.col}>
       <div className={d.rows}>

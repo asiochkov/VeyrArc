@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AppHeader, roman } from '../../app/AppHeader';
 import { buildProfile } from '../../data/profile';
 import { useHeader } from '../../data/header';
+import { EVENT_ICON, eventText, eventWhen, useEvents } from '../../data/events';
 import { addDays, daysBetween, indexLogs, isLogged } from '../../data/model';
 import { useT, type T } from '../../i18n';
 import { isProPlan, useAuth } from '../../lib/auth';
@@ -50,7 +51,7 @@ export function Analytics() {
     const idx = computeIndex(raw, from, today);
     return { sys, p, arc, idx, insights: computeInsights(sys) };
   }, [q.data, pro, hd.initials, period]);
-  if (!data) return <PageState error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
+  if (!data) return <PageState variant="grid" error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
   const { sys, p, arc, idx, insights } = data;
   const cur = p.PERIOD_DATA[period];
   const prev = cur.value - cur.delta;
@@ -129,7 +130,10 @@ export function Analytics() {
               </div>
             )}
           </Card>
-          <Card className={a.span6} title={t('profile.achievements')} icon="trophy">
+          <Card className={a.span6} title={t('events.title')} icon="pulse">
+            <Activity t={t} />
+          </Card>
+          <Card className={a.span12} title={t('profile.achievements')} icon="trophy">
             <div className={a.ach}>
               {p.achievements.map((x, i) => (
                 <div key={i} className={a.achItem} data-on={x.unlocked}>
@@ -179,6 +183,19 @@ export function Analytics() {
         </>
       )} />
     </div>
+  );
+}
+
+function Activity({ t }: { t: T }) {
+  const q = useEvents();
+  const list = (q.data ?? []).slice(0, 8);
+  if (!list.length) return <div className={a.meta}>{t('events.empty')}</div>;
+  return (
+    <ul className={a.feed}>
+      {list.map((e) => (
+        <li key={e.id}><Icon name={EVENT_ICON[e.domain] ?? 'check'} size={13} /><span className={a.feedText}>{eventText(t, e)}</span><span className={a.feedWhen}>{eventWhen(t, e.at)}</span></li>
+      ))}
+    </ul>
   );
 }
 

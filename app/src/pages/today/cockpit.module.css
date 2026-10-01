@@ -17,7 +17,7 @@
 .dayDot[data-s='open'] { border: 1.5px dashed var(--accent); }
 .dayDot[data-s='at-risk'] { border: 1.5px dashed var(--danger); }
 .dayDot[data-today='true'][data-s='earned'] { animation: earn .28s ease-out; }
-@keyframes earn { 50% { transform: scale(1.05); } }
+@keyframes earn { 50% { transform: scale(.96); } }
 .dayLab { font: 600 10px var(--font-mono); color: var(--text-muted); }
 .dayLab[data-today='true'] { color: var(--text); }
 .ribbonRow { display: flex; align-items: center; gap: 10px; margin-top: 12px; }

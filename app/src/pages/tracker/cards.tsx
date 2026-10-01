@@ -1,91 +1,15 @@
-import { buildGrid, habitRate, QUIT_GOALS, type Refusal, type TrackerHabit } from '../../mock/tracker';
+import { QUIT_GOALS, type Refusal } from '../../mock/tracker';
 import { formatNumber, type T } from '../../i18n';
 import { Icon } from '../../ui/Icon';
 import { localDay } from './ComposerOptions';
 import { useNow } from '../../lib/useNow';
 import s from './tracker.module.css';
 
-const MISS = 'rgba(229,57,43,.62)';
 const hueBg = (hue: string) => ({ background: `linear-gradient(160deg,${hue}22,rgba(13,17,22,.92) 60%)`, border: `1px solid ${hue}3a` });
-
-/* ---------------- habit card ---------------- */
-
-export function HabitCard({
-  t, h, expanded, mobile, onToggleExpand, onDelete, onToggleToday,
-}: {
-  t: T; h: TrackerHabit; expanded: boolean; mobile: boolean;
-  onToggleExpand: () => void; onDelete: () => void; onToggleToday: () => void;
-}) {
-  const labels = t.list('weekdays.short');
-  return (
-    <div className={s.hueCard} style={hueBg(h.hue)}>
-      <div className={s.cardTop} onClick={onToggleExpand}>
-        <div className={s.left}>
-          <div className={s.iconWrap} style={{ background: h.hue + '26', color: h.hue }}><Icon name={h.icon} size={17} /></div>
-          <div style={{ minWidth: 0 }}>
-            <div className={s.name}>{t.pick(h.name)}</div>
-            <div className={s.meta}>
-              <span className={s.flame} style={{ color: h.hue }}><Icon name="flameDrop" size={13} /></span>
-              <span className={s.streak} style={{ color: h.hue }}>{h.streak}</span>
-              <span className={s.cadence}>{t.pick(h.cadence)}</span>
-              {h.required && <span className={s.inStreak}>{t('tracker.inStreak')}</span>}
-            </div>
-          </div>
-        </div>
-        <div className={s.right}>
-          <button type="button" className={s.del} onClick={(e) => { e.stopPropagation(); onDelete(); }} aria-label={t('common.delete')}>
-            <Icon name="trash" size={15} />
-          </button>
-          <div className={s.chev} style={{ transform: `rotate(${expanded ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></div>
-        </div>
-      </div>
-
-      <div className={s.week}>
-        {h.week.map((st, i) => {
-          const isToday = st === 'today' || st === 'today-done';
-          const done = st === 'done' || st === 'today-done';
-          const mark = done ? 'done' : st === 'miss' ? 'miss' : isToday ? 'today' : 'future';
-          const style = done ? { background: h.hue } : mark === 'today' ? { border: `2px dashed ${h.hue}` } : undefined;
-          return (
-            <div key={i} className={s.wcol}>
-              <button type="button" className={s.wdot} data-s={mark} style={{ ...style, cursor: done || isToday ? 'pointer' : 'default' }}
-                data-hit="off" aria-label={labels[i]} aria-pressed={done} disabled={!isToday} onClick={isToday ? onToggleToday : undefined}>
-                {done && <Icon name="check" size={13} sw={3.2} />}
-              </button>
-              <span className={s.wlabel} style={isToday ? { color: h.hue } : undefined}>{labels[i]}</span>
-            </div>
-          );
-        })}
-      </div>
-
-      {expanded && (
-        <div className={s.expanded}>
-          <div className={s.stats}>
-            <div><div className={s.statVal}>{h.rate ?? habitRate(h)}%</div><div className={s.statLab}>{t('tracker.statDone')}</div></div>
-            <div><div className={s.statVal}>{t('tracker.bestDays', { n: h.best })}</div><div className={s.statLab}>{t('tracker.statBest')}</div></div>
-            <div><div className={s.statVal}>{h.total}</div><div className={s.statLab}>{t('tracker.statTotal')}</div></div>
-          </div>
-          <div className={s.grid12} style={{ gap: mobile ? 4 : 5 }}>
-            {(h.grid ?? buildGrid(h)).map((c, i) => (
-              <div key={i} className={s.cell} style={{ background: c === 'done' ? h.hue : c === 'miss' ? MISS : c === 'empty' ? 'rgba(255,255,255,.07)' : 'rgba(255,255,255,.03)' }} />
-            ))}
-          </div>
-          <div className={s.legend}>
-            <span className={s.legendItem}><span className={s.sw} style={{ background: h.hue }} />{t('tracker.legendDone')}</span>
-            <span className={s.legendItem}><span className={s.sw} style={{ background: MISS }} />{t('tracker.legendMiss')}</span>
-            <span className={s.legendItem}><span className={s.sw} style={{ background: 'rgba(255,255,255,.07)' }} />{t('tracker.legendNone')}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ---------------- refusal card ---------------- */
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export function sinceLabel(t: T, iso: string) {
+function sinceLabel(t: T, iso: string) {
   const d = new Date(iso);
   const m = t.list('tracker.monthsShort')[d.getMonth()];
   return t('tracker.since', { d: t.lang === 'en' ? `${m} ${d.getDate()}` : `${d.getDate()} ${m}` });

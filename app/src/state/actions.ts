@@ -14,16 +14,24 @@ import { getSystem, patchSystem, SYSTEM_KEY, systemClient, type GoalDb, type Sys
  */
 
 let inFlight = 0;
+let lastWrite = 0;
+/** This device is writing or has just written: realtime echoes of its own changes are ignored. */
+export const ownWriteRecent = () => inFlight > 0 || Date.now() - lastWrite < 3000;
+/** Writes made outside `write()` (onboarding, import, arc rollover) count as this device's own too. */
+export const markOwnWrite = (ms = 0) => { lastWrite = Date.now() + ms; };
 function write(run: () => Promise<unknown>) {
   if (!hasBackend) return;
   inFlight++;
+  lastWrite = Date.now();
   const settle = () => {
     inFlight = Math.max(0, inFlight - 1);
+    lastWrite = Date.now();
     if (inFlight === 0) {
       const qc = systemClient();
       void qc?.invalidateQueries({ queryKey: SYSTEM_KEY });
       void qc?.invalidateQueries({ queryKey: ['calendar'] });
       void qc?.invalidateQueries({ queryKey: ['accountStats'] });
+      void qc?.invalidateQueries({ queryKey: ['events'] });
     }
   };
   mutate(run, { done: settle, rollback: settle });

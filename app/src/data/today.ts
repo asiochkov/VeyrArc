@@ -1,6 +1,5 @@
 import { translate, type Lang } from '../i18n';
 import { isoDay } from '../lib/day';
-import { db } from '../lib/supabase';
 import type { DayState, L, TodayHabit } from '../mock/today';
 import type { todayStats } from '../mock/today';
 import type { IconName } from '../ui/Icon';
@@ -21,21 +20,6 @@ export type TodayView = {
   streakBase: number;
   requiredIds: string[];
 };
-
-export async function fetchToday(): Promise<TodayRaw> {
-  const day = isoDay();
-  const from = addDays(day, -400);
-  const [h, l, d, f, p, a] = await Promise.all([
-    db().from('habits').select('*').is('archived_at', null).order('sort').order('created_at'),
-    db().from('habit_logs').select('habit_id, day, value, done').gte('day', from),
-    db().from('day_entries').select('day, mood, water, frozen').gte('day', from),
-    db().from('focus_sessions').select('*').gte('started_at', addDays(day, -31)),
-    db().from('plan_items').select('*').eq('day', day).order('starts_at', { nullsFirst: false }),
-    db().from('arcs').select('*').is('ended_on', null).maybeSingle(),
-  ]);
-  for (const r of [h, l, d, f, p, a]) if (r.error) throw r.error;
-  return { day, habits: h.data as HabitRowDb[], logs: l.data as LogRow[], days: d.data as DayRow[], focus: f.data as FocusRow[], plan: p.data as PlanRow[], arc: a.data as ArcRow | null };
-}
 
 const both = (fn: (lang: Lang) => string): L => ({ ru: fn('ru'), en: fn('en') });
 const same = (s: string): L => ({ ru: s, en: s });
@@ -129,19 +113,3 @@ export function buildToday(raw: TodayRaw, opts: { initials: string; freezesAllow
   };
 }
 
-/* ---- writes ---- */
-export async function writeLog(habitId: string, value: number, done: boolean) {
-  const day = isoDay();
-  const r = value > 0
-    ? await db().from('habit_logs').upsert({ habit_id: habitId, day, value, done })
-    : await db().from('habit_logs').delete().eq('habit_id', habitId).eq('day', day);
-  if (r.error) throw r.error;
-}
-export async function writeMood(level: number) {
-  const r = await db().from('day_entries').upsert({ day: isoDay(), mood: level + 1 }, { onConflict: 'user_id,day' });
-  if (r.error) throw r.error;
-}
-export async function writeFocus(minutes: number) {
-  const r = await db().from('focus_sessions').insert({ minutes, started_at: new Date(Date.now() - minutes * 60000).toISOString() });
-  if (r.error) throw r.error;
-}

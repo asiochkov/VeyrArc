@@ -97,3 +97,9 @@
   .toolbar, .arrow { display: none; }
   .scroll { overflow: visible; }
 }
+.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.feed > li { display: flex; align-items: center; gap: 10px; min-height: 34px; border-top: 1px solid var(--line); color: var(--text-muted); }
+.feed > li:first-child { border-top: none; }
+.feedText { flex: 1; min-width: 0; font: 500 13px var(--font-ui); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feedWhen { flex: none; font: 500 11px var(--font-mono); }
+@media (min-width: 720px) { .span12 .ach { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

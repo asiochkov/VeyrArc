@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { useHeader } from '../../data/header';
 import { daysBetween } from '../../data/model';
 import { exportData, startNewArc, setProfile } from '../../data/settings';
@@ -8,6 +8,8 @@ import { toast } from '../../ui/toast';
 import { useAuth, userEmail, isProPlan } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { askPermission } from '../../lib/reminders';
+import { sendTestPush } from '../../lib/push';
+import { parseImport, runImport } from '../../lib/importData';
 import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
 import { deleteAccount, signOut } from '../../lib/auth';
@@ -58,6 +60,15 @@ export function Settings() {
     if (hasBackend) setProfile({ [NOTIF_COL[k]]: !notif[k] });
     else setNotifLocal((n) => ({ ...n, [k]: !n[k] }));
   };
+  const [quietLocal, setQuietLocal] = useState<[string, string] | null>(null);
+  const qv: [string, string] | null = hasBackend ? (profile?.quiet_from && profile?.quiet_to ? [profile.quiet_from.slice(0, 5), profile.quiet_to.slice(0, 5)] : null) : quietLocal;
+  const quiet = { on: !!qv, from: qv?.[0] ?? '22:00', to: qv?.[1] ?? '08:00' };
+  const setQuiet = (v: [string, string] | null) => { if (hasBackend) setProfile({ quiet_from: v?.[0] ?? null, quiet_to: v?.[1] ?? null }); else setQuietLocal(v); };
+  const testPush = async () => {
+    const r = await sendTestPush().catch(() => 'failed' as const);
+    if (r === 'sent') toast.success(t('settings.testSent'));
+    else toast.error(t(r === 'denied' ? 'settings.testDenied' : r === 'unsupported' ? 'settings.testUnsupported' : 'settings.testFailed'));
+  };
   const pickLang = (l: Lang) => { setLang(l); if (hasBackend) setProfile({ lang: l }); };
   const account = hasBackend
     ? { name: [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || userEmail(session), email: userEmail(session), initials: hd.initials }
@@ -78,6 +89,9 @@ export function Settings() {
   const [arcModal, setArcModal] = useState(false);
   const [accModal, setAccModal] = useState<AccountModal>(null);
   const [oathOpen, setOathOpen] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [imp, setImp] = useState<ReturnType<typeof parseImport>>(null);
+  const [importing, setImporting] = useState(false);
   const density = useDensity((x) => x.density);
   const setDensity = useDensity((x) => x.set);
   const active = (arcsQ.data ?? []).find((a) => !a.ended_on) ?? null;
@@ -177,6 +191,21 @@ export function Settings() {
                 <span className={s.track} data-on={notif[k]}><span className={s.knob} /></span>
               </button>
             ))}
+            {/* quiet hours (Master Changeset task 32) */}
+            <button type="button" role="switch" aria-checked={quiet.on} className={s.row} style={{ cursor: 'pointer' }} onClick={() => setQuiet(quiet.on ? null : ['22:00', '08:00'])}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', font: '600 14.5px var(--font-ui)' }}>{t('settings.quiet')}</span>
+                <span style={{ display: 'block', font: '400 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 3 }}>{t('settings.quietD')}</span>
+              </span>
+              <span className={s.track} data-on={quiet.on}><span className={s.knob} /></span>
+            </button>
+            {quiet.on && (
+              <div className={s.row}>
+                <label className={s.timeLabel}>{t('settings.from')}<input type="time" className={s.time} value={quiet.from} onChange={(e) => e.target.value && setQuiet([e.target.value, quiet.to])} /></label>
+                <label className={s.timeLabel}>{t('settings.to')}<input type="time" className={s.time} value={quiet.to} onChange={(e) => e.target.value && setQuiet([quiet.from, e.target.value])} /></label>
+              </div>
+            )}
+            <Row icon="bellAuth" label={t('settings.testPush')} onClick={() => { void testPush(); }}>{chev}</Row>
           </div>
         </div>
       )}
@@ -253,6 +282,8 @@ export function Settings() {
           <div className={s.groupTitle}>{t('settings.dataPrivacy')}</div>
           <div className={s.list}>
             <Row icon="download" label={t('settings.export')} onClick={() => { if (hasBackend) void exportData().then(() => toast.success(t('settings.exported'))).catch(() => toast.error(t('common.loadFailed'))); }}>{chev}</Row>
+            <Row icon="upload" label={t('settings.import')} onClick={() => fileRef.current?.click()}>{chev}</Row>
+            <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void f.text().then((x) => { const p = parseImport(x); if (p) setImp(p); else toast.error(t('settings.importBad')); }); }} />
             <Row icon="doc" label={t('settings.terms')} onClick={() => navigate('/terms')}>{chev}</Row>
             <Row icon="shield" label={t('settings.privacy')} onClick={() => navigate('/privacy')}>{chev}</Row>
             <Row icon="trashPlain" label={t('settings.del')} danger onClick={() => setAccModal('del1')} />
@@ -306,6 +337,18 @@ export function Settings() {
         }}
         onCancel={() => setArcModal(false)}
       />
+      <ConfirmDialog open={!!imp} title={t('settings.importTitle')} confirmLabel={importing ? '…' : t('settings.importOk')} cancelLabel={t('settings.cancel')}
+        body={imp ? t('settings.importBody', { h: imp.summary.habits, l: imp.summary.logs, q: imp.summary.quits, g: imp.summary.goals, e: imp.summary.events, d: imp.summary.days }) : ''}
+        onConfirm={() => {
+          if (!imp || importing) return;
+          if (!hasBackend) { setImp(null); return; }
+          setImporting(true);
+          void runImport(imp.file).then((r) => {
+            toast.success(r.goalsSkipped ? t('settings.importDoneSkipped', { n: r.goalsSkipped }) : t('settings.importDone'));
+            void qc.invalidateQueries({ queryKey: SYSTEM_KEY });
+          }).catch(() => toast.error(t('settings.importFailed'))).finally(() => { setImporting(false); setImp(null); });
+        }}
+        onCancel={() => setImp(null)} />
       <OathSheet open={oathOpen} onClose={() => setOathOpen(false)} arcId={active?.id ?? null} current={active?.oath ?? ''} />
       <AccountDialogs modal={accModal} setModal={setAccModal}
         onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}

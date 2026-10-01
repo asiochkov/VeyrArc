@@ -1,25 +1,10 @@
 import { translate, type Lang } from '../i18n';
-import { isoDay } from '../lib/day';
-import { db } from '../lib/supabase';
 import type { L } from '../mock/today';
 import type { GridCell, Refusal, TrackerHabit, WeekMark } from '../mock/tracker';
 import type { IconName } from '../ui/Icon';
-import { sinceIso, type HabitDraft, type QuitDraft } from '../pages/tracker/ComposerOptions';
 import { addDays, habitBest, habitStreak, indexLogs, isLogged, scheduled, weekStart, type HabitRowDb, type LogRow, type QuitRow } from './model';
 
 export type TrackerRaw = { day: string; habits: HabitRowDb[]; logs: LogRow[]; quits: QuitRow[]; relapses: { quit_id: string }[] };
-
-export async function fetchTracker(): Promise<TrackerRaw> {
-  const day = isoDay();
-  const [h, l, q, r] = await Promise.all([
-    db().from('habits').select('*').is('archived_at', null).order('sort').order('created_at'),
-    db().from('habit_logs').select('habit_id, day, value, done').gte('day', addDays(day, -400)),
-    db().from('quits').select('*').is('archived_at', null).order('created_at'),
-    db().from('quit_relapses').select('quit_id'),
-  ]);
-  for (const x of [h, l, q, r]) if (x.error) throw x.error;
-  return { day, habits: h.data as HabitRowDb[], logs: l.data as LogRow[], quits: q.data as QuitRow[], relapses: r.data as { quit_id: string }[] };
-}
 
 const both = (fn: (lang: Lang) => string): L => ({ ru: fn('ru'), en: fn('en') });
 
@@ -69,23 +54,3 @@ export function buildTracker(raw: TrackerRaw): { habits: TrackerHabit[]; refusal
   return { habits, refusals };
 }
 
-/* ---- writes ---- */
-const ok = <T extends { error: unknown }>(r: T) => { if (r.error) throw r.error; return r; };
-
-export async function addHabit(name: string, d: HabitDraft, required: boolean, sort: number) {
-  ok(await db().from('habits').insert({
-    name, icon: d.icon, hue: d.hue, type: d.type, category: d.category, cadence: d.cadence, days: d.cadence === 'weekdays' ? 31 : d.cadence === 'weekends' ? 96 : 127, core: required, sort,
-    target: d.type === 'counter' ? d.target : null, unit: d.type === 'counter' ? d.unit.trim() || null : null,
-    minutes: d.type === 'duration' ? d.minutes : null,
-  }));
-}
-export const archiveHabit = async (id: string) => { ok(await db().from('habits').update({ archived_at: new Date().toISOString() }).eq('id', id)); };
-export const restoreHabit = async (id: string) => { ok(await db().from('habits').update({ archived_at: null }).eq('id', id)); };
-export async function addQuit(name: string, d: QuitDraft, hue: string) {
-  ok(await db().from('quits').insert({ name, hue, icon: 'ban', unit: d.unit.trim() || null, per_day: d.norm, clean_since: sinceIso(d.since) }));
-}
-export const archiveQuit = async (id: string) => { ok(await db().from('quits').update({ archived_at: new Date().toISOString() }).eq('id', id)); };
-export const relapse = async (id: string, note?: string) => (ok(await db().rpc('log_relapse', { p_quit: id, p_note: note ?? null })).data as { id: string }).id;
-export const undoRelapse = async (relapseId: string) => { ok(await db().rpc('undo_relapse', { p_relapse: relapseId })); };
-export const setQuitGoal = async (id: string, g: number) => { ok(await db().from('quits').update({ goal_days: g }).eq('id', id)); };
-export const setQuitSince = async (id: string, iso: string) => { ok(await db().from('quits').update({ clean_since: iso }).eq('id', id)); };

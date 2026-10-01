@@ -34,3 +34,13 @@ export function onAppOpen() {
   void db().rpc('touch_last_seen').then(() => {}, () => {});
   void subscribePush().catch(() => false);
 }
+
+/** Settings → Notifications: one test push to this account's devices (Master Changeset task 30). */
+export async function sendTestPush(): Promise<'sent' | 'denied' | 'unsupported' | 'failed'> {
+  if (!hasBackend || !VAPID || !('PushManager' in window)) return 'unsupported';
+  const perm = Notification.permission === 'granted' || (await Notification.requestPermission()) === 'granted';
+  if (!perm) return 'denied';
+  if (!(await subscribePush().catch(() => false))) return 'failed';
+  const r = await db().functions.invoke('push-reminders', { body: { test: true } });
+  return !r.error && (r.data as { sent?: number })?.sent ? 'sent' : 'failed';
+}

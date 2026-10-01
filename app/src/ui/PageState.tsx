@@ -2,7 +2,7 @@ import { useT } from '../i18n';
 import { Icon } from './Icon';
 
 /* Shown while a screen's data loads (skeleton) or when it could not load (message + retry). */
-export function PageState({ error, onRetry }: { error?: boolean; onRetry?: () => void }) {
+export function PageState({ error, onRetry, variant = 'list' }: { error?: boolean; onRetry?: () => void; variant?: Variant }) {
   const t = useT();
   if (error) {
     return (
@@ -19,16 +19,48 @@ export function PageState({ error, onRetry }: { error?: boolean; onRetry?: () =>
       </div>
     );
   }
+  return <Skeleton variant={variant} label={t('common.loading')} />;
+}
+
+/* Per-screen skeletons: the same geometry as the screen that loads. */
+type Variant = 'today' | 'list' | 'grid' | 'planner';
+const box = (h: number, extra: React.CSSProperties = {}) => <div className="sk" style={{ height: h, ...extra }} />;
+function Skeleton({ variant, label }: { variant: Variant; label: string }) {
   return (
-    <div aria-busy="true" aria-label={t('common.loading')} style={{ flex: 1, padding: '22px 18px', display: 'flex', flexDirection: 'column', gap: 12, overflow: 'hidden' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div><div className="sk" style={{ width: 70, height: 10 }} /><div className="sk" style={{ width: 150, height: 24, marginTop: 10 }} /></div>
-        <div className="sk" style={{ width: 38, height: 38, borderRadius: '50%' }} />
+    <div aria-busy="true" aria-label={label} style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, overflow: 'hidden', maxWidth: 1180, width: '100%', margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 44 }}>
+        <div className="sk" style={{ width: 160, height: 14 }} />
+        <div className="sk" style={{ width: 32, height: 32, borderRadius: '50%' }} />
       </div>
-      <div className="sk" style={{ height: 120, marginTop: 8, borderRadius: 20 }} />
-      <div className="sk" style={{ height: 64, borderRadius: 16 }} />
-      <div className="sk" style={{ height: 64, borderRadius: 16 }} />
-      <div className="sk" style={{ height: 64, borderRadius: 16 }} />
+      {variant === 'today' && (
+        <>
+          {box(92)}
+          {box(182)}
+          {box(18, { width: 120, border: 'none' })}
+          {box(64)}{box(64)}{box(64)}
+        </>
+      )}
+      {variant === 'list' && (
+        <>
+          {box(40, { borderRadius: 999 })}
+          {box(14, { width: 90, border: 'none', marginTop: 8 })}
+          {box(56)}{box(56)}{box(56)}{box(56)}
+        </>
+      )}
+      {variant === 'grid' && (
+        <>
+          {box(40)}
+          {box(150)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>{box(160)}{box(160)}{box(160)}</div>
+        </>
+      )}
+      {variant === 'planner' && (
+        <>
+          {box(44)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>{Array.from({ length: 7 }, (_, i) => <div key={i} className="sk" style={{ height: 52 }} />)}</div>
+          {box(360)}
+        </>
+      )}
     </div>
   );
 }

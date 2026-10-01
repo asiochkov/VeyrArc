@@ -33,7 +33,14 @@ export default defineConfig(({ mode }) => ({
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
-      },
+        // deep links (Master Changeset task 30): web+veyrarc://goals/<id> → /open → /goals/<id>
+        protocol_handlers: [{ protocol: 'web+veyrarc', url: '/open?to=%s' }],
+        shortcuts: [
+          { name: 'Сегодня', url: '/' },
+          { name: 'Планер', url: '/planner' },
+          { name: 'Фокус', url: '/?focus=1' },
+        ],
+      } as Record<string, unknown>,
       workbox: {
         importScripts: ['push-sw.js'],
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],

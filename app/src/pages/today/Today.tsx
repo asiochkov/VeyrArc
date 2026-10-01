@@ -14,6 +14,8 @@ import { InfoDialog, MoodFace, ProgressRing } from '../../ui/primitives';
 import { toast } from '../../ui/toast';
 import { EveningReview } from './EveningReview';
 import { OathSheet } from '../../ui/OathSheet';
+import { EmptyState } from '../../ui/EmptyState';
+import { useAdd } from '../../app/nav';
 import { useAutoTour } from '../../ui/Tour';
 import { HabitRow, isDone } from './HabitRow';
 import c from './cockpit.module.css';
@@ -33,6 +35,12 @@ export function Today() {
   useEffect(() => { setHandler(null); return () => setHandler(null); }, [setHandler]);
   // an arc has just ended: its Recap comes first (Master Changeset F14)
   const navigate = useNavigate();
+  // home-screen shortcut «Фокус» (/?focus=1)
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('focus') !== '1') return;
+    pomo.openSheet();
+    navigate('/', { replace: true });
+  }, [navigate]);
   useEffect(() => {
     const go = () => { const id = pendingRecap(); if (id) navigate(`/arc/recap/${id}?end=1`); };
     go();
@@ -42,7 +50,7 @@ export function Today() {
 
   useAutoTour('today', !!st.data);
 
-  if (!st.ready || !st.data) return <PageState error={st.loadError} onRetry={st.retry} />;
+  if (!st.ready || !st.data) return <PageState variant="today" error={st.loadError} onRetry={st.retry} />;
   const d = st.data;
   return (
     <div className={c.scroll} data-scroll>
@@ -246,10 +254,7 @@ function HabitSection({ t, d, core }: { t: T; d: TodayData; core: boolean }) {
         {!core && <span className={c.secChevron} data-open={open}><Icon name="chevronDown" size={14} sw={2} /></span>}
       </button>
       {core && !list.length && (
-        <div className={c.empty}>
-          <span>{t('cockpit.noCore')}</span>
-          <button type="button" className={c.linkBtn} onClick={() => navigate('/disciplines')}>{t('cockpit.chooseCore')}</button>
-        </div>
+        <EmptyState compact title={t('cockpit.noCore')} sub={t('empty.coreSub')} cta={{ label: t('cockpit.chooseCore'), run: () => navigate('/disciplines') }} />
       )}
       {open && <div className={c.rows}>{list.map((h) => <HabitItem key={h.id} h={h} />)}</div>}
     </section>
@@ -332,7 +337,7 @@ function PlannerStrip({ t, d }: { t: T; d: TodayData }) {
         <span className={c.secTitle}>{t('cockpit.plannerTitle')}</span>
         <Link to="/planner" className={c.secLink}>{t('today.openPlanner')}</Link>
       </div>
-      {d.strip.length === 0 ? <div className={c.empty}><span>{t('cockpit.plannerEmpty')}</span></div> : (
+      {d.strip.length === 0 ? <EmptyState compact title={t('cockpit.plannerEmpty')} kbd="C" cta={{ label: t('empty.addEvent'), run: () => useAdd.getState().openAdd('event') }} /> : (
         <div className={c.strip}>
           {d.strip.map((p) => {
             const cur = !!p.starts_at && p.starts_at.slice(0, 5) <= nowHm && (p.ends_at ?? p.starts_at).slice(0, 5) > nowHm;

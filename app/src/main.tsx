@@ -12,6 +12,7 @@ import { router } from './app/router';
 import { useLangStore } from './i18n';
 import { initAuth, useAuth } from './lib/auth';
 import { startDensity } from './lib/density';
+import { startRealtime } from './lib/realtime';
 import { fitStandaloneHeight, startPwa } from './lib/pwa';
 import './styles/fonts';
 import './styles/global.css';
@@ -30,6 +31,7 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30
 const stored = createSyncStoragePersister({ storage: safeStorage(), key: 'veyrarc.cache', throttleTime: 1000 });
 // online start: always fresh data from the server; offline start: the last data seen, read-only until the network is back
 bindSystem(queryClient);
+startRealtime(queryClient);
 const persister = { ...stored, restoreClient: () => (navigator.onLine ? undefined : stored.restoreClient()) };
 function safeStorage() { try { localStorage.setItem('veyrarc.t', '1'); localStorage.removeItem('veyrarc.t'); return localStorage; } catch { return undefined; } }
 
