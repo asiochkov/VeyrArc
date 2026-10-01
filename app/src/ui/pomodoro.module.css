@@ -1,0 +1,33 @@
+.linkChip { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 12px; min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--w-08); background: var(--w-04); color: var(--text); cursor: pointer; text-align: left; }
+.linkPre { font: 600 11px var(--font-mono); letter-spacing: .08em; color: var(--text-muted); text-transform: uppercase; flex: none; }
+.linkName { flex: 1; min-width: 0; font: 600 13px var(--font-ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.linkList { margin-top: 6px; border: 1px solid var(--w-08); border-radius: 10px; overflow: hidden; max-height: 220px; overflow-y: auto; }
+.linkOpt { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 0 12px; border: none; border-bottom: 1px solid var(--w-06); background: transparent; color: var(--text); font: 500 13px var(--font-ui); text-align: left; cursor: pointer; }
+.linkOpt[aria-selected='true'] { background: var(--blue-14); }
+.linkKind { flex: none; width: 58px; font: 600 10px var(--font-mono); letter-spacing: .06em; color: var(--text-muted); text-transform: uppercase; }
+.clock { text-align: center; margin-top: 18px; font: 700 64px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.session { text-align: center; margin-top: 8px; font: 400 13px var(--font-ui); color: var(--text-muted); }
+.controls { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 18px; }
+.ctrl { width: 44px; height: 44px; border-radius: 50%; background: var(--w-04); border: 1px solid var(--w-08); color: var(--text-secondary); display: grid; place-items: center; cursor: pointer; }
+.play { width: 60px; height: 60px; border-radius: 50%; background: var(--accent); border: none; display: grid; place-items: center; cursor: pointer; }
+.tune { margin-top: 16px; padding: 12px; border-radius: 12px; background: var(--w-04); border: 1px solid var(--w-06); display: flex; flex-direction: column; gap: 10px; }
+.tuneRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 600 12px var(--font-ui); color: var(--text-secondary); }
+.tuneOpts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+.opt { min-width: 36px; height: 36px; padding: 0 6px; border-radius: 8px; border: none; background: var(--w-05); color: var(--text-secondary); font: 700 12px var(--font-mono); cursor: pointer; }
+.opt[aria-pressed='true'] { background: var(--accent); color: var(--ink); }
+.tuneNote { font: 400 11px var(--font-ui); color: var(--text-muted); text-align: right; }
+
+/* docked mini player: above the bottom bar on mobile, bottom-right on desktop */
+.dock {
+  position: fixed; z-index: 45; right: calc(12px + var(--safe-right)); bottom: calc(144px + var(--safe-bottom));
+  display: flex; align-items: center; gap: 4px; padding: 6px; border-radius: 14px; background: rgba(18,22,28,.97);
+  border: 1px solid var(--w-08); box-shadow: 0 10px 30px rgba(0,0,0,.5); animation: dockIn .22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (min-width: 1024px) { .dock { bottom: 20px; right: 24px; } }
+.dockMain { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 8px; border: none; background: transparent; color: var(--text); cursor: pointer; text-align: left; }
+.dockRing { width: 26px; height: 26px; border-radius: 50%; flex: none; -webkit-mask: radial-gradient(circle, transparent 8px, #000 9px); mask: radial-gradient(circle, transparent 8px, #000 9px); }
+.dockText { display: flex; flex-direction: column; min-width: 0; }
+.dockClock { font: 700 15px var(--font-mono); font-variant-numeric: tabular-nums; }
+.dockLabel { font: 500 11px var(--font-ui); color: var(--text-muted); max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dockBtn { width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--accent); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+@keyframes dockIn { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }

@@ -12,6 +12,9 @@ const c = (cx: number, cy: number, r: number): El => ['c', cx, cy, r];
 const r = (x: number, y: number, w: number, h: number, rx: number): El => ['r', x, y, w, h, rx];
 
 const STROKE: Record<string, El[]> = {
+  pulse: [p('M3 12h4l3-7 4 14 3-7h4')],
+  panel: [r(3, 4, 18, 16, 2), p('M9 4v16')],
+  command: [p('M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z')],
   plus: [p('M12 6v12'), p('M6 12h12')],
   home: [p('M3.5 11 12 3.5l8.5 7.5'), p('M5.5 9.5V20.5h13V9.5')],
   checklist: [p('M10 6.5h10'), p('M10 12h10'), p('M10 17.5h10'), p('M4 6l1 1 1.8-2'), p('M4 11.5l1 1 1.8-2'), p('M4 17l1 1 1.8-2')],

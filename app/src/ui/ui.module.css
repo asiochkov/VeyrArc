@@ -284,7 +284,7 @@
 /* ---- Toasts (one system, above the bottom bar and the home indicator) ---- */
 .toaster {
   position: fixed; left: 0; right: 0; z-index: var(--z-toast); pointer-events: none;
-  bottom: calc(92px + var(--safe-bottom)); padding: 0 calc(16px + var(--safe-right)) 0 calc(16px + var(--safe-left));
+  bottom: calc(144px + var(--safe-bottom)); padding: 0 calc(16px + var(--safe-right)) 0 calc(16px + var(--safe-left));
   display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
 @media (min-width: 1024px) { .toaster { bottom: 24px; } }

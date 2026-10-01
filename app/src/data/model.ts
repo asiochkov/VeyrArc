@@ -4,14 +4,24 @@ import { isoDay } from '../lib/day';
 export type Category = 'body' | 'mind' | 'disc' | 'prod' | 'quit';
 export type HabitRowDb = {
   id: string; name: string; icon: string; hue: string; type: 'binary' | 'counter' | 'duration';
-  target: number | null; unit: string | null; minutes: number | null; cadence: 'daily' | 'weekdays' | 'weekends';
-  category: Category; required: boolean; sort: number; created_at: string;
+  target: number | null; unit: string | null; minutes: number | null;
+  /** weekday bitmap: bit 0 = Monday … bit 6 = Sunday (127 = every day) */
+  days: number;
+  /** legacy text cadence, kept in sync for old clients */
+  cadence?: 'daily' | 'weekdays' | 'weekends';
+  category: Category; core: boolean; sort: number; created_at: string; archived_at?: string | null;
 };
 export type LogRow = { habit_id: string; day: string; value: number; done: boolean };
-export type DayRow = { day: string; mood: number | null; water: number; frozen: boolean };
-export type FocusRow = { id: string; started_at: string; minutes: number; category: Category | null; completed: boolean };
-export type PlanRow = { id: string; title: string; category_id: string | null; day: string; starts_at: string | null; ends_at: string | null; note: string | null; done: boolean };
-export type ArcRow = { id: string; number: number; started_on: string; length_days: number; ended_on: string | null; summary: unknown };
+export type DayRow = { day: string; mood: number | null; water: number; frozen: boolean; note?: string | null };
+export type FocusRow = {
+  id: string; started_at: string; minutes: number; category: Category | null; completed: boolean;
+  session_type?: 'focus' | 'short' | 'long'; linked_goal_id?: string | null; linked_habit_id?: string | null; linked_event_id?: string | null;
+};
+export type PlanRow = {
+  id: string; title: string; category_id: string | null; day: string; starts_at: string | null; ends_at: string | null; note: string | null; done: boolean;
+  linked_goal_id?: string | null; linked_habit_id?: string | null; focus?: boolean;
+};
+export type ArcRow = { id: string; number: number; started_on: string; length_days: number; ended_on: string | null; summary: unknown; oath?: string | null; theme_hue?: string | null };
 export type QuitRow = { id: string; name: string; icon: string; hue: string; unit: string | null; per_day: number; clean_since: string; best_days: number; goal_days: number | null; created_at: string };
 
 /* ---- dates (local calendar days as YYYY-MM-DD) ---- */
@@ -21,12 +31,14 @@ export const daysBetween = (a: string, b: string) => Math.round((parseDay(b).get
 /** Monday of the week that contains `d`. */
 export const weekStart = (d: string) => { const x = parseDay(d); const wd = (x.getDay() + 6) % 7; x.setDate(x.getDate() - wd); return isoDay(x); };
 
-export function scheduled(h: Pick<HabitRowDb, 'cadence'>, day: string) {
-  const wd = parseDay(day).getDay(); // 0 = Sunday
-  if (h.cadence === 'weekdays') return wd >= 1 && wd <= 5;
-  if (h.cadence === 'weekends') return wd === 0 || wd === 6;
-  return true;
+/* ---- cadence as a weekday bitmap (bit 0 = Monday) ---- */
+export const DAYS_ALL = 127, DAYS_WEEKDAYS = 31, DAYS_WEEKENDS = 96;
+export const weekdayBit = (day: string) => 1 << ((parseDay(day).getDay() + 6) % 7);
+export function scheduled(h: Pick<HabitRowDb, 'days'>, day: string) {
+  return ((h.days ?? DAYS_ALL) & weekdayBit(day)) !== 0;
 }
+/** legacy text value for the old cadence column */
+export const cadenceOf = (days: number): 'daily' | 'weekdays' | 'weekends' => (days === DAYS_WEEKDAYS ? 'weekdays' : days === DAYS_WEEKENDS ? 'weekends' : 'daily');
 const existed = (h: HabitRowDb, day: string) => h.created_at.slice(0, 10) <= day;
 
 export type LogIndex = Map<string, LogRow>; // key `${habit_id}|${day}`
@@ -34,14 +46,14 @@ export const indexLogs = (logs: LogRow[]): LogIndex => new Map(logs.map((l) => [
 export const isLogged = (ix: LogIndex, habitId: string, day: string) => !!ix.get(habitId + '|' + day)?.done;
 
 /**
- * A day is kept when every habit marked «в стрике» that was scheduled that day
- * is done; with no such habits, when at least one habit was done. A streak
- * freeze keeps the day as well.
+ * Streak contract (Master Changeset RC-4): a day is earned when every Core habit scheduled
+ * that day is done. Without Core habits (onboarding skipped), any one done habit earns it.
+ * A streak freeze keeps the day as well. Extra habits never affect the streak.
  */
 export function dayKept(habits: HabitRowDb[], ix: LogIndex, day: string, frozen: Set<string>) {
   if (frozen.has(day)) return true;
   const live = habits.filter((h) => existed(h, day) && scheduled(h, day));
-  const req = live.filter((h) => h.required);
+  const req = live.filter((h) => h.core);
   if (req.length) return req.every((h) => isLogged(ix, h.id, day));
   return live.some((h) => isLogged(ix, h.id, day));
 }

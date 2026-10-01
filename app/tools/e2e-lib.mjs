@@ -19,6 +19,7 @@ export async function guestOnboard(page, picks) {
   await page.getByRole('button', { name: 'Начать свой Arc' }).click();
   await page.waitForURL('**/onboarding');
   await page.getByPlaceholder('напр. Иван').fill('Анна');
+  await page.getByPlaceholder('Например: каждое утро — спорт и чтение').fill('Каждое утро — бег');
   await page.getByRole('button', { name: 'Далее' }).click();
   for (const [dir, chips] of Object.entries(picks)) {
     if (dir !== 'Тело') await page.getByRole('button', { name: new RegExp(dir) }).click();
@@ -30,5 +31,5 @@ export async function guestOnboard(page, picks) {
   const box = await hold.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down(); await page.waitForTimeout(1700); await page.mouse.up();
-  await page.waitForURL('**/start', { timeout: 10000 });
+  await page.waitForURL((u) => new URL(u).pathname === '/', { timeout: 10000 });
 }

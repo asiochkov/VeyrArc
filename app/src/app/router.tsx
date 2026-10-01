@@ -1,17 +1,24 @@
 import { createBrowserRouter, createMemoryRouter, type RouteObject } from 'react-router-dom';
 import { Login, Reset, Signup, Verify, Welcome } from '../pages/auth/screens';
-import { Account, DayOne, FirstHome, Onboarding } from '../pages/auth/screens2';
+import { Account, DayOne, Onboarding } from '../pages/auth/screens2';
 import { Calendar } from '../pages/calendar/Calendar';
 import { Goals } from '../pages/goals/Goals';
-import { Profile } from '../pages/profile/Profile';
+import { Analytics } from '../pages/analytics/Analytics';
+import { Recap } from '../pages/arc/Recap';
 import { Legal } from '../pages/legal/Legal';
 import { Pro } from '../pages/pro/Pro';
 import { Settings } from '../pages/settings/Settings';
 import { Today } from '../pages/today/Today';
-import { Tracker } from '../pages/tracker/Tracker';
+import { Disciplines } from '../pages/disciplines/Disciplines';
 import { PreviewLayout, PreviewScreens } from '../preview/PreviewScreens';
 import { AppShell } from './AppShell';
 import { CrashScreen } from './ErrorBoundary';
+import { Navigate, useLocation } from 'react-router-dom';
+
+function Redirect({ to }: { to: string }) {
+  const { search, hash } = useLocation();
+  return <Navigate to={to + search + hash} replace />;
+}
 import { GuestOnly, RequireAuth } from './AuthGate';
 
 const routes: RouteObject[] = [
@@ -20,10 +27,15 @@ const routes: RouteObject[] = [
     errorElement: <CrashScreen />,
     children: [
       { path: '/', element: <Today /> },
-      { path: '/habits', element: <Tracker /> },
-      { path: '/calendar', element: <Calendar /> },
+      { path: '/disciplines', element: <Disciplines /> },
+      { path: '/planner', element: <Calendar /> },
       { path: '/goals', element: <Goals /> },
-      { path: '/profile', element: <Profile /> },
+      { path: '/goals/:goalId', element: <Goals /> },
+      { path: '/analytics', element: <Analytics /> },
+      // old addresses (bookmarks, home-screen shortcuts, e-mails) keep working
+      { path: '/habits', element: <Redirect to="/disciplines" /> },
+      { path: '/calendar', element: <Redirect to="/planner" /> },
+      { path: '/profile', element: <Redirect to="/analytics" /> },
     ],
   },
   {
@@ -40,15 +52,17 @@ const routes: RouteObject[] = [
       { path: '/welcome', element: <GuestOnly><Welcome /></GuestOnly> },
       { path: '/onboarding', element: <Onboarding /> },
       { path: '/day-one', element: <DayOne /> },
-      { path: '/start', element: <FirstHome /> },
+      { path: '/start', element: <Navigate to="/" replace /> },
       { path: '/signup', element: <GuestOnly><Signup /></GuestOnly> },
       { path: '/verify', element: <Verify /> },
       { path: '/login', element: <GuestOnly><Login /></GuestOnly> },
       { path: '/reset', element: <Reset /> },
+      { path: '/arc/recap/:id', element: <RequireAuth><Recap /></RequireAuth> },
       { path: '/pro', element: <Pro /> },
       { path: '/terms', element: <Legal doc="terms" /> },
       { path: '/privacy', element: <Legal doc="privacy" /> },
       { path: '/settings/account', element: <RequireAuth><Account /></RequireAuth> },
+      { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
 ];

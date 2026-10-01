@@ -10,6 +10,7 @@
  * --render   put the project URL + anon key into the Render site and redeploy
  * --push     VAPID secrets, deploy Edge Function push-reminders, pg_cron every 15 min
  *            (VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY in the environment)
+ * --fn       redeploy only the code of push-reminders (secrets and cron stay)
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -110,14 +111,8 @@ if (all || flags.has('--auth')) {
   console.log('auth', { autoconfirm: now.mailer_autoconfirm, anonymous: now.external_anonymous_users_enabled, otp: now.mailer_otp_length, resendEvery: now.smtp_max_frequency, smtp: now.smtp_host, google: now.external_google_enabled });
 }
 
-/* ---------------- push ---------------- */
-if (flags.has('--push')) {
-  const pub = process.env.VAPID_PUBLIC_KEY, priv = process.env.VAPID_PRIVATE_KEY;
-  if (!pub || !priv) throw new Error('VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY missing');
-  const cron = (await import('node:crypto')).randomBytes(24).toString('hex');
-  await sb('POST', `/v1/projects/${ref}/secrets`, [
-    { name: 'VAPID_PUBLIC_KEY', value: pub }, { name: 'VAPID_PRIVATE_KEY', value: priv }, { name: 'CRON_SECRET', value: cron },
-  ]);
+/* ---------------- function code only ---------------- */
+async function deployFn() {
   const code = fs.readFileSync(path.join(root, 'supabase/functions/push-reminders/index.ts'));
   const form = new FormData();
   form.append('metadata', JSON.stringify({ entrypoint_path: 'index.ts', name: 'push-reminders', verify_jwt: false }));
@@ -126,6 +121,18 @@ if (flags.has('--push')) {
   const txt = await res.text();
   if (!res.ok) throw new Error('function deploy → ' + res.status + ' ' + txt.slice(0, 300));
   console.log('function', JSON.parse(txt).status ?? 'deployed');
+}
+if (flags.has('--fn')) await deployFn();
+
+/* ---------------- push ---------------- */
+if (flags.has('--push')) {
+  const pub = process.env.VAPID_PUBLIC_KEY, priv = process.env.VAPID_PRIVATE_KEY;
+  if (!pub || !priv) throw new Error('VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY missing');
+  const cron = (await import('node:crypto')).randomBytes(24).toString('hex');
+  await sb('POST', `/v1/projects/${ref}/secrets`, [
+    { name: 'VAPID_PUBLIC_KEY', value: pub }, { name: 'VAPID_PRIVATE_KEY', value: priv }, { name: 'CRON_SECRET', value: cron },
+  ]);
+  await deployFn();
   const url = `https://${ref}.supabase.co/functions/v1/push-reminders`;
   await sql(`create extension if not exists pg_cron; create extension if not exists pg_net;
     select cron.unschedule(jobid) from cron.job where jobname = 'push-reminders';

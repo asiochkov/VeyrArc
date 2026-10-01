@@ -34,7 +34,9 @@ function local(tz: string) {
   return { day: `${parts.year}-${parts.month}-${parts.day}`, hm: `${parts.hour}:${parts.minute}`, wd: parts.weekday as string };
 }
 const addHours = (hm: string, h: number) => { const [a, b] = hm.split(':').map(Number); return `${String(Math.min(23, a + h)).padStart(2, '0')}:${String(b).padStart(2, '0')}`; };
-const scheduled = (cadence: string, wd: string) => cadence === 'weekdays' ? !['Sat', 'Sun'].includes(wd) : cadence === 'weekends' ? ['Sat', 'Sun'].includes(wd) : true;
+// weekday bitmap of the habit (bit 0 = Monday, 127 = every day)
+const WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const scheduled = (days: number | null, wd: string) => ((days ?? 127) & (1 << WD.indexOf(wd))) !== 0;
 
 Deno.serve(async (req) => {
   if (req.headers.get('x-cron-secret') !== Deno.env.get('CRON_SECRET')) return new Response('forbidden', { status: 403 });
@@ -50,8 +52,8 @@ Deno.serve(async (req) => {
     const { day, hm, wd } = local(p.timezone || 'Europe/Moscow');
 
     const undone = async () => {
-      const { data: habits } = await sb.from('habits').select('id, cadence').eq('user_id', uid).is('archived_at', null);
-      const today = (habits ?? []).filter((h) => scheduled(h.cadence, wd));
+      const { data: habits } = await sb.from('habits').select('id, days').eq('user_id', uid).is('archived_at', null);
+      const today = (habits ?? []).filter((h) => scheduled(h.days, wd));
       if (!today.length) return 0;
       const { data: logs } = await sb.from('habit_logs').select('habit_id').eq('user_id', uid).eq('day', day).eq('done', true);
       const done = new Set((logs ?? []).map((l) => l.habit_id));

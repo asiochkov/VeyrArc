@@ -55,7 +55,7 @@ export function AuthLayout({ screen, children }: { screen: Screen; children: (ct
           </div>
         </div>
       )}
-      <div className={s.main} data-scroll>
+      <div className={s.main} data-scroll data-fixed-scale>
         {!isSplit && (
           <div className={s.hero} style={{ height: screen === 'welcome' || screen === 'final' ? 520 : 300 }}><div className={s.heroGlow} /></div>
         )}

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { hasBackend } from '../../lib/supabase';
 import type { IconName } from '../../ui/Icon';
 
@@ -20,7 +21,6 @@ export const DIRS: [DirId, L[]][] = [
   ['prod', [h('Глубокая работа 90 мин', 'Deep work 90 min'), h('Одна главная задача', 'One key task'), h('Разбор входящих', 'Inbox zero'), h('Итоги дня', 'Day review')]],
   ['quit', [h('Без сахара', 'No sugar'), h('Без соцсетей до сна', 'No social media before bed'), h('Без сигарет', 'No cigarettes'), h('Без фастфуда', 'No fast food')]],
 ];
-export const DEFAULT_HOME = [h('Вода 8 стаканов', 'Water 8 glasses'), h('Чтение 20 мин', 'Reading 20 min'), h('Ранний подъём', 'Early rise')];
 export const TIME_OPTS: [string, 'early' | 'morning' | 'day' | 'evening' | 'bed'][] = [['07:00', 'early'], ['08:00', 'morning'], ['09:00', 'morning'], ['13:00', 'day'], ['20:00', 'evening'], ['21:30', 'bed']];
 
 type Fields = { first: string; last: string; email: string; pw: string; lemail: string; lpw: string; remail: string; npw: string; npw2: string; pname: string; nick: string };
@@ -31,6 +31,12 @@ type Flow = {
   enter: (s: Screen) => void;
   f: Fields;
   setF: (k: keyof Fields, v: string) => void;
+  /* onboarding progress (Master Changeset task 23): the step and the arc's promise survive a reload */
+  ob: number;
+  setOb: (n: number) => void;
+  oath: string;
+  setOath: (v: string) => void;
+  resetOnboarding: () => void;
   habits: string[]; // ru labels as ids
   toggleHabit: (id: string) => void;
   time: string;
@@ -47,7 +53,7 @@ type Flow = {
   setCreated: (c: Flow['created']) => void;
 };
 
-export const useFlow = create<Flow>((set, get) => ({
+export const useFlow = create<Flow>()(persist((set, get) => ({
   prev: null,
   dir: 1,
   enter: (s) => {
@@ -57,6 +63,11 @@ export const useFlow = create<Flow>((set, get) => ({
   },
   f: { first: '', last: '', email: '', pw: '', lemail: '', lpw: '', remail: '', npw: '', npw2: '', pname: hasBackend ? '' : 'Анна', nick: '' },
   setF: (k, v) => set((st) => ({ f: { ...st.f, [k]: v } })),
+  ob: 0,
+  setOb: (ob) => set({ ob }),
+  oath: '',
+  setOath: (oath) => set({ oath }),
+  resetOnboarding: () => set({ ob: 0, oath: '', habits: [] }),
   habits: [],
   toggleHabit: (id) => set((st) => ({ habits: st.habits.includes(id) ? st.habits.filter((x) => x !== id) : [...st.habits, id] })),
   time: '08:00',
@@ -69,6 +80,12 @@ export const useFlow = create<Flow>((set, get) => ({
   setPending: (pending) => set({ pending }),
   created: {},
   setCreated: (created) => set({ created }),
+}), {
+  name: 'veyrarc.onboarding',
+  storage: createJSONStorage(() => localStorage),
+  // only the onboarding answers — never e-mails or passwords
+  partialize: (st) => ({ ob: st.ob, oath: st.oath, habits: st.habits, time: st.time, f: { ...st.f, email: '', pw: '', lemail: '', lpw: '', remail: '', npw: '', npw2: '' } }),
+  merge: (saved, cur) => ({ ...cur, ...(saved as Partial<Flow>), f: { ...cur.f, ...((saved as Partial<Flow>)?.f ?? {}) } }),
 }));
 
 export const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

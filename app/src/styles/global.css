@@ -77,3 +77,8 @@ textarea:disabled { opacity: .45; cursor: not-allowed; }
 /* loading skeleton */
 @keyframes skShine { from { background-position: -200px 0; } to { background-position: 200px 0; } }
 .sk { border-radius: 14px; background: linear-gradient(90deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.08) 50%, rgba(255,255,255,.04) 100%) no-repeat; background-size: 400px 100%; background-color: rgba(255,255,255,.04); animation: skShine 1.2s linear infinite; }
+
+/* Compact density (Master Changeset task 14): the page content is drawn at 90 %.
+   The planner grid keeps its scale — its drag maths works in unscaled pixels. */
+html[data-density='compact'] [data-scroll]:not([data-fixed-scale]) > * { zoom: .9; }
+html[data-density='compact'] { --hit: 40px; }

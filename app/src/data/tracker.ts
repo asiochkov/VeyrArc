@@ -54,7 +54,7 @@ export function buildTracker(raw: TrackerRaw): { habits: TrackerHabit[]; refusal
       return d === day ? 'empty' : 'miss';
     });
     return {
-      id: h.id, required: h.required, name: { ru: h.name, en: h.name }, icon: h.icon as IconName, hue: h.hue,
+      id: h.id, required: h.core, name: { ru: h.name, en: h.name }, icon: h.icon as IconName, hue: h.hue,
       cadence: cadenceLabel(h), streak: habitStreak(h, ix, day), best: habitBest(h, ix, day),
       total: raw.logs.filter((l) => l.habit_id === h.id && l.done).length, week,
       type: h.type, target: h.target ?? undefined, unit: h.unit ?? undefined, minutes: h.minutes ?? undefined, category: h.category,
@@ -74,7 +74,7 @@ const ok = <T extends { error: unknown }>(r: T) => { if (r.error) throw r.error;
 
 export async function addHabit(name: string, d: HabitDraft, required: boolean, sort: number) {
   ok(await db().from('habits').insert({
-    name, icon: d.icon, hue: d.hue, type: d.type, category: d.category, cadence: d.cadence, required, sort,
+    name, icon: d.icon, hue: d.hue, type: d.type, category: d.category, cadence: d.cadence, days: d.cadence === 'weekdays' ? 31 : d.cadence === 'weekends' ? 96 : 127, core: required, sort,
     target: d.type === 'counter' ? d.target : null, unit: d.type === 'counter' ? d.unit.trim() || null : null,
     minutes: d.type === 'duration' ? d.minutes : null,
   }));

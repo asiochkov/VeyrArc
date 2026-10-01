@@ -3,7 +3,6 @@ import type { IconName } from '../ui/Icon';
 import { useLangStore } from '../i18n';
 import { useAuth } from './auth';
 import { takePendingAvatar } from './avatar';
-import { isoDay } from './day';
 import { db } from './supabase';
 
 /* Onboarding answers → profile, habits and quits (stage 3). */
@@ -21,7 +20,7 @@ const HUE: Record<DirId, string> = { body: '#5B9BD5', mind: '#9B87D6', disc: '#E
 
 export type Created = Record<string, { kind: 'habit' | 'quit'; id: string }>;
 
-export async function saveOnboarding(v: { name: string; habits: string[]; time: string }): Promise<Created> {
+export async function saveOnboarding(v: { name: string; habits: string[]; time: string; oath?: string }): Promise<Created> {
   const uid = useAuth.getState().session?.user.id;
   if (!uid) throw new Error('no session');
   const lang = useLangStore.getState().lang;
@@ -35,6 +34,11 @@ export async function saveOnboarding(v: { name: string; habits: string[]; time: 
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, onboarded_at: new Date().toISOString(),
   }).eq('id', uid);
   if (prof.error) throw prof.error;
+  // the promise of the first arc (Master Changeset task 23)
+  if (v.oath?.trim()) {
+    const a = await db().from('arcs').update({ oath: v.oath.trim().slice(0, 200) }).eq('user_id', uid).is('ended_on', null);
+    if (a.error) throw a.error;
+  }
 
   const created: Created = {};
   const habits = picked.filter((p) => p.dir !== 'quit');
@@ -44,6 +48,7 @@ export async function saveOnboarding(v: { name: string; habits: string[]; time: 
       const c = CHIP[p.h.ru];
       return {
         name: p.h[lang], category: p.dir, icon: c?.icon ?? HABIT_ICON[p.dir as Exclude<DirId, 'quit'>], hue: HUE[p.dir], sort: i,
+        core: i < 5, // onboarding picks are the arc's Core habits (Free: up to 5)
         type: c?.counter ? 'counter' : c?.minutes ? 'duration' : 'binary', target: c?.counter ?? null,
         unit: c?.counter ? (lang === 'en' ? 'glasses' : 'стаканов') : null, minutes: c?.minutes ?? null,
       };
@@ -60,13 +65,4 @@ export async function saveOnboarding(v: { name: string; habits: string[]; time: 
   }
   await useAuth.getState().loadProfile();
   return created;
-}
-
-/** First check-ins on the "first home" screen. */
-export async function setHabitDone(habitId: string, done: boolean) {
-  const day = isoDay();
-  const r = done
-    ? await db().from('habit_logs').upsert({ habit_id: habitId, day, value: 1, done: true })
-    : await db().from('habit_logs').delete().eq('habit_id', habitId).eq('day', day);
-  if (r.error) throw r.error;
 }

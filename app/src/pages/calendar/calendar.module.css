@@ -160,3 +160,16 @@
 }
 @keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
 .sheet .titleInput, .sheet .note { font-size: 16px; } /* iOS: no zoom on focus */
+
+/* links, focus blocks, week breakdown (Master Changeset task 16) */
+.select { width: 100%; height: 40px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--w-04); color: var(--text); color-scheme: dark; }
+.hintSmall { flex-basis: 100%; font: 400 11px var(--font-ui); color: var(--text-muted); margin-left: 28px; }
+.doneRow input[type='checkbox'] { width: 18px; height: 18px; accent-color: var(--accent); }
+.focusBtn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(111,160,214,.4); background: rgba(111,160,214,.08); color: var(--link); font: 600 13px var(--font-ui); cursor: pointer; }
+.weekBox { margin-top: 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-1); }
+.weekSum { list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 14px; font: 600 13px var(--font-ui); cursor: pointer; }
+.weekSum::-webkit-details-marker { display: none; }
+.weekBody { display: flex; flex-direction: column; gap: 10px; padding: 0 14px 14px; }
+.weekRow { display: grid; grid-template-columns: 90px 1fr 44px; align-items: center; gap: 10px; }
+.weekRow .bdTrack { height: 6px; }
+.weekRow .bdTrack > span { display: block; height: 100%; border-radius: 3px; }

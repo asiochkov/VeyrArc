@@ -1,29 +1,26 @@
-import { PageState } from '../../ui/PageState';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent, type TouchEvent } from 'react';
-import { Link } from 'react-router-dom';
-import { createItem, deleteItem, fetchCalendar, saveItem, setDone, toEvents, type CalRaw, type Ev } from '../../data/calendar';
-import { fetchGoals } from '../../data/goals';
-import { useHeader } from '../../data/header';
+import { AppHeader } from '../../app/AppHeader';
+import { fetchCalendar, toEvents, toRow, type Ev } from '../../data/calendar';
 import { addDays, daysBetween, parseDay, weekStart } from '../../data/model';
-import { buildToday, fetchToday } from '../../data/today';
-import { useAddAction } from '../../app/nav';
-import { translate, useLangStore, useT, type T } from '../../i18n';
-import { toast } from '../../ui/toast';
+import { translate, useLangStore, useT, type T, type TKey } from '../../i18n';
 import { useAuth } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { hasBackend } from '../../lib/supabase';
-import { mutate } from '../../data/sync';
 import { useIsDesktop } from '../../lib/useIsDesktop';
-import { calEvents, EV_CAT, EV_FILL, H0, H1, mobileStats, ROW, ROW_M, type EvColor } from '../../mock/calendar';
-import { Icon, type IconName } from '../../ui/Icon';
-import { Avatar, Checkbox, Segmented } from '../../ui/primitives';
+import { EV_CAT, EV_FILL, ROW, ROW_M, type EvColor } from '../../mock/calendar';
+import { deleteEvent, saveEvent, setEventDone } from '../../state/actions';
+import { pomo } from '../../state/pomodoro';
+import { useSystem } from '../../state/system';
+import { Icon } from '../../ui/Icon';
+import { PageState } from '../../ui/PageState';
+import { Checkbox, Segmented } from '../../ui/primitives';
+import { toast } from '../../ui/toast';
 import s from './calendar.module.css';
 
 type View = 'month' | 'week' | 'day';
 /* px a mouse must travel before a press becomes a drag (below that it is a click) */
 const DRAG_THRESHOLD = 8;
-type Stat = { value: string; key: 'habitsDone' | 'daysInRow' | 'daysToGoal'; hue: string; icon: string; span: number };
 const COLORS: EvColor[] = ['blue', 'green', 'red', 'purple'];
 const BD: { c: EvColor; label: { ru: string; en: string } }[] = [
   { c: 'blue', label: { ru: 'Встречи', en: 'Meetings' } },
@@ -56,20 +53,18 @@ function durLabel(t: T, hours: number) {
   return txt || t('units.m', { m: 0 });
 }
 
-/* the design preview has no backend: its sample week is laid onto the current week */
-function mockEvents(): Ev[] {
-  const w0 = weekStart(isoDay());
-  return calEvents.map((e) => ({ id: e.id, day: addDays(w0, e.d), s: e.s, e: e.e, title: e.t.ru, c: e.c, note: e.n?.ru ?? '', done: false }));
-}
-
 /* ---------------- state ---------------- */
 
 type Draft = { ev: Ev; isNew: boolean };
 
+/*
+ * Planner state on top of the one system state (Master Changeset task 16): events come from
+ * ['system'] (400 days back … 120 ahead); a range outside that window is fetched on demand.
+ * Every change goes through state/actions (Today's strip and Goals update in the same frame).
+ */
 function useCalendar() {
   const session = useAuth((x) => x.session);
   const on = hasBackend && !!session;
-  const qc = useQueryClient();
   const today = isoDay();
   const [sel, setSelRaw] = useState(today);
   const [cursor, setCursor] = useState(monthStart(today)); // month shown in the month grids
@@ -78,47 +73,35 @@ function useCalendar() {
   const setSel = (d: string) => { setSelRaw(d); setCursor(monthStart(d)); };
 
   const week0 = weekStart(sel);
-  // one fetch covers the visible week and the whole visible month grid
   const gridFrom = weekStart(cursor);
   const gridTo = addDays(weekStart(monthEnd(cursor)), 6);
   const from = week0 < gridFrom ? week0 : gridFrom;
   const to = addDays(week0, 6) > gridTo ? addDays(week0, 6) : gridTo;
-  const q = useQuery({ queryKey: ['calendar', from, to], queryFn: () => fetchCalendar(from, to), enabled: on, refetchOnWindowFocus: false, placeholderData: (p) => p });
-  const qt = useQuery({ queryKey: ['today'], queryFn: fetchToday, enabled: on, refetchOnWindowFocus: false });
-  const qg = useQuery({ queryKey: ['goals'], queryFn: fetchGoals, enabled: on, refetchOnWindowFocus: false });
-
-  const [items, setItems] = useState<Ev[]>(hasBackend ? [] : mockEvents());
-  const cats = useRef<CalRaw['cats']>([]);
-  useEffect(() => {
-    if (!q.data) return;
-    cats.current = q.data.cats;
-    const fresh = toEvents(q.data);
-    // keep items from other ranges that are already loaded; the fetched range is authoritative
-    setItems((old) => [...old.filter((x) => x.day < from || x.day > to), ...fresh]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q.data]);
+  const sq = useSystem((r) => r);
+  const sys = sq.data;
+  const outside = !!sys && (from < addDays(sys.day, -400) || to > addDays(sys.day, 120));
+  const extra = useQuery({ queryKey: ['calendar', from, to], queryFn: () => fetchCalendar(from, to), enabled: on && outside, refetchOnWindowFocus: false, placeholderData: (p) => p });
+  const cats = sys?.cats ?? [];
+  const [dragOver, setDragOver] = useState<{ id: string; s: number; e: number } | null>(null);
+  const items = useMemo<Ev[]>(() => {
+    if (!sys) return [];
+    const base = toEvents({ items: sys.plan, cats: sys.cats });
+    const more = extra.data ? toEvents(extra.data).filter((x) => !base.some((b) => b.id === x.id)) : [];
+    const all = [...base, ...more];
+    return dragOver ? all.map((x) => (x.id === dragOver.id ? { ...x, s: dragOver.s, e: dragOver.e } : x)) : all;
+  }, [sys, extra.data, dragOver]);
   const itemsRef = useRef(items);
   itemsRef.current = items;
-
-  const sync = (run: () => Promise<unknown>) => mutate(run, { rollback: () => { void q.refetch(); }, done: () => { void qc.invalidateQueries({ queryKey: ['today'] }); } });
-
-  const stats = useMemo<Stat[]>(() => {
-    if (!hasBackend) return mobileStats.map((m) => ({ ...m })) as Stat[];
-    const tv = qt.data ? buildToday(qt.data, { initials: '', freezesAllowed: 1 }) : null;
-    const wd = (new Date().getDay() + 6) % 7;
-    const dots = tv ? tv.habits.flatMap((h) => h.dots.slice(0, wd + 1)) : [];
-    const deadlines = (qg.data?.goals ?? []).filter((g) => g.status === 'active' && g.deadline && g.deadline >= today).map((g) => daysBetween(today, g.deadline!));
-    const pct = dots.length ? Math.round((dots.filter(Boolean).length / dots.length) * 100) : null;
-    return [
-      { value: pct == null ? '—' : pct + '%', key: 'habitsDone', hue: '#5FBF9B', icon: 'check', span: 2 },
-      { value: tv ? String(tv.stats.streak) : '—', key: 'daysInRow', hue: '#E8A54B', icon: 'flameTall', span: 1 },
-      { value: deadlines.length ? String(Math.min(...deadlines)) : '—', key: 'daysToGoal', hue: '#9B87D6', icon: 'target', span: 1 },
-    ];
-  }, [qt.data, qg.data, today]);
+  const catsRef = useRef(cats);
+  catsRef.current = cats;
+  const links = useMemo(() => ({
+    goals: (sys?.goals ?? []).filter((g) => g.status === 'active').map((g) => ({ id: g.id, title: g.title })),
+    habits: (sys?.habits ?? []).filter((h) => !h.archived_at).map((h) => ({ id: h.id, title: h.name, type: h.type })),
+  }), [sys]);
 
   /* ---- editing ---- */
   const [draft, setDraft] = useState<Draft | null>(null);
-  const openNew = (day: string, start?: number) => {
+  const openNew = (day: string, start?: number, focus = false) => {
     let st = start;
     if (st == null) {
       // first free full hour from now (today) or from 9:00
@@ -126,36 +109,27 @@ function useCalendar() {
       st = day === today ? Math.min(22, new Date().getHours() + 1) : 9;
       while (used.some((u) => u.s! < st! + 1 && u.e! > st!) && st < 22) st++;
     }
-    setDraft({ isNew: true, ev: { id: hasBackend ? crypto.randomUUID() : 'n' + Date.now(), day, s: st, e: Math.min(24, st + 1), title: '', c: 'blue', note: '', done: false } });
+    const len = focus ? 50 / 60 : 1;
+    setDraft({ isNew: true, ev: { id: crypto.randomUUID(), day, s: st, e: Math.min(24, st + len), title: focus ? t0('calendar.focusTitle') : '', c: 'blue', note: '', done: false, focus } });
   };
   const openEdit = (id: string) => { const ev = itemsRef.current.find((x) => x.id === id); if (ev) setDraft({ isNew: false, ev: { ...ev } }); };
-  const commit = (ev: Ev, isNew: boolean) => {
-    setItems((l) => (isNew ? [...l, ev] : l.map((x) => (x.id === ev.id ? ev : x))));
-    sync(() => isNew ? createItem(cats.current, ev) : saveItem(cats.current, ev));
-    setDraft(null);
-  };
+  const commit = (ev: Ev, isNew: boolean) => { saveEvent(toRow(catsRef.current, ev), isNew); setDraft(null); };
   const remove = (id: string) => {
     const ev = itemsRef.current.find((x) => x.id === id);
-    setItems((l) => l.filter((x) => x.id !== id));
-    sync(() => deleteItem(id));
+    deleteEvent(id);
     setDraft(null);
     if (!ev) return;
-    const lang = useLangStore.getState().lang;
-    toast.action(translate(lang, 'calendar.deleted'), translate(lang, 'explain.undo'), () => {
-      setItems((l) => [...l, ev]);
-      sync(() => createItem(cats.current, ev));
-    });
+    toast.action(t0('calendar.deleted'), t0('explain.undo'), () => saveEvent(toRow(catsRef.current, ev), true));
   };
   const toggleDone = (id: string) => {
     const ev = itemsRef.current.find((x) => x.id === id);
     if (!ev) return;
     if (!ev.done) navigator.vibrate?.(15);
-    setItems((l) => l.map((x) => (x.id === id ? { ...x, done: !x.done } : x)));
-    sync(() => setDone(id, !ev.done));
+    setEventDone(id, !ev.done);
   };
 
-  /* ---- drag to move (desktop grid) ---- */
-  const drag = useRef<{ id: string; y0: number; s: number; e: number; moved: boolean } | null>(null);
+  /* ---- drag to move (desktop grid, mouse only) ---- */
+  const drag = useRef<{ id: string; y0: number; s: number; e: number; moved: boolean; ns: number } | null>(null);
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const tm = setInterval(() => setNow(Date.now()), 30000);
@@ -166,8 +140,8 @@ function useCalendar() {
       d.moved = true;
       const snap = Math.round(((ev.clientY - d.y0) / ROW) * 4) / 4;
       const len = d.e - d.s;
-      const ns = Math.max(0, Math.min(24 - len, d.s + snap));
-      setItems((list) => list.map((x) => (x.id === d.id ? { ...x, s: ns, e: ns + len } : x)));
+      d.ns = Math.max(0, Math.min(24 - len, d.s + snap));
+      setDragOver({ id: d.id, s: d.ns, e: d.ns + len });
     };
     const up = () => {
       const d = drag.current;
@@ -175,7 +149,8 @@ function useCalendar() {
       if (!d) return;
       if (!d.moved) { openEdit(d.id); return; }
       const ev = itemsRef.current.find((x) => x.id === d.id);
-      if (ev && hasBackend) sync(() => saveItem(cats.current, ev));
+      if (ev) saveEvent(toRow(catsRef.current, { ...ev, s: d.ns, e: d.ns + (d.e - d.s) }), false);
+      setDragOver(null);
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
@@ -188,7 +163,7 @@ function useCalendar() {
     e.preventDefault();
     e.stopPropagation();
     const ev = itemsRef.current.find((x) => x.id === id)!;
-    drag.current = { id, y0: e.clientY, s: ev.s ?? 9, e: ev.e ?? 10, moved: false };
+    drag.current = { id, y0: e.clientY, s: ev.s ?? 9, e: ev.e ?? 10, moved: false, ns: ev.s ?? 9 };
   };
 
   /* ---- navigation ---- */
@@ -199,33 +174,26 @@ function useCalendar() {
   const goToday = () => { setSel(today); };
 
   return {
-    ready: !on || !!q.data, loadError: q.isError && !q.data, retry: () => { void q.refetch(); }, today, sel, setSel, cursor, setCursor, view, setView, monthOpen, setMonthOpen, week0,
-    items, now, stats, draft, setDraft, openNew, openEdit, commit, remove, toggleDone, startDrag, shift, goToday,
+    ready: !!sys, loadError: sq.isError && !sq.data, retry: () => { void sq.refetch(); }, today, sel, setSel, cursor, setCursor, view, setView, monthOpen, setMonthOpen, week0,
+    items, now, links, draft, setDraft, openNew, openEdit, commit, remove, toggleDone, startDrag, shift, goToday,
   };
 }
+const t0 = (k: TKey) => translate(useLangStore.getState().lang, k);
 type St = ReturnType<typeof useCalendar>;
 
-/** Visible hours: 7:00–21:00, stretched to fit earlier or later items. */
+/** Visible hours: 6:00–23:00, stretched to fit items but never beyond 5:00–24:00 (PROBLEM #24). */
 function hourRange(list: Ev[]) {
-  let a = H0, b = H1;
+  let a = 6, b = 23;
   for (const x of list) if (x.s != null) { a = Math.min(a, Math.floor(x.s)); b = Math.max(b, Math.ceil(x.e ?? x.s + 1)); }
-  return [a, Math.min(24, b)] as const;
+  return [Math.max(5, a), Math.min(24, b)] as const;
 }
 
 export function Calendar() {
   const t = useT();
   const isDesktop = useIsDesktop();
   const st = useCalendar();
-  const hd = useHeader();
-
-  const setHandler = useAddAction((x) => x.setHandler);
-  useEffect(() => {
-    setHandler(() => st.openNew(st.sel));
-    return () => setHandler(null);
-  });
-
   if (!st.ready) return <PageState error={st.loadError} onRetry={st.retry} />;
-  return isDesktop ? <DesktopCalendar t={t} st={st} initials={hd.initials} /> : <MobileCalendar t={t} st={st} initials={hd.initials} />;
+  return isDesktop ? <DesktopCalendar t={t} st={st} /> : <MobileCalendar t={t} st={st} />;
 }
 
 /* ---------------- shared pieces ---------------- */
@@ -346,6 +314,21 @@ function Editor({ t, st, d }: { t: T; st: St; d: Draft }) {
         })}
       </div>
       <div style={{ marginTop: 14 }}>
+        <div className={s.noteLab}>{t('calendar.linkTo')}</div>
+        <select className={s.select} aria-label={t('calendar.linkTo')}
+          value={ev.linkedGoalId ? 'g:' + ev.linkedGoalId : ev.linkedHabitId ? 'h:' + ev.linkedHabitId : ''}
+          onChange={(e) => { const v = e.target.value; set({ linkedGoalId: v.startsWith('g:') ? v.slice(2) : null, linkedHabitId: v.startsWith('h:') ? v.slice(2) : null }); }}>
+          <option value="">{t('calendar.linkNone')}</option>
+          {st.links.goals.length > 0 && <optgroup label={t('nav.goals')}>{st.links.goals.map((g) => <option key={g.id} value={'g:' + g.id}>{g.title}</option>)}</optgroup>}
+          {st.links.habits.length > 0 && <optgroup label={t('nav.disciplines')}>{st.links.habits.map((h) => <option key={h.id} value={'h:' + h.id}>{h.title}</option>)}</optgroup>}
+        </select>
+        <label className={s.doneRow}>
+          <input type="checkbox" checked={!!ev.focus} onChange={(e) => set({ focus: e.target.checked })} />
+          <span>{t('calendar.focusBlock')}</span>
+          <span className={s.hintSmall}>{t('calendar.focusHint')}</span>
+        </label>
+      </div>
+      <div style={{ marginTop: 14 }}>
         <div className={s.noteLab}>{t('calendar.note')}</div>
         <textarea className={s.note} value={ev.note} maxLength={2000} placeholder={t('calendar.notePlaceholder')} onChange={(e) => set({ note: e.target.value })} />
       </div>
@@ -357,6 +340,10 @@ function Editor({ t, st, d }: { t: T; st: St; d: Draft }) {
       )}
       <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         {!d.isNew && <button type="button" className={s.delBtn} onClick={() => st.remove(ev.id)} aria-label={t('calendar.deleteTask')}><Icon name="trash" size={16} /></button>}
+        {!d.isNew && ev.focus && !ev.done && ev.day === st.today && (
+          <button type="button" className={s.delBtn} style={{ color: 'var(--link)', borderColor: 'rgba(111,160,214,.4)', background: 'rgba(111,160,214,.1)' }}
+            onClick={() => { st.setDraft(null); pomo.openSheet({ eventId: ev.id, label: ev.title, goalId: ev.linkedGoalId ?? undefined }); }} aria-label={t('cockpit.now.focus')}><Icon name="bolt" size={16} /></button>
+        )}
         <button type="button" className={s.saveBtn} style={{ marginTop: 0 }} onClick={save}>{d.isNew ? t('calendar.createTask') : t('calendar.save')}</button>
       </div>
     </>
@@ -398,7 +385,7 @@ function EventBlock({ st, ev, h0, wide }: { st: St; ev: Ev; h0: number; wide: bo
   );
 }
 
-function DesktopCalendar({ t, st, initials }: { t: T; st: St; initials: string }) {
+function DesktopCalendar({ t, st }: { t: T; st: St }) {
   const dows = t.list('weekdays.short');
   const days = st.view === 'day' ? [st.sel] : Array.from({ length: 7 }, (_, i) => addDays(st.week0, i));
   const visible = st.items.filter((x) => days.includes(x.day));
@@ -467,8 +454,8 @@ function DesktopCalendar({ t, st, initials }: { t: T; st: St; initials: string }
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 'none' }}>
             <Segmented variant="calendar" value={st.view} onChange={st.setView}
               options={(['month', 'week', 'day'] as View[]).map((v) => ({ id: v, label: t(`calendar.views.${v}`) }))} />
+            <button type="button" className={s.focusBtn} onClick={() => st.openNew(st.sel, undefined, true)}><Icon name="bolt" size={15} />{t('calendar.focusBlock')}</button>
             <button type="button" className={s.newBtn} onClick={() => st.openNew(st.sel)}><Icon name="plus" size={16} sw={2.2} />{t('calendar.newTaskShort')}</button>
-            <Avatar initials={initials} size={36} />
           </div>
         </div>
 
@@ -545,7 +532,7 @@ function DesktopCalendar({ t, st, initials }: { t: T; st: St; initials: string }
 
 /* ---------------- mobile ---------------- */
 
-function MobileCalendar({ t, st, initials }: { t: T; st: St; initials: string }) {
+function MobileCalendar({ t, st }: { t: T; st: St }) {
   const dows = t.list('weekdays.short');
   const week = Array.from({ length: 7 }, (_, i) => addDays(st.week0, i));
   const dayItems = st.items.filter((x) => x.day === st.sel).sort(sortEv);
@@ -571,17 +558,8 @@ function MobileCalendar({ t, st, initials }: { t: T; st: St; initials: string })
   };
 
   return (
-    <div className={s.mobileScroll} data-scroll>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link to="/" className={s.mBack} aria-label={t('nav.today')}><Icon name="back" size={18} sw={2} /></Link>
-          <div>
-            <div style={{ font: '700 10px/1 var(--font-mono)', letterSpacing: '.24em', color: 'rgba(232,237,243,.5)' }}>{t('common.brandCaps')}</div>
-            <div style={{ font: '800 22px/1.1 var(--font-ui)', marginTop: 5 }}>{t('calendar.planner')}</div>
-          </div>
-        </div>
-        <Avatar initials={initials} />
-      </div>
+    <div className={s.mobileScroll} data-scroll data-fixed-scale>
+      <AppHeader title={t('nav.planner')} />
 
       <div style={{ marginTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
@@ -649,18 +627,7 @@ function MobileCalendar({ t, st, initials }: { t: T; st: St; initials: string })
         </div>
       </div>
 
-      <div style={{ marginTop: 24, font: '700 15px var(--font-ui)', marginBottom: 10 }}>{t('calendar.progress')}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        {st.stats.map((m) => (
-          <div key={m.key} className={s.statCard} style={{ gridColumn: 'span ' + m.span, background: m.hue + '1c', border: `1px solid ${m.hue}40` }}>
-            <div className={s.statIcon} style={{ background: m.hue + '2e', color: m.hue }}>
-              {m.icon === 'check' ? <Icon name="check" size={11} sw={3} /> : <Icon name={m.icon as IconName} size={20} />}
-            </div>
-            <div style={{ font: '700 28px var(--font-mono)', marginTop: 14, color: '#F3F6FA' }}>{m.value}</div>
-            <div style={{ font: '600 12px var(--font-ui)', color: 'rgba(232,237,243,.55)', marginTop: 3 }}>{t(`calendar.stats.${m.key}`)}</div>
-          </div>
-        ))}
-      </div>
+      <WeekBreakdown t={t} st={st} />
 
       {st.draft && (
         <div className={s.sheetOverlay} onClick={() => st.setDraft(null)}>
@@ -670,5 +637,28 @@ function MobileCalendar({ t, st, initials }: { t: T; st: St; initials: string })
         </div>
       )}
     </div>
+  );
+}
+
+/* Time by category this week — folded, instead of the progress cards (PROBLEM #13: analytics live in Analytics). */
+function WeekBreakdown({ t, st }: { t: T; st: St }) {
+  const end = addDays(st.week0, 6);
+  const week = st.items.filter((x) => x.day >= st.week0 && x.day <= end && x.s != null);
+  const hrs = (c: EvColor) => week.filter((x) => x.c === c).reduce((a, x) => a + (x.e! - x.s!), 0);
+  const max = Math.max(1, ...COLORS.map(hrs));
+  if (!week.length) return null;
+  return (
+    <details className={s.weekBox}>
+      <summary className={s.weekSum}>{t('calendar.weekBreakdown')}<Icon name="chevronDown" size={14} sw={2} /></summary>
+      <div className={s.weekBody}>
+        {BD.map((b) => (
+          <div key={b.c} className={s.weekRow}>
+            <span className={s.bdLabel}>{t.pick(b.label)}</span>
+            <span className={s.bdTrack}><span style={{ width: (hrs(b.c) / max) * 100 + '%', background: EV_FILL[b.c] }} /></span>
+            <span className={s.bdHrs}>{t('units.h', { h: Math.round(hrs(b.c) * 10) / 10 })}</span>
+          </div>
+        ))}
+      </div>
+    </details>
   );
 }

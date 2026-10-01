@@ -2,7 +2,7 @@
    (44 px hit areas), text fields under 16 px, icon-only controls without a label. */
 import { APP, guestOnboard, open } from './e2e-lib.mjs';
 const SIZES = (process.env.SIZES || '375x667,390x844,393x852,430x932').split(',').map((x) => x.split('x').map(Number));
-const ROUTES = ['/', '/habits', '/calendar', '/goals', '/profile', '/settings', '/settings/account', '/pro'];
+const ROUTES = ['/', '/disciplines', '/planner', '/goals', '/analytics', '/settings', '/settings/account', '/pro'];
 let problems = 0;
 for (const [width, height] of SIZES) {
   const { browser, page, errors } = await open({ width, height });

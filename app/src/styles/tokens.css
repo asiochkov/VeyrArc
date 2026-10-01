@@ -33,6 +33,7 @@
   --link: #A8CBEF;
   --link-hover: #c8ddf6;
   --gold: #E8B75E;
+  --pro: #C8A66A;            /* quieter Pro accent (Master Changeset RC-10) */
   --gold-2: #d9a94f;
   --gold-3: #f0c877;
   --gold-ink: #241a06;
@@ -47,7 +48,12 @@
   --danger: #D96A5B;
   --now: #8fc2ff;
 
-  /* surfaces */
+  /* surfaces (Master Changeset 3′: flat elevations, neutral hairlines) */
+  --surface-0: #0A0D12;
+  --surface-1: #12161C;
+  --surface-2: #181D24;
+  --line: rgba(255,255,255,.06);
+  --line-strong: rgba(255,255,255,.1);
   --card: rgba(13,17,22,.85);
   --card-end: rgba(13,17,22,.9);
   --card-92: rgba(13,17,22,.92);
@@ -169,7 +175,7 @@
   --error-soft: rgba(229,100,90,.12);
 
   /* typography */
-  --font-ui: 'Manrope', system-ui, sans-serif;
+  --font-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   /* motion */

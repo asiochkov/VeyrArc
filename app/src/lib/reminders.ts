@@ -1,5 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
-import { buildToday, fetchToday } from '../data/today';
+import { buildToday } from '../data/today';
+import { fetchSystem, SYSTEM_KEY, todayRawOf } from '../state/system';
 import { translate, useLangStore } from '../i18n';
 import { useAuth } from './auth';
 import { isoDay } from './day';
@@ -43,8 +44,8 @@ export function startReminders(qc: QueryClient) {
     let last: string | null = null;
     try { last = localStorage.getItem(KEY); } catch { /* storage off */ }
     if (hm < p.reminder_time.slice(0, 5) || last === today) return;
-    const raw = await qc.fetchQuery({ queryKey: ['today'], queryFn: fetchToday, staleTime: 60_000 });
-    const left = buildToday(raw, { initials: '', freezesAllowed: 1 }).habits.filter((h) =>
+    const sys = await qc.fetchQuery({ queryKey: SYSTEM_KEY, queryFn: fetchSystem, staleTime: 60_000 });
+    const left = buildToday(todayRawOf(sys), { initials: '', freezesAllowed: 1 }).habits.filter((h) =>
       h.type === 'counter' ? h.count < h.goal : h.type === 'duration' ? h.left > 0 : !h.checked).length;
     try { localStorage.setItem(KEY, today); } catch { /* storage off */ }
     if (!left) return;

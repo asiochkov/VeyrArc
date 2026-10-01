@@ -1,8 +1,9 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { useHeader } from '../../data/header';
 import { daysBetween } from '../../data/model';
-import { exportData, fetchArcs, startNewArc, setProfile } from '../../data/settings';
+import { exportData, startNewArc, setProfile } from '../../data/settings';
+import { SYSTEM_KEY, useSystem } from '../../state/system';
 import { toast } from '../../ui/toast';
 import { useAuth, userEmail, isProPlan } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
@@ -15,16 +16,21 @@ import { useLangStore, useT, type Lang, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { Icon, type IconName } from '../../ui/Icon';
 import { ConfirmDialog, PhotoImg, Segmented } from '../../ui/primitives';
+import { OathSheet } from '../../ui/OathSheet';
+import { roman } from '../../app/AppHeader';
+import { useDensity } from '../../lib/density';
 import s from './settings.module.css';
 
 /* VeyrArc Settings.dc.html */
 
 const ACCOUNT = { name: 'Анна Петрова', email: 'anna.petrova@gmail.com', renew: { ru: '12 окт. 2026', en: 'Oct 12, 2026' }, version: '1.4.0' };
 const ARCS = [
-  { n: 1, dates: { ru: '1 июн. – 29 авг.', en: 'Jun 1 – Aug 29' }, pct: '78%', current: false },
-  { n: 2, dates: { ru: '9 сент. – 7 дек.', en: 'Sep 9 – Dec 7' }, pct: '16%', current: true },
+  { id: 'arc1', n: 1, dates: { ru: '1 июн. – 29 авг.', en: 'Jun 1 – Aug 29' }, pct: '78%', current: false },
+  { id: 'arc2', n: 2, dates: { ru: '9 сент. – 7 дек.', en: 'Sep 9 – Dec 7' }, pct: '16%', current: true },
 ];
-type Group = 'account' | 'app' | 'notif' | 'pro' | 'arc' | 'data';
+/* Master Changeset RS-7: seven groups, Notion-like */
+type Group = 'account' | 'appearance' | 'notif' | 'arc' | 'plan' | 'data' | 'about';
+const SHORTCUTS: [string, string][] = [['⌘K', 'palette'], ['C', 'create'], ['G T', 'today'], ['G H', 'disciplines'], ['G P', 'planner'], ['G L', 'goals'], ['G A', 'analytics'], ['[', 'sidebar']];
 
 export function Settings() {
   const t = useT();
@@ -37,7 +43,7 @@ export function Settings() {
   const { session, profile, plan } = useAuth();
   const hd = useHeader();
   const qc = useQueryClient();
-  const arcsQ = useQuery({ queryKey: ['arcs'], queryFn: fetchArcs, enabled: hasBackend && !!session });
+  const arcsQ = useSystem((r) => r.arcs);
   const [unitLocal, setUnitLocal] = useState<'ml' | 'oz'>('ml');
   const [notifLocal, setNotifLocal] = useState({ n1: true, n2: true, n3: true, n4: false });
   // backend: values live in the profile row
@@ -65,16 +71,20 @@ export function Settings() {
     ? (arcsQ.data ?? []).slice().reverse().map((a) => {
       const end = a.ended_on ?? new Date(new Date(a.started_on + 'T00:00:00').getTime() + (a.length_days - 1) * 86400000).toISOString().slice(0, 10);
       const elapsed = Math.min(a.length_days, daysBetween(a.started_on, a.ended_on ?? isoDay()) + 1);
-      return { n: a.number, dates: { ru: `${fmtD(a.started_on)} – ${fmtD(end)}`, en: `${fmtD(a.started_on)} – ${fmtD(end)}` }, pct: ((a.summary as { pct?: number } | null)?.pct ?? Math.round((elapsed / a.length_days) * 100)) + '%', current: !a.ended_on };
+      return { id: a.id, n: a.number, dates: { ru: `${fmtD(a.started_on)} – ${fmtD(end)}`, en: `${fmtD(a.started_on)} – ${fmtD(end)}` }, pct: ((a.summary as { pct?: number } | null)?.pct ?? Math.round((elapsed / a.length_days) * 100)) + '%', current: !a.ended_on };
     })
     : ARCS;
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [arcModal, setArcModal] = useState(false);
   const [accModal, setAccModal] = useState<AccountModal>(null);
+  const [oathOpen, setOathOpen] = useState(false);
+  const density = useDensity((x) => x.density);
+  const setDensity = useDensity((x) => x.set);
+  const active = (arcsQ.data ?? []).find((a) => !a.ended_on) ?? null;
 
   const groups: [Group, string][] = [
-    ['account', t('settings.account')], ['app', t('settings.app')], ['notif', t('settings.notifications')],
-    ['arc', t('settings.arc')], ['pro', t('settings.pro')], ['data', t('settings.data')],
+    ['account', t('settings.account')], ['appearance', t('settings.appearance')], ['notif', t('settings.notifications')],
+    ['arc', t('settings.arc')], ['plan', t('settings.plan')], ['data', t('settings.dataPrivacy')], ['about', t('settings.about')],
   ];
   const show = (g: Group) => !isDesktop || group === g;
 
@@ -134,15 +144,19 @@ export function Settings() {
           </button>
         </div>
       )}
-      {show('app') && (
+      {show('appearance') && (
         <div>
-          <div className={s.groupTitle}>{t('settings.app')}</div>
+          <div className={s.groupTitle}>{t('settings.appearance')}</div>
           <div className={s.list}>
             <Row icon="globe" label={t('settings.language')} onClick={() => setLangOpen(true)}>
               <span style={{ font: '500 13px var(--font-ui)', color: 'rgba(232,237,243,.5)' }}>{t('settings.langName')}</span>{chev}
             </Row>
             <Row icon="moon" label={t('settings.theme')}>
               <span style={{ font: '500 13px var(--font-ui)', color: 'rgba(232,237,243,.5)' }}>{t('settings.themeDark')}</span>
+              <span className={s.soon}>{t('settings.lightSoon')}</span>
+            </Row>
+            <Row icon="checklist" label={t('settings.density')}>
+              <Segmented variant="units" value={density} onChange={setDensity} options={[{ id: 'comfortable', label: t('settings.comfortable') }, { id: 'compact', label: t('settings.compact') }]} />
             </Row>
             <Row icon="drop" label={t('settings.units')}>
               <Segmented variant="units" value={unit} onChange={setUnit} options={[{ id: 'ml', label: t('settings.ml') }, { id: 'oz', label: t('settings.oz') }]} />
@@ -170,13 +184,21 @@ export function Settings() {
         <div>
           <div className={s.groupTitle}>{t('settings.arc')}</div>
           <div className={s.list}>
+            <div className={s.row} style={{ alignItems: 'flex-start' }}>
+              <span className={s.rowIcon}><Icon name="snow" size={18} /></span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', font: '600 14.5px var(--font-ui)' }}>{t('arc.chip', { n: roman(active?.number ?? hd.arcNumber), d: hd.arcDay, l: hd.arcLength })}</span>
+                <span style={{ display: 'block', font: 'italic 500 13px/1.45 var(--font-ui)', color: 'var(--text-secondary)', marginTop: 4, overflowWrap: 'anywhere' }}>{active?.oath ? `«${active.oath}»` : t('arc.noOathShort')}</span>
+              </span>
+              <button type="button" className={s.inlineBtn} onClick={() => setOathOpen(true)}>{active?.oath ? t('settings.editOath') : t('settings.writeOath')}</button>
+            </div>
             <Row icon="archive" label={t('settings.archive')} onClick={() => setArchiveOpen(!archiveOpen)}>
               <span style={{ color: 'rgba(232,237,243,.52)', display: 'grid', transition: 'transform .2s', transform: `rotate(${archiveOpen ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
             </Row>
             {archiveOpen && (
               <div style={{ padding: '4px 18px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {arcs.map((a) => (
-                  <div key={a.n} className={s.arcItem}>
+                  <Link key={a.n} to={`/arc/recap/${a.id}`} className={s.arcItem}>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'block', font: '700 13.5px var(--font-ui)' }}>Arc {a.n}</span>
                       <span style={{ display: 'block', font: '500 11.5px var(--font-mono)', color: 'rgba(232,237,243,.6)', marginTop: 3, whiteSpace: 'nowrap' }}>{t.pick(a.dates)}</span>
@@ -185,18 +207,18 @@ export function Settings() {
                       <span style={{ display: 'block', font: '700 16px var(--font-mono)', color: '#A8CBEF' }}>{a.pct}</span>
                       <span style={{ display: 'block', font: '600 9px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{a.current ? t('settings.current') : t('settings.completed')}</span>
                     </span>
-                  </div>
+                  </Link>
                 ))}
-                <Link to="/profile" className={s.compare}>{t('settings.compare')} <Icon name="chevron" size={13} sw={2.2} /></Link>
+                <Link to="/analytics" className={s.compare}>{t('settings.compare')} <Icon name="chevron" size={13} sw={2.2} /></Link>
               </div>
             )}
             <Row icon="snow" label={t('settings.newArc')} onClick={() => setArcModal(true)}>{chev}</Row>
           </div>
         </div>
       )}
-      {show('pro') && (
+      {show('plan') && (
         <div>
-          <div className={s.groupTitle}>{t('settings.pro')}</div>
+          <div className={s.groupTitle}>{t('settings.plan')}</div>
           {!isPro ? (
             // B22: for Free the card invites to Pro (texts from the Account upsell)
             <div className={s.proCard}>
@@ -228,12 +250,32 @@ export function Settings() {
       )}
       {show('data') && (
         <div>
-          <div className={s.groupTitle}>{t('settings.data')}</div>
+          <div className={s.groupTitle}>{t('settings.dataPrivacy')}</div>
           <div className={s.list}>
             <Row icon="download" label={t('settings.export')} onClick={() => { if (hasBackend) void exportData().then(() => toast.success(t('settings.exported'))).catch(() => toast.error(t('common.loadFailed'))); }}>{chev}</Row>
+            <Row icon="doc" label={t('settings.terms')} onClick={() => navigate('/terms')}>{chev}</Row>
+            <Row icon="shield" label={t('settings.privacy')} onClick={() => navigate('/privacy')}>{chev}</Row>
             <Row icon="trashPlain" label={t('settings.del')} danger onClick={() => setAccModal('del1')} />
           </div>
-          <div style={{ marginTop: 14, textAlign: 'center', font: '500 11px var(--font-mono)', color: 'var(--text-muted)' }}>{t('settings.version', { v: `${ACCOUNT.version} · ${__BUILD__}` })}</div>
+        </div>
+      )}
+      {show('about') && (
+        <div>
+          <div className={s.groupTitle}>{t('settings.about')}</div>
+          <div className={s.list}>
+            <Row icon="alert" label={t('settings.versionLabel')}>
+              <span style={{ font: '500 12px var(--font-mono)', color: 'var(--text-muted)' }}>{`${ACCOUNT.version} · ${__BUILD__}`}</span>
+            </Row>
+          </div>
+          <div className={s.groupTitle} style={{ marginTop: 18 }}>{t('settings.shortcuts')}</div>
+          <div className={s.list}>
+            {SHORTCUTS.map(([k, id]) => (
+              <div key={k} className={s.row}>
+                <span style={{ flex: 1, minWidth: 0, font: '500 14px var(--font-ui)' }}>{t(`settings.keys.${id}` as never)}</span>
+                <kbd className={s.kbd}>{k}</kbd>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -260,10 +302,11 @@ export function Settings() {
         confirmLabel={t('settings.newArcOk')} cancelLabel={t('settings.cancel')}
         onConfirm={() => {
           setArcModal(false);
-          if (hasBackend) void startNewArc().then(() => Promise.all(['arcs', 'arc', 'today'].map((k) => qc.invalidateQueries({ queryKey: [k] })))).catch(() => toast.error(t('common.saveFailed')));
+          if (hasBackend) void startNewArc().then(() => qc.invalidateQueries({ queryKey: SYSTEM_KEY })).catch(() => toast.error(t('common.saveFailed')));
         }}
         onCancel={() => setArcModal(false)}
       />
+      <OathSheet open={oathOpen} onClose={() => setOathOpen(false)} arcId={active?.id ?? null} current={active?.oath ?? ''} />
       <AccountDialogs modal={accModal} setModal={setAccModal}
         onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}
         onDelete={async () => { if (hasBackend) await deleteAccount(); navigate('/welcome'); }} />

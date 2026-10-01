@@ -18,8 +18,9 @@ export const config = {
     lengthDays: 90,
   },
   limits: {
-    free: { habits: 5, goals: 3, freezesPerWeek: 1 },
-    pro: { habits: Infinity, goals: Infinity, freezesPerWeek: 2 },
+    /* Master Changeset: Free = 5 Core habits (Extra unlimited), 3 goals */
+    free: { core: 5, habits: Infinity, goals: 3, freezesPerWeek: 1 },
+    pro: { core: Infinity, habits: Infinity, goals: Infinity, freezesPerWeek: 2 },
   },
   /* No prices in the design; the Pro screen shows none. Fill in when billing exists. */
   /* UX audit 4.5: RU in rubles, EN in dollars; payments are not connected yet (trial only). */

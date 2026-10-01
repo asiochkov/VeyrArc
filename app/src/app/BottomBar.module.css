@@ -1,65 +1,15 @@
-/* Mobile bottom navigation — pinned, flat (Claude_Design_Instructions.md) */
 .bar {
-  flex: none;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background: var(--bar);
-  border-top: 1px solid var(--ice-10);
-  /* 14px bottom as in the design; the safe-area inset is 0 outside iOS home-indicator devices */
-  padding: 10px 8px max(12px, calc(4px + var(--safe-bottom)));
-  backdrop-filter: blur(12px);
+  flex: none; display: flex; justify-content: space-around; align-items: stretch;
+  min-height: 64px; padding: 0 4px max(4px, var(--safe-bottom));
+  background: rgba(10,13,18,.96); border-top: 1px solid var(--line); backdrop-filter: blur(12px);
 }
-
-.item {
-  width: 56px;
-  height: 48px;
-  min-width: 44px;
-  display: grid;
-  place-items: center;
-  color: var(--t-42);
-  border-radius: 24px;
-  flex: none;
+.item { flex: 1; min-width: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-muted); transition: color .18s ease-out; }
+.item:hover { color: var(--text-muted); }
+.item[data-active='true'] { color: var(--accent); }
+.label { font: 600 10px var(--font-ui); line-height: 1; }
+.fab {
+  position: fixed; z-index: 40; left: 50%; transform: translateX(-50%); bottom: calc(76px + var(--safe-bottom));
+  width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(111,160,214,.5); background: var(--accent); color: var(--ink);
+  display: grid; place-items: center; cursor: pointer; box-shadow: 0 10px 24px rgba(0,0,0,.45);
 }
-.item:hover {
-  color: var(--t-42);
-}
-
-.active {
-  height: 48px;
-  flex: none;
-  width: 48px;
-  border-radius: 24px;
-  background: var(--amber-50);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding-left: 12px;
-  gap: 8px;
-  cursor: pointer;
-  overflow: hidden;
-  transition: width .2s var(--spring), background-color .2s ease;
-}
-.active.ready {
-  width: 128px;
-  background: var(--amber);
-}
-.activeIcon {
-  display: grid;
-  place-items: center;
-  color: var(--ink);
-  flex: none;
-  transition: color .26s ease;
-}
-.activeLabel {
-  font: 700 12px var(--font-ui);
-  color: var(--ink);
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateX(-6px);
-  transition: opacity .18s ease .06s, transform .18s ease .06s;
-}
-.ready .activeLabel {
-  opacity: 1;
-  transform: translateX(0);
-}
+.fab:active { transform: translateX(-50%) scale(.96); }

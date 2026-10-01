@@ -7,7 +7,7 @@ try {
   await guestOnboard(page, { 'Тело': ['Холодный душ'], 'Отказ от вредного': ['Без сахара'] });
   const uid = sql('select id from auth.users order by created_at desc limit 1');
   sql(`update quits set clean_since = now() - interval '12 days', best_days = 20 where user_id='${uid}'`);
-  await page.goto(APP + '/habits');
+  await page.goto(APP + '/disciplines');
   await page.getByRole('button', { name: 'Отказы' }).click();
   await page.getByRole('button', { name: 'Отметить срыв' }).click();
   const body = await page.locator('[role="dialog"]').innerText();
@@ -21,22 +21,23 @@ try {
   await page.waitForTimeout(1200);
   log('after undo:', sql(`select extract(day from now()-clean_since)::int || ' days, best ' || best_days from quits where user_id='${uid}'`), '| relapses:', sql(`select count(*) from quit_relapses where user_id='${uid}'`));
 
-  // undo a habit deletion
-  await page.getByRole('button', { name: 'Привычки' }).click();
-  await page.locator('[class*="hueCard"]').filter({ hasText: 'Холодный душ' }).getByRole('button', { name: 'Удалить' }).click();
-  await page.getByText('Привычка удалена').waitFor();
+  // undo archiving a habit
+  await page.getByRole('button', { name: 'Активные' }).click();
+  await page.getByRole('button', { name: /Холодный душ/ }).first().click();
+  await page.getByRole('button', { name: 'В архив' }).click();
+  await page.getByText('«Холодный душ» в архиве').waitFor();
   await page.getByRole('button', { name: 'Отменить' }).click();
   await page.waitForTimeout(1000);
   log('habit after undo delete:', sql(`select name || ' archived=' || (archived_at is not null) from habits where user_id='${uid}'`), '| on screen:', await page.getByText('Холодный душ').count());
   // explainers
   await page.goto(APP + '/');
-  await page.getByRole('button', { name: /заморозка/ }).click();
+  await page.getByRole('button', { name: 'Заморозка серии' }).click();
   log('freeze explainer:', (await page.locator('[role="dialog"]').innerText()).split('\n')[0]);
-  await page.getByRole('button', { name: 'Понятно' }).click();
-  await page.goto(APP + '/profile');
-  await page.getByRole('button', { name: /ИНДЕКС ДИСЦИПЛИНЫ/i }).first().click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Ок' }).click();
+  await page.goto(APP + '/analytics');
+  await page.getByRole('button', { name: /Индекс дисциплины/i }).first().click();
   log('index explainer:', (await page.locator('[role="dialog"]').innerText()).split('\n')[0]);
-  await page.getByRole('button', { name: 'Понятно' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Ок' }).click();
   await page.goto(APP + '/pro');
   await page.getByRole('button', { name: /Попробовать 7 дней бесплатно/ }).click();
   await page.waitForURL(APP + '/');

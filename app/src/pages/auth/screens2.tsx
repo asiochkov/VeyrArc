@@ -1,24 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { useHeader } from '../../data/header';
-import { buildToday, fetchToday } from '../../data/today';
+import { buildToday } from '../../data/today';
+import { todayRawOf, useSystem } from '../../state/system';
 import { fetchAccountStats } from '../../data/profile';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
 import { config } from '../../config';
 import { useLangStore, useT } from '../../i18n';
-import { deleteAccount, isAnon, signOut, useAuth, userEmail, isProPlan } from '../../lib/auth';
-import { saveOnboarding, setHabitDone } from '../../lib/onboarding';
+import { deleteAccount, signOut, useAuth, userEmail, isProPlan } from '../../lib/auth';
+import { saveOnboarding } from '../../lib/onboarding';
 import { askPermission, notificationsSupported } from '../../lib/reminders';
 import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
 import { Cta, PhotoImg } from '../../ui/primitives';
 import { pickPhoto, saveAvatar } from '../../lib/avatar';
 import { toast } from '../../ui/toast';
-import { mutate } from '../../data/sync';
 import s from './auth.module.css';
 import { AuthLayout, up } from './AuthLayout';
-import { DEFAULT_HOME, DIR_ICONS, DIRS, TIME_OPTS, useFlow, type DirId } from './flow';
+import { DIR_ICONS, DIRS, TIME_OPTS, useFlow, type DirId } from './flow';
 
 const BURST_COLORS = ['#6FA0D6', '#A8CBEF', '#E8A54B', '#9B87D6', '#5FBF9B'];
 
@@ -46,14 +46,21 @@ function Burst({ n, spread }: { n: number; spread: number }) {
 export function Onboarding() {
   const t = useT();
   const navigate = useNavigate();
-  const { f, setF, habits, toggleHabit, time, setTime, perm, setPerm } = useFlow();
-  const [ob, setOb] = useState(0);
+  const { f, setF, habits, toggleHabit, time, setTime, perm, setPerm, ob, setOb, oath, setOath } = useFlow();
   const [sdir, setSdir] = useState<1 | -1>(1);
   const [focus, setFocus] = useState<DirId | null>('body');
   const [photo, setPhoto] = useState<string | null>(useAuth.getState().profile?.avatar_url ?? null);
   const initials = ((f.pname || f.first || 'А')[0] + ((f.last || 'П')[0] || '')).toUpperCase();
+  // Core picks (everything but quits) — up to 5, the Free limit (Master Changeset task 23)
+  const quitIds = new Set(DIRS.filter(([id]) => id === 'quit').flatMap(([, l]) => l.map((h) => h.ru)));
+  const coreCount = habits.filter((h) => !quitIds.has(h)).length;
+  const pick = (id: string) => {
+    if (!habits.includes(id) && !quitIds.has(id) && coreCount >= 5) { toast.info(t('auth.coreMax')); return; }
+    toggleHabit(id);
+  };
   const valid = ob === 0 ? !!f.pname.trim() : ob === 1 ? habits.length >= 1 : true;
-  const next = () => { if (ob < 2) { setSdir(1); setOb(ob + 1); } else navigate('/day-one'); };
+  const go = (n: number) => { setSdir(n > ob ? 1 : -1); setOb(n); };
+  const next = () => { if (ob < 2) go(ob + 1); else navigate('/day-one'); };
   const slide = sdir > 0 ? s.slideL : s.slideR;
   const stepLabels = t.list('auth.obSteps');
 
@@ -61,13 +68,16 @@ export function Onboarding() {
     <AuthLayout screen="onboarding">
       {({ dir }) => (
         <div className={dir > 0 ? s.screenL : s.screenR}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8, ...up(1) }}>
-            {stepLabels.map((label, i) => (
-              <button key={i} type="button" className={s.obStep} data-on={i === ob} onClick={() => { if (i <= ob) { setSdir(i > ob ? 1 : -1); setOb(i); } }}>
-                <span className={s.obNum} style={i === ob ? undefined : { color: i < ob ? '#A8CBEF' : 'rgba(232,237,243,.38)' }}>{'0' + (i + 1)}</span>
-                <span className={s.obLabel}>{label}</span>
-              </button>
-            ))}
+          <div className={s.obProgress} style={up(1)}>
+            <div className={s.obBar} role="progressbar" aria-valuemin={1} aria-valuemax={4} aria-valuenow={ob + 1}><span style={{ width: ((ob + 1) / 4) * 100 + '%' }} /></div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8 }}>
+              {stepLabels.map((label, i) => (
+                <button key={i} type="button" className={s.obStep} data-on={i === ob} onClick={() => { if (i <= ob) go(i); }}>
+                  <span className={s.obNum} style={i === ob ? undefined : { color: i < ob ? '#A8CBEF' : 'rgba(232,237,243,.38)' }}>{'0' + (i + 1)}</span>
+                  <span className={s.obLabel}>{label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {ob === 0 && (
@@ -84,12 +94,19 @@ export function Onboarding() {
                 <label className={s.label}>{t('auth.firstName')}</label>
                 <input className={s.field} value={f.pname} onChange={(e) => setF('pname', e.target.value)} placeholder={t('auth.phFirst')} />
               </div>
+              <div style={{ marginTop: 18 }}>
+                <label className={s.label} htmlFor="ob-oath">{t('auth.oathLabel')}</label>
+                <textarea id="ob-oath" className={s.field} style={{ height: 84, paddingTop: 12, resize: 'none', lineHeight: 1.4 }} maxLength={200}
+                  value={oath} onChange={(e) => setOath(e.target.value)} placeholder={t('auth.oathPh')} />
+                <div className={s.small} style={{ marginTop: 6 }}>{t('auth.oathHint')}</div>
+              </div>
             </div>
           )}
 
           {ob === 1 && (
             <div key="s1" className={slide}>
               <div className={s.h1} style={{ marginTop: 26 }}>{t('auth.obChangeTitle')}</div>
+              <div className={s.sub} style={{ marginTop: 8 }}>{t('auth.obCoreSub', { n: coreCount })}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
                 {DIRS.map(([id, list]) => {
                   const open = focus === id;
@@ -107,7 +124,7 @@ export function Onboarding() {
                           {list.map((h) => {
                             const on = habits.includes(h.ru);
                             return (
-                              <button key={h.ru} type="button" className={s.habitChip} aria-pressed={on} onClick={() => toggleHabit(h.ru)}>
+                              <button key={h.ru} type="button" className={s.habitChip} aria-pressed={on} onClick={() => pick(h.ru)}>
                                 {on ? <Icon name="check" size={14} sw={3} /> : <Icon name="plus" size={14} sw={2.2} />}<span>{t.pick(h)}</span>
                               </button>
                             );
@@ -163,7 +180,7 @@ export function Onboarding() {
 export function DayOne() {
   const t = useT();
   const navigate = useNavigate();
-  const { f, habits, time, setCreated } = useFlow();
+  const { f, habits, time, oath, setCreated, resetOnboarding } = useFlow();
   const [holdP, setHoldP] = useState(0);
   const [celebrate, setCelebrate] = useState(false);
   const [saveErr, setSaveErr] = useState(false);
@@ -184,9 +201,9 @@ export function DayOne() {
         if (navigator.vibrate) navigator.vibrate(30);
         setSaveErr(false);
         const wait = new Promise((r) => { timer.current = setTimeout(r, 600); });
-        const save = hasBackend ? saveOnboarding({ name: f.pname, habits, time }).then(setCreated) : Promise.resolve();
+        const save = hasBackend ? saveOnboarding({ name: f.pname, habits, time, oath }).then(setCreated) : Promise.resolve();
         // the start only counts once it is saved: on failure the user sees why and holds again
-        void Promise.all([wait, save]).then(() => navigate('/start'), () => { setCelebrate(false); setHoldP(0); setSaveErr(true); });
+        void Promise.all([wait, save]).then(() => { resetOnboarding(); navigate('/', { replace: true }); }, () => { setCelebrate(false); setHoldP(0); setSaveErr(true); });
         return;
       }
       raf.current = requestAnimationFrame(tick);
@@ -225,86 +242,6 @@ export function DayOne() {
   );
 }
 
-/* ---------------- First home ---------------- */
-
-export function FirstHome() {
-  const t = useT();
-  const navigate = useNavigate();
-  const habits = useFlow((x) => x.habits);
-  const created = useFlow((x) => x.created);
-  const session = useAuth((x) => x.session);
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [burst, setBurst] = useState(0);
-  const all = DIRS.flatMap(([, list]) => list);
-  const list = (habits.length ? habits.map((id) => all.find((h) => h.ru === id)!) : DEFAULT_HOME).slice(0, 5);
-  const done = list.filter((h) => checked[h.ru]).length;
-
-  return (
-    <AuthLayout screen="home">
-      {({ dir }) => (
-        <div className={dir > 0 ? s.screenL : s.screenR}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12, ...up(0) }}>
-            <div>
-              <div className={s.faint} style={{ font: '700 10px var(--font-mono)', letterSpacing: '.24em', whiteSpace: 'nowrap' }}>{t('common.brandCaps')}</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
-                <span style={{ font: '800 30px/1 var(--font-ui)', whiteSpace: 'nowrap' }}>{t('auth.homeDay')}</span>
-                <span className={s.faint} style={{ font: '600 12px var(--font-mono)' }}>{t('auth.homeOf')}</span>
-              </div>
-            </div>
-            {done > 0 && (
-              <div className={s.streakPill}>
-                <Icon name="flame" size={16} sw={1.8} /><span>{t('auth.streak1')}<span style={{ fontFamily: 'var(--font-mono)' }}>1</span>{t('auth.streak1Days', { n: 1 })}</span>
-                {burst > 0 && <div key={burst} style={{ position: 'absolute', inset: 0 }}><Burst n={14} spread={60} /></div>}
-              </div>
-            )}
-          </div>
-
-          {done === 0 && (
-            <div className={s.hintCard}>
-              <span className={s.iconTile}><Icon name="spark" size={20} sw={1.8} /></span>
-              <span style={{ font: '700 14px/1.4 var(--font-ui)' }}>{t('auth.firstCheck')}</span>
-            </div>
-          )}
-
-          <div className={s.list} style={up(2)}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '16px 16px 6px' }}>
-              <span style={{ font: '700 17px var(--font-ui)' }}>{t('auth.today')}</span>
-              <span className={s.faint} style={{ font: '600 12px var(--font-mono)' }}>{t('auth.countOf', { a: done, b: list.length })}</span>
-            </div>
-            {list.map((h) => {
-              const on = !!checked[h.ru];
-              return (
-                <button key={h.ru} type="button" className={s.row} onClick={() => {
-                  if (done === 0 && !on) setBurst((b) => b + 1);
-                  setChecked((c) => ({ ...c, [h.ru]: !c[h.ru] }));
-                  const item = created[h.ru];
-                  if (hasBackend && item?.kind === 'habit') mutate(() => setHabitDone(item.id, !on));
-                }}>
-                  <span className={s.homeBox} data-on={on}>{on && <Icon name="check" size={14} sw={3.2} />}</span>
-                  <span style={{ flex: 1, minWidth: 0, font: '600 15px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s', color: on ? 'rgba(232,237,243,.58)' : 'var(--text)' }}>{t.pick(h)}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {done === 0 && hasBackend && (
-            <button type="button" className={s.linkBtn} style={{ display: 'block', width: '100%', textAlign: 'center', marginTop: 18 }} onClick={() => navigate('/')}>{t('auth.toApp')}</button>
-          )}
-          {done > 0 && (
-            <div className={s.saveCard}>
-              <div style={{ font: '800 17px var(--font-ui)' }}>{t('auth.signupTitle')}</div>
-              <div className={s.small} style={{ marginTop: 6 }}>{t('auth.signupSub')}</div>
-              <Cta style={{ marginTop: 14 }} onClick={() => navigate(hasBackend && session && !isAnon(session) ? '/' : '/signup')}>{t('auth.continue')}</Cta>
-              {/* faster start: sign-up can wait, the guest keeps everything */}
-              {hasBackend && <button type="button" className={s.linkBtn} style={{ marginTop: 12, display: 'block', width: '100%', textAlign: 'center' }} onClick={() => navigate('/')}>{t('auth.later')}</button>}
-            </div>
-          )}
-        </div>
-      )}
-    </AuthLayout>
-  );
-}
-
 /* ---------------- Account ---------------- */
 
 export function Account() {
@@ -327,7 +264,7 @@ export function Account() {
   const googleLinked = !!session?.user.identities?.some((x) => x.provider === 'google');
   // real numbers for the header (the design's sample numbers only without a backend)
   const hd = useHeader();
-  const qToday = useQuery({ queryKey: ['today'], queryFn: fetchToday, enabled: hasBackend && !!session });
+  const qToday = useSystem(todayRawOf);
   const qStats = useQuery({ queryKey: ['accountStats'], queryFn: fetchAccountStats, enabled: hasBackend && !!session });
   const streakNow = hasBackend ? (qToday.data ? buildToday(qToday.data, { initials: '', freezesAllowed: 1 }).stats.streak : '—') : 14;
   const statHabits = hasBackend ? (qStats.data?.habitsDone ?? '—') : 186;

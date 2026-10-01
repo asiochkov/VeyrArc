@@ -14,8 +14,8 @@ const fill = async (em) => {
 };
 try {
   await guestOnboard(page, { 'Тело': ['Холодный душ'] });
-  await page.getByRole('button', { name: /Холодный душ/ }).click();
-  await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
+  await page.getByRole('button', { name: 'Меню', exact: true }).first().click();
+  await page.getByRole('menuitem', { name: 'Сохранить аккаунт' }).click();
   await page.waitForURL('**/signup');
   await fill(email);
   await page.waitForURL(APP + '/', { timeout: 15000 }); log('guest → sign-up → straight to Today (no code step)');

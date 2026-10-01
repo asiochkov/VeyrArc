@@ -108,7 +108,7 @@ export function buildToday(raw: TodayRaw, opts: { initials: string; freezesAllow
   const freezesUsed = weekDays.filter((d) => frozen.has(d)).length;
 
   return {
-    habits, week, planner, streakBase, requiredIds: raw.habits.filter((h) => h.required).map((h) => h.id),
+    habits, week, planner, streakBase, requiredIds: raw.habits.filter((h) => h.core).map((h) => h.id),
     stats: {
       arcDay, arcLength: raw.arc?.length_days ?? 90,
       freezesUsed, freezesAllowed: opts.freezesAllowed,

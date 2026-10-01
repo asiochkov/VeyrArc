@@ -4,7 +4,7 @@ const { browser, page, errors } = await open({ width: 1280, height: 832 });
 try {
   await guestOnboard(page, { 'Тело': ['Холодный душ'] });
   // Calendar: create a task by clicking the grid, then reload
-  await page.goto(APP + '/calendar');
+  await page.goto(APP + '/planner');
   const col = page.locator('[class*="col"][data-today="true"]').first();
   await col.waitFor();
   await col.click({ position: { x: 40, y: 64 * 6 + 10 } });
@@ -30,8 +30,7 @@ try {
   await page.getByPlaceholder('Например: 30 минут бега').first().fill('Пробежка');
   await page.getByRole('button', { name: 'Создать', exact: true }).first().click();
   await page.getByText('Марафон').first().waitFor(); log('goal created');
-  await page.getByRole('button', { name: 'Добавить шаг' }).click();
-  await page.getByPlaceholder('Например: 30 минут бега').fill('Растяжка');
+  await page.getByPlaceholder('Добавить шаг').fill('Растяжка');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(700);
   await page.getByRole('checkbox').first().click();
@@ -41,7 +40,7 @@ try {
   await page.getByText('Марафон').first().waitFor();
   await page.getByText('Растяжка').waitFor();
   const diary = await page.locator('textarea').first().inputValue();
-  const checked = await page.getByRole('checkbox').first().getAttribute('aria-checked');
+  const checked = String(await page.getByRole('checkbox').first().isChecked());
   log('goal diary after reload =', diary, '· first step checked =', checked);
   if (checked !== 'true') throw new Error('step check not persisted');
   if (note !== 'Заметка e2e' || diary !== 'Пробежал 5 км') throw new Error('planner/goals not persisted');

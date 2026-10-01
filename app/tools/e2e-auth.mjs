@@ -31,7 +31,10 @@ try {
   await page.waitForURL('**/onboarding'); log('guest session → /onboarding');
 
   await page.getByPlaceholder('напр. Иван').fill('Тест');
+  await page.getByPlaceholder('Например: каждое утро — спорт и чтение').fill('Без пропусков');
   await page.getByRole('button', { name: 'Далее' }).click();
+  await page.reload();
+  await page.getByText('Что ты хочешь изменить?').waitFor(); log('onboarding step survives a reload');
   await page.getByRole('button', { name: /Вода 8 стаканов/ }).click();
   await page.getByRole('button', { name: /Отказ от вредного/ }).click();
   await page.getByRole('button', { name: /Без сахара/ }).click();
@@ -42,11 +45,12 @@ try {
   const box = await hold.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down(); await page.waitForTimeout(1700); await page.mouse.up();
-  await page.waitForURL('**/start', { timeout: 10000 }); log('onboarding saved → /start');
+  await page.waitForURL((u) => new URL(u).pathname === '/', { timeout: 10000 }); log('onboarding saved → Today');
+  await page.getByText('«Без пропусков»').first().waitFor(); log('the promise is on Today');
 
-  await page.getByRole('button', { name: /Вода 8 стаканов/ }).click();
-  await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
-  await page.waitForURL('**/signup'); log('first check-in → save progress → /signup');
+  await page.getByRole('button', { name: 'Меню', exact: true }).first().click();
+  await page.getByRole('menuitem', { name: 'Сохранить аккаунт' }).click();
+  await page.waitForURL('**/signup'); log('guest → avatar menu → /signup');
 
   await page.getByPlaceholder('напр. Иван').fill('Тест');
   await page.getByPlaceholder('напр. Петров').fill('Тестов');

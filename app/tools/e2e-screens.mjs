@@ -7,7 +7,7 @@ for (const [name, vp] of [['desktop', { width: 1280, height: 832 }], ['mobile', 
     await guestOnboard(page, { 'Тело': ['Вода 8 стаканов', 'Холодный душ'], 'Отказ от вредного': ['Без сахара'] });
     await page.goto(APP + '/');
     await page.getByRole('checkbox', { name: 'Холодный душ' }).first().click();
-    for (const path of ['/', '/habits', '/calendar', '/goals', '/profile', '/settings', '/settings/account', '/pro']) {
+    for (const path of ['/', '/disciplines', '/planner', '/goals', '/analytics', '/settings', '/settings/account', '/pro']) {
       await page.goto(APP + path);
       await page.waitForTimeout(1200);
       await page.screenshot({ path: `${S}live-${name}${path.replace(/\//g, '_') || '_'}.png` });

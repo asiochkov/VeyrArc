@@ -1,8 +1,9 @@
 import { isoDay } from '../lib/day';
+import { computeIndex } from '../state/compute';
 import { db } from '../lib/supabase';
 import * as M from '../mock/profile';
 import type { L } from '../mock/today';
-import { addDays, daysBetween, dayKept, indexLogs, isLogged, scheduled, streaks, type ArcRow, type DayRow, type FocusRow, type HabitRowDb, type LogRow, type PlanRow, type QuitRow } from './model';
+import { addDays, daysBetween, indexLogs, isLogged, scheduled, streaks, type ArcRow, type DayRow, type FocusRow, type HabitRowDb, type LogRow, type PlanRow, type QuitRow } from './model';
 
 /* Everything the Profile screen shows, in the shapes of mock/profile.ts. */
 export type ProfileData = {
@@ -58,42 +59,15 @@ export async function fetchProfile(): Promise<Raw> {
   return { day, habits: h, logs: l, days: d, quits: qu, relapses: rl, goals: g, tasks: t, entries: e, plan: p, focus: f, arcs: a };
 }
 
-const ratio = (a: number, b: number) => (b > 0 ? a / b : null);
 
 /**
  * Discipline index 0…1000 over [from, to] — weights proposed in docs/stage-0.md §5:
  * habits .35, kept days .15, quits .15, goals .15, planner .10, focus .05, mood logging .05.
  * Parts without data are left out and the rest re-weighted.
  */
+/** Discipline Index 0…1000 over [from, to] — one formula for Today, Analytics and the arc archive (state/compute.ts). */
 export function disciplineIndex(r: Raw, from: string, to: string) {
-  const ix = indexLogs(r.logs);
-  const frozen = new Set(r.days.filter((x) => x.frozen).map((x) => x.day));
-  let due = 0, hit = 0, kept = 0, days = 0, moodDays = 0, clean = 0, cleanDue = 0, gDone = 0, gDue = 0, focusMin = 0;
-  const slipDays = new Set(r.relapses.map((x) => x.quit_id + '|' + isoDay(new Date(x.at))));
-  for (let d = from; d <= to; d = addDays(d, 1)) {
-    const live = r.habits.filter((h) => h.created_at.slice(0, 10) <= d);
-    if (!live.length && !r.quits.length) continue;
-    days++;
-    for (const h of live) if (scheduled(h, d)) { due++; if (isLogged(ix, h.id, d)) hit++; }
-    if (live.length && dayKept(r.habits, ix, d, frozen)) kept++;
-    if (r.days.find((x) => x.day === d && x.mood)) moodDays++;
-    for (const q of r.quits) if (q.created_at.slice(0, 10) <= d) { cleanDue++; if (!slipDays.has(q.id + '|' + d)) clean++; }
-    for (const g of r.goals) if (g.started_on <= d && g.status === 'active') {
-      const n = r.tasks.filter((t) => t.goal_id === g.id).length;
-      gDue++;
-      const e = r.entries.find((x) => x.goal_id === g.id && x.day === d);
-      if (n && e && e.done_task_ids.length >= n) gDone++;
-    }
-  }
-  const plan = r.plan.filter((p) => p.day >= from && p.day <= to);
-  for (const f of r.focus) { const d = isoDay(new Date(f.started_at)); if (f.completed && d >= from && d <= to) focusMin += f.minutes; }
-  const parts: [number, number | null][] = [
-    [0.35, ratio(hit, due)], [0.15, ratio(kept, days)], [0.15, ratio(clean, cleanDue)], [0.15, ratio(gDone, gDue)],
-    [0.10, ratio(plan.filter((p) => p.done).length, plan.length)], [0.05, days ? Math.min(1, focusMin / days / 50) : null], [0.05, ratio(moodDays, days)],
-  ];
-  const used = parts.filter(([, v]) => v != null) as [number, number][];
-  const w = used.reduce((a, [x]) => a + x, 0);
-  return w ? Math.round((1000 * used.reduce((a, [x, v]) => a + x * v, 0)) / w) : 0;
+  return computeIndex(r, from, to).index;
 }
 
 export function buildProfile(r: Raw, opts: { pro: boolean; initials: string }): ProfileData {

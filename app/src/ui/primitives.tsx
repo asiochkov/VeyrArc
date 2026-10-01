@@ -74,6 +74,7 @@ export function ProgressRing({
         <circle
           cx="60" cy="60" r={r} fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round"
           strokeDasharray={len.toFixed(1)} strokeDashoffset={(len * (1 - Math.min(1, Math.max(0, pct)))).toFixed(1)}
+          style={{ transition: 'stroke-dashoffset .35s cubic-bezier(0.16, 1, 0.3, 1), stroke .35s' }}
         />
       </svg>
       {children}
