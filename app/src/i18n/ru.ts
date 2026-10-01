@@ -578,6 +578,7 @@ export const ru = {
     pickTitle: 'Какую привычку сделать Core?',
     pickNew: 'Создать новую',
     pickEmpty: 'В Extra пока пусто — создай новую привычку строкой ниже.',
+    holdHint: 'Удерживайте карточку, чтобы поменять порядок или перенести между Core и Extra',
     movedCore: '«{x}» теперь в Core',
     movedExtra: '«{x}» теперь в Extra',
     archived: '«{x}» в архиве',

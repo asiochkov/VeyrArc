@@ -23,6 +23,7 @@ import { Sheet } from '../../ui/Sheet';
 import { defaultQuitDraft, QuitOptions, sinceIso, type QuitDraft } from '../tracker/ComposerOptions';
 import d from './disciplines.module.css';
 import { HabitSetup } from './HabitSetup';
+import { useHoldReorder } from '../../ui/useHoldReorder';
 
 /*
  * Disciplines (Master Changeset section 5): configuration and history of habits and quits.
@@ -99,20 +100,37 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
     [ids[i], ids[j]] = [ids[j], ids[i]];
     reorderHabits(ids);
   };
+  // hold a tile to reorder it, or to carry it between Core and Extra
+  const rd = useHoldReorder({
+    zones: { core: core.map((h) => h.id), extra: extra.map((h) => h.id) },
+    canEnter: (_id, zone) => zone !== 'core' || core.length < coreLimit,
+    onDrop: (z, id, from, to) => {
+      reorderHabits([...z.core, ...z.extra]);
+      if (from !== to) {
+        const h = rowsDb.find((x) => x.id === id);
+        updateHabit(id, { core: to === 'core' });
+        toast.action(t(to === 'core' ? 'disc.movedCore' : 'disc.movedExtra', { x: h?.name ?? '' }), t('explain.undo'), () => updateHabit(id, { core: from === 'core' }), 5000);
+      }
+    },
+  });
+  const byId = new Map(habits.map((h) => [h.id, h]));
+  const coreView = rd.zones.core.map((id) => byId.get(id)!).filter(Boolean);
+  const extraView = rd.zones.extra.map((id) => byId.get(id)!).filter(Boolean);
   const detail = habits.find((h) => h.id === open) ?? null;
   const setupHabit = rowsDb.find((h) => h.id === setupId) ?? null;
 
   let i = 0;
   const cards = (items: TrackerHabit[]) => items.map((h) => (
-    <HabitCard key={h.id} t={t} h={h} db={rowsDb.find((x) => x.id === h.id)!} core={isCore(h.id)} style={{ '--i': i++ } as React.CSSProperties} onOpen={() => setParam('open', h.id)} />
+    <HabitCard key={h.id} t={t} h={h} db={rowsDb.find((x) => x.id === h.id)!} core={isCore(h.id)} style={{ '--i': i++ } as React.CSSProperties}
+      hold={rd.bind(h.id)} onOpen={() => { if (!rd.justDropped()) setParam('open', h.id); }} />
   ));
 
   return (
     <>
       <div className="caption" data-tour="disc-core"><b>{t('home.core')}</b><span>{t('disc.coreMeta', { n: core.length, m: Math.min(5, coreLimit) })}</span></div>
-      <div className="tl-grid" data-zone="core">
-        {cards(core)}
-        {Array.from({ length: Math.min(slots, core.length >= 3 ? 1 : 3 - core.length) }, (_, k) => (
+      <div className="tl-grid" data-zone="core" data-empty={(rd.liftId && coreView.length === 0) || undefined}>
+        {cards(coreView)}
+        {!rd.liftId && Array.from({ length: Math.min(slots, core.length >= 3 ? 1 : 3 - core.length) }, (_, k) => (
           <button key={'slot' + k} type="button" className="tl tl-ghost" style={{ '--i': i++ } as React.CSSProperties} onClick={() => setPicking(true)}>
             <span className="tl-top"><span className="cb"><Icon name="plus" size={18} sw={1.8} /></span></span>
             <span className="tl-text"><span className="tl-name">{t('disc.pickCore')}</span><span className="tl-sub">{t('disc.coreHint')}</span></span>
@@ -120,7 +138,8 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
         ))}
       </div>
       <div className="caption" data-tour="disc-extra"><b>{t('home.extra')}</b><span>{extra.length ? t('disc.extraHintShort') : t('disc.extraHint')}</span></div>
-      {extra.length > 0 && <div className="tl-grid" data-zone="extra">{cards(extra)}</div>}
+      {(extra.length > 0 || rd.liftId) && <div className="tl-grid" data-zone="extra" data-empty={extraView.length === 0 || undefined}>{cards(extraView)}</div>}
+      {habits.length > 1 && <div className={d.holdHint}><Icon name="move" size={13} sw={1.8} />{t('disc.holdHint')}</div>}
       <Composer t={t} coreN={core.length} count={sys.habits.length} />
       <Sheet open={!!detail} onClose={() => setParam('open', null)} title={detail ? t.pick(detail.name) : ''}>
         {detail && <HabitDetail t={t} h={detail} core={isCore(detail.id)} onSetup={() => setParam('setup', detail.id)} onCore={() => toggleCore(detail.id)} onArchive={() => archive(detail.id)} onMove={(dir) => move(detail.id, dir)} onToday={() => navigate('/')} />}
@@ -140,12 +159,12 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
 }
 
 /** A habit as a device tile: icon in a round button, name, schedule, the week as dots, the streak. */
-function HabitCard({ t, h, db, core, style, onOpen }: { t: T; h: TrackerHabit; db: SystemRaw['habits'][number]; core: boolean; style: React.CSSProperties; onOpen: () => void }) {
+function HabitCard({ t, h, db, core, style, hold, onOpen }: { t: T; h: TrackerHabit; db: SystemRaw['habits'][number]; core: boolean; style: React.CSSProperties; hold: ReturnType<ReturnType<typeof useHoldReorder>['bind']>; onOpen: () => void }) {
   const domain = HABIT_DOMAINS[db.category as keyof typeof HABIT_DOMAINS];
   const hue = domain?.hue ?? h.hue;
   const doneToday = h.week.includes('today-done');
   return (
-    <button type="button" className={`tl ${doneToday ? 'tl-light' : ''}`} style={{ ...style, '--hue': hue } as React.CSSProperties} onClick={onOpen}>
+    <button type="button" className={`tl ${d.holdTile} ${doneToday ? 'tl-light' : ''}`} style={{ ...style, '--hue': hue } as React.CSSProperties} onClick={onOpen} {...hold}>
       <span className="tl-top">
         <span className="cb" style={doneToday ? { background: '#FFFFFF', color: 'var(--c-on)' } : { color: hue }}><Icon name={h.icon} size={18} sw={1.8} /></span>
         <span className={d.streakBadge} title={t('disc.streak')}>{h.streak}{core && <i />}</span>

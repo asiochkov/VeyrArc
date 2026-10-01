@@ -11,7 +11,9 @@ import { useIsDesktop } from '../../lib/useIsDesktop';
 import { GOAL_HUES } from '../../mock/goals';
 import {
   addGoalStep, createGoal, deleteGoal, deleteGoalStep, logGoalTask, logMood, renameGoalStep, restoreGoalStep, saveDiary, updateGoal,
+  reorderGoalSteps,
 } from '../../state/actions';
+import { useHoldReorder } from '../../ui/useHoldReorder';
 import { activeArc, useSystem, type GoalDb, type SystemRaw } from '../../state/system';
 import { Icon, type IconName } from '../../ui/Icon';
 import { PageState } from '../../ui/PageState';
@@ -192,7 +194,9 @@ function DayView({ t, sys, goal, today }: { t: T; sys: SystemRaw; goal: GoalDb; 
   const [date, setDate] = useState(today);
   const [editing, setEditing] = useState(false);
   const [newStep, setNewStep] = useState('');
-  const tasks = tasksOf(sys, goal.id);
+  const tasksDb = tasksOf(sys, goal.id);
+  const rd = useHoldReorder({ zones: { steps: tasksDb.map((x) => x.id) }, onDrop: (z) => reorderGoalSteps(z.steps) });
+  const tasks = rd.zones.steps.map((id) => tasksDb.find((x) => x.id === id)!).filter(Boolean);
   const entry = entryOf(sys, goal.id, date);
   const done = new Set(entry?.done_task_ids ?? []);
   const future = date > today;
@@ -223,9 +227,10 @@ function DayView({ t, sys, goal, today }: { t: T; sys: SystemRaw; goal: GoalDb; 
           {tasks.length > 0 && <button type="button" className={g.linkBtn} onClick={() => setEditing(!editing)}>{editing ? t('goals.doneEditing') : t('goals.editSteps')}</button>}
         </div>
         <div className={g.hint}>{tasks.length ? t('goals.stepsHint') : t('goals.stepsEmpty')}</div>
-        <div className={g.steps}>
+        <div className={g.steps} data-zone="steps">
           {tasks.map((x) => editing ? (
-            <div key={x.id} className={g.step}>
+            <div key={x.id} className={g.step} {...rd.bind(x.id)} onPointerDown={undefined}>
+              <span className={g.grip} {...rd.handle(x.id)} aria-hidden="true"><Icon name="menu" size={16} sw={1.8} /></span>
               <input className={g.input} defaultValue={x.text} maxLength={160} aria-label={t('goals.editSteps')} onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== x.text) renameGoalStep(x.id, v); }} />
               <button type="button" className={g.iconBtn} aria-label={t('goals.delete')} onClick={() => { const r = deleteGoalStep(x.id); if (r) toast.action(t('goals.stepDeleted'), t('explain.undo'), () => restoreGoalStep(r)); }}><Icon name="trash" size={14} /></button>
             </div>

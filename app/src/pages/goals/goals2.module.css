@@ -180,3 +180,8 @@
 .tile { border-radius: 26px; background: var(--c-field); padding: 18px 10px; }
 .tile b { font: var(--fw-light) 32px/1 var(--font-ui); letter-spacing: -.04em; }
 .tile span { font: var(--fw-regular) 12px var(--font-ui); }
+
+/* ---- reorder steps by their handle ---- */
+.grip { flex: none; width: 32px; height: 40px; display: grid; place-items: center; color: rgba(232,237,243,.4); cursor: grab; -webkit-touch-callout: none; user-select: none; }
+.steps [data-lift] { position: relative; z-index: 20; scale: 1.03; border-radius: 16px; background: var(--c-raise); box-shadow: 0 18px 40px rgba(0,0,0,.55); transition: scale 200ms var(--ease-spring); }
+.steps [data-lift] .grip { color: #fff; cursor: grabbing; }

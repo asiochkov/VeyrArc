@@ -123,6 +123,10 @@ export function setEventDone(id: string, done: boolean) {
 }
 
 /* ---- goal steps ---- */
+export function reorderGoalSteps(ids: string[]) {
+  patchSystem((r) => ({ ...r, tasks: r.tasks.map((x) => (ids.includes(x.id) ? { ...x, sort: ids.indexOf(x.id) } : x)).sort((a, b) => a.sort - b.sort) }));
+  write(async () => { for (const [i, id] of ids.entries()) ok(await db().from('goal_tasks').update({ sort: i }).eq('id', id)); });
+}
 const entryOf = (r: SystemRaw | undefined, goalId: string, day: string) => r?.entries.find((e) => e.goal_id === goalId && e.day === day);
 function setGoalTasks(goalId: string, ids: string[], day: string) {
   patchSystem((r) => {

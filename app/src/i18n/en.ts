@@ -573,6 +573,7 @@ export const en: Dict = {
     pickTitle: 'Which habit becomes Core?',
     pickNew: 'Create a new one',
     pickEmpty: 'Extra is empty — create a new habit in the line below.',
+    holdHint: 'Press and hold a card to reorder it or move it between Core and Extra',
     movedCore: '“{x}” is now Core',
     movedExtra: '“{x}” is now Extra',
     archived: '“{x}” archived',

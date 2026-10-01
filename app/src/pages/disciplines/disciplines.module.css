@@ -27,3 +27,10 @@
 .pickList { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .pickRow { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 16px; border-radius: 999px; border: none; background: var(--c-raise); color: var(--text); font: var(--fw-regular) 15px var(--font-ui); cursor: pointer; text-align: left; }
 .pickRow:active { transform: scale(.98); }
+
+/* ---- hold to reorder ---- */
+.holdTile { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.holdTile[data-lift] { position: relative; z-index: 40; scale: 1.05; box-shadow: 0 26px 50px rgba(0,0,0,.6), 0 0 0 2px rgba(255,255,255,.85); transition: scale 220ms var(--ease-spring), box-shadow 220ms var(--ease-out-strong); cursor: grabbing; }
+.holdHint { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 2px 0 6px; font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.38); text-align: center; }
+:global(.tl-grid)[data-empty] { min-height: 120px; border-radius: 30px; box-shadow: inset 0 0 0 1.5px rgba(80,125,255,.25); }
+.holdTile[data-lift]:active { transform: none; }
