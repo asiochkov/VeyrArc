@@ -12,7 +12,7 @@
   /* text hierarchy */
   --text-primary: var(--text);
   --text-secondary: rgba(232,237,243,.72);
-  --text-muted: rgba(232,237,243,.56);
+  --text-muted: rgba(232,237,243,.52);
   --text-disabled: rgba(232,237,243,.32);
   /* layers */
   --z-sheet: 60;
@@ -25,7 +25,7 @@
   --hit: 44px;
 
   /* base */
-  --bg: #05070A;
+  --bg: #050506;
   --text: #E8EDF3;
   --text-strong: #F3F6FA;
   --ink: #06121f;            /* text on accent fills */
@@ -33,7 +33,7 @@
   --link: #A8CBEF;
   --link-hover: #c8ddf6;
   --gold: #E8B75E;
-  --pro: #C8A66A;            /* quieter Pro accent (Master Changeset RC-10) */
+  --pro: #E8B75E;
   --gold-2: #d9a94f;
   --gold-3: #f0c877;
   --gold-ink: #241a06;
@@ -49,9 +49,26 @@
   --now: #8fc2ff;
 
   /* surfaces (Master Changeset 3′: flat elevations, neutral hairlines) */
-  --surface-0: #0A0D12;
-  --surface-1: #12161C;
-  --surface-2: #181D24;
+  --surface-0: #0B0C0F;
+  --surface-1: #141519;
+  --surface-2: #1C1D22;
+  --surface-3: #17181C;   /* sheet, modal, menu */
+  --line-contrast: rgba(255,255,255,.16);
+  --accent-hover: #85B1E0;
+  --accent-press: #5C8EC4;
+  --accent-ink: #06121F;
+  --accent-tint: rgba(111,160,214,.14);
+  --accent-tint-strong: rgba(111,160,214,.22);
+  --accent-tint-weak: rgba(111,160,214,.06);
+  --accent-ring: rgba(111,160,214,.28);
+  --pro-ink: #241A06;
+  --pro-text: #F2E2C4;
+  --pro-tint: rgba(232,183,94,.14);
+  --pro-tint-strong: rgba(232,183,94,.22);
+  --pro-grad: linear-gradient(90deg, #E8B75E, #D9A94F);
+  --success-tint: rgba(95,191,155,.14);
+  --danger-tint: rgba(229,100,90,.12);
+  --warning: #E8A54B;
   --line: rgba(255,255,255,.06);
   --line-strong: rgba(255,255,255,.1);
   --card: rgba(13,17,22,.85);
@@ -82,6 +99,7 @@
   --ev-red: #C25749;
   --ev-purple: #8670C4;
 
+  /* @deprecated (design brief §1): the alpha ladders below stay only for old code; new code uses the semantic tokens above */
   /* text alphas: rgba(232,237,243,a) */
   --t-18: rgba(232,237,243,.18);
   --t-22: rgba(232,237,243,.22);
@@ -174,18 +192,56 @@
 
   --error-soft: rgba(229,100,90,.12);
 
-  /* typography */
-  --font-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* typography (design brief §2): Apple's real SF first, Inter as the close fallback */
+  --font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter Variable', 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-ui-rounded: ui-rounded, 'SF Pro Rounded', 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  --fs-11: 11px; --fs-12: 12px; --fs-13: 13px; --fs-14: 14px; --fs-15: 15px;
+  --fs-17: 17px; --fs-20: 20px; --fs-26: 26px; --fs-34: 34px; --fs-56: 56px;
+  --fw-light: 300; --fw-regular: 400; --fw-medium: 500; --fw-semibold: 560; --fw-bold: 600; --fw-heavy: 650; /* light, Nothing-like: big text gets thinner, not heavier */
+  --lh-tight: 1.1; --lh-title: 1.25; --lh-body: 1.45; --lh-prose: 1.55;
 
-  /* motion */
-  /* motion (Master Changeset task 33): no overshoot — strong ease-out for entrances, short ease-out for exits */
-  --ease-out-strong: cubic-bezier(0.16, 1, 0.3, 1);
+  /* motion (§4) */
+  --dur-micro: 100ms;
+  --dur-base: 240ms;
+  --dur-enter: 360ms;
+  --dur-exit: 180ms;
+  --dur-slow: 600ms;
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --dur-enter: .4s;
-  --dur-exit: .18s;
-  --ease-screen: cubic-bezier(.2,.8,.2,1);
-  --ease-burst: cubic-bezier(.15,.8,.3,1);
+  --ease-out-strong: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* only for real milestones */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* @deprecated — use --ease-out-strong */
+  --ease-screen: var(--ease-out-strong);
+  --ease-burst: var(--ease-out-strong);
+
+  /* radii, spacing, shadows, layers (§3.3–3.13) */
+  --r-xs: 10px; --r-sm: 16px; --r-md: 20px; --r-lg: 28px; --r-xl: 36px; --r-pill: 999px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px; --sp-7: 28px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md: 0 12px 32px rgba(0,0,0,.4);
+  --shadow-lg: 0 20px 48px rgba(0,0,0,.5);
+  --shadow-plate-light: 0 1px 0 rgba(255,255,255,.6) inset, 0 8px 24px rgba(0,0,0,.35);
+  --shadow-accent: 0 6px 20px rgba(111,160,214,.35);
+  --shadow-pro: 0 10px 26px rgba(232,183,94,.28);
+  --z-nav: 10; --z-fab: 20; --z-popover: 30; --z-docked: 40; --z-tour: 90; --z-modal: 100;
+
+  /* plates (§3.2): dark is the default, light is the «switched on» accent — two per screen at most */
+  --plate-dark: #141519;
+  --plate-dark-ink: var(--text);
+  --plate-dark-secondary: var(--text-secondary);
+  --plate-dark-glow: radial-gradient(70% 60% at 15% 20%, rgba(255,255,255,.06), transparent 70%);
+  --plate-light: #F2F4F7;
+  --plate-light-ink: #0A0D12;
+  --plate-light-secondary: #4A5260;
+  --plate-light-glow: radial-gradient(70% 60% at 85% 15%, rgba(255,255,255,.8), transparent 60%);
+  --plate-light-chip-bg: #E6E9EE;
+  --plate-light-chip-ink: #0A0D12;
+  --plate-light-divider: rgba(10,13,18,.08);
+
+  /* pastel dots for avatar stacks (§3.9) */
+  --dot-coral: #F2A099; --dot-cream: #F2E6B8; --dot-mint: #B6DBC4; --dot-sky: #B9D4F0; --dot-lilac: #D9C7F0; --dot-sand: #E8D4B5;
 
   /* layout */
   --rail-w: 104px;

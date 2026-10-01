@@ -15,21 +15,21 @@ import s from './AppHeader.module.css';
  * («Arc II · День 14 из 90», tap → the promise), the avatar menu on the right
  * (Account, Settings, Pro, Sign out). No brand label, no gear.
  */
-export function AppHeader({ title, right }: { title?: ReactNode; right?: ReactNode }) {
+export function AppHeader({ title, sub, right }: { title?: ReactNode; sub?: ReactNode; right?: ReactNode }) {
   const t = useT();
   const hd = useHeader();
   const [oathOpen, setOathOpen] = useState(false);
   const desktop = useIsDesktop();
   const openPalette = useAdd((x) => x.openPalette);
-  const setDrawer = useAdd((x) => x.setDrawer);
   return (
     <header className={s.header}>
-      {!desktop && <button type="button" className={s.menuBtn} onClick={() => setDrawer(true)} aria-label={t('nav.openMenu')}><Icon name="menu" size={18} sw={2} /></button>}
       <div className={s.left}>
         {title && <h1 className={s.title}>{title}</h1>}
-        <button type="button" className={s.arc} onClick={() => setOathOpen(true)} aria-label={t('arc.oathTitle')}>
-          {t('arc.chip', { n: roman(hd.arcNumber), d: hd.arcDay, l: hd.arcLength })}
-        </button>
+        {sub ?? (
+          <button type="button" className={s.arc} onClick={() => setOathOpen(true)} aria-label={t('arc.oathTitle')}>
+            {t('arc.chip', { n: roman(hd.arcNumber), d: hd.arcDay, l: hd.arcLength })}
+          </button>
+        )}
       </div>
       <div className={s.right}>
         {right}
@@ -62,7 +62,7 @@ export function AvatarMenu({ initials }: { initials: string }) {
   return (
     <div className={s.menuWrap} ref={ref}>
       <button type="button" className={s.avatarBtn} aria-haspopup="menu" aria-expanded={open} aria-label={t('common.menu')} onClick={() => setOpen(!open)}>
-        <Avatar initials={initials} size={32} fontSize={11} />
+        <Avatar initials={initials} size={40} fontSize={13} />
       </button>
       {open && (
         <div className={s.menu} role="menu">

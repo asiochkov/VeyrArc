@@ -218,7 +218,7 @@ function MonthMini({ t, st, big, gap, onPick }: { t: T; st: St; big: boolean; ga
           const k = day.slice(0, 7) !== m ? 'grey' : day === st.sel ? 'sel' : day === st.today ? 'today' : 'day';
           const dots = st.items.filter((x) => x.day === day).slice(0, 3);
           return (
-            <button key={day} type="button" className={s.mcell} data-k={k} style={{ fontSize: big ? 13 : 12, borderRadius: big ? 11 : 9 }} onClick={() => onPick(day)}>
+            <button key={day} type="button" className={s.mcell} data-k={k} style={{ fontSize: big ? 13 : 12 }} onClick={() => onPick(day)}>
               {parseDay(day).getDate()}
               {dots.length > 0 && <span className={s.mDots}>{dots.map((x) => <i key={x.id} style={{ background: k === 'sel' ? 'var(--ink)' : EV_FILL[x.c] }} />)}</span>}
             </button>
@@ -427,7 +427,7 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
             <div className={s.secTitle}>{st.sel === st.today ? t('calendar.upcoming') : dayLabel(t, st.sel)}</div>
             <button type="button" className={s.secLink} onClick={() => st.openNew(st.sel)}>+ {t('common.add')}</button>
           </div>
-          {dayItems.length ? <DayList t={t} st={st} list={dayItems} /> : <EmptyState compact title={t('empty.freeDay')} sub={t('calendar.emptyDay')} kbd="C" />}
+          {dayItems.length ? <DayList t={t} st={st} list={dayItems} /> : <EmptyState compact title={t('empty.freeDay')} sub={t('calendar.emptyDay')} />}
         </div>
         <div>
           <div className={s.secHead} style={{ marginBottom: 14 }}><div className={s.secTitle}>{t('calendar.breakdown')}</div></div>
@@ -505,7 +505,7 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
         {st.view === 'month' && (
           <div style={{ marginTop: 20, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <div className={s.grid7} style={{ gap: 8, marginBottom: 8 }}>
-              {dows.map((w) => <div key={w} style={{ font: '700 11px var(--font-mono)', letterSpacing: '.08em', color: 'rgba(232,237,243,.56)', padding: '0 4px' }}>{w}</div>)}
+              {dows.map((w) => <div key={w} style={{ font: 'var(--fw-regular) 11px var(--font-mono)', letterSpacing: '.08em', color: 'rgba(232,237,243,.56)', padding: '0 4px' }}>{w}</div>)}
             </div>
             <div className={s.grid7} style={{ flex: 1, gridAutoRows: '1fr', gap: 8 }}>
               {monthCells(st.cursor).map((day) => {
@@ -568,7 +568,7 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
           <button type="button" className={s.mMonthBtn} onClick={() => { st.setCursor(monthStart(st.sel)); st.setMonthOpen(!st.monthOpen); }} aria-expanded={st.monthOpen}>
             {monthName} <span style={{ display: 'inline-grid', placeItems: 'center', transition: 'transform .2s', transform: `rotate(${st.monthOpen ? 180 : 0}deg)`, color: 'rgba(232,237,243,.5)' }}><Icon name="chevronDown" size={18} sw={2} /></span>
           </button>
-          <div style={{ font: '400 12px var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 4 }}>
+          <div style={{ font: 'var(--fw-regular) 12px var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 4 }}>
             {st.sel === st.today ? t('calendar.tasksToday', { n: dayItems.length }) : t('calendar.tasksOn', { n: dayItems.length, d: dayLabel(t, st.sel) })}
           </div>
         </div>
@@ -588,8 +588,8 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
           const has = st.items.some((x) => x.day === d);
           return (
             <button key={d} type="button" className={s.selBtn} aria-pressed={on} data-today={d === st.today} onClick={() => st.setSel(d)}>
-              <span style={{ font: '700 17px var(--font-ui)', color: on ? '#06121f' : '#E8EDF3' }}>{parseDay(d).getDate()}</span>
-              <span style={{ font: '600 10px var(--font-mono)', color: on ? 'rgba(6,18,31,.65)' : 'rgba(232,237,243,.4)' }}>{dows[i]}</span>
+              <span style={{ font: 'var(--fw-regular) 17px var(--font-ui)', color: on ? '#06121f' : '#E8EDF3' }}>{parseDay(d).getDate()}</span>
+              <span style={{ font: 'var(--fw-regular) 10px var(--font-mono)', color: on ? 'rgba(6,18,31,.65)' : 'rgba(232,237,243,.4)' }}>{dows[i]}</span>
               <span className={s.selDot} style={{ opacity: has ? 1 : 0, background: on ? '#06121f' : 'var(--accent)' }} />
             </button>
           );
@@ -597,7 +597,7 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
       </div>
 
       <div style={{ marginTop: 20, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-        <div style={{ font: '700 15px var(--font-ui)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{dayLabel(t, st.sel)}</div>
+        <div style={{ font: 'var(--fw-regular) 15px var(--font-ui)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{dayLabel(t, st.sel)}</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flex: 'none' }}>
           {st.sel !== st.today && <button type="button" className={s.todayBtn} onClick={st.goToday}>{t('common.today')}</button>}
           <button type="button" className={s.arrow} aria-label={t('calendar.prev')} onClick={() => st.setSel(addDays(st.sel, -1))}><Icon name="chevronLeft" size={15} sw={2} /></button>

@@ -13,7 +13,7 @@ import {
   addGoalStep, createGoal, deleteGoal, deleteGoalStep, logGoalTask, logMood, renameGoalStep, restoreGoalStep, saveDiary, updateGoal,
 } from '../../state/actions';
 import { activeArc, useSystem, type GoalDb, type SystemRaw } from '../../state/system';
-import { Icon } from '../../ui/Icon';
+import { Icon, type IconName } from '../../ui/Icon';
 import { PageState } from '../../ui/PageState';
 import { ConfirmDialog, MoodFace, Segmented } from '../../ui/primitives';
 import { Sheet } from '../../ui/Sheet';
@@ -394,6 +394,8 @@ function GoalForm({ t, sys, onDone, preset }: { t: T; sys: SystemRaw; onDone: (i
   );
 }
 
+const TPL_ICON: Record<string, IconName> = { career: 'clipboard', body: 'sun', project: 'bolt', relations: 'user', learning: 'doc' };
+
 function Empty({ t, sys, onDone, onCustom }: { t: T; sys: SystemRaw; onDone: (id: string) => void; onCustom: () => void }) {
   const [tpl, setTpl] = useState<(typeof TEMPLATES)[number] | null>(null);
   return (
@@ -403,6 +405,7 @@ function Empty({ t, sys, onDone, onCustom }: { t: T; sys: SystemRaw; onDone: (id
       <div className={g.templates}>
         {TEMPLATES.map((k) => (
           <button key={k} type="button" className={g.tpl} aria-pressed={tpl === k} onClick={() => setTpl(k)}>
+            <span className="cb" style={{ marginBottom: 'auto' }}><Icon name={TPL_ICON[k] ?? 'target'} size={18} sw={1.8} /></span>
             <span className={g.tplName}>{t(`goals.tpl.${k}.name`)}</span>
             <span className={g.tplSteps}>{t.list(`goals.tpl.${k}.steps`).join(' · ')}</span>
           </button>

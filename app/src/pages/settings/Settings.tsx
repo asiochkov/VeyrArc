@@ -109,7 +109,7 @@ export function Settings() {
       ) : (
         <Link to="/" className={s.back} aria-label={t('nav.today')}><Icon name="back" size={18} sw={2} /></Link>
       )}
-      <div style={{ font: '800 28px/1.1 var(--font-ui)', whiteSpace: 'nowrap' }}>{langOpen ? t('settings.language') : t('settings.title')}</div>
+      <div style={{ font: 'var(--fw-regular) 38px/1.05 var(--font-ui)', letterSpacing: '-.035em', whiteSpace: 'nowrap' }}>{langOpen ? t('settings.language') : t('settings.title')}</div>
     </div>
   );
 
@@ -121,13 +121,13 @@ export function Settings() {
           return (
             <button key={id} type="button" className={s.langRow} onClick={() => pickLang(id)}>
               <span className={s.radio} data-on={sel}>{sel && <span className={s.radioDot} />}</span>
-              <span style={{ flex: 1, font: '600 15px var(--font-ui)' }}>{id === 'ru' ? 'Русский' : 'English'}</span>
-              <span style={{ font: '500 12px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{id === lang ? '' : t('settings.langOther')}</span>
+              <span style={{ flex: 1, font: 'var(--fw-regular) 15px var(--font-ui)' }}>{id === 'ru' ? 'Русский' : 'English'}</span>
+              <span style={{ font: 'var(--fw-medium) 12px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{id === lang ? '' : t('settings.langOther')}</span>
             </button>
           );
         })}
       </div>
-      <div style={{ marginTop: 10, maxWidth: 560, font: '400 12px/1.5 var(--font-ui)', color: 'rgba(232,237,243,.6)', padding: '0 4px' }}>{t('settings.langHint')}</div>
+      <div style={{ marginTop: 10, maxWidth: 560, font: 'var(--fw-regular) 12px/1.5 var(--font-ui)', color: 'rgba(232,237,243,.6)', padding: '0 4px' }}>{t('settings.langHint')}</div>
     </>
   );
 
@@ -135,7 +135,7 @@ export function Settings() {
     const inner = (
       <>
         <span className={danger ? s.rowIconDanger : s.rowIcon}><Icon name={icon} size={18} /></span>
-        <span style={{ flex: 1, font: '600 14.5px var(--font-ui)', minWidth: 0, color: danger ? '#E5645A' : undefined }}>{label}</span>
+        <span style={{ flex: 1, font: 'var(--fw-regular) 15px var(--font-ui)', minWidth: 0, color: danger ? '#E5645A' : undefined }}>{label}</span>
         {children}
       </>
     );
@@ -151,8 +151,8 @@ export function Settings() {
           <button type="button" className={s.accountBtn} onClick={() => navigate('/settings/account')}>
             <span className={s.avatar} style={{ overflow: 'hidden' }}>{profile?.avatar_url ? <PhotoImg src={profile.avatar_url} /> : account.initials}</span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', font: '700 16px var(--font-ui)' }}>{account.name}</span>
-              <span style={{ display: 'block', font: '500 12.5px var(--font-ui)', color: 'rgba(232,237,243,.5)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{account.email}</span>
+              <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{account.name}</span>
+              <span style={{ display: 'block', font: 'var(--fw-medium) 13px var(--font-ui)', color: 'rgba(232,237,243,.5)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{account.email}</span>
             </span>
             <span style={{ color: 'rgba(232,237,243,.56)' }}><Icon name="chevron" size={16} sw={2} /></span>
           </button>
@@ -163,10 +163,10 @@ export function Settings() {
           <div className={s.groupTitle}>{t('settings.appearance')}</div>
           <div className={s.list}>
             <Row icon="globe" label={t('settings.language')} onClick={() => setLangOpen(true)}>
-              <span style={{ font: '500 13px var(--font-ui)', color: 'rgba(232,237,243,.5)' }}>{t('settings.langName')}</span>{chev}
+              <span style={{ font: 'var(--fw-medium) 13px var(--font-ui)', color: 'rgba(232,237,243,.5)' }}>{t('settings.langName')}</span>{chev}
             </Row>
             <Row icon="moon" label={t('settings.theme')}>
-              <span style={{ font: '500 13px var(--font-ui)', color: 'rgba(232,237,243,.5)' }}>{t('settings.themeDark')}</span>
+              <span style={{ font: 'var(--fw-medium) 13px var(--font-ui)', color: 'rgba(232,237,243,.5)' }}>{t('settings.themeDark')}</span>
               <span className={s.soon}>{t('settings.lightSoon')}</span>
             </Row>
             <Row icon="checklist" label={t('settings.density')}>
@@ -185,8 +185,8 @@ export function Settings() {
             {(['n1', 'n2', 'n3', 'n4'] as const).map((k) => (
               <button key={k} type="button" role="switch" aria-checked={notif[k]} className={s.row} style={{ cursor: 'pointer' }} onClick={() => toggleNotif(k)}>
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', font: '600 14.5px var(--font-ui)' }}>{t(`settings.${k}`)}</span>
-                  <span style={{ display: 'block', font: '400 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 3 }}>{t(`settings.${k}d`)}</span>
+                  <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t(`settings.${k}`)}</span>
+                  <span style={{ display: 'block', font: 'var(--fw-regular) 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 3 }}>{t(`settings.${k}d`)}</span>
                 </span>
                 <span className={s.track} data-on={notif[k]}><span className={s.knob} /></span>
               </button>
@@ -194,8 +194,8 @@ export function Settings() {
             {/* quiet hours (Master Changeset task 32) */}
             <button type="button" role="switch" aria-checked={quiet.on} className={s.row} style={{ cursor: 'pointer' }} onClick={() => setQuiet(quiet.on ? null : ['22:00', '08:00'])}>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', font: '600 14.5px var(--font-ui)' }}>{t('settings.quiet')}</span>
-                <span style={{ display: 'block', font: '400 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 3 }}>{t('settings.quietD')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t('settings.quiet')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 3 }}>{t('settings.quietD')}</span>
               </span>
               <span className={s.track} data-on={quiet.on}><span className={s.knob} /></span>
             </button>
@@ -216,8 +216,8 @@ export function Settings() {
             <div className={s.row} style={{ alignItems: 'flex-start' }}>
               <span className={s.rowIcon}><Icon name="snow" size={18} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', font: '600 14.5px var(--font-ui)' }}>{t('arc.chip', { n: roman(active?.number ?? hd.arcNumber), d: hd.arcDay, l: hd.arcLength })}</span>
-                <span style={{ display: 'block', font: 'italic 500 13px/1.45 var(--font-ui)', color: 'var(--text-secondary)', marginTop: 4, overflowWrap: 'anywhere' }}>{active?.oath ? `«${active.oath}»` : t('arc.noOathShort')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t('arc.chip', { n: roman(active?.number ?? hd.arcNumber), d: hd.arcDay, l: hd.arcLength })}</span>
+                <span style={{ display: 'block', font: 'italic var(--fw-medium) 13px/1.45 var(--font-ui)', color: 'var(--text-secondary)', marginTop: 4, overflowWrap: 'anywhere' }}>{active?.oath ? `«${active.oath}»` : t('arc.noOathShort')}</span>
               </span>
               <button type="button" className={s.inlineBtn} onClick={() => setOathOpen(true)}>{active?.oath ? t('settings.editOath') : t('settings.writeOath')}</button>
             </div>
@@ -229,12 +229,12 @@ export function Settings() {
                 {arcs.map((a) => (
                   <Link key={a.n} to={`/arc/recap/${a.id}`} className={s.arcItem}>
                     <span style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: 'block', font: '700 13.5px var(--font-ui)' }}>Arc {a.n}</span>
-                      <span style={{ display: 'block', font: '500 11.5px var(--font-mono)', color: 'rgba(232,237,243,.6)', marginTop: 3, whiteSpace: 'nowrap' }}>{t.pick(a.dates)}</span>
+                      <span style={{ display: 'block', font: 'var(--fw-regular) 14px var(--font-ui)' }}>Arc {a.n}</span>
+                      <span style={{ display: 'block', font: 'var(--fw-medium) 12px var(--font-mono)', color: 'rgba(232,237,243,.6)', marginTop: 3, whiteSpace: 'nowrap' }}>{t.pick(a.dates)}</span>
                     </span>
                     <span style={{ textAlign: 'right', flex: 'none' }}>
-                      <span style={{ display: 'block', font: '700 16px var(--font-mono)', color: '#A8CBEF' }}>{a.pct}</span>
-                      <span style={{ display: 'block', font: '600 9px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{a.current ? t('settings.current') : t('settings.completed')}</span>
+                      <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-mono)', color: '#A8CBEF' }}>{a.pct}</span>
+                      <span style={{ display: 'block', font: 'var(--fw-regular) 9px var(--font-ui)', color: 'rgba(232,237,243,.56)' }}>{a.current ? t('settings.current') : t('settings.completed')}</span>
                     </span>
                   </Link>
                 ))}
@@ -254,8 +254,8 @@ export function Settings() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className={s.crown}><Icon name="lock" size={19} /></span>
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', font: '700 15px var(--font-ui)', color: '#f2e2c4' }}>{t('auth.upsellTitle')}</span>
-                  <span style={{ display: 'block', font: '500 12px/1.45 var(--font-ui)', color: 'rgba(232,237,243,.55)', marginTop: 3 }}>{t('auth.upsellSub')}</span>
+                  <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)', color: '#f2e2c4' }}>{t('auth.upsellTitle')}</span>
+                  <span style={{ display: 'block', font: 'var(--fw-medium) 12px/1.45 var(--font-ui)', color: 'rgba(232,237,243,.55)', marginTop: 3 }}>{t('auth.upsellSub')}</span>
                 </span>
               </div>
               <button type="button" className={s.manage} onClick={() => navigate('/pro')}>{t('auth.openPro')}</button>
@@ -265,8 +265,8 @@ export function Settings() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className={s.crown}><Icon name="crown" size={19} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', font: '700 15px var(--font-ui)', color: '#f2e2c4' }}>{t('settings.proActive')}</span>
-                <span style={{ display: 'block', font: '500 12px var(--font-ui)', color: 'rgba(232,237,243,.55)', marginTop: 3, whiteSpace: 'nowrap' }}>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)', color: '#f2e2c4' }}>{t('settings.proActive')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-medium) 12px var(--font-ui)', color: 'rgba(232,237,243,.55)', marginTop: 3, whiteSpace: 'nowrap' }}>
                   {t('settings.renews')} · <span style={{ fontFamily: 'var(--font-mono)' }}>{renew}</span>
                 </span>
               </span>
@@ -295,14 +295,14 @@ export function Settings() {
           <div className={s.groupTitle}>{t('settings.about')}</div>
           <div className={s.list}>
             <Row icon="alert" label={t('settings.versionLabel')}>
-              <span style={{ font: '500 12px var(--font-mono)', color: 'var(--text-muted)' }}>{`${ACCOUNT.version} · ${__BUILD__}`}</span>
+              <span style={{ font: 'var(--fw-medium) 12px var(--font-mono)', color: 'var(--text-muted)' }}>{`${ACCOUNT.version} · ${__BUILD__}`}</span>
             </Row>
           </div>
           <div className={s.groupTitle} style={{ marginTop: 18 }}>{t('settings.shortcuts')}</div>
           <div className={s.list}>
             {SHORTCUTS.map(([k, id]) => (
               <div key={k} className={s.row}>
-                <span style={{ flex: 1, minWidth: 0, font: '500 14px var(--font-ui)' }}>{t(`settings.keys.${id}` as never)}</span>
+                <span style={{ flex: 1, minWidth: 0, font: 'var(--fw-medium) 14px var(--font-ui)' }}>{t(`settings.keys.${id}` as never)}</span>
                 <kbd className={s.kbd}>{k}</kbd>
               </div>
             ))}
@@ -313,7 +313,7 @@ export function Settings() {
   );
 
   return (
-    <div className={s.scroll} style={{ padding: isDesktop ? '34px 36px 40px' : '22px 18px 30px' }} data-scroll>
+    <div className={s.scroll} style={{ padding: isDesktop ? '28px 36px 40px' : '18px 10px 30px' }} data-scroll>
       {header}
       {langOpen ? langScreen : isDesktop ? (
         <div style={{ marginTop: 26, display: 'grid', gridTemplateColumns: '220px minmax(0,640px)', gap: 28, alignItems: 'start' }}>

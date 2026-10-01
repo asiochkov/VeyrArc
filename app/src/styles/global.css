@@ -1,4 +1,5 @@
 @import './tokens.css';
+@import './tiles.css';
 
 /* Verbatim from the <helmet> blocks of project/*.dc.html */
 * { box-sizing: border-box; scrollbar-width: none; }
@@ -38,7 +39,14 @@ body {
   color: var(--text);
   font-family: var(--font-ui);
   -webkit-tap-highlight-color: transparent;
+  /* SF feel (design brief §2.2): real SF on Apple devices; Inter elsewhere tuned towards it */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'ss01', 'cv11', 'calt';
+  font-variation-settings: 'opsz' 20;
 }
+h1, h2, h3 { font-variation-settings: 'opsz' 32; }
 a { color: var(--link); text-decoration: none; }
 a:hover { color: var(--link-hover); }
 ::selection { background: rgba(111,160,214,.3); }
@@ -83,3 +91,97 @@ textarea:disabled { opacity: .45; cursor: not-allowed; }
    The planner grid keeps its scale — its drag maths works in unscaled pixels. */
 html[data-density='compact'] [data-scroll]:not([data-fixed-scale]) > * { zoom: .9; }
 html[data-density='compact'] { --hit: 40px; }
+
+/* ================= design brief: type, plates, labels, readouts ================= */
+
+/* semantic type (§2.7) */
+.t-largeTitle { font: var(--fw-bold) var(--fs-34)/var(--lh-tight) var(--font-ui); letter-spacing: -.02em; }
+.t-title2 { font: var(--fw-bold) var(--fs-26)/var(--lh-title) var(--font-ui); letter-spacing: -.012em; }
+.t-title3 { font: var(--fw-semibold) var(--fs-20)/var(--lh-title) var(--font-ui); letter-spacing: -.008em; }
+.t-headline { font: var(--fw-semibold) var(--fs-17)/var(--lh-body) var(--font-ui); letter-spacing: 0; }
+.t-body { font: var(--fw-regular) var(--fs-15)/var(--lh-body) var(--font-ui); letter-spacing: 0; }
+.t-callout { font: var(--fw-medium) var(--fs-14)/var(--lh-body) var(--font-ui); letter-spacing: .004em; }
+.t-subhead { font: var(--fw-regular) var(--fs-13)/var(--lh-body) var(--font-ui); letter-spacing: .004em; }
+.t-footnote { font: var(--fw-regular) var(--fs-12)/var(--lh-body) var(--font-ui); color: var(--text-secondary); }
+.t-caption { font: var(--fw-medium) var(--fs-11)/var(--lh-body) var(--font-ui); letter-spacing: .012em; color: var(--text-muted); }
+.t-numeric { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; letter-spacing: 0; }
+/* caps only in two branded places: Recap kicker, PRO badge (§2.8) */
+.t-eyebrow { font: var(--fw-bold) var(--fs-11) var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); }
+.t-badge { font: var(--fw-bold) 10px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+
+/* plates (§3.2, §3.12, §4.13, §4.14). The light leak lives on ::after —
+   ::before is the 44 px hit area on buttons. */
+.plate-dark, .plate-light { position: relative; isolation: isolate; transition: transform 200ms var(--ease-out), box-shadow 200ms var(--ease-out), background-color 320ms var(--ease-out), color 320ms var(--ease-out); }
+.plate-dark { background: var(--plate-dark); color: var(--plate-dark-ink); border-radius: var(--r-lg); overflow: hidden; }
+.plate-dark::after { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--plate-dark-glow); pointer-events: none; animation: leakDrift 14s ease-in-out infinite; }
+.plate-light { background: var(--plate-light); color: var(--plate-light-ink); border-radius: var(--r-xl); box-shadow: var(--shadow-plate-light); overflow: hidden; }
+.plate-light::after { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--plate-light-glow); pointer-events: none; }
+@keyframes leakDrift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(2%, 1%); } }
+@media (hover: hover) and (min-width: 1024px) {
+  .plate-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .plate-light.plate-lift:hover { box-shadow: var(--shadow-plate-light), var(--shadow-md); }
+}
+.plate-lift:active { transform: scale(.995); transition-duration: 80ms; }
+/* a plate switching on / off (habit done, focus running) (§4.12) */
+@keyframes plateOn { 0% { transform: scale(.995); } 40% { transform: scale(1.01); } 100% { transform: scale(1); } }
+.plate-light[data-just-on='true'] { animation: plateOn 480ms var(--ease-out-strong); }
+
+/* vertical labels (§3.7): beside a plate on wide screens, hidden under 480 px */
+.v-label { writing-mode: vertical-rl; transform: rotate(180deg); font: var(--fw-bold) 11px var(--font-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; user-select: none; opacity: .7; animation: vLabelIn 400ms var(--ease-out) 150ms both; }
+@keyframes vLabelIn { from { opacity: 0; } to { opacity: .7; } }
+.v-row { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 12px; align-items: start; }
+.v-row > .v-label { align-self: stretch; text-align: right; }
+@media (max-width: 479px) { .v-row { grid-template-columns: minmax(0, 1fr); } .v-row > .v-label { display: none; } }
+
+/* small category chips over a title (§3.8) */
+.tag-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: var(--r-pill); background: var(--surface-2); color: var(--text-secondary); font: var(--fw-medium) 12px var(--font-ui); letter-spacing: 0; white-space: nowrap; }
+.tag-chip > .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+.plate-light .tag-chip { background: var(--plate-light-chip-bg); color: var(--plate-light-chip-ink); }
+
+/* status readouts: mono, «·»-separated (§3.10) */
+.readout { font: var(--fw-medium) 12px var(--font-mono); letter-spacing: 0; color: var(--text-muted); display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0 6px; font-variant-numeric: tabular-nums; }
+.readout .sep { opacity: .5; }
+.plate-light .readout { color: var(--plate-light-secondary); }
+
+/* overlapping circles (§3.9) */
+.avatar-stack { display: flex; align-items: center; }
+.avatar-stack > span { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: var(--fw-semibold) 11px var(--font-ui); color: #0A0D12; margin-left: -8px; box-shadow: 0 0 0 2px var(--plate-dark); }
+.avatar-stack > span:first-child { margin-left: 0; }
+
+/* orchestrated screen entry (§4.2): children rise one after another, once on mount */
+@keyframes screenRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes plateLightIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: none; } }
+[data-screen-enter] > * { animation: screenRise var(--dur-enter) var(--ease-out-strong) both; }
+[data-screen-enter] > *:nth-child(1) { animation-delay: 0ms; }
+[data-screen-enter] > *:nth-child(2) { animation-delay: 80ms; }
+[data-screen-enter] > *:nth-child(3) { animation-delay: 160ms; }
+[data-screen-enter] > *:nth-child(4) { animation-delay: 260ms; }
+[data-screen-enter] > *:nth-child(5) { animation-delay: 340ms; }
+[data-screen-enter] > *:nth-child(6) { animation-delay: 420ms; }
+[data-screen-enter] > *:nth-child(7) { animation-delay: 500ms; }
+[data-screen-enter] > *:nth-child(n+8) { animation-delay: 580ms; }
+
+/* collapsible content (§4.7) */
+.collapsible { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows var(--dur-base) var(--ease-out-strong), opacity var(--dur-base) var(--ease-out); }
+.collapsible[data-open='true'] { grid-template-rows: 1fr; opacity: 1; }
+.collapsible > * { min-height: 0; overflow: hidden; }
+
+/* buttons (§16.1) */
+.btn-primary, .btn-secondary, .btn-danger, .btn-plate { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 20px; border-radius: var(--r-pill); border: none; font: var(--fw-semibold) var(--fs-15) var(--font-ui); letter-spacing: 0; cursor: pointer; transition: background-color var(--dur-fast), transform var(--dur-micro), border-color var(--dur-fast); white-space: nowrap; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { background: var(--accent-press); transform: scale(.98); }
+.btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--line-strong); }
+.btn-secondary:hover { background: var(--surface-1); border-color: var(--line-contrast); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-plate { background: #0A0D12; color: #F2F4F7; }  /* black pill on a light plate */
+.btn-plate:active, .btn-secondary:active, .btn-danger:active { transform: scale(.98); }
+.btn-sm { height: 36px; padding: 0 14px; font-size: var(--fs-13); }
+:is(.btn-primary, .btn-secondary, .btn-danger, .btn-plate):disabled { opacity: .45; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-screen-enter] > *, .v-label, .plate-dark::after, .plate-light[data-just-on='true'] { animation: none !important; opacity: 1; }
+}
+
+/* the floating dock covers the bottom of every mobile screen: scroll areas get room under their content */
+[data-dock] [data-scroll]::after { content: ''; display: block; flex: none; height: calc(96px + var(--safe-bottom)); }

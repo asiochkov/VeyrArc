@@ -20,11 +20,11 @@ export function CrashScreen() {
         minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, textAlign: 'center',
         padding: 'calc(24px + var(--safe-top)) 24px calc(24px + var(--safe-bottom))', background: 'var(--bg)', color: 'var(--text)',
       }}>
-        <div style={{ font: '700 10px var(--font-mono)', letterSpacing: '.24em', color: 'var(--text-muted)' }}>VEYRARC</div>
-        <div style={{ font: '800 22px var(--font-ui)' }}>{translate(lang, 'common.crashTitle')}</div>
-        <div style={{ font: '400 14px/1.5 var(--font-ui)', color: 'var(--text-secondary)', maxWidth: 320 }}>{translate(lang, 'common.crashBody')}</div>
+        <div style={{ font: 'var(--fw-bold) 10px var(--font-mono)', letterSpacing: '.24em', color: 'var(--text-muted)' }}>VEYRARC</div>
+        <div style={{ font: 'var(--fw-heavy) 22px var(--font-ui)' }}>{translate(lang, 'common.crashTitle')}</div>
+        <div style={{ font: 'var(--fw-regular) 14px/1.5 var(--font-ui)', color: 'var(--text-secondary)', maxWidth: 320 }}>{translate(lang, 'common.crashBody')}</div>
         <button type="button" onClick={() => location.reload()}
-          style={{ marginTop: 8, minHeight: 48, padding: '0 28px', borderRadius: 999, border: 'none', background: 'var(--accent)', color: 'var(--ink)', font: '700 14px var(--font-ui)', cursor: 'pointer' }}>
+          style={{ marginTop: 8, minHeight: 48, padding: '0 28px', borderRadius: 999, border: 'none', background: 'var(--accent)', color: 'var(--ink)', font: 'var(--fw-bold) 14px var(--font-ui)', cursor: 'pointer' }}>
           {translate(lang, 'common.reload')}
         </button>
       </div>

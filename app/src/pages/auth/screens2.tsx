@@ -115,7 +115,7 @@ export function Onboarding() {
                     <div key={id} className={s.dirCard} data-open={open}>
                       <button type="button" className={s.dirHead} onClick={() => setFocus(open ? null : id)}>
                         <span className={s.dirIcon}><Icon name={DIR_ICONS[id]} size={18} sw={1.8} /></span>
-                        <span style={{ flex: 1, minWidth: 0, font: '700 15px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t(`auth.dirs.${id}`)}</span>
+                        <span style={{ flex: 1, minWidth: 0, font: 'var(--fw-bold) 15px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t(`auth.dirs.${id}`)}</span>
                         {cnt > 0 && <span className={s.dirCount}>{cnt}</span>}
                         <span style={{ display: 'grid', color: 'rgba(232,237,243,.54)', transition: 'transform .2s', transform: `rotate(${open ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
                       </button>
@@ -145,15 +145,15 @@ export function Onboarding() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginTop: 20 }}>
                 {TIME_OPTS.map(([tm, sub]) => (
                   <button key={tm} type="button" className={s.timeOpt} aria-pressed={time === tm} onClick={() => setTime(tm)}>
-                    <span style={{ display: 'block', font: '700 16px var(--font-mono)' }}>{tm}</span>
-                    <span style={{ display: 'block', font: '600 11px var(--font-ui)', marginTop: 4, opacity: 0.6 }}>{t(`auth.timeSubs.${sub}`)}</span>
+                    <span style={{ display: 'block', font: 'var(--fw-bold) 15px var(--font-mono)' }}>{tm}</span>
+                    <span style={{ display: 'block', font: 'var(--fw-semibold) 11px var(--font-ui)', marginTop: 4, opacity: 0.6 }}>{t(`auth.timeSubs.${sub}`)}</span>
                   </button>
                 ))}
               </div>
               <div className={s.permCard}>
                 <span className={s.iconTile}><Icon name="bellAuth" size={20} sw={1.8} /></span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ font: '700 14.5px var(--font-ui)' }}>{t('auth.notifications')}</div>
+                  <div style={{ font: 'var(--fw-bold) 15px var(--font-ui)' }}>{t('auth.notifications')}</div>
                   <div className={s.small} style={{ marginTop: 3 }}>{perm ? t('auth.permOn', { t: time }) : t('auth.permOff')}</div>
                 </div>
                 {perm ? (
@@ -216,8 +216,8 @@ export function DayOne() {
     <AuthLayout screen="final">
       {({ dir, isDesktop }) => (
         <div className={dir > 0 ? s.screenL : s.screenR} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: isDesktop ? 560 : 640 }}>
-          <div style={{ font: '800 50px/1.04 var(--font-ui)', letterSpacing: '-.03em', ...up(1) }}>{t('auth.day1')}</div>
-          <div style={{ font: '800 50px/1.04 var(--font-ui)', letterSpacing: '-.03em', color: '#A8CBEF', ...up(2) }}>{t('auth.ready')}</div>
+          <div style={{ font: 'var(--fw-heavy) 50px/1.04 var(--font-ui)', letterSpacing: '-.03em', ...up(1) }}>{t('auth.day1')}</div>
+          <div style={{ font: 'var(--fw-heavy) 50px/1.04 var(--font-ui)', letterSpacing: '-.03em', color: '#A8CBEF', ...up(2) }}>{t('auth.ready')}</div>
           <div style={{ position: 'relative', width: 156, height: 156, marginTop: 46, ...up(3) }}>
             <svg width="156" height="156" viewBox="0 0 156 156" style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}>
               <circle cx="78" cy="78" r="74" fill="none" stroke="rgba(168,203,239,.12)" strokeWidth="4" />
@@ -227,7 +227,7 @@ export function DayOne() {
               type="button" onPointerDown={holdStart} onPointerUp={holdEnd} onPointerLeave={holdEnd} onPointerCancel={holdEnd} onContextMenu={(e) => e.preventDefault()}
               style={{
                 position: 'absolute', inset: 12, borderRadius: '50%', border: 'none', cursor: 'pointer', touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none',
-                font: '800 17px var(--font-ui)', transition: 'transform .15s, background-color .3s', transform: `scale(${holdP > 0 && !celebrate ? 0.94 : 1})`,
+                font: 'var(--fw-heavy) 17px var(--font-ui)', transition: 'transform .15s, background-color .3s', transform: `scale(${holdP > 0 && !celebrate ? 0.94 : 1})`,
                 background: celebrate ? '#5FBF9B' : '#F3F6FA', color: celebrate ? '#fff' : '#06121f', boxShadow: '0 14px 40px rgba(111,160,214,.25)',
               }}
             >{t('auth.imIn')}</button>
@@ -290,9 +290,9 @@ export function Account() {
                 {profile?.avatar_url ? <PhotoImg src={profile.avatar_url} /> : initials}
               </button>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ font: '800 20px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? [f.first, f.last].filter(Boolean).join(' ') : (f.pname || f.first || 'Анна') + ' ' + (f.last || 'Петрова')}</div>
-                <div className={s.muted} style={{ font: '600 13px var(--font-ui)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? (f.nick ? '@' + f.nick : '') : '@' + (f.nick || 'anna.arc')}</div>
-                <div className={s.faint} style={{ font: '500 12.5px var(--font-ui)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? f.email : f.email || 'anna.petrova@gmail.com'}</div>
+                <div style={{ font: 'var(--fw-heavy) 20px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? [f.first, f.last].filter(Boolean).join(' ') : (f.pname || f.first || 'Анна') + ' ' + (f.last || 'Петрова')}</div>
+                <div className={s.muted} style={{ font: 'var(--fw-semibold) 13px var(--font-ui)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? (f.nick ? '@' + f.nick : '') : '@' + (f.nick || 'anna.arc')}</div>
+                <div className={s.faint} style={{ font: 'var(--fw-medium) 13px var(--font-ui)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hasBackend ? f.email : f.email || 'anna.petrova@gmail.com'}</div>
               </div>
             </div>
             <div className={s.arcPill}>
@@ -311,8 +311,8 @@ export function Account() {
             <div className={s.upsell} style={up(3)}>
               <span className={s.upsellIcon}><Icon name="lock" size={20} sw={1.8} /></span>
               <div style={{ flex: '1 1 calc(100% - 56px)', minWidth: 0 }}>
-                <div style={{ font: '800 15px var(--font-ui)', color: '#f2e2c4' }}>{t('auth.upsellTitle')}</div>
-                <div style={{ font: '500 12.5px/1.45 var(--font-ui)', color: 'rgba(232,237,243,.58)', marginTop: 3 }}>{t('auth.upsellSub')}</div>
+                <div style={{ font: 'var(--fw-heavy) 15px var(--font-ui)', color: '#f2e2c4' }}>{t('auth.upsellTitle')}</div>
+                <div style={{ font: 'var(--fw-medium) 13px/1.45 var(--font-ui)', color: 'rgba(232,237,243,.58)', marginTop: 3 }}>{t('auth.upsellSub')}</div>
               </div>
               <Link to="/pro" className={s.goldBtn}>{t('auth.openPro')}</Link>
             </div>
@@ -332,7 +332,7 @@ export function Account() {
                 {config.auth.apple && (
                   <div className={s.subRow}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}><Icon name="apple" size={18} /><span>Apple</span></span>
-                    <button type="button" onClick={() => setAppleLinked(!appleLinked)} style={{ height: 34, padding: '0 14px', borderRadius: 10, cursor: 'pointer', font: '700 12px var(--font-ui)', ...(appleLinked ? { background: 'transparent', border: '1px solid rgba(168,203,239,.12)', color: 'rgba(232,237,243,.58)' } : { background: '#6FA0D6', border: 'none', color: '#06121f' }) }}>
+                    <button type="button" onClick={() => setAppleLinked(!appleLinked)} style={{ height: 34, padding: '0 14px', borderRadius: 10, cursor: 'pointer', font: 'var(--fw-bold) 12px var(--font-ui)', ...(appleLinked ? { background: 'transparent', border: '1px solid rgba(168,203,239,.12)', color: 'rgba(232,237,243,.58)' } : { background: '#6FA0D6', border: 'none', color: '#06121f' }) }}>
                       {appleLinked ? t('auth.unlink') : t('auth.link')}
                     </button>
                   </div>

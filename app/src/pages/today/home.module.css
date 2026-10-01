@@ -1,0 +1,123 @@
+/* Today in the style of the Nothing home dashboard: a tight two-column grid of rounded tiles,
+   thin type, icons in round buttons, a tile turns light when its thing is «on». */
+
+.page { display: flex; flex-direction: column; gap: 18px; padding: 6px 10px 16px; max-width: 920px; margin: 0 auto; }
+@media (min-width: 720px) { .page { padding: 20px 20px 48px; gap: 22px; } }
+
+/* ---- greeting ---- */
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 8px 0; animation: rise 520ms var(--ease-out-strong) both; }
+.hello { margin: 0; font: var(--fw-regular) 38px/1.04 var(--font-ui); letter-spacing: -.035em; color: var(--text-strong); font-variation-settings: 'opsz' 32; }
+@media (min-width: 720px) { .hello { font-size: 48px; } }
+.headSide { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; }
+.headBtns { display: flex; gap: 8px; margin-bottom: 10px; }
+.roundBtn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #17181C; color: var(--text); display: grid; place-items: center; cursor: pointer; transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast); }
+.roundBtn:active { transform: scale(.92); }
+.headMeta { font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.55); white-space: nowrap; }
+
+/* ---- «rooms» tabs with superscript counts ---- */
+.tabs { display: flex; gap: 18px; overflow-x: auto; padding: 0 8px; scroll-snap-type: x proximity; animation: rise 520ms var(--ease-out-strong) 60ms both; }
+.tab { flex: none; padding: 6px 0; border: none; background: none; color: rgba(232,237,243,.38); font: var(--fw-regular) 15px var(--font-ui); letter-spacing: -.01em; cursor: pointer; white-space: nowrap; transition: color var(--dur-base) var(--ease-out); }
+.tab:hover { color: rgba(232,237,243,.7); }
+.tab[aria-selected='true'] { color: var(--text-strong); }
+.tab sup { font-size: 10px; margin-left: 2px; opacity: .7; }
+
+/* ---- the grid ---- */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; grid-auto-flow: dense; }
+@media (min-width: 720px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; } }
+.wide { grid-column: span 2; }
+
+/* ---- tile ---- */
+.tile {
+  position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
+  min-height: 176px; padding: 14px; border: none; border-radius: 30px; background: #141519; color: var(--text);
+  text-align: left; font-family: var(--font-ui); text-decoration: none; overflow: hidden;
+  animation: tileIn 560ms var(--ease-out-strong) both; animation-delay: calc(var(--i, 0) * 45ms + 100ms);
+  transition: background-color 420ms var(--ease-out-strong), color 420ms var(--ease-out-strong), transform 180ms var(--ease-out);
+}
+a.tile, a.tile:hover { color: var(--text); }
+button.tile, a.tile { cursor: pointer; }
+button.tile:active, a.tile:active { transform: scale(.97); }
+@keyframes tileIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.wide.tile { min-height: 150px; }
+
+/* light («on») and pale variants */
+.tileLight { background: #F3F4F6; color: #0B0C0E; }
+.tilePale { background: #DCE5EF; color: #0B0C0E; }
+.tileMint { background: #CFE6D8; color: #0B0C0E; }
+.tile[data-just-on='true'] { animation: tileIn 560ms var(--ease-out-strong) both, switchOn 520ms var(--ease-out-strong); animation-delay: calc(var(--i, 0) * 45ms + 100ms), 0ms; }
+@keyframes switchOn { 0% { transform: scale(.96); } 55% { transform: scale(1.015); } 100% { transform: scale(1); } }
+
+.tileTop { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.tileText { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 0 4px 2px; border: none; background: none; color: inherit; text-align: left; font: inherit; cursor: inherit; }
+.tileName { font: var(--fw-regular) 17px/1.2 var(--font-ui); letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.tileName2 { font: var(--fw-regular) 19px/1.18 var(--font-ui); letter-spacing: -.025em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.tileSub { font: var(--fw-regular) 11.5px/1.35 var(--font-ui); color: rgba(232,237,243,.5); letter-spacing: .005em; }
+.tileLight .tileSub, .tilePale .tileSub, .tileMint .tileSub { color: rgba(11,12,14,.55); }
+.swap { animation: swap 420ms var(--ease-out-strong); }
+@keyframes swap { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* round buttons / icon holders */
+.circle { flex: none; width: 46px; height: 46px; border-radius: 50%; border: none; background: #212227; color: var(--text); display: grid; place-items: center; cursor: pointer; transition: transform var(--dur-fast) var(--ease-out), background-color 420ms var(--ease-out-strong), color 420ms var(--ease-out-strong); }
+span.circle { cursor: inherit; }
+button.circle:active, a.circle:active { transform: scale(.9); }
+button.circle:disabled { opacity: .35; cursor: default; }
+.tileLight .circle, .tilePale .circle, .tileMint .circle { background: #E3E5E9; color: #0B0C0E; }
+.circleWhite, .tilePale .circleWhite, .tileMint .circleWhite { background: #fff; color: #0B0C0E; }
+.circleInk, .tileLight .circleInk { background: #0B0C0E; color: #F3F4F6; }
+.circleAccent { background: #DCE5EF; color: #0B0C0E; }
+.stepCol { display: flex; flex-direction: column; gap: 6px; }
+.stepCol .circle { width: 40px; height: 40px; }
+.coreDot { width: 6px; height: 6px; margin: 8px 8px 0 0; border-radius: 50%; background: var(--accent); }
+.tileLight .coreDot { background: #0B0C0E; }
+
+.ring { color: #0B0C0E; transform: rotate(-90deg); }
+.ring circle:last-child { transition: stroke-dashoffset 900ms var(--ease-out-strong); }
+.bigNum { font: var(--fw-light) 48px/1 var(--font-ui); letter-spacing: -.05em; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+.clock { font: var(--fw-light) 34px/1 var(--font-ui); letter-spacing: -.04em; font-variant-numeric: tabular-nums; margin-bottom: 4px; transform: translateZ(0); }
+
+/* arc: overlapping day circles (Family-style) */
+.dayStack { display: flex; align-items: center; padding-left: 2px; }
+.dayStack > span { width: 40px; height: 40px; margin-left: -9px; border-radius: 50%; display: grid; place-items: center; font: var(--fw-medium) 11px var(--font-ui); color: #0B0C0E; box-shadow: 0 0 0 3px #141519; position: relative; animation: pop 460ms var(--ease-spring) both; animation-delay: calc(var(--i, 0) * 45ms + 260ms); }
+.dayStack > span:first-child { margin-left: 0; }
+.dayStack > span[data-dark='true'] { color: rgba(232,237,243,.6); }
+.dayStack > span[data-today='true'] { outline: 1.5px solid var(--text-strong); outline-offset: 2px; }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.arcBar { display: block; height: 3px; margin-top: 8px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; }
+.arcBar > i { display: block; height: 100%; background: var(--text-strong); border-radius: 3px; transform-origin: left; animation: grow 900ms var(--ease-out-strong) 300ms both; }
+@keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
+.inlineBtn { padding: 0; border: none; background: none; color: inherit; font: inherit; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(232,237,243,.25); text-underline-offset: 3px; }
+
+/* mood faces */
+.moods { display: flex; justify-content: space-between; gap: 8px; }
+.mood { flex: 0 0 auto; width: 52px; height: 52px; padding: 0; border-radius: 50%; border: none; background: #212227; display: grid; place-items: center; cursor: pointer; transition: transform 320ms var(--ease-spring), opacity var(--dur-fast), background-color 320ms var(--ease-out); }
+.mood svg { width: 26px; height: 26px; }
+.moods[data-picked='true'] .mood { opacity: .4; }
+.moods[data-picked='true'] .mood[aria-pressed='true'] { opacity: 1; background: #F6DE6E; transform: scale(1.12); }
+.mood:active { transform: scale(.9); }
+
+/* plan */
+.events { display: flex; flex-direction: column; gap: 2px; margin-top: -4px; }
+.event { display: flex; align-items: center; gap: 12px; min-height: 30px; padding: 0 4px; color: var(--text); border-radius: 10px; }
+.event:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.event[data-done='true'] { opacity: .45; }
+.evTime { flex: none; display: inline-flex; align-items: center; gap: 6px; width: 54px; font: var(--fw-regular) 12px var(--font-ui); color: rgba(232,237,243,.5); font-variant-numeric: tabular-nums; }
+.evTime > i { width: 6px; height: 6px; border-radius: 50%; background: var(--now); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.4); opacity: .6; } }
+.event[data-now='true'] .evTitle { color: var(--text-strong); }
+.evTitle { font: var(--fw-regular) 14px var(--font-ui); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* stats */
+.statsTile { flex-direction: row; justify-content: space-between; align-items: flex-end; min-height: 0; }
+.statCell { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.statCell .circle { width: 40px; height: 40px; margin-bottom: 10px; }
+.statNum { font: var(--fw-light) 26px/1 var(--font-ui); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+
+/* pill button on a light tile */
+.pillInk { align-self: flex-start; height: 40px; padding: 0 18px; margin-top: 8px; border-radius: var(--r-pill); border: none; background: #0B0C0E; color: #F3F4F6; font: var(--fw-medium) 14px var(--font-ui); cursor: pointer; }
+.pillInk:active { transform: scale(.96); }
+.addTile { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tile, .head, .tabs, .dayStack > span, .arcBar > i, .swap, .tile[data-just-on='true'] { animation: none !important; }
+}

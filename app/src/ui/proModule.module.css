@@ -1,11 +1,11 @@
 .card { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 12px; background: var(--surface-1); border: 1px solid var(--line); min-width: 0; }
 .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.title { font: 700 10px var(--font-mono); letter-spacing: .14em; color: var(--text-secondary); text-transform: uppercase; }
-.chip { flex: none; font: 600 10px var(--font-ui); color: var(--pro); padding: 2px 7px; border-radius: 5px; border: 1px solid rgba(200,166,106,.35); }
-.line { font: 400 13px/1.5 var(--font-ui); color: var(--text-secondary); }
-.btn { align-self: flex-start; min-height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--text); font: 600 12px var(--font-ui); cursor: pointer; }
-.demoNote { font: 600 10px var(--font-mono); letter-spacing: .12em; color: var(--text-muted); text-transform: uppercase; }
+.title { font: var(--fw-bold) 10px var(--font-mono); letter-spacing: .14em; color: var(--text-secondary); text-transform: uppercase; }
+.chip { flex: none; font: var(--fw-semibold) 10px var(--font-ui); color: var(--pro); padding: 2px 7px; border-radius: 5px; border: 1px solid rgba(200,166,106,.35); }
+.line { font: var(--fw-regular) 13px/1.5 var(--font-ui); color: var(--text-secondary); }
+.btn { align-self: flex-start; min-height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--text); font: var(--fw-semibold) 12px var(--font-ui); cursor: pointer; }
+.demoNote { font: var(--fw-semibold) 10px var(--font-mono); letter-spacing: .12em; color: var(--text-muted); text-transform: uppercase; }
 .demo { margin: 12px 0; padding: 14px; border-radius: 10px; background: var(--w-04); }
-.demoLine { font: 400 13px/1.5 var(--font-ui); color: var(--text-secondary); }
-.upgrade { display: grid; place-items: center; margin-top: 16px; min-height: 44px; border-radius: 8px; background: var(--pro); color: #1c1407; font: 700 14px var(--font-ui); }
+.demoLine { font: var(--fw-regular) 13px/1.5 var(--font-ui); color: var(--text-secondary); }
+.upgrade { display: grid; place-items: center; margin-top: 16px; min-height: 44px; border-radius: 8px; background: var(--pro); color: #1c1407; font: var(--fw-bold) 14px var(--font-ui); }
 .upgrade:hover { color: #1c1407; }

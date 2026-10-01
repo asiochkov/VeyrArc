@@ -48,7 +48,7 @@ export function AppShell({ chrome }: { chrome: Chrome }) {
         <div className={s.desktop}>
           <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
           <main className={s.desktopMain}>
-            <Outlet />
+            <RouteFade />
           </main>
         </div>
         {overlays}
@@ -57,10 +57,10 @@ export function AppShell({ chrome }: { chrome: Chrome }) {
   }
 
   return (
-    <div className={rootCls} data-layout="mobile">
+    <div className={rootCls} data-layout="mobile" data-dock={chrome === "app" ? "" : undefined}>
       <div className={s.mobile}>
         <main className={s.mobileMain}>
-          <Outlet />
+          <RouteFade />
         </main>
         {chrome === 'app' && <BottomBar />}
       </div>
@@ -96,4 +96,10 @@ function useShortcuts(on: boolean, toggleSidebar: () => void) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [on, navigate, pathname, toggleSidebar]);
+}
+
+/* A soft cross-fade with a small rise when the section changes (not on query/param changes inside it). */
+function RouteFade() {
+  const { pathname } = useLocation();
+  return <div key={pathname.split('/')[1] || 'today'} className={s.routeFade}><Outlet /></div>;
 }

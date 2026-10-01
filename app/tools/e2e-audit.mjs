@@ -8,7 +8,7 @@ try {
   const uid = sql('select id from auth.users order by created_at desc limit 1');
   sql(`update quits set clean_since = now() - interval '12 days', best_days = 20 where user_id='${uid}'`);
   await page.goto(APP + '/disciplines');
-  await page.getByRole('button', { name: 'Отказы' }).click();
+  await page.getByRole('tab', { name: /Отказы/ }).click();
   await page.getByRole('button', { name: 'Отметить срыв' }).click();
   const body = await page.locator('[role="dialog"]').innerText();
   log('dialog:', body.replace(/\n+/g, ' | ').slice(0, 160));
@@ -22,7 +22,7 @@ try {
   log('after undo:', sql(`select extract(day from now()-clean_since)::int || ' days, best ' || best_days from quits where user_id='${uid}'`), '| relapses:', sql(`select count(*) from quit_relapses where user_id='${uid}'`));
 
   // undo archiving a habit
-  await page.getByRole('button', { name: 'Активные' }).click();
+  await page.getByRole('tab', { name: /Активные/ }).click();
   await page.getByRole('button', { name: /Холодный душ/ }).first().click();
   await page.getByRole('button', { name: 'В архив' }).click();
   await page.getByText('«Холодный душ» в архиве').waitFor();

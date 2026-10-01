@@ -33,7 +33,8 @@ export function useToday() {
     const view = buildToday({ ...raw, day }, { initials: hd.initials, freezesAllowed });
     const arc = activeArc(sys);
     const core = new Set(sys.habits.filter((h) => h.core).map((h) => h.id));
-    const habits = view.habits.map((h) => ({ ...h, core: core.has(h.id) }));
+    const hues = new Map(sys.habits.map((h) => [h.id, h.hue]));
+    const habits = view.habits.map((h) => ({ ...h, core: core.has(h.id), hue: hues.get(h.id) }));
     const idx = { habits: raw.habits, logs: sys.logs, days: sys.days, focus: sys.focus, goals: sys.goals, tasks: sys.tasks, entries: sys.entries };
     const score = todayScore(idx, day, arc?.started_on ?? null);
     const d = new Date(now);

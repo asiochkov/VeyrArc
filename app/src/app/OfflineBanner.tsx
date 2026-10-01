@@ -27,11 +27,11 @@ export function OfflineBanner() {
       position: 'fixed', top: 'calc(12px + var(--safe-top))', left: '50%', transform: 'translateX(-50%)', zIndex: 'var(--z-banner)' as never,
       display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px 10px 16px', borderRadius: 14, maxWidth: 'calc(100vw - 32px)',
       background: 'rgba(13,17,22,.96)', border: '1px solid rgba(232,165,75,.45)', boxShadow: '0 10px 30px rgba(0,0,0,.5)',
-      font: '600 13px var(--font-ui)', color: 'var(--text)',
+      font: 'var(--fw-semibold) 13px var(--font-ui)', color: 'var(--text)',
     }}>
       <span>{online ? t('common.offline') : t('common.noNetwork')}{pending > 0 && <> · {t('common.pending', { n: pending })}</>}</span>
       <button type="button" onClick={() => { void flushQueue(); void qc.refetchQueries({ type: 'active' }); }}
-        style={{ height: 32, padding: '0 12px', borderRadius: 10, border: 'none', background: 'var(--accent)', color: 'var(--ink)', font: '700 12px var(--font-ui)', cursor: 'pointer', flex: 'none' }}>
+        style={{ height: 32, padding: '0 12px', borderRadius: 10, border: 'none', background: 'var(--accent)', color: 'var(--ink)', font: 'var(--fw-bold) 12px var(--font-ui)', cursor: 'pointer', flex: 'none' }}>
         {t('common.retry')}
       </button>
     </div>

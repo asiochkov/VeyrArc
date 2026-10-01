@@ -10,9 +10,9 @@ try {
   await page.goto(APP + '/disciplines');
   await page.locator('#disc-composer').fill('Шестая');
   await page.locator('#disc-composer').press('Enter');
-  await page.locator('[data-tour="disc-extra"]').getByText('Шестая').waitFor(); log('6th habit goes to Extra (Extra is unlimited)');
+  await page.locator('[data-zone="extra"]').getByText('Шестая').waitFor(); log('6th habit goes to Extra (Extra is unlimited)');
   await page.waitForTimeout(800);
-  await page.locator('[data-tour="disc-extra"]').getByRole('button', { name: /Шестая/ }).click();
+  await page.locator('[data-zone="extra"]').getByRole('button', { name: /Шестая/ }).click();
   await page.getByRole('button', { name: 'В Core' }).click();
   await page.getByText('Core — до 5 привычек').waitFor(); log('6th Core on Free → limit dialog');
   let dbErr = '';

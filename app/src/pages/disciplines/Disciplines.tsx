@@ -9,7 +9,6 @@ import { useT, type T } from '../../i18n';
 import { isProPlan, useAuth } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { hasBackend } from '../../lib/supabase';
-import { useIsDesktop } from '../../lib/useIsDesktop';
 import { HABIT_PALETTE, type TrackerHabit } from '../../mock/tracker';
 import { addQuit, archiveHabit, archiveQuit, createHabit, deleteHabit, logRelapse, reorderHabits, restoreHabit, restoreQuit, updateHabit, updateQuit } from '../../state/actions';
 import { trackerRawOf, useSystem, type SystemRaw } from '../../state/system';
@@ -17,9 +16,10 @@ import { Icon } from '../../ui/Icon';
 import { useAutoTour } from '../../ui/Tour';
 import { EmptyState } from '../../ui/EmptyState';
 import { PageState } from '../../ui/PageState';
-import { ConfirmDialog, Segmented } from '../../ui/primitives';
+import { ConfirmDialog } from '../../ui/primitives';
 import { toast } from '../../ui/toast';
-import { RefusalCard } from '../tracker/cards';
+import { QuitTile } from './QuitTile';
+import { Sheet } from '../../ui/Sheet';
 import { defaultQuitDraft, QuitOptions, sinceIso, type QuitDraft } from '../tracker/ComposerOptions';
 import d from './disciplines.module.css';
 import { HabitSetup } from './HabitSetup';
@@ -44,12 +44,17 @@ export function Disciplines() {
   useAutoTour('disciplines', !!data && tab === 'active');
   if (!data) return <PageState variant="list" error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
   const coreN = data.raw.habits.filter((h) => h.core && !h.archived_at).length;
+  const quitsN = data.refusals.length;
+  const archN = data.raw.habits.filter((h) => h.archived_at).length;
   return (
     <div className={d.scroll} data-scroll>
-      <div className={d.page}>
-        <AppHeader title={t('nav.disciplines')} right={<span className={d.coreChip}>CORE {coreN}/{coreLimit === Infinity ? '∞' : coreLimit}</span>} />
-        <Segmented variant="tracker" value={tab} onChange={setTab}
-          options={[{ id: 'active', label: t('disc.tabs.active') }, { id: 'quits', label: t('disc.tabs.quits') }, { id: 'archive', label: t('disc.tabs.archive') }]} />
+      <div className="pg">
+        <AppHeader title={t('nav.disciplines')} sub={<span className={d.headSub}>{t('disc.coreSlots', { n: coreN, m: coreLimit === Infinity ? '∞' : coreLimit })}</span>} />
+        <div className="tabs" role="tablist">
+          {([['active', t('disc.tabs.active'), data.habits.length], ['quits', t('disc.tabs.quits'), quitsN], ['archive', t('disc.tabs.archive'), archN]] as [Tab, string, number][]).map(([id, label, n]) => (
+            <button key={id} type="button" role="tab" className="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}<sup>{n}</sup></button>
+          ))}
+        </div>
         {tab === 'active' && <ActiveTab t={t} habits={data.habits} sys={data.raw} coreLimit={coreLimit} />}
         {tab === 'quits' && <QuitsTab t={t} data={data} />}
         {tab === 'archive' && <ArchiveTab t={t} sys={data.raw} />}
@@ -63,7 +68,6 @@ export function Disciplines() {
 function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]; sys: SystemRaw; coreLimit: number }) {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
-  const desktop = useIsDesktop();
   const open = params.get('open');
   const setupId = params.get('setup');
   const setParam = (k: string, v: string | null) => setParams((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
@@ -98,41 +102,29 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
   const detail = habits.find((h) => h.id === open) ?? null;
   const setupHabit = rowsDb.find((h) => h.id === setupId) ?? null;
 
-  const list = (items: TrackerHabit[]) => items.map((h) => (
-    <HabitLine key={h.id} t={t} h={h} db={rowsDb.find((x) => x.id === h.id)!} open={open === h.id}
-      onOpen={() => setParam('open', open === h.id ? null : h.id)}
-      expanded={!desktop && open === h.id ? <HabitDetail t={t} h={h} core={isCore(h.id)} onSetup={() => setParam('setup', h.id)} onCore={() => toggleCore(h.id)} onArchive={() => archive(h.id)} onMove={(dir) => move(h.id, dir)} onToday={() => navigate('/')} /> : null} />
+  let i = 0;
+  const cards = (items: TrackerHabit[]) => items.map((h) => (
+    <HabitCard key={h.id} t={t} h={h} db={rowsDb.find((x) => x.id === h.id)!} core={isCore(h.id)} style={{ '--i': i++ } as React.CSSProperties} onOpen={() => setParam('open', h.id)} />
   ));
 
   return (
-    <div className={d.split} data-detail={desktop && !!detail}>
-      <div className={d.col}>
-        <section className={d.zone} data-tour="disc-core">
-          <div className={d.zoneHead}><span className={d.zoneTitle}>CORE</span><span className={d.zoneMeta}>{t('disc.coreMeta', { n: core.length, m: Math.min(5, coreLimit) })}</span></div>
-          <div className={d.zoneHint}>{t('disc.coreHint')}</div>
-          <div className={d.rows}>
-            {list(core)}
-            {Array.from({ length: Math.min(slots, core.length >= 3 ? 1 : 3 - core.length) }, (_, i) => (
-              <button key={'slot' + i} type="button" className={d.slot} onClick={() => setPicking(true)}><Icon name="plus" size={14} sw={2} />{t('disc.pickCore')}</button>
-            ))}
-          </div>
-        </section>
-        <section className={d.zone} data-tour="disc-extra">
-          <div className={d.zoneHead}><span className={d.zoneTitle}>EXTRA</span><span className={d.zoneMeta}>{extra.length}</span></div>
-          <div className={d.zoneHint}>{t('disc.extraHint')}</div>
-          {extra.length > 0 && <div className={d.rows}>{list(extra)}</div>}
-        </section>
-        <Composer t={t} coreN={core.length} count={sys.habits.length} />
+    <>
+      <div className="caption" data-tour="disc-core"><b>{t('home.core')}</b><span>{t('disc.coreMeta', { n: core.length, m: Math.min(5, coreLimit) })}</span></div>
+      <div className="tl-grid" data-zone="core">
+        {cards(core)}
+        {Array.from({ length: Math.min(slots, core.length >= 3 ? 1 : 3 - core.length) }, (_, k) => (
+          <button key={'slot' + k} type="button" className="tl tl-ghost" style={{ '--i': i++ } as React.CSSProperties} onClick={() => setPicking(true)}>
+            <span className="tl-top"><span className="cb"><Icon name="plus" size={18} sw={1.8} /></span></span>
+            <span className="tl-text"><span className="tl-name">{t('disc.pickCore')}</span><span className="tl-sub">{t('disc.coreHint')}</span></span>
+          </button>
+        ))}
       </div>
-      {desktop && detail && (
-        <aside className={d.side} aria-label={t.pick(detail.name)}>
-          <div className={d.sideHead}>
-            <span className={d.sideTitle}>{t.pick(detail.name)}</span>
-            <button type="button" className={d.iconBtn} onClick={() => setParam('open', null)} aria-label={t('common.close')}><Icon name="close" size={14} sw={2} /></button>
-          </div>
-          <HabitDetail t={t} h={detail} core={isCore(detail.id)} onSetup={() => setParam('setup', detail.id)} onCore={() => toggleCore(detail.id)} onArchive={() => archive(detail.id)} onMove={(dir) => move(detail.id, dir)} onToday={() => navigate('/')} />
-        </aside>
-      )}
+      <div className="caption" data-tour="disc-extra"><b>{t('home.extra')}</b><span>{extra.length ? t('disc.extraHintShort') : t('disc.extraHint')}</span></div>
+      {extra.length > 0 && <div className="tl-grid" data-zone="extra">{cards(extra)}</div>}
+      <Composer t={t} coreN={core.length} count={sys.habits.length} />
+      <Sheet open={!!detail} onClose={() => setParam('open', null)} title={detail ? t.pick(detail.name) : ''}>
+        {detail && <HabitDetail t={t} h={detail} core={isCore(detail.id)} onSetup={() => setParam('setup', detail.id)} onCore={() => toggleCore(detail.id)} onArchive={() => archive(detail.id)} onMove={(dir) => move(detail.id, dir)} onToday={() => navigate('/')} />}
+      </Sheet>
       <HabitSetup habit={setupHabit} onClose={() => setParam('setup', null)} coreLimit={coreLimit} coreN={core.length} onLimit={() => setLimit(true)} />
       <ConfirmDialog open={limit} title={t('disc.limitTitle', { n: coreLimit })} body={t('disc.limitBody', { n: coreLimit })} confirmLabel={t('auth.openPro')} cancelLabel={t('goals.gotIt')}
         onConfirm={() => navigate('/pro')} onCancel={() => setLimit(false)} />
@@ -143,28 +135,27 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
           </span>
         ) : t('disc.pickEmpty')}
         onConfirm={() => { setPicking(false); document.getElementById('disc-composer')?.focus(); }} onCancel={() => setPicking(false)} />
-    </div>
+    </>
   );
 }
 
-function HabitLine({ t, h, db, open, onOpen, expanded }: { t: T; h: TrackerHabit; db: SystemRaw['habits'][number]; open: boolean; onOpen: () => void; expanded: React.ReactNode }) {
+/** A habit as a device tile: icon in a round button, name, schedule, the week as dots, the streak. */
+function HabitCard({ t, h, db, core, style, onOpen }: { t: T; h: TrackerHabit; db: SystemRaw['habits'][number]; core: boolean; style: React.CSSProperties; onOpen: () => void }) {
   const domain = HABIT_DOMAINS[db.category as keyof typeof HABIT_DOMAINS];
+  const hue = domain?.hue ?? h.hue;
+  const doneToday = h.week.includes('today-done');
   return (
-    <div className={d.line} data-open={open}>
-      <button type="button" className={d.lineMain} onClick={onOpen} aria-expanded={open}>
-        <span className={d.lineIcon} style={{ color: domain?.hue ?? h.hue, background: (domain?.hue ?? h.hue) + '1f' }}><Icon name={h.icon} size={16} /></span>
-        <span className={d.lineText}>
-          <span className={d.lineName}>{t.pick(h.name)}</span>
-          <span className={d.lineSub}>{domain ? t(domain.label) : ''} · {daysLabel(t, db.days)}{h.type !== 'binary' ? ' · ' + t.pick(h.cadence) : ''}</span>
-        </span>
-        <span className={d.mini} aria-hidden="true">
-          {h.week.map((w, i) => <i key={i} data-s={w} />)}
-        </span>
-        <span className={d.streak} title={t('disc.streak')}>{h.streak}</span>
-        <span className={d.chev} data-open={open}><Icon name="chevron" size={14} sw={2} /></span>
-      </button>
-      {expanded}
-    </div>
+    <button type="button" className={`tl ${doneToday ? 'tl-light' : ''}`} style={{ ...style, '--hue': hue } as React.CSSProperties} onClick={onOpen}>
+      <span className="tl-top">
+        <span className="cb" style={doneToday ? { background: `color-mix(in srgb, ${hue} 45%, #fff)`, color: '#0B0C0E' } : { color: hue }}><Icon name={h.icon} size={18} sw={1.8} /></span>
+        <span className={d.streakBadge} title={t('disc.streak')}>{h.streak}{core && <i />}</span>
+      </span>
+      <span className="tl-text">
+        <span className="tl-name">{t.pick(h.name)}</span>
+        <span className="tl-sub">{domain ? t(domain.label) : ''} · {daysLabel(t, db.days)}</span>
+        <span className="dots7" style={{ marginTop: 8 }} aria-hidden="true">{h.week.map((w, k) => <i key={k} data-s={w} />)}</span>
+      </span>
+    </button>
   );
 }
 
@@ -182,20 +173,20 @@ function HabitDetail({ t, h, core, onSetup, onCore, onArchive, onMove, onToday }
   return (
     <div className={d.detail}>
       <div className={d.stats}>
-        <div><span className={d.statNum}>{h.rate ?? 0}%</span><span className={d.statLab}>{t('disc.rate')}</span></div>
-        <div><span className={d.statNum}>{h.best}</span><span className={d.statLab}>{t('disc.best')}</span></div>
-        <div><span className={d.statNum}>{h.total}</span><span className={d.statLab}>{t('disc.total')}</span></div>
+        <div><b>{h.rate ?? 0}%</b><span>{t('disc.rate')}</span></div>
+        <div><b>{h.best}</b><span>{t('disc.best')}</span></div>
+        <div><b>{h.total}</b><span>{t('disc.total')}</span></div>
       </div>
       <div className={d.grid} role="img" aria-label={t('disc.gridLabel')}>
-        {(h.grid ?? []).map((c, i) => <i key={i} data-s={c} style={c === 'done' ? { background: h.hue } : undefined} />)}
+        {(h.grid ?? []).map((c, k) => <i key={k} data-s={c} style={c === 'done' ? { background: h.hue } : undefined} />)}
       </div>
       <div className={d.actions}>
-        <button type="button" className={d.btn} onClick={onSetup}><Icon name="tune" size={14} />{t('add.setup')}</button>
-        <button type="button" className={d.btn} data-on={core} onClick={onCore}>{core ? t('disc.toExtra') : t('disc.toCore')}</button>
-        <button type="button" className={d.btn} onClick={onToday}>{t('disc.openToday')}</button>
-        <button type="button" className={d.btn} onClick={() => onMove(-1)} aria-label={t('disc.up')}><Icon name="chevron" size={14} sw={2} style={{ transform: 'rotate(-90deg)' }} /></button>
-        <button type="button" className={d.btn} onClick={() => onMove(1)} aria-label={t('disc.down')}><Icon name="chevron" size={14} sw={2} style={{ transform: 'rotate(90deg)' }} /></button>
-        <button type="button" className={d.btn} data-danger onClick={onArchive}><Icon name="archive" size={14} />{t('disc.archive')}</button>
+        <button type="button" className="pill pill-white" onClick={onSetup}><Icon name="tune" size={16} />{t('add.setup')}</button>
+        <button type="button" className="pill" onClick={onCore}>{core ? t('disc.toExtra') : t('disc.toCore')}</button>
+        <button type="button" className="pill" onClick={onToday}>{t('disc.openToday')}</button>
+        <button type="button" className="cb cb-sm" onClick={() => onMove(-1)} aria-label={t('disc.up')}><Icon name="chevron" size={16} sw={1.8} style={{ transform: 'rotate(-90deg)' }} /></button>
+        <button type="button" className="cb cb-sm" onClick={() => onMove(1)} aria-label={t('disc.down')}><Icon name="chevron" size={16} sw={1.8} style={{ transform: 'rotate(90deg)' }} /></button>
+        <button type="button" className="pill" style={{ color: 'var(--dot-coral)' }} onClick={onArchive}><Icon name="archive" size={16} />{t('disc.archive')}</button>
       </div>
     </div>
   );
@@ -212,10 +203,9 @@ function Composer({ t, coreN, count }: { t: T; coreN: number; count: number }) {
     toast.action(t(h.core ? 'add.habitCreatedCore' : 'add.habitCreated'), t('add.setup'), () => setParams((p) => { const x = new URLSearchParams(p); x.set('setup', h.id); return x; }), 5000);
   };
   return (
-    <form className={d.composer} onSubmit={(e) => { e.preventDefault(); submit(); }}>
-      <Icon name="plus" size={16} sw={2} />
-      <input id="disc-composer" className={d.composerInput} value={name} maxLength={80} placeholder={t('add.habitPh')} onChange={(e) => setName(e.target.value)} enterKeyHint="done" aria-label={t('add.habitPh')} />
-      <button type="submit" className={d.addBtn} disabled={!name.trim()}>{t('common.add')}</button>
+    <form className="field-pill" onSubmit={(e) => { e.preventDefault(); submit(); }}>
+      <input id="disc-composer" value={name} maxLength={80} placeholder={t('add.habitPh')} onChange={(e) => setName(e.target.value)} enterKeyHint="done" aria-label={t('add.habitPh')} />
+      <button type="submit" className="cb cb-white" disabled={!name.trim()} aria-label={t('common.add')}><Icon name="plus" size={20} sw={1.8} /></button>
     </form>
   );
 }
@@ -223,7 +213,6 @@ function Composer({ t, coreN, count }: { t: T; coreN: number; count: number }) {
 /* ---------------- quits ---------------- */
 
 function QuitsTab({ t, data }: { t: T; data: ReturnType<typeof buildTracker> & { raw: SystemRaw } }) {
-  const mobile = !useIsDesktop();
   const [menu, setMenu] = useState<string | null>(null);
   const [slip, setSlip] = useState<string | null>(null);
   const [note, setNote] = useState('');
@@ -242,12 +231,12 @@ function QuitsTab({ t, data }: { t: T; data: ReturnType<typeof buildTracker> & {
     toast.success(t('disc.quitAdded'));
   };
   return (
-    <div className={d.col}>
-      <div className={d.zoneHint}>{t('tracker.quitsIntro')}</div>
+    <>
+      <div className="caption"><b>{t('disc.tabs.quits')}</b><span>{t('tracker.quitsIntro')}</span></div>
       {data.refusals.length === 0 && !adding && <EmptyState title={t('empty.quitsTitle')} sub={t('empty.quitsSub')} cta={{ label: t('disc.addQuit'), run: () => setAdding(true) }} />}
-      <div className={d.quits}>
+      <div className="tl-grid-2">
         {data.refusals.map((r) => (
-          <RefusalCard key={r.id} t={t} r={r} mobile={mobile}
+          <QuitTile key={r.id} t={t} r={r}
             goalOverride={r.goalDays} menuOpen={menu === r.id}
             onToggleMenu={() => setMenu(menu === r.id ? null : r.id)}
             onPickGoal={(g) => { updateQuit(r.id, { goal_days: g }); setMenu(null); }}
@@ -256,16 +245,16 @@ function QuitsTab({ t, data }: { t: T; data: ReturnType<typeof buildTracker> & {
         ))}
       </div>
       {adding ? (
-        <div className={d.quitForm}>
-          <input className={d.composerInput} value={name} autoFocus maxLength={80} placeholder={t('tracker.quitPlaceholder')} onChange={(e) => setName(e.target.value)} aria-label={t('tracker.quitPlaceholder')} />
+        <div className={`tl tl-auto tl-pad ${d.quitForm}`}>
+          <input className="field" value={name} autoFocus maxLength={80} placeholder={t('tracker.quitPlaceholder')} onChange={(e) => setName(e.target.value)} aria-label={t('tracker.quitPlaceholder')} />
           <QuitOptions t={t} d={draft} set={(p) => setDraft((x) => ({ ...x, ...p }))} />
           <div className={d.formActions}>
-            <button type="button" className={d.btn} onClick={() => setAdding(false)}>{t('common.cancel')}</button>
-            <button type="button" className={d.addBtn} disabled={!name.trim()} onClick={add}>{t('common.add')}</button>
+            <button type="button" className="pill" onClick={() => setAdding(false)}>{t('common.cancel')}</button>
+            <button type="button" className="pill pill-white" disabled={!name.trim()} onClick={add}>{t('common.add')}</button>
           </div>
         </div>
       ) : data.refusals.length > 0 && (
-        <button type="button" className={d.slot} onClick={() => setAdding(true)}><Icon name="plus" size={14} sw={2} />{t('disc.addQuit')}</button>
+        <button type="button" className="field-pill" style={{ cursor: 'pointer', border: 'none', color: 'rgba(232,237,243,.5)', font: 'inherit', justifyContent: 'space-between' }} onClick={() => setAdding(true)}>{t('disc.addQuit')}<span className="cb cb-white"><Icon name="plus" size={20} sw={1.8} /></span></button>
       )}
       <ConfirmDialog open={!!slipQuit} title={t('tracker.relapseTitle')} confirmLabel={t('tracker.relapseOk')} cancelLabel={t('common.cancel')}
         body={<>{t('tracker.relapseBody', { d: slipDays, b: Math.max(slipQuit?.best ?? 0, slipDays) })}<textarea className={d.note} value={note} maxLength={500} placeholder={t('tracker.relapseNote')} onChange={(e) => setNote(e.target.value)} /></>}
@@ -275,7 +264,7 @@ function QuitsTab({ t, data }: { t: T; data: ReturnType<typeof buildTracker> & {
         confirmLabel={t('common.delete')} cancelLabel={t('common.cancel')}
         onConfirm={() => { if (!del) return; const q = archiveQuit(del, true); setDel(null); if (q) toast.action(t('disc.archived', { x: q.name }), t('explain.undo'), () => restoreQuit(q), 5000); }}
         onCancel={() => setDel(null)} />
-    </div>
+    </>
   );
 }
 
@@ -290,22 +279,22 @@ function ArchiveTab({ t, sys }: { t: T; sys: SystemRaw }) {
   useEffect(() => { if (del && !target) setDel(null); }, [del, target]);
   if (!list.length) return <EmptyState title={t('disc.archiveEmpty')} sub={t('disc.archiveEmptySub')} />;
   return (
-    <div className={d.col}>
-      <div className={d.rows}>
-        {list.map((h) => (
-          <div key={h.id} className={d.archRow}>
-            <span className={d.lineIcon} style={{ color: h.hue, background: h.hue + '1f' }}><Icon name={h.icon as never} size={16} /></span>
-            <span className={d.lineText}>
-              <span className={d.lineName}>{h.name}</span>
-              <span className={d.lineSub}>{t('disc.archivedOn', { d: fmt(h.archived_at!) })} · {t('disc.bestN', { n: habitBest(h, ix, isoDay()) })}</span>
+    <>
+      <div className="tl-grid-2">
+        {list.map((h, k) => (
+          <div key={h.id} className={`tl tl-auto ${d.archRow}`} style={{ '--i': k } as React.CSSProperties}>
+            <span className="cb" style={{ color: h.hue }}><Icon name={h.icon as never} size={18} sw={1.8} /></span>
+            <span className="tl-text" style={{ flex: 1 }}>
+              <span className="tl-name">{h.name}</span>
+              <span className="tl-sub">{t('disc.archivedOn', { d: fmt(h.archived_at!) })} · {t('disc.bestN', { n: habitBest(h, ix, isoDay()) })}</span>
             </span>
-            <button type="button" className={d.btn} onClick={() => { restoreHabit(h.id); toast.action(t('disc.restored', { x: h.name }), t('explain.undo'), () => archiveHabit(h.id), 5000); }}>{t('disc.restore')}</button>
-            <button type="button" className={d.iconBtn} onClick={() => setDel(h.id)} aria-label={t('disc.deleteForever')}><Icon name="trash" size={14} /></button>
+            <button type="button" className="pill pill-sm pill-white" onClick={() => { restoreHabit(h.id); toast.action(t('disc.restored', { x: h.name }), t('explain.undo'), () => archiveHabit(h.id), 5000); }}>{t('disc.restore')}</button>
+            <button type="button" className="cb cb-sm" onClick={() => setDel(h.id)} aria-label={t('disc.deleteForever')}><Icon name="trash" size={15} /></button>
           </div>
         ))}
       </div>
       <ConfirmDialog open={!!target} danger title={t('disc.deleteTitle', { x: target?.name ?? '' })} body={t('disc.deleteBody')} confirmLabel={t('disc.deleteForever')} cancelLabel={t('common.cancel')}
         onConfirm={() => { if (del) deleteHabit(del); setDel(null); }} onCancel={() => setDel(null)} />
-    </div>
+    </>
   );
 }

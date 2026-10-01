@@ -8,11 +8,11 @@ export function PageState({ error, onRetry, variant = 'list' }: { error?: boolea
     return (
       <div role="alert" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, textAlign: 'center' }}>
         <span style={{ color: 'var(--danger)' }} aria-hidden="true"><Icon name="alert" size={30} /></span>
-        <div style={{ font: '700 17px var(--font-ui)' }}>{t('common.loadFailed')}</div>
-        <div style={{ font: '400 13px/1.5 var(--font-ui)', color: 'var(--text-secondary)', maxWidth: 280 }}>{t('common.loadFailedHint')}</div>
+        <div style={{ font: 'var(--fw-bold) 17px var(--font-ui)' }}>{t('common.loadFailed')}</div>
+        <div style={{ font: 'var(--fw-regular) 13px/1.5 var(--font-ui)', color: 'var(--text-secondary)', maxWidth: 280 }}>{t('common.loadFailedHint')}</div>
         {onRetry && (
           <button type="button" onClick={onRetry}
-            style={{ marginTop: 6, minHeight: 44, padding: '0 22px', borderRadius: 999, border: 'none', background: 'var(--accent)', color: 'var(--ink)', font: '700 13px var(--font-ui)', cursor: 'pointer' }}>
+            style={{ marginTop: 6, minHeight: 44, padding: '0 22px', borderRadius: 999, border: 'none', background: 'var(--accent)', color: 'var(--ink)', font: 'var(--fw-bold) 13px var(--font-ui)', cursor: 'pointer' }}>
             {t('common.retry')}
           </button>
         )}
