@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppHeader, roman } from '../../app/AppHeader';
@@ -124,9 +125,19 @@ function GoalChip({ t, goal, selected, onPick, onComplete }: { t: T; goal: GoalD
   const [del, setDel] = useState(false);
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  // the menu lives in <body> so cards below can't cover it (they used to swallow «Удалить»)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   useEffect(() => {
     if (!menu) return;
-    const off = (e: Event) => { if (!ref.current?.contains(e.target as Node)) setMenu(false); };
+    const place = () => { const r = ref.current?.getBoundingClientRect(); if (r) setPos({ top: r.bottom + 6, left: Math.max(8, Math.min(r.left, window.innerWidth - 228)) }); };
+    place();
+    window.addEventListener('resize', place); window.addEventListener('scroll', place, true);
+    return () => { window.removeEventListener('resize', place); window.removeEventListener('scroll', place, true); };
+  }, [menu]);
+  useEffect(() => {
+    if (!menu) return;
+    const off = (e: Event) => { const n = e.target as Node; if (!ref.current?.contains(n) && !menuRef.current?.contains(n)) setMenu(false); };
     document.addEventListener('mousedown', off); document.addEventListener('touchstart', off);
     return () => { document.removeEventListener('mousedown', off); document.removeEventListener('touchstart', off); };
   }, [menu]);
@@ -144,12 +155,13 @@ function GoalChip({ t, goal, selected, onPick, onComplete }: { t: T; goal: GoalD
         <span className={g.chipDot} style={{ background: selected ? '#FFFFFF' : goal.hue }} />{goal.title}
       </button>
       {selected && <button type="button" className={g.more} onClick={() => setMenu(!menu)} aria-label={t('goals.menu')} aria-expanded={menu}><Icon name="dots" size={20} sw={3} /></button>}
-      {menu && (
-        <div className={g.menu} role="menu">
+      {menu && pos && createPortal(
+        <div ref={menuRef} className={g.menu} role="menu" style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 1000 }}>
           <button type="button" role="menuitem" onClick={() => { setMenu(false); setRenaming(true); setName(goal.title); }}>{t('goals.rename')}</button>
           <button type="button" role="menuitem" onClick={() => { setMenu(false); onComplete(); }}>{t('goals.complete')}</button>
           <button type="button" role="menuitem" data-danger onClick={() => { setMenu(false); setDel(true); }}>{t('goals.delete')}</button>
-        </div>
+        </div>,
+        document.body,
       )}
       <ConfirmDialog open={del} danger title={t('goals.deleteTitle', { n: goal.title })} body={t('goals.deleteBody')} confirmLabel={t('common.delete')} cancelLabel={t('common.cancel')}
         onConfirm={() => { setDel(false); deleteGoal(goal.id); navigate('/goals'); toast.success(t('goals.deleted')); }} onCancel={() => setDel(false)} />

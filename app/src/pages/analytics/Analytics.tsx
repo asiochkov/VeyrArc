@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader, roman } from '../../app/AppHeader';
 import { buildProfile } from '../../data/profile';
@@ -288,6 +289,16 @@ function bestFocusAgo(sys: SystemRaw) {
 /* Export (section 8): a CSV of daily checks, or print / save as PDF. */
 function ExportButton({ t, sys }: { t: T; sys: SystemRaw }) {
   const [open, setOpen] = useState(false);
+  const btn = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const r = btn.current?.getBoundingClientRect();
+    if (r) setPos({ top: r.bottom + 6, left: Math.max(8, Math.min(r.left, window.innerWidth - 200)) });
+    const close = () => setOpen(false);
+    window.addEventListener('scroll', close, true);
+    return () => window.removeEventListener('scroll', close, true);
+  }, [open]);
   const csv = () => {
     const ix = indexLogs(sys.logs);
     const habits = sys.habits.filter((h) => !h.archived_at);
@@ -302,12 +313,13 @@ function ExportButton({ t, sys }: { t: T; sys: SystemRaw }) {
   };
   return (
     <div className={a.exportWrap}>
-      <button type="button" className={a.chip} aria-expanded={open} onClick={() => setOpen(!open)}><Icon name="download" size={13} />{t('analytics.export')}</button>
-      {open && (
-        <div className={a.menu} role="menu">
+      <button ref={btn} type="button" className={a.chip} aria-expanded={open} onClick={() => setOpen(!open)}><Icon name="download" size={13} />{t('analytics.export')}</button>
+      {open && pos && createPortal(
+        <div className={a.menu} role="menu" style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 1000 }}>
           <button type="button" role="menuitem" onClick={csv}>CSV</button>
           <button type="button" role="menuitem" onClick={() => { setOpen(false); window.print(); }}>PDF</button>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
