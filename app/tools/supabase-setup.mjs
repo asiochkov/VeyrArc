@@ -8,7 +8,7 @@
  * --auth     auth settings: email OTP (6 digits), guests, 45s resend (B27),
  *            Resend SMTP, RU/EN email templates, redirect URLs
  * --render   put the project URL + anon key into the Render site and redeploy
- * --push     VAPID secrets, deploy Edge Function push-reminders, pg_cron every 15 min
+ * --push     VAPID secrets, deploy Edge Function push-reminders, pg_cron every 5 min
  *            (VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY in the environment)
  * --fn       redeploy only the code of push-reminders (secrets and cron stay)
  */
@@ -136,8 +136,8 @@ if (flags.has('--push')) {
   const url = `https://${ref}.supabase.co/functions/v1/push-reminders`;
   await sql(`create extension if not exists pg_cron; create extension if not exists pg_net;
     select cron.unschedule(jobid) from cron.job where jobname = 'push-reminders';
-    select cron.schedule('push-reminders', '*/15 * * * *', $cron$ select net.http_post(url := '${url}', headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', '${cron}'), body := '{}'::jsonb) $cron$);`);
-  console.log('cron scheduled every 15 min');
+    select cron.schedule('push-reminders', '*/5 * * * *', $cron$ select net.http_post(url := '${url}', headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', '${cron}'), body := '{}'::jsonb) $cron$);`);
+  console.log('cron scheduled every 5 min');
   // Render needs the public key for the subscription
   const envs = (await render('GET', `/services/${RENDER_SERVICE}/env-vars`)).map((e) => e.envVar).filter((e) => e.key !== 'VITE_VAPID_PUBLIC_KEY');
   await render('PUT', `/services/${RENDER_SERVICE}/env-vars`, [...envs.map(({ key, value }) => ({ key, value })), { key: 'VITE_VAPID_PUBLIC_KEY', value: pub }]);

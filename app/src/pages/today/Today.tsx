@@ -34,7 +34,8 @@ type Filter = 'all' | 'core' | 'extra';
 export function Today() {
   const t = useT();
   const st = useToday();
-  const [review, setReview] = useState(false);
+  // the evening summary push opens the day review (/?review=1)
+  const [review, setReview] = useState(() => new URLSearchParams(location.search).get('review') === '1');
   const [oath, setOath] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const setHandler = useAddAction((x) => x.setHandler);

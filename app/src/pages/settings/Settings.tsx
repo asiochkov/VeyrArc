@@ -182,7 +182,9 @@ export function Settings() {
         <div>
           <div className={s.groupTitle}>{t('settings.notifications')}</div>
           <div className={s.list}>
-            {(['n1', 'n2', 'n3', 'n4'] as const).map((k) => (
+            <DeviceNotif t={t} />
+            {/* n4 (arc start/end) has no server push yet — hidden for the beta */}
+            {(['n1', 'n2', 'n3'] as const).map((k) => (
               <button key={k} type="button" role="switch" aria-checked={notif[k]} className={s.row} style={{ cursor: 'pointer' }} onClick={() => toggleNotif(k)}>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t(`settings.${k}`)}</span>
@@ -357,3 +359,23 @@ export function Settings() {
   );
 }
 export type { T };
+
+/** Whether this device can actually show notifications, and the one step to fix it. */
+function DeviceNotif({ t }: { t: T }) {
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const standalone = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  const supported = 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
+  const [perm, setPerm] = useState(supported ? Notification.permission : 'default');
+  const state = !supported ? (ios && !standalone ? 'home' : 'unsupported') : perm;
+  const allow = async () => { await askPermission(); setPerm(Notification.permission); };
+  return (
+    <div className={s.row} data-notif={state}>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t(`settings.dev.${state === 'granted' ? 'on' : state === 'denied' ? 'denied' : state === 'home' ? 'home' : state === 'unsupported' ? 'unsupported' : 'off'}`)}</span>
+        <span style={{ display: 'block', font: 'var(--fw-regular) 12px/1.4 var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 3 }}>{t(`settings.dev.${state === 'granted' ? 'onD' : state === 'denied' ? 'deniedD' : state === 'home' ? 'homeD' : state === 'unsupported' ? 'unsupportedD' : 'offD'}`)}</span>
+      </span>
+      {state === 'default' && <button type="button" className="pill pill-white pill-sm" onClick={() => { void allow(); }}>{t('settings.dev.allow')}</button>}
+      {state === 'granted' && <span style={{ color: 'var(--dot-mint)', display: 'grid' }}><Icon name="check" size={18} sw={2} /></span>}
+    </div>
+  );
+}

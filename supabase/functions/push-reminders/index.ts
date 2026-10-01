@@ -1,7 +1,9 @@
-// VeyrArc · push reminders (UX audit 3.6 / 5.7). Called every 15 minutes by pg_cron.
+// VeyrArc · push reminders (UX audit 3.6 / 5.7). Called every 5 minutes by pg_cron.
 //  - reminder: at the user's reminder time (onboarding), if habits are left for today
 //  - evening:  21:00–23:00 local, if habits are still left («успей до полуночи»)
 //  - silence:  19:00–21:00 local, if the app was not opened for 3+ days
+//  - event:    a planner task with a time starts within 15 minutes (once per task)
+//  - plan:     at the reminder time with no habits left but tasks planned for today
 // Each kind goes out at most once per local day (push_log).
 //  - quiet hours (profiles.quiet_from/quiet_to): nothing is sent inside them; a reminder that
 //    falls inside is moved to the end of the quiet window (Master Changeset task 32)
@@ -25,6 +27,18 @@ const TEXT = {
   evening: (l: Lang, n: number) => l === 'en'
     ? { title: 'Make it before midnight', body: `${n} ${plural(l, n, 'habit is', '', 'habits are')} still open — keep your streak` }
     : { title: 'Успей до полуночи', body: `${n} ${plural(l, n, 'привычка не отмечена', 'привычки не отмечены', 'привычек не отмечено')} — сохрани серию` },
+  event: (l: Lang, title: string, m: number, at: string) => l === 'en'
+    ? { title, body: m <= 1 ? `Starts now · ${at}` : `In ${m} min · ${at}` }
+    : { title, body: m <= 1 ? `Начинается сейчас · ${at}` : `Через ${m} мин · ${at}` },
+  plan: (l: Lang, n: number) => l === 'en'
+    ? { title: 'Your plan for today', body: `${n} ${plural(l, n, 'task', '', 'tasks')} planned — open the planner` }
+    : { title: 'План на сегодня', body: `${n} ${plural(l, n, 'задача', 'задачи', 'задач')} в плане — загляни в планер` },
+  summary: (l: Lang, h: [number, number], e: [number, number]) => {
+    const parts = l === 'en'
+      ? [h[1] ? `habits ${h[0]}/${h[1]}` : '', e[1] ? `tasks ${e[0]}/${e[1]}` : '']
+      : [h[1] ? `привычки ${h[0]}/${h[1]}` : '', e[1] ? `задачи ${e[0]}/${e[1]}` : ''];
+    return { title: l === 'en' ? 'Your day' : 'Итог дня', body: parts.filter(Boolean).join(' · ') + (l === 'en' ? '. Close the day in 30 seconds.' : '. Подведи день за 30 секунд.') };
+  },
   silence: (l: Lang) => l === 'en'
     ? { title: 'Your Arc is on pause', body: 'Three days without check-ins. One small step today brings the index back.' }
     : { title: 'Твой Arc на паузе', body: 'Три дня без отметок. Один маленький шаг сегодня — и индекс снова растёт.' },
@@ -81,7 +95,7 @@ Deno.serve(async (req) => {
   let sent = 0;
 
   for (const [uid, list] of byUser) {
-    const { data: p } = await sb.from('profiles').select('timezone, reminder_time, notify_habits, last_seen_at, lang, quiet_from, quiet_to').eq('id', uid).maybeSingle();
+    const { data: p } = await sb.from('profiles').select('timezone, reminder_time, notify_habits, notify_summary, last_seen_at, lang, quiet_from, quiet_to').eq('id', uid).maybeSingle();
     if (!p) continue;
     const lang: Lang = p.lang === 'en' ? 'en' : 'ru';
     const { day, hm, wd } = local(p.timezone || 'Europe/Moscow');
@@ -97,11 +111,47 @@ Deno.serve(async (req) => {
       return today.filter((h) => !done.has(h.id)).length;
     };
 
-    let kind: 'reminder' | 'evening' | 'silence' | null = null;
+    // planner tasks starting soon: one push per task
+    if (p.notify_habits) {
+      const toMin = (t: string) => { const [a, b] = t.split(':').map(Number); return a * 60 + b; };
+      const { data: evs } = await sb.from('plan_items').select('id, title, starts_at').eq('user_id', uid).eq('day', day).eq('done', false).not('starts_at', 'is', null);
+      for (const e of evs ?? []) {
+        const at = String(e.starts_at).slice(0, 5);
+        const m = toMin(at) - toMin(hm);
+        if (m < 0 || m > 15) continue;
+        const { error: seen } = await sb.from('push_log').insert({ user_id: uid, kind: 'event:' + e.id, day });
+        if (seen) continue;
+        sent += await send(list!, { ...TEXT.event(lang, e.title, m, at), tag: 'event-' + e.id, type: 'event', url: '/planner' });
+      }
+    }
+
+    // day summary at 22:00–22:30 local (once a day)
+    if (p.notify_summary !== false && hm >= '22:00' && hm < '22:30') {
+      const { data: habits } = await sb.from('habits').select('id, days').eq('user_id', uid).is('archived_at', null);
+      const todayH = (habits ?? []).filter((h) => scheduled(h.days, wd));
+      const { data: logs } = await sb.from('habit_logs').select('habit_id').eq('user_id', uid).eq('day', day).eq('done', true);
+      const doneH = new Set((logs ?? []).map((l) => l.habit_id));
+      const { data: evs } = await sb.from('plan_items').select('done').eq('user_id', uid).eq('day', day);
+      const h: [number, number] = [todayH.filter((x) => doneH.has(x.id)).length, todayH.length];
+      const e: [number, number] = [(evs ?? []).filter((x) => x.done).length, (evs ?? []).length];
+      if (h[1] || e[1]) {
+        const { error: seen } = await sb.from('push_log').insert({ user_id: uid, kind: 'summary', day });
+        if (!seen) sent += await send(list!, { ...TEXT.summary(lang, h, e), tag: 'summary', type: 'summary', url: '/?review=1' });
+      }
+    }
+
+    let kind: 'reminder' | 'evening' | 'silence' | 'plan' | null = null;
     let msg: { title: string; body: string } | null = null;
     const rt0 = p.reminder_time?.slice(0, 5);
     const rt = rt0 && inQuiet(rt0, qf, qt) ? qt : rt0;
-    if (p.notify_habits && rt && hm >= rt && hm < addHours(rt, 2)) { const n = await undone(); if (n) { kind = 'reminder'; msg = TEXT.reminder(lang, n); } }
+    if (p.notify_habits && rt && hm >= rt && hm < addHours(rt, 2)) {
+      const n = await undone();
+      if (n) { kind = 'reminder'; msg = TEXT.reminder(lang, n); }
+      else {
+        const { count } = await sb.from('plan_items').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('day', day).eq('done', false);
+        if (count) { kind = 'plan'; msg = TEXT.plan(lang, count); }
+      }
+    }
     if (!kind && p.notify_habits && hm >= '21:00' && hm < '23:00') { const n = await undone(); if (n) { kind = 'evening'; msg = TEXT.evening(lang, n); } }
     if (!kind && p.last_seen_at && Date.now() - new Date(p.last_seen_at).getTime() > 3 * 86400000 && hm >= '19:00' && hm < '21:00') { kind = 'silence'; msg = TEXT.silence(lang); }
     if (!kind || !msg) continue;
@@ -110,7 +160,7 @@ Deno.serve(async (req) => {
     if (dup) continue; // already sent today
 
     // push contract: type + deep link (the service worker opens `url`)
-    sent += await send(list!, { ...msg, tag: kind, type: kind, url: kind === 'silence' ? '/' : '/?from=push' });
+    sent += await send(list!, { ...msg, tag: kind, type: kind, url: kind === 'silence' ? '/' : kind === 'plan' ? '/planner' : '/?from=push' });
   }
   return Response.json({ users: byUser.size, sent });
 });
