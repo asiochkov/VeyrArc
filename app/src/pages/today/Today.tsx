@@ -247,9 +247,10 @@ function ArcTile({ t, d, style }: TileProps) {
           <span className={h.streakLabel}><Icon name="flame" size={16} sw={1.8} />{t('home.streakTitle')}</span>
           <span className={h.tileSub}>{t('home.streakHint')}</span>
         </button>
-        <span className={h.streakBig} data-on={s.streak > 0}>
-          <b key={s.streak}>{s.streak}</b>
-          <small>{t('home.daysInRow', { n: s.streak })}</small>
+        {/* today is always a day of the streak: the first day reads 1 */}
+        <span className={h.streakBig} data-on={d.view.streakBase + 1 > 1}>
+          <b key={d.view.streakBase}>{d.view.streakBase + 1}</b>
+          <small>{t('home.streakDay')}</small>
         </span>
       </span>
       <span className={h.week}>
