@@ -7,7 +7,7 @@
 @keyframes dockIn { from { transform: translateY(100%); opacity: .4; } to { transform: none; opacity: 1; } }
 .bar {
   flex: 1; display: flex; justify-content: space-around; align-items: center; height: 64px; padding: 0 6px;
-  border-radius: var(--r-pill); background: rgba(3,9,35,.82); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-radius: var(--r-pill); background: #0A1230;  
   box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(80,125,255,.16); pointer-events: auto;
 }
 .item { position: relative; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: rgba(232,237,243,.42); transition: color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out); }

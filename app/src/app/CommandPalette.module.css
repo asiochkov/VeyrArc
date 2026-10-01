@@ -1,4 +1,4 @@
-.backdrop { position: fixed; inset: 0; z-index: calc(var(--z-sheet) + 5); background: rgba(3,4,6,.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); animation: bdIn 200ms var(--ease-out); display: flex; justify-content: center; align-items: flex-start; padding: calc(12vh + var(--safe-top)) 12px 12px; }
+.backdrop { position: fixed; inset: 0; z-index: calc(var(--z-sheet) + 5); background: rgba(0,0,0,.72);   animation: bdIn 200ms var(--ease-out); display: flex; justify-content: center; align-items: flex-start; padding: calc(12vh + var(--safe-top)) 12px 12px; }
 .panel { width: 100%; max-width: 640px; max-height: 70vh; display: flex; flex-direction: column; border-radius: 30px; background: var(--c-sheet); background-image: var(--c-glow); border: none; box-shadow: 0 30px 60px rgba(0,0,0,.55); overflow: hidden; animation: pal 360ms var(--ease-out-strong); }
 @keyframes bdIn { from { opacity: 0; } to { opacity: 1; } }
 @media (max-width: 1023px) { .backdrop { padding-top: calc(12px + var(--safe-top)); } .panel { max-height: 80vh; } }

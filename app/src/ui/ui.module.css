@@ -197,7 +197,7 @@
 
 /* ---- Modal (Settings) ---- */
 .overlay {
-  position: fixed; inset: 0; background: rgba(3,4,6,.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  position: fixed; inset: 0; background: rgba(0,0,0,.75);  
   display: grid; place-items: center; padding: calc(20px + var(--safe-top)) calc(16px + var(--safe-right)) calc(20px + var(--safe-bottom)) calc(16px + var(--safe-left));
   overflow-y: auto; overscroll-behavior: contain; z-index: var(--z-modal); animation: fadeIn 200ms var(--ease-out);
 }

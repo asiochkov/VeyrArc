@@ -208,7 +208,7 @@
   /* typography (design brief §2): Apple's real SF first, Inter as the close fallback */
   --font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter Variable', 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   --font-ui-rounded: ui-rounded, 'SF Pro Rounded', 'Inter Variable', 'Inter', system-ui, sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  --font-mono: var(--font-ui); /* one family across the app; numbers use tabular figures */
   --fs-11: 11px; --fs-12: 12px; --fs-13: 13px; --fs-14: 14px; --fs-15: 15px;
   --fs-17: 17px; --fs-20: 20px; --fs-26: 26px; --fs-34: 34px; --fs-56: 56px;
   --fw-light: 300; --fw-regular: 400; --fw-medium: 500; --fw-semibold: 560; --fw-bold: 600; --fw-heavy: 650; /* light, Nothing-like: big text gets thinner, not heavier */

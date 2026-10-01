@@ -237,7 +237,7 @@
 .dateText { font: var(--fw-regular) 15px var(--font-ui); border-bottom-color: rgba(255,255,255,.2); }
 .doneRow { font: var(--fw-regular) 14px var(--font-ui); color: var(--text); }
 .focusBtn { height: 44px; padding: 0 16px; border-radius: 999px; border: none; background: var(--c-field); color: var(--text); font: var(--fw-regular) 14px var(--font-ui); }
-.sheetOverlay { background: rgba(3,4,6,.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); padding: calc(var(--safe-top) + 12px) 8px 8px; animation: fadeIn 220ms var(--ease-out); }
+.sheetOverlay { background: rgba(0,0,0,.72);   padding: calc(var(--safe-top) + 12px) 8px 8px; animation: fadeIn 220ms var(--ease-out); }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .sheet { border: none; border-radius: 34px; background: var(--c-sheet); background-image: var(--c-glow); padding: 22px 18px calc(20px + var(--safe-bottom)); animation: sheetUp2 460ms var(--ease-out-strong); }
 @keyframes sheetUp2 { from { transform: translateY(100%); } to { transform: none; } }

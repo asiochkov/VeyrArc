@@ -1,16 +1,10 @@
 import { createBrowserRouter, createMemoryRouter, type RouteObject } from 'react-router-dom';
 import { Login, Reset, Signup, Verify, Welcome } from '../pages/auth/screens';
 import { Account, DayOne, Onboarding } from '../pages/auth/screens2';
-import { Calendar } from '../pages/calendar/Calendar';
-import { Goals } from '../pages/goals/Goals';
-import { Analytics } from '../pages/analytics/Analytics';
-import { Recap } from '../pages/arc/Recap';
-import { Legal } from '../pages/legal/Legal';
-import { Pro } from '../pages/pro/Pro';
-import { Settings } from '../pages/settings/Settings';
 import { Today } from '../pages/today/Today';
 import { Disciplines } from '../pages/disciplines/Disciplines';
-import { PreviewLayout, PreviewScreens } from '../preview/PreviewScreens';
+import { lazy, Suspense, type ComponentType } from 'react';
+import { PageState } from '../ui/PageState';
 import { AppShell } from './AppShell';
 import { CrashScreen } from './ErrorBoundary';
 import { Navigate, useLocation } from 'react-router-dom';
@@ -28,6 +22,23 @@ function Redirect({ to }: { to: string }) {
   return <Navigate to={to + search + hash} replace />;
 }
 import { GuestOnly, RequireAuth } from './AuthGate';
+
+/* screens past the first one load on demand, so the app starts with a smaller bundle */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function later<K extends string>(load: () => Promise<Record<K, ComponentType<any>>>, name: K) {
+  const C = lazy(() => load().then((m) => ({ default: m[name] })));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (props: any) => <Suspense fallback={<PageState variant="list" />}><C {...props} /></Suspense>;
+}
+const Calendar = later(() => import('../pages/calendar/Calendar'), 'Calendar');
+const Goals = later(() => import('../pages/goals/Goals'), 'Goals');
+const Analytics = later(() => import('../pages/analytics/Analytics'), 'Analytics');
+const Recap = later(() => import('../pages/arc/Recap'), 'Recap');
+const Legal = later(() => import('../pages/legal/Legal'), 'Legal');
+const Pro = later(() => import('../pages/pro/Pro'), 'Pro');
+const Settings = later(() => import('../pages/settings/Settings'), 'Settings');
+const PreviewLayout = later(() => import('../preview/PreviewScreens'), 'PreviewLayout');
+const PreviewScreens = later(() => import('../preview/PreviewScreens'), 'PreviewScreens');
 
 const routes: RouteObject[] = [
   {

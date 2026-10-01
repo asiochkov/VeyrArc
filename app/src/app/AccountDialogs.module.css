@@ -1,7 +1,7 @@
 /* VeyrArc Auth.dc.html — S.overlay / S.modal (Night tokens) */
 .overlay {
   position: fixed; inset: 0; z-index: var(--z-sheet); display: grid; place-items: center; overflow-y: auto; overscroll-behavior: contain; padding: calc(20px + var(--safe-top)) 20px calc(20px + var(--safe-bottom));
-  background: rgba(3,5,8,.72); backdrop-filter: blur(6px); animation: wwUp .2s ease both;
+  background: rgba(0,0,0,.78);  animation: wwUp .2s ease both;
 }
 .modal {
   width: 100%; max-width: 380px; padding: 22px; border-radius: 24px; background: #0d1116;

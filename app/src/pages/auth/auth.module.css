@@ -10,7 +10,7 @@
 }
 .leftTitle { font: var(--fw-regular) 48px/1.04 var(--font-ui); letter-spacing: -.04em; color: #F3F6FA; max-width: 420px; text-wrap: balance; }
 .leftSub { font: var(--fw-medium) 15px/1.55 var(--font-ui); color: rgba(243,246,250,.72); margin-top: 14px; max-width: 380px; }
-.step { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border-radius: 16px; transition: all .3s; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); color: #F3F6FA; backdrop-filter: blur(10px); }
+.step { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border-radius: 16px; transition: all .3s; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); color: #F3F6FA;  }
 .step[data-on='true'] { background: #F3F6FA; color: var(--ink); border: 1px solid transparent; }
 .stepNum { font: var(--fw-bold) 22px var(--font-mono); color: rgba(243,246,250,.55); }
 .step[data-on='true'] .stepNum { color: var(--ink); }
@@ -37,7 +37,7 @@
 .slideR { animation: wwSlideR .38s cubic-bezier(.2,.8,.2,1) both; }
 
 /* typography */
-.badge { white-space: nowrap; font: var(--fw-bold) 10px var(--font-mono); letter-spacing: .24em; color: var(--link); background: rgba(255,255,255,.04); border: 1px solid rgba(80,125,255,.12); border-radius: 999px; padding: 7px 14px; backdrop-filter: blur(8px); }
+.badge { white-space: nowrap; font: var(--fw-bold) 10px var(--font-mono); letter-spacing: .24em; color: var(--link); background: rgba(255,255,255,.04); border: 1px solid rgba(80,125,255,.12); border-radius: 999px; padding: 7px 14px;  }
 .h1big { font: var(--fw-regular) 42px/1.04 var(--font-ui); letter-spacing: -.04em; margin-top: 22px; text-wrap: balance; max-width: 320px; }
 .h1 { font: var(--fw-regular) 32px/1.1 var(--font-ui); letter-spacing: -.035em; text-wrap: balance; }
 .h2 { font: var(--fw-regular) 30px/1.1 var(--font-ui); letter-spacing: -.035em; }
@@ -62,7 +62,7 @@
 .seg { height: 4px; border-radius: 2px; transition: background-color .25s; background: rgba(80,125,255,.12); }
 .strengthLabel { font: var(--fw-bold) 12px var(--font-ui); min-width: 64px; text-align: right; white-space: nowrap; }
 
-.social { height: 50px; border-radius: 15px; border: 1px solid rgba(80,125,255,.12); background: rgba(255,255,255,.04); backdrop-filter: blur(10px); color: var(--text); font: var(--fw-bold) 14px var(--font-ui); display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+.social { height: 50px; border-radius: 15px; border: 1px solid rgba(80,125,255,.12); background: rgba(255,255,255,.04);  color: var(--text); font: var(--fw-bold) 14px var(--font-ui); display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
 .hr { flex: 1; height: 1px; background: rgba(80,125,255,.12); }
 .or { font: var(--fw-semibold) 12px var(--font-ui); color: rgba(232,237,243,.54); }
 .agreeRow { display: flex; align-items: flex-start; gap: 12px; margin-top: 18px; background: transparent; border: none; padding: 4px 0; cursor: pointer; color: inherit; min-height: 44px; }
@@ -87,7 +87,7 @@
 .otpCell[data-err='true'] { background: rgba(229,100,90,.12); box-shadow: inset 0 0 0 1.5px #E5645A; }
 
 /* onboarding */
-.obStep { text-align: left; display: flex; flex-direction: column; gap: 14px; padding: 12px 12px 14px; border-radius: 16px; cursor: pointer; transition: all .3s; min-width: 0; background: rgba(255,255,255,.04); color: var(--text); border: 1px solid rgba(80,125,255,.12); backdrop-filter: blur(10px); }
+.obStep { text-align: left; display: flex; flex-direction: column; gap: 14px; padding: 12px 12px 14px; border-radius: 16px; cursor: pointer; transition: all .3s; min-width: 0; background: rgba(255,255,255,.04); color: var(--text); border: 1px solid rgba(80,125,255,.12);  }
 .obStep[data-on='true'] { background: #F3F6FA; color: var(--ink); border: 1px solid transparent; }
 .obNum { font: var(--fw-bold) 17px var(--font-mono); }
 .obLabel { font: var(--fw-bold) 13px var(--font-ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -147,7 +147,7 @@
 .obBar > span { display: block; height: 100%; background: #2D6CF0; transition: width .3s ease; }
 
 /* ===== tile language overrides ===== */
-.obStep { border-radius: 24px; border: none; background: var(--c-tile); background-image: var(--c-glow); backdrop-filter: none; }
+.obStep { border-radius: 24px; border: none; background: var(--c-tile); background-image: var(--c-glow);  }
 .obStep[data-on='true'] { background: var(--c-on); color: #FFFFFF; border: none; }
 .ctaSm { height: 44px; padding: 0 18px; border-radius: 999px; background: var(--c-on); color: #FFFFFF; font: var(--fw-regular) 14px var(--font-ui); }
 .field { height: 56px; border-radius: 22px; padding: 0 20px; font: var(--fw-regular) 17px var(--font-ui); letter-spacing: -.01em; background: var(--c-sheet); background-image: var(--c-glow); }
