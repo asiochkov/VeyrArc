@@ -263,7 +263,7 @@ function ArcTile({ t, d, style }: TileProps) {
       <span className={h.tileText}>
         <span className={h.arcName}>Arc {roman(d.arc?.number ?? 1)} · {t('home.dayOf', { d: s.arcDay, l: s.arcLength })}</span>
         <span className={h.tileSub}>
-          <button type="button" className={h.inlineBtn} onClick={() => setInfo('freeze')}><Icon name="snowSm" size={12} /> {t('home.freeze', { a: d.freezes.used, b: d.freezes.allowed })}</button> · {t('home.best', { n: s.streakRecord })}
+          <button type="button" className={h.inlineBtn} onClick={() => setInfo('freeze')} aria-label={t('explain.freezeTitle')}><Icon name="snowSm" size={12} /> {t('home.freeze', { a: d.freezes.used, b: d.freezes.allowed })}</button> · {t('home.best', { n: s.streakRecord })}
         </span>
         <span className={h.arcBar}><i style={{ width: (s.arcDay / s.arcLength) * 100 + '%' }} /></span>
       </span>
