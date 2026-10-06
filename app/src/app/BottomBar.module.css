@@ -36,7 +36,7 @@
   background: #0A1230; box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(80,125,255,.2);
   display: grid; place-items: center; cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent;
   animation: split 700ms var(--spring) 760ms both;
-  transition: transform 520ms var(--spring), opacity 300ms var(--ease);
+  transition: transform 520ms var(--spring), opacity 300ms var(--ease), width 520ms var(--ease), margin 520ms var(--ease);
 }
 @keyframes split { 0% { transform: translateX(-60px) scale(.45); opacity: 0; } 35% { opacity: 1; } 100% { transform: none; opacity: 1; } }
 .drop:active { transform: scale(.92); }
@@ -63,7 +63,7 @@
 .dock[data-merged='true'] .bar { clip-path: inset(0 32% round 999px); cursor: pointer; }
 .dock[data-merged='true'] .item { opacity: 0; transform: scale(.4); pointer-events: none; animation: none; }
 .dock[data-merged='true'] .puck { opacity: 0; scale: 0; animation: none; }
-.dock[data-merged='true'] .drop { transform: translateX(-120px) scale(.4); opacity: 0; animation: none; }
+.dock[data-merged='true'] .drop { transform: translateX(-120px) scale(.4); opacity: 0; animation: none; width: 0; margin-left: calc(var(--gap) * -1); }
 .dock[data-merged='true'] .live { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .dock[data-merged='false'] .item { animation-delay: calc(240ms + var(--k) * 60ms); }
 

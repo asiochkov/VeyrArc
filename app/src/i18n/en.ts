@@ -641,9 +641,9 @@ export const en: Dict = {
     logged: '{x} ✓',
   },
   voice: {
-    open: 'VeyrArc assistant', again: 'Speak again', byHand: 'Add by hand', noVoice: 'Voice input is not available in this browser',
-    stop: 'Stop', hint: 'Speak… e.g. “mood 4” or “done workout”',
-    state: { listening: 'Listening', processing: 'Thinking', speaking: 'Done', error: 'Didn’t work', idle: 'Tap the mark and speak' },
+    open: 'VeyrArc assistant', again: 'Speak again', noVoice: 'Voice input is not available in this browser',
+    stop: 'Stop', hint: 'For example: “mood 4”, “done workout”, “focus 25”',
+    state: { listening: 'Listening', processing: 'Thinking', speaking: 'Done', error: 'Didn’t work', idle: 'Tap the orb and speak' },
     sayIt: 'Say it', sayHint: '“Task call mom tomorrow at 3 pm”, “done workout”, “mood 4”',
     holdTip: 'Hold «+» to speak',
   },

@@ -31,13 +31,14 @@ try {
   const done = await page.getByRole('checkbox', { name: 'Холодный душ' }).getAttribute('aria-checked');
   log('habit checked on Today:', done);
   if (done !== 'true') throw new Error('voice habit not applied');
-  // manual add moved from «+» into the assistant panel
+  // «Сфера»: the orb turns white on success, no manual buttons in the panel
   await page.getByRole('button', { name: 'Ассистент VeyrArc' }).first().tap();
-  await page.waitForTimeout(600);
-  await page.getByRole('dialog').getByRole('button', { name: /Событие/ }).tap();
-  await page.waitForTimeout(700);
-  log('manual «Событие» opens Add:', await page.getByPlaceholder(/Название/).count() > 0);
-  await page.screenshot({ path: S + 'voice-manual.png' });
+  await page.waitForFunction(() => !!window.__rec, null, { timeout: 4000 });
+  await page.evaluate(() => window.__say('настроение 4'));
+  await page.waitForTimeout(900);
+  log('orb look after success:', await page.getByRole('dialog').getAttribute('data-look'));
+  log('no manual buttons:', (await page.getByRole('dialog').getByRole('button').count()) === 2);
+  await page.screenshot({ path: S + 'voice-orb.png' });
   console.log(errors.length ? 'page errors: ' + errors.join(' | ') : 'no page errors');
 } catch (e) {
   await page.screenshot({ path: S + 'e2e-fail.png' });
