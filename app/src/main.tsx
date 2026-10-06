@@ -6,6 +6,7 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 import { RouterProvider } from 'react-router-dom';
 import { ErrorBoundary } from './app/ErrorBoundary';
 import { OfflineBanner } from './app/OfflineBanner';
+import { StagingBadge } from './app/StagingBadge';
 import { Toaster } from './ui/toast';
 import { bindSystem } from './state/system';
 import { router } from './app/router';
@@ -52,6 +53,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, maxAge: 7 * 86400_000, buster: 'v1' }}>
         <RouterProvider router={router} />
+        <StagingBadge />
         <OfflineBanner />
         <Toaster />
       </PersistQueryClientProvider>

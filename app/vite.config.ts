@@ -18,8 +18,9 @@ export default defineConfig(({ mode }) => ({
       injectRegister: false,
       includeAssets: ['push-sw.js', 'favicon.png', 'favicon-32.png', 'apple-touch-icon.png', 'logo-mark.png'],
       manifest: {
-        name: 'VeyrArc',
-        short_name: 'VeyrArc',
+        // the staging clone installs as a separate app with its own name
+        name: process.env.VITE_APP_ENV === 'staging' ? 'VeyrArc ТЕСТ' : 'VeyrArc',
+        short_name: process.env.VITE_APP_ENV === 'staging' ? 'VeyrArc ТЕСТ' : 'VeyrArc',
         description: 'Привычки, цели и прогресс в одном месте',
         lang: 'ru',
         start_url: '/',
