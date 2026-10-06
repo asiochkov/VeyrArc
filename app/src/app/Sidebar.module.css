@@ -51,3 +51,4 @@
 .event:hover { background: var(--c-tile); background-image: var(--c-glow); color: var(--text-secondary); }
 .eventText { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .eventWhen { flex: none; font: var(--fw-regular) 11px var(--font-ui); opacity: .8; }
+.assistant { margin-top: 0; color: #fff; }

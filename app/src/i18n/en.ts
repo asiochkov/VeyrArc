@@ -640,7 +640,15 @@ export const en: Dict = {
     unlog: 'Uncheck “{x}”',
     logged: '{x} ✓',
   },
+  voice: {
+    open: 'VeyrArc assistant', again: 'Speak again', byHand: 'Add by hand', noVoice: 'Voice input is not available in this browser',
+    stop: 'Stop', hint: 'Speak… e.g. “mood 4” or “done workout”',
+    state: { listening: 'Listening', processing: 'Thinking', speaking: 'Done', error: 'Didn’t work', idle: 'Tap the mark and speak' },
+    sayIt: 'Say it', sayHint: '“Task call mom tomorrow at 3 pm”, “done workout”, “mood 4”',
+    holdTip: 'Hold «+» to speak',
+  },
   add: {
+    titleVoice: 'Add (hold to speak)',
     title: 'Add',
     tiles: { habit: 'Habit', event: 'Event', goalTask: 'Goal step', focus: 'Focus' },
     sub: { habit: 'A daily action', event: 'In the Planner, with date and time', goalTask: 'A daily step toward a goal', focus: 'Start the timer' },

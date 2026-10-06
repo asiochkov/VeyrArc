@@ -7,6 +7,8 @@ import { useT } from '../i18n';
 import { userEmail, useAuth } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
 import { useSystem } from '../state/system';
+import { AssistantMark } from '../voice/AssistantMark';
+import { openAssistant } from '../voice/voice';
 import { Icon } from '../ui/Icon';
 import { Avatar } from '../ui/primitives';
 import { roman } from './AppHeader';
@@ -64,6 +66,10 @@ export function Sidebar({ collapsed, onToggle, drawer = false }: { collapsed: bo
       <button type="button" className={s.search} onClick={openPalette} aria-label={t('nav.search')}>
         <Icon name="search" size={15} />
         {!mini && <><span className={s.searchText}>{t('nav.search')}</span><kbd className={s.kbd}>⌘K</kbd></>}
+      </button>
+      <button type="button" className={`${s.search} ${s.assistant}`} onClick={openAssistant} aria-label={t('voice.open')}>
+        <AssistantMark size={18} />
+        {!mini && <span className={s.searchText}>{t('voice.open')}</span>}
       </button>
 
       <div className={s.items}>

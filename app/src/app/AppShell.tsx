@@ -6,6 +6,7 @@ import { PomodoroSheet, DockedPomodoro } from '../ui/PomodoroViews';
 import { AddSheet } from './AddSheet';
 import s from './AppShell.module.css';
 import { BottomBar } from './BottomBar';
+import { AssistantPanel } from '../voice/AssistantPanel';
 import { CommandPalette } from './CommandPalette';
 import { TourOverlay } from '../ui/Tour';
 import { DEFAULT_TILE, NAV, navIdFor, useAdd } from './nav';
@@ -51,6 +52,7 @@ export function AppShell({ chrome }: { chrome: Chrome }) {
             <RouteFade />
           </main>
         </div>
+        <AssistantPanel />
         {overlays}
       </div>
     );
@@ -62,6 +64,7 @@ export function AppShell({ chrome }: { chrome: Chrome }) {
         <main className={s.mobileMain}>
           <RouteFade />
         </main>
+        {chrome === 'app' && <AssistantPanel />}
         {chrome === 'app' && <BottomBar />}
       </div>
       <SidebarDrawer />

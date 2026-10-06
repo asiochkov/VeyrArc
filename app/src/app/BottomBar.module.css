@@ -1,23 +1,74 @@
+/* Mobile dock: pill + assistant drop. Intro: the pill grows out of a narrow blob, a dot becomes the
+   white puck, icons appear left to right, the drop splits off to the right (a neck that thins out). */
 .dock {
+  --h: 64px; --gap: 8px; --ease: cubic-bezier(.2, .9, .25, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
   position: fixed; z-index: var(--z-docked); left: 0; right: 0; bottom: 0;
-  display: flex; align-items: center; gap: 8px; padding: 10px 10px max(10px, var(--safe-bottom));
+  display: flex; align-items: center; gap: var(--gap); padding: 10px 10px max(10px, var(--safe-bottom));
   background: linear-gradient(to top, rgba(0,0,0,.92) 40%, rgba(0,0,0,0)); pointer-events: none;
-  animation: dockIn 702ms var(--ease-out-strong) both;
 }
-@keyframes dockIn { from { transform: translateY(100%); opacity: .4; } to { transform: none; opacity: 1; } }
 .bar {
-  flex: 1; display: flex; justify-content: space-around; align-items: center; height: 64px; padding: 0 6px;
-  border-radius: var(--r-pill); background: #0A1230;  
-  box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(80,125,255,.16); pointer-events: auto;
+  position: relative; flex: 1; display: flex; justify-content: space-around; align-items: center; height: var(--h); padding: 0 6px;
+  border-radius: 999px; background: #0A1230; box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(80,125,255,.16);
+  pointer-events: auto; clip-path: inset(0 0 round 999px);
+  animation: grow 620ms var(--ease) both;
+  transition: clip-path 520ms var(--ease);
 }
-.item { position: relative; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: rgba(232,237,243,.42); transition: color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
-.item:hover { color: rgba(232,237,243,.75); }
-.item:active { transform: scale(.9); }
-.item[data-active='true'] { color: #FFFFFF; background: var(--c-on); }
-.fab {
-  flex: none; width: 64px; height: 64px; border-radius: 50%; border: none; background: var(--c-on); color: #FFFFFF;
-  display: grid; place-items: center; cursor: pointer; pointer-events: auto;
-  box-shadow: 0 10px 30px rgba(0,60,200,.4); transition: transform var(--dur-fast) var(--ease-out);
+@keyframes grow { 0% { clip-path: inset(0 36% round 999px); } 100% { clip-path: inset(0 0 round 999px); } }
+.item {
+  position: relative; z-index: 1; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+  color: rgba(232,237,243,.45); transition: color 320ms var(--ease), opacity 260ms var(--ease), transform 260ms var(--ease);
+  animation: pop 420ms var(--spring) both; animation-delay: calc(380ms + var(--k) * 70ms);
 }
-.fab:active { transform: scale(.92); }
-@media (prefers-reduced-motion: reduce) { .dock { animation: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+.item:active { transform: scale(.88); }
+.item[data-active='true'] { color: #030923; }
+/* the white puck under the active section: grows from a dot, then glides between sections */
+.puck {
+  position: absolute; left: 0; top: 50%; width: 48px; height: 48px; margin-top: -24px; border-radius: 50%; background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  transition: transform 460ms var(--spring), opacity 260ms;
+  animation: dot 560ms var(--spring) 260ms both;
+}
+@keyframes dot { 0% { scale: 0; } 40% { scale: .18; } 100% { scale: 1; } }
+/* assistant drop + the neck that joins it to the pill during the split */
+.drop {
+  position: relative; z-index: 2; flex: none; width: 72px; height: var(--h); border-radius: 999px; border: none;
+  background: #0A1230; box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(80,125,255,.2);
+  display: grid; place-items: center; cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent;
+  animation: split 700ms var(--spring) 760ms both;
+  transition: transform 520ms var(--spring), opacity 300ms var(--ease);
+}
+@keyframes split { 0% { transform: translateX(-60px) scale(.45); opacity: 0; } 35% { opacity: 1; } 100% { transform: none; opacity: 1; } }
+.drop:active { transform: scale(.92); }
+.drop svg { transition: transform 600ms var(--spring); }
+.drop:hover svg { transform: rotate(45deg); }
+.neck {
+  position: absolute; z-index: 1; right: calc(10px + 72px - 14px); bottom: calc(max(10px, var(--safe-bottom)) + var(--h) / 2 - 11px);
+  width: calc(var(--gap) + 28px); height: 22px; border-radius: 11px; background: #0A1230; pointer-events: none;
+  animation: neck 700ms var(--ease) 760ms both;
+}
+@keyframes neck { 0% { transform: scaleY(1.6); opacity: 1; } 60% { transform: scaleY(.35); opacity: 1; } 100% { transform: scaleY(0); opacity: 0; } }
+
+/* live dot in the merged pill: listening / thinking / answer */
+.live { position: absolute; left: 50%; top: 50%; display: flex; gap: 5px; transform: translate(-50%, -50%) scale(.4); opacity: 0; transition: opacity 260ms, transform 420ms var(--spring); pointer-events: none; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.live[data-state='listening'] i { background: #6E9BFF; animation: hop 900ms ease-in-out infinite; }
+.live[data-state='listening'] i:nth-child(2) { animation-delay: 120ms; } .live[data-state='listening'] i:nth-child(3) { animation-delay: 240ms; }
+.live[data-state='processing'] i { animation: fade 900ms ease-in-out infinite; }
+.live[data-state='processing'] i:nth-child(2) { animation-delay: 150ms; } .live[data-state='processing'] i:nth-child(3) { animation-delay: 300ms; }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
+@keyframes fade { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+/* merged: the drop flows back into the pill, the pill shrinks to a blob with the live dots */
+.dock[data-merged='true'] .bar { clip-path: inset(0 32% round 999px); cursor: pointer; }
+.dock[data-merged='true'] .item { opacity: 0; transform: scale(.4); pointer-events: none; animation: none; }
+.dock[data-merged='true'] .puck { opacity: 0; scale: 0; animation: none; }
+.dock[data-merged='true'] .drop { transform: translateX(-120px) scale(.4); opacity: 0; animation: none; }
+.dock[data-merged='true'] .live { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.dock[data-merged='false'] .item { animation-delay: calc(240ms + var(--k) * 60ms); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bar, .item, .puck, .drop, .neck { animation: none !important; }
+  .neck { display: none; }
+}
+.dock[data-merged='true'] .bar { animation: none; }
