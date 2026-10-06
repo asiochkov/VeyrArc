@@ -29,6 +29,8 @@ type AddState = {
   open: boolean; tile: AddTile | null; paletteOpen: boolean; drawerOpen: boolean;
   openAdd: (tile?: AddTile | null) => void; closeAdd: () => void;
   openPalette: () => void; closePalette: () => void; setDrawer: (v: boolean) => void;
+  /** the day open in the planner: a task added from there lands on it, not on today */
+  plannerDay: string | null; setPlannerDay: (d: string | null) => void;
 };
 export const useAdd = create<AddState>((set) => ({
   open: false, tile: null, paletteOpen: false, drawerOpen: false,
@@ -37,6 +39,7 @@ export const useAdd = create<AddState>((set) => ({
   openPalette: () => set({ paletteOpen: true, drawerOpen: false }),
   closePalette: () => set({ paletteOpen: false }),
   setDrawer: (drawerOpen) => set({ drawerOpen }),
+  plannerDay: null, setPlannerDay: (plannerDay) => set({ plannerDay }),
 }));
 
 /* kept for screens that still register a local «+» (e.g. the Disciplines composer); the sheet wins */

@@ -8,8 +8,6 @@ import { isAnon, signOut, useAuth, isProPlan } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
 import { Icon } from '../ui/Icon';
 import { Avatar, InfoDialog } from '../ui/primitives';
-import { useIsDesktop } from '../lib/useIsDesktop';
-import { useAdd } from './nav';
 import s from './AppHeader.module.css';
 
 /*
@@ -21,8 +19,6 @@ export function AppHeader({ title, sub, right }: { title?: ReactNode; sub?: Reac
   const t = useT();
   const hd = useHeader();
   const [oathOpen, setOathOpen] = useState(false);
-  const desktop = useIsDesktop();
-  const openPalette = useAdd((x) => x.openPalette);
   return (
     <header className={s.header}>
       <div className={s.left}>
@@ -35,7 +31,6 @@ export function AppHeader({ title, sub, right }: { title?: ReactNode; sub?: Reac
       </div>
       <div className={s.right}>
         {right}
-        {!desktop && <button type="button" className={s.menuBtn} onClick={openPalette} aria-label={t('nav.search')}><Icon name="search" size={17} /></button>}
         <AvatarMenu initials={hd.initials} />
       </div>
       <InfoDialog open={oathOpen} title={t('arc.oathTitle')} okLabel={t('common.ok')} onClose={() => setOathOpen(false)}

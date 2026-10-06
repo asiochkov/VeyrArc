@@ -91,7 +91,7 @@ function HabitForm({ t, onDone }: { t: T; onDone: () => void }) {
 function nextHour() { const d = new Date(); return `${String(Math.min(23, d.getHours() + 1)).padStart(2, '0')}:00`; }
 function EventForm({ t, onDone }: { t: T; onDone: () => void }) {
   const [title, setTitle] = useState('');
-  const [day, setDay] = useState(isoDay());
+  const [day, setDay] = useState(() => useAdd.getState().plannerDay ?? isoDay());
   const [time, setTime] = useState(nextHour());
   const [timed, setTimed] = useState(true);
   const submit = () => {

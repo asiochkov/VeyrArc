@@ -108,13 +108,11 @@ function Greeting({ t, d }: { t: T; d: TodayData }) {
   const now = new Date();
   const loc = t.lang === 'en' ? 'en-US' : 'ru-RU';
   const date = now.toLocaleDateString(loc, { weekday: 'short', day: 'numeric', month: 'short' });
-  const openPalette = useAdd((x) => x.openPalette);
   return (
     <header className={h.head}>
       <h1 className={h.hello}>{t(`home.hello.${periodOf()}`)}{first ? ',' : ''}{first && <><br />{first}</>}</h1>
       <div className={h.headSide}>
         <div className={h.headBtns}>
-          <button type="button" className={h.roundBtn} onClick={openPalette} aria-label={t('nav.search')}><Icon name="search" size={17} sw={1.8} /></button>
           <AvatarMenu initials={hd.initials} />
         </div>
         <span className={h.headMeta}>{date} · {now.toTimeString().slice(0, 5)}</span>

@@ -1,3 +1,4 @@
+import { useAdd } from '../../app/nav';
 import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent, type TouchEvent } from 'react';
@@ -74,6 +75,9 @@ function useCalendar() {
   const [view, setView] = useState<View>('week');
   const [monthOpen, setMonthOpen] = useState(false);
   const setSel = (d: string) => { setSelRaw(d); setCursor(monthStart(d)); };
+  // «+» opened from the planner creates the task on the day shown here
+  useEffect(() => { useAdd.getState().setPlannerDay(sel); }, [sel]);
+  useEffect(() => () => useAdd.getState().setPlannerDay(null), []);
 
   const week0 = weekStart(sel);
   const gridFrom = weekStart(cursor);

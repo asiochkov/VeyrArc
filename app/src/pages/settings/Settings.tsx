@@ -33,7 +33,6 @@ const ARCS = [
 ];
 /* Master Changeset RS-7: seven groups, Notion-like */
 type Group = 'account' | 'appearance' | 'notif' | 'arc' | 'plan' | 'data' | 'about';
-const SHORTCUTS: [string, string][] = [['⌘K', 'palette'], ['C', 'create'], ['G T', 'today'], ['G H', 'disciplines'], ['G P', 'planner'], ['G L', 'goals'], ['G A', 'analytics'], ['[', 'sidebar']];
 
 export function Settings() {
   const t = useT();
@@ -299,15 +298,6 @@ export function Settings() {
             <Row icon="alert" label={t('settings.versionLabel')}>
               <span style={{ font: 'var(--fw-medium) 12px var(--font-mono)', color: 'var(--text-muted)' }}>{`${ACCOUNT.version} · ${__BUILD__}`}</span>
             </Row>
-          </div>
-          <div className={s.groupTitle} style={{ marginTop: 18 }}>{t('settings.shortcuts')}</div>
-          <div className={s.list}>
-            {SHORTCUTS.map(([k, id]) => (
-              <div key={k} className={s.row}>
-                <span style={{ flex: 1, minWidth: 0, font: 'var(--fw-medium) 14px var(--font-ui)' }}>{t(`settings.keys.${id}` as never)}</span>
-                <kbd className={s.kbd}>{k}</kbd>
-              </div>
-            ))}
           </div>
         </div>
       )}
