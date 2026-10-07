@@ -92,8 +92,12 @@ try {
   await page.waitForURL('**/welcome');
   await page.goto(APP + '/login');
   await page.getByPlaceholder('напр. ivan@mail.ru').fill(email);
+  // beta: «Забыли пароль?» shows the support contact; the code reset screen stays reachable at /reset
   await page.getByRole('button', { name: 'Забыли пароль?' }).click();
-  await page.waitForURL('**/reset');
+  await page.getByText(/support@/).waitFor(); log('beta: forgot password shows the contact');
+  await page.getByRole('button', { name: 'Ок' }).click().catch(() => page.keyboard.press('Escape'));
+  await page.goto(APP + '/reset');
+  await page.getByPlaceholder('напр. ivan@mail.ru').fill(email).catch(() => {});
   const t1 = Date.now();
   await page.getByRole('button', { name: 'Отправить код' }).click();
   await page.getByRole('button', { name: 'Ввести код' }).click();

@@ -16,6 +16,10 @@ export const markReviewDone = (d = isoDay()) => { try { localStorage.setItem(REV
 const RECOVERY_KEY = (d: string) => 'veyrarc.recovery.' + d;
 export const recoveryDismissed = (d: string) => { try { return localStorage.getItem(RECOVERY_KEY(d)) === '1'; } catch { return false; } };
 export const dismissRecovery = (d: string) => { try { localStorage.setItem(RECOVERY_KEY(d), '1'); } catch { /* no storage */ } };
+const LIGHTEN_KEY = (d: string) => 'veyrarc.lighten.' + d;
+const lightenDismissed = (d: string) => { try { return localStorage.getItem(LIGHTEN_KEY(d)) === '1'; } catch { return false; } };
+export const dismissLighten = (d: string) => { try { localStorage.setItem(LIGHTEN_KEY(d), '1'); } catch { /* no storage */ } };
+export type LightenWhy = 'mood' | 'missed' | 'late';
 
 /** Everything the Today cockpit shows, derived from the one system state (re-computed every 30 s for the time of day). */
 export function useToday() {
@@ -59,8 +63,19 @@ export function useToday() {
       .filter((p) => p.day === day && (!p.starts_at || Math.abs(toMin(p.starts_at) - nowMin) <= 360))
       .sort((a, b) => (a.starts_at ?? '99').localeCompare(b.starts_at ?? '99'))
       .slice(0, 5);
+    // «Режим восстановления»: a heavy day (low mood, yesterday missed, late evening with a lot left) →
+    // offer to move today's open planner tasks to tomorrow; nothing changes until «Применить»
+    // ТЗ 4.1: low mood today or a low 3-day average; a missed day (habits, or 2+ tasks left undone yesterday)
+    const open = sys.plan.filter((p) => p.day === day && !p.done);
+    const moods = sys.days.filter((x) => x.mood != null && x.day <= day && x.day >= addDays(day, -2)).map((x) => x.mood!);
+    const lowMood = (todayMood != null && todayMood <= 2) || (moods.length >= 2 && moods.reduce((a, m) => a + m, 0) / moods.length <= 2.5);
+    const yMissed = sys.plan.filter((p) => p.day === y && !p.done).length;
+    const why: LightenWhy | null = lowMood && open.length >= 1 ? 'mood'
+      : (yStatus === 'broken' || yMissed >= 2) && open.length >= 2 ? 'missed'
+        : d.getHours() >= 20 && open.length >= 2 ? 'late' : null;
+    const lighten = why && !lightenDismissed(day) ? { why, items: open } : null;
     return {
-      day, view, habits, arc, score, week, recovery, action, strip, todayMood,
+      day, view, habits, arc, score, week, recovery, lighten, action, strip, todayMood,
       coreCount: habits.filter((h) => h.core).length,
       focusToday: { sessions: focusToday.length, minutes: focusToday.reduce((a, f) => a + f.minutes, 0) },
       freezes: { used: view.stats.freezesUsed, allowed: freezesAllowed },

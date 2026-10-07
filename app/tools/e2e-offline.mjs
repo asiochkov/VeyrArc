@@ -27,7 +27,19 @@ try {
   const shown = await page.getByRole('checkbox', { name: 'Холодный душ' }).getAttribute('aria-checked', { timeout: 10000 }).catch(() => null);
   log('offline reload shows cached habit, checked =', shown);
   if (shown !== 'true') throw new Error('no cached data offline');
+  // a change made offline survives closing the app offline and is sent on the next start
+  const box2 = page.getByRole('checkbox', { name: 'Холодный душ' });
+  await box2.click(); await page.waitForTimeout(1500);
+  log('queue stored:', await page.evaluate(() => !!localStorage.getItem('veyrarc.queue')));
+  await page.reload().catch(() => {});
+  log('offline reload keeps unsent change, checked =', await box2.getAttribute('aria-checked', { timeout: 10000 }).catch(() => null));
   await ctx.setOffline(false);
+  await page.getByText('Связь есть — всё сохранено').waitFor({ timeout: 15000 }); log('stored queue sent after reconnect');
+  await page.waitForTimeout(800);
+  await page.reload(); await box2.waitFor();
+  const fin = await box2.getAttribute('aria-checked');
+  log('server state after restart, checked =', fin, '· queue left:', await page.evaluate(() => localStorage.getItem('veyrarc.queue')));
+  if (fin !== 'false') throw new Error('stored offline change not sent');
   console.log(errors.length ? 'page errors: ' + errors.join(' | ') : 'no page errors');
 } catch (e) {
   await page.screenshot({ path: '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/e2e-fail.png' });

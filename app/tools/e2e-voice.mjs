@@ -3,7 +3,7 @@ import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
 const S = '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/';
 const { browser, page, errors } = await open({ width: 390, height: 844 }, { hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 await page.addInitScript(() => {
-  class R { start() { window.__rec = this; } stop() { setTimeout(() => this.onend?.(), 30); } abort() { this.onend?.(); } }
+  class R { start() { if (window.__deny) { setTimeout(() => { this.onerror?.({ error: 'not-allowed' }); this.onend?.(); }, 50); return; } window.__rec = this; } stop() { setTimeout(() => this.onend?.(), 30); } abort() { this.onend?.(); } }
   Object.defineProperty(window, 'webkitSpeechRecognition', { value: R, configurable: true, writable: true });
   Object.defineProperty(window, 'SpeechRecognition', { value: R, configurable: true, writable: true });
   window.__say = (t) => { const r = window.__rec; r.onresult?.({ resultIndex: 0, results: [Object.assign([{ transcript: t }], { isFinal: true })] }); r.stop(); };
@@ -39,6 +39,14 @@ try {
   log('orb look after success:', await page.getByRole('dialog').getAttribute('data-look'));
   log('no manual buttons:', (await page.getByRole('dialog').getByRole('button').count()) === 2);
   await page.screenshot({ path: S + 'voice-orb.png' });
+  // no microphone permission: the error state with a clear message
+  await page.locator('nav[aria-label]').last().tap(); await page.waitForTimeout(700);
+  await page.evaluate(() => { window.__deny = true; window.__rec = null; });
+  await page.getByRole('button', { name: 'Ассистент VeyrArc' }).first().tap();
+  await page.waitForTimeout(1200);
+  const dlg = page.getByRole('dialog');
+  log('mic denied → look:', await dlg.getAttribute('data-look'), '·', (await dlg.innerText()).replace(/\n+/g, ' · '));
+  if ((await dlg.getAttribute('data-look')) !== 'error') throw new Error('no error state on denied mic');
   console.log(errors.length ? 'page errors: ' + errors.join(' | ') : 'no page errors');
 } catch (e) {
   await page.screenshot({ path: S + 'e2e-fail.png' });

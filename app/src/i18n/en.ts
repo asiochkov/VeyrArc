@@ -271,6 +271,8 @@ export const en: Dict = {
     later: 'Later — continue without signing up',
     errGeneric: 'That didn’t work. Check your connection and try again.',
     forgot: 'Forgot password?',
+    forgotBetaTitle: 'Password reset',
+    forgotBetaBody: 'During the beta we reset passwords by hand. Write to us from your account email and we’ll send you a new sign-in:',
     noAccount: 'No account?',
     create: 'Create',
     resetTitle: 'Reset password',
@@ -639,6 +641,14 @@ export const en: Dict = {
     log: 'Check “{x}”',
     unlog: 'Uncheck “{x}”',
     logged: '{x} ✓',
+  },
+  lighten: {
+    title: 'Recovery mode',
+    mood: { one: 'Rough day. Move {n} task to tomorrow?', other: 'Rough day. Move {n} tasks to tomorrow?' },
+    missed: { one: 'Yesterday was missed. Lighten today: {n} task to tomorrow?', other: 'Yesterday was missed. Lighten today: {n} tasks to tomorrow?' },
+    late: { one: 'It’s evening, {n} task left. Move it to tomorrow?', other: 'It’s evening, {n} tasks left. Move them to tomorrow?' },
+    apply: 'Apply', later: 'Not now', undo: 'Undo',
+    done: { one: '{n} task moved to tomorrow', other: '{n} tasks moved to tomorrow' },
   },
   voice: {
     open: 'VeyrArc assistant', again: 'Speak again', noVoice: 'Voice input is not available in this browser',

@@ -7,7 +7,8 @@ import { useT, type T } from '../../i18n';
 import { useAuth } from '../../lib/auth';
 import { pendingRecap } from '../../lib/maintenance';
 import type { TodayHabit } from '../../mock/today';
-import { logHabit, logMood, saveFreeze } from '../../state/actions';
+import { logHabit, logMood, saveEvent, saveFreeze } from '../../state/actions';
+import { addDays } from '../../data/model';
 import { INDEX_WEIGHTS, periodOf, type NowAction } from '../../state/compute';
 import { pomo, usePomodoro, fmtClock, remaining } from '../../state/pomodoro';
 import { Icon, type IconName } from '../../ui/Icon';
@@ -20,7 +21,7 @@ import { EveningReview } from './EveningReview';
 import { isDone } from './HabitRow';
 import c from './cockpit.module.css';
 import h from './home.module.css';
-import { dismissRecovery, useToday, type TodayData } from './useToday';
+import { dismissLighten, dismissRecovery, useToday, type TodayData } from './useToday';
 
 /*
  * Today as a smart-home dashboard (style reference: Nothing home UI).
@@ -77,6 +78,7 @@ export function Today() {
 
         <div className={h.grid}>
           {d.recovery && <RecoveryTile t={t} rec={d.recovery} style={n()} />}
+          {d.lighten && d.lighten.why !== 'mood' && <LightenTile t={t} day={d.day} lt={d.lighten} style={n()} />}
           <ScoreTile t={t} d={d} style={n()} />
           <NowTile t={t} d={d} style={n()} onReview={() => setReview(true)} onOath={() => setOath(true)} />
           <ArcTile t={t} d={d} style={n()} />
@@ -90,6 +92,8 @@ export function Today() {
           {/* phone grid: one square sits under the score, the rest go in pairs — an odd one would leave a hole */}
           <FocusTile t={t} d={d} style={n()} fill={(shown.length + (filter !== 'extra' && core.length === 0 ? 1 : 0)) % 2 === 1} />
           <MoodTile t={t} d={d} style={n()} />
+          {/* a low mood was just picked here: the offer appears right under it */}
+          {d.lighten?.why === 'mood' && <LightenTile t={t} day={d.day} lt={d.lighten} style={n()} />}
           <PlanTile t={t} d={d} style={n()} />
           <StatsTile t={t} d={d} style={n()} />
         </div>
@@ -292,6 +296,38 @@ function RecoveryTile({ t, rec, style }: { t: T; rec: { day: string; left: numbe
       <span className={h.tileText}>
         <span className={h.tileName}>{rec.left > 0 ? t('cockpit.recoveryAsk') : t('cockpit.recoveryNone')}</span>
         {rec.left > 0 && <button type="button" className={h.pillInk} disabled={busy} onClick={() => { void freeze(); }}>{t('cockpit.recoveryUse', { n: rec.left })}</button>}
+      </span>
+    </div>
+  );
+}
+
+/** «Режим восстановления»: move today's open planner tasks to tomorrow — only on «Применить», with undo. */
+function LightenTile({ t, day, lt, style }: { t: T; day: string; lt: NonNullable<TodayData['lighten']>; style: React.CSSProperties }) {
+  const [gone, setGone] = useState(false);
+  if (gone) return null;
+  const close = () => { dismissLighten(day); setGone(true); };
+  const apply = () => {
+    const items = lt.items;
+    const tomorrow = addDays(day, 1);
+    for (const p of items) saveEvent({ ...p, day: tomorrow }, false);
+    close();
+    toast.action(t('lighten.done', { n: items.length }), t('lighten.undo'), () => { for (const p of items) saveEvent(p, false); });
+  };
+  const names = lt.items.slice(0, 3).map((p) => p.title).join(' · ') + (lt.items.length > 3 ? ` · +${lt.items.length - 3}` : '');
+  return (
+    <div className={`${h.tile} ${h.wide} ${h.lighten}`} style={style} role="status" aria-label={t('lighten.title')}>
+      <span className={h.tileTop}>
+        <span className={h.circle}><Icon name="move" size={18} sw={1.8} /></span>
+        <button type="button" className={h.circle} onClick={close} aria-label={t('lighten.later')}><Icon name="close" size={14} sw={2} /></button>
+      </span>
+      <span className={h.tileText}>
+        <span className={h.tileSub}>{t('lighten.title')}</span>
+        <span className={h.tileName}>{t(`lighten.${lt.why}`, { n: lt.items.length })}</span>
+        <span className={h.tileSub}>{names}</span>
+        <span className={h.lightenRow}>
+          <button type="button" className={h.pillInk} onClick={apply}>{t('lighten.apply')}</button>
+          <button type="button" className={h.pillGhost} onClick={close}>{t('lighten.later')}</button>
+        </span>
       </span>
     </div>
   );

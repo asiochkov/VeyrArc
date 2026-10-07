@@ -1,4 +1,4 @@
-import { mutate } from '../data/sync';
+import { mutate, type Op } from '../data/sync';
 import { isoDay } from '../lib/day';
 import { db, hasBackend } from '../lib/supabase';
 import { cadenceOf, type FocusRow, type HabitRowDb, type PlanRow, type QuitRow } from '../data/model';
@@ -19,7 +19,7 @@ let lastWrite = 0;
 export const ownWriteRecent = () => inFlight > 0 || Date.now() - lastWrite < 3000;
 /** Writes made outside `write()` (onboarding, import, arc rollover) count as this device's own too. */
 export const markOwnWrite = (ms = 0) => { lastWrite = Date.now() + ms; };
-function write(run: () => Promise<unknown>) {
+function write(run: (() => Promise<unknown>) | Op) {
   if (!hasBackend) return;
   inFlight++;
   lastWrite = Date.now();
@@ -44,11 +44,9 @@ export function logHabit(habitId: string, value: number, done: boolean, day = is
     ...r,
     logs: [...r.logs.filter((l) => !(l.habit_id === habitId && l.day === day)), ...(value > 0 ? [{ habit_id: habitId, day, value, done }] : [])],
   }));
-  write(async () => {
-    ok(value > 0
-      ? await db().from('habit_logs').upsert({ habit_id: habitId, day, value, done })
-      : await db().from('habit_logs').delete().eq('habit_id', habitId).eq('day', day));
-  });
+  write(value > 0
+    ? { t: 'habit_logs', a: 'upsert', v: { habit_id: habitId, day, value, done } }
+    : { t: 'habit_logs', a: 'delete', eq: { habit_id: habitId, day } });
   // a goal linked to this Core habit: its daily steps follow the habit
   const sys = getSystem();
   for (const g of sys?.goals ?? []) {
@@ -67,7 +65,7 @@ export function logMood(level: number | null, day = isoDay()) {
       ? r.days.map((d) => (d.day === day ? { ...d, mood } : d))
       : [...r.days, { day, mood, water: 0, frozen: false }],
   }));
-  write(async () => { ok(await db().from('day_entries').upsert({ day, mood }, { onConflict: 'user_id,day' })); });
+  write({ t: 'day_entries', a: 'upsert', v: { day, mood }, oc: 'user_id,day' });
 }
 
 /* ---- focus ---- */
@@ -78,12 +76,10 @@ export function logFocus(minutes: number, type: 'focus' | 'short' | 'long' = 'fo
     session_type: type, linked_goal_id: link.goalId ?? null, linked_habit_id: link.habitId ?? null, linked_event_id: link.eventId ?? null,
   };
   patchSystem((r) => ({ ...r, focus: [...r.focus, row] }));
-  write(async () => {
-    ok(await db().from('focus_sessions').insert({
-      id: row.id, started_at: row.started_at, minutes, session_type: type,
-      linked_goal_id: row.linked_goal_id, linked_habit_id: row.linked_habit_id, linked_event_id: row.linked_event_id,
-    }));
-  });
+  write({ t: 'focus_sessions', a: 'insert', v: {
+    id: row.id, started_at: row.started_at, minutes, session_type: type,
+    linked_goal_id: row.linked_goal_id, linked_habit_id: row.linked_habit_id, linked_event_id: row.linked_event_id,
+  } });
   if (type !== 'focus') return;
   const sys = getSystem();
   // a duration habit gets the minutes; an event is done
@@ -104,16 +100,16 @@ export function saveEvent(ev: PlanRow, isNew: boolean) {
     day: ev.day, title: ev.title.slice(0, 120), note: ev.note || null, done: ev.done, starts_at: ev.starts_at, ends_at: ev.ends_at,
     category_id: ev.category_id, linked_goal_id: ev.linked_goal_id ?? null, linked_habit_id: ev.linked_habit_id ?? null, focus: !!ev.focus,
   };
-  write(async () => { ok(isNew ? await db().from('plan_items').insert({ id: ev.id, ...row }) : await db().from('plan_items').update(row).eq('id', ev.id)); });
+  write(isNew ? { t: 'plan_items', a: 'insert', v: { id: ev.id, ...row } } : { t: 'plan_items', a: 'update', v: row, eq: { id: ev.id } });
 }
 export function deleteEvent(id: string) {
   patchSystem((r) => ({ ...r, plan: r.plan.filter((p) => p.id !== id) }));
-  write(async () => { ok(await db().from('plan_items').delete().eq('id', id)); });
+  write({ t: 'plan_items', a: 'delete', eq: { id } });
 }
 export function setEventDone(id: string, done: boolean) {
   const ev = getSystem()?.plan.find((p) => p.id === id);
   patchSystem((r) => ({ ...r, plan: r.plan.map((p) => (p.id === id ? { ...p, done } : p)) }));
-  write(async () => { ok(await db().from('plan_items').update({ done }).eq('id', id)); });
+  write({ t: 'plan_items', a: 'update', v: { done }, eq: { id } });
   // an event linked to a goal: the goal step with the same text is ticked for that day
   if (ev?.linked_goal_id && done) {
     const sys = getSystem();
@@ -134,7 +130,7 @@ function setGoalTasks(goalId: string, ids: string[], day: string) {
     const next = { goal_id: goalId, day, done_task_ids: ids, diary: cur?.diary ?? null };
     return { ...r, entries: cur ? r.entries.map((e) => (e === cur ? next : e)) : [...r.entries, next] };
   });
-  write(async () => { ok(await db().from('goal_entries').upsert({ goal_id: goalId, day, done_task_ids: ids }, { onConflict: 'goal_id,day' })); });
+  write({ t: 'goal_entries', a: 'upsert', v: { goal_id: goalId, day, done_task_ids: ids }, oc: 'goal_id,day' });
 }
 export function logGoalTask(goalId: string, taskId: string, done: boolean, day = isoDay()) {
   const cur = entryOf(getSystem(), goalId, day)?.done_task_ids ?? [];

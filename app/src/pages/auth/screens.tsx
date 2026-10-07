@@ -5,7 +5,8 @@ import { useT } from '../../i18n';
 import { google, nextPath, resendEmail, sendReset, setNewPassword, signIn, signUpOrLink, startGuest, verifyEmail, verifyReset } from '../../lib/auth';
 import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
-import { Cta } from '../../ui/primitives';
+import { Cta, InfoDialog } from '../../ui/primitives';
+import { config } from '../../config';
 import s from './auth.module.css';
 import { AuthLayout, up } from './AuthLayout';
 import { emailRe, useFlow } from './flow';
@@ -199,6 +200,7 @@ export function Login() {
   const navigate = useNavigate();
   const { f, setF } = useFlow();
   const [showPw, setShowPw] = useState(false);
+  const [help, setHelp] = useState(false);
   const [err, setErr] = useState(false);
   const { loading, load, run } = useLoad();
   const { shake, cls } = useShake();
@@ -229,11 +231,14 @@ export function Login() {
             onChange={(e) => { setF('lemail', e.target.value); setErr(false); }} />
           <Field
             wrapClass={cls('login')} wrapStyle={{ marginTop: 14, ...up(6) }} type={showPw ? 'text' : 'password'} value={f.lpw} placeholder="••••••••" showError={err}
-            label={<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}><label className={s.label}>{t('auth.password')}</label><button type="button" className={s.linkBtn} style={{ fontSize: 12.5 }} onClick={() => { setF('remail', f.lemail); navigate('/reset'); }}>{t('auth.forgot')}</button></div>}
+            label={<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}><label className={s.label}>{t('auth.password')}</label><button type="button" className={s.linkBtn} style={{ fontSize: 12.5 }} onClick={() => { if (config.beta) { setHelp(true); return; } setF('remail', f.lemail); navigate('/reset'); }}>{t('auth.forgot')}</button></div>}
             onChange={(e) => { setF('lpw', e.target.value); setErr(false); }}
             right={<EyeButton shown={showPw} onToggle={() => setShowPw(!showPw)} />} />
           <SubmitCta valid={!!(f.lemail && f.lpw)} loading={loading === 'login'} onClick={submit} style={{ marginTop: 22, ...up(7) }}>{t('auth.signIn')}</SubmitCta>
           <div className={s.footer}>{t('auth.noAccount')} <button type="button" className={s.linkBtn} onClick={() => navigate('/signup')}>{t('auth.create')}</button></div>
+          {/* beta: reset e-mails are not reliable yet — the password is reset by hand on request */}
+          <InfoDialog open={help} title={t('auth.forgotBetaTitle')} okLabel={t('common.ok')} onClose={() => setHelp(false)}
+            body={<>{t('auth.forgotBetaBody')}<br /><b style={{ userSelect: 'all', WebkitUserSelect: 'all' }}>{config.site.support}</b></>} />
         </div>
       )}
     </AuthLayout>
