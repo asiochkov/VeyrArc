@@ -1,5 +1,6 @@
 import { toast } from './toast';
 import { useEffect, useState } from 'react';
+import { useAssistant } from '../voice/voice';
 import { useT } from '../i18n';
 import { isoDay } from '../lib/day';
 import { scheduled } from '../data/model';
@@ -108,7 +109,9 @@ export function DockedPomodoro() {
   const st = useTick();
   const full = st.lengths[st.tab] * 60;
   const active = !!st.endsAt || (st.left > 0 && st.left < full);
-  if (!active || st.open || !st.docked) return null;
+  // the assistant takes the whole screen: the mini player waits behind it
+  const assistant = useAssistant((a) => a.open);
+  if (!active || st.open || !st.docked || assistant) return null;
   const pct = 1 - st.left / full;
   return (
     <div className={s.dock} role="region" aria-label={t('pomo.title')}>

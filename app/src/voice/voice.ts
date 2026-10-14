@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { useLangStore } from '../i18n';
-import { parseCommand } from './intents';
-import { runIntent } from './run';
+import { normalize, similarity, understand } from './nlu';
+import { runAll, type Choice, type Reply } from './run';
 
 /*
  * Voice assistant state machine (ТЗ модуль 2.2): idle → listening → processing → speaking → idle,
@@ -9,8 +9,11 @@ import { runIntent } from './run';
  * (Web Speech API, free); the transcript never leaves the device except through the browser.
  */
 export type VoiceState = 'idle' | 'listening' | 'processing' | 'speaking' | 'error';
-type Store = { state: VoiceState; heard: string; reply: string; ok: boolean };
-export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true }));
+type Store = {
+  state: VoiceState; heard: string; reply: string; ok: boolean;
+  list: string[]; suggest: string[]; choices: Choice[]; canUndo: boolean;
+};
+export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false }));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Rec = any;
@@ -31,31 +34,81 @@ function fail(msg: string) {
   resetTimer = setTimeout(() => set({ state: 'idle' }), 4000);
 }
 
-function speak(text: string) {
+/** a voice that sounds natural for the language, if the device has one */
+function pickVoice(code: string) {
+  const vs = window.speechSynthesis?.getVoices?.() ?? [];
+  const mine = vs.filter((v) => v.lang?.toLowerCase().startsWith(code));
+  return mine.find((v) => /premium|enhanced|natural|milena|yuri|siri|google/i.test(v.name)) ?? mine[0];
+}
+let muted = false;
+export const setMuted = (v: boolean) => { muted = v; if (v) window.speechSynthesis?.cancel(); };
+function speak(text: string, then?: () => void) {
   const synth = typeof window !== 'undefined' ? window.speechSynthesis : undefined;
-  if (!synth) { set({ state: 'idle' }); return; }
+  const done = () => {
+    clearTimeout(resetTimer);
+    if (then) { then(); return; }
+    resetTimer = setTimeout(() => { if (useVoice.getState().state === 'speaking') set({ state: 'idle' }); }, 1800);
+  };
+  if (!synth || muted) { set({ state: 'speaking' }); setTimeout(done, 400); return; }
   synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  // spoken without the list marks and quotes
+  const u = new SpeechSynthesisUtterance(text.replace(/[«»"“”]/g, '').replace(/ · /g, ', '));
   u.lang = lang() === 'ru' ? 'ru-RU' : 'en-US';
+  const v = pickVoice(lang());
+  if (v) u.voice = v;
+  u.rate = 1.04;
   u.onstart = () => set({ state: 'speaking' });
-  const done = () => { clearTimeout(resetTimer); resetTimer = setTimeout(() => set({ state: 'idle' }), 1800); };
   u.onend = done; u.onerror = done;
   synth.speak(u);
-  // autoplay policy may keep it silent: the text bubble still shows the answer
-  setTimeout(() => { if (useVoice.getState().state === 'processing') { set({ state: 'speaking' }); done(); } }, 800);
+  // autoplay policy may keep it silent: the text still shows the answer
+  setTimeout(() => { if (useVoice.getState().state === 'processing') { set({ state: 'speaking' }); setTimeout(done, 1200); } }, 900);
 }
 
-function handle(text: string) {
-  set({ state: 'processing', heard: text });
+let closeAfter: ReturnType<typeof setTimeout> | undefined;
+function show(r: Reply) {
+  set({ state: 'speaking', reply: r.say, ok: r.ok, list: r.list ?? [], suggest: r.suggest ?? [], choices: r.choices ?? [], canUndo: !!r.undo });
+  navigator.vibrate?.(r.ok ? 15 : [20, 40, 20]);
+  // a question: listen for the answer right after it is asked
+  speak(r.say, r.choices?.length && voiceSupported() ? () => startVoice() : undefined);
+  if (r.close) { clearTimeout(closeAfter); closeAfter = setTimeout(() => closeAssistant(), 900); }
+}
+
+const YES = /^(?:да|ага|угу|давай|конечно|ок|окей|верно|точно|правильно|подтверждаю|yes|yeah|yep|sure|ok)(?:\s|$)/;
+const NO = /^(?:нет|не надо|не нужно|отмена|отмени|не|no|nope|cancel)(?:\s|$)/;
+const ORD: [RegExp, number][] = [[/^(?:перв|1|один|one|first)/, 0], [/^(?:втор|2|два|two|second)/, 1], [/^(?:трет|3|три|three|third)/, 2]];
+/** an answer to the assistant's question: yes / no / «второе» / the option's name */
+function answerChoice(text: string, choices: Choice[]): Reply | null | 'cancel' {
+  const t = normalize(text);
+  const yesOpt = choices.find((c) => c.yes) ?? (choices.length <= 2 ? choices[0] : undefined);
+  if (YES.test(t) && yesOpt) return yesOpt.run();
+  if (NO.test(t)) { const no = choices.find((c) => c.yes === false); return no ? no.run() : 'cancel'; }
+  for (const [re, i] of ORD) if (re.test(t) && choices[i]) return choices[i].run();
+  const best = choices.map((c) => ({ c, s: similarity(t, c.label) })).sort((a, b) => b.s - a.s)[0];
+  if (best && best.s >= 0.5) return best.c.run();
+  return null;
+}
+
+/** run a phrase (spoken, typed or a tapped suggestion) */
+export function handle(text: string) {
+  const said = text.trim();
+  if (!said) return;
+  set({ state: 'processing', heard: said });
   try {
-    const r = runIntent(parseCommand(text), lang());
-    set({ reply: r.say, ok: r.ok });
-    navigator.vibrate?.(r.ok ? 15 : [20, 40, 20]);
-    speak(r.say);
-  } catch {
+    const pending = useVoice.getState().choices;
+    if (pending.length) {
+      const r = answerChoice(said, pending);
+      if (r === 'cancel') { show({ ok: true, say: lang() === 'ru' ? 'Хорошо, отменил' : 'Okay, cancelled' }); return; }
+      if (r) { show(r); return; }
+      set({ choices: [] }); // not an answer: a new command
+    }
+    show(runAll(understand(said), lang()));
+  } catch (e) {
+    console.error('[voice]', e);
     fail(lang() === 'ru' ? 'Не получилось выполнить команду' : 'Could not do that');
   }
 }
+/** a tapped choice button */
+export function choose(c: Choice) { set({ state: 'processing', heard: c.label }); try { show(c.run()); } catch { fail(lang() === 'ru' ? 'Не получилось' : 'Could not do that'); } }
 
 export function startVoice() {
   const Ctor = SR();
@@ -71,10 +124,11 @@ export function startVoice() {
   r.maxAlternatives = 1;
   r.continuous = false;
   let final = '';
-  set({ state: 'listening', heard: '', reply: '', ok: true });
+  const asking = useVoice.getState().choices.length > 0;
+  set({ state: 'listening', heard: '', ok: true, ...(asking ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
   navigator.vibrate?.(12);
-  // nothing heard for 6 s → stop without doing anything
-  silence = setTimeout(() => { if (rec === r && !final) r.stop(); }, 6000);
+  // nothing heard for 7 s → stop without doing anything; a pause after words ends the phrase
+  silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, 7000);
   r.onresult = (e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -82,6 +136,8 @@ export function startVoice() {
       if (res.isFinal) final += res[0].transcript; else interim += res[0].transcript;
     }
     set({ heard: (final + interim).trim() });
+    clearTimeout(silence);
+    silence = setTimeout(() => { if (rec === r) r.stop(); }, final && !interim ? 900 : 2200);
   };
   r.onerror = (e: { error: string }) => {
     rec = null; clearTimeout(silence);
@@ -104,14 +160,17 @@ export function startVoice() {
 
 /** release / second tap: finish listening and run what was heard */
 export function stopVoice() { try { rec?.stop(); } catch { /* already stopped */ } }
-export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
+export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; clearTimeout(silence); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
 
 /* the assistant panel (opened by the bubble next to the dock) */
 type Panel = { open: boolean };
 export const useAssistant = create<Panel>(() => ({ open: false }));
 export function openAssistant() {
+  if (useAssistant.getState().open) return;
   useAssistant.setState({ open: true });
+  set({ heard: '', reply: '', list: [], suggest: [], choices: [], canUndo: false, ok: true, state: 'idle' });
   navigator.vibrate?.(10);
-  setTimeout(startVoice, 420); // after the dock has merged
+  // after the dock has merged; without speech recognition the panel opens on the text field
+  if (voiceSupported()) setTimeout(() => { if (useAssistant.getState().open) startVoice(); }, 420);
 }
-export function closeAssistant() { cancelVoice(); useAssistant.setState({ open: false }); }
+export function closeAssistant() { clearTimeout(closeAfter); cancelVoice(); set({ choices: [] }); useAssistant.setState({ open: false }); }

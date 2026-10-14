@@ -8,7 +8,9 @@
 @keyframes rootIn { from { opacity: 0; } to { opacity: 1; } }
 .root[data-look='error'] { --tint: #E5484D; --halo: rgba(229,72,77,.55); }
 .close { position: absolute; top: calc(var(--safe-top, 0px) + 14px); right: 16px; z-index: 2; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; cursor: pointer; }
-.stage { flex: 1; display: grid; place-items: center; min-height: 0; }
+.stage { flex: 1; display: grid; place-items: center; min-height: 140px; }
+.root[data-look='done'] .stage, .root[data-look='error'] .stage { flex: .8; }
+.orb { transition: scale 560ms var(--spring), margin 560ms var(--spring); }
 /* the orb: core + three rings that ripple out while listening */
 .orb { position: relative; width: 220px; height: 220px; border: none; background: none; padding: 0; display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; animation: orbIn 760ms var(--spring) 80ms both; }
 @keyframes orbIn { from { transform: scale(.2); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -32,12 +34,38 @@
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
 .orb:active .core { transform: scale(.92); }
 /* words */
-.words { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; min-height: 172px; }
+.words { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; min-height: 150px; }
 .label { font: var(--fw-regular) 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.4); }
 .heard { margin: 0; font: var(--fw-light) 26px/1.25 var(--font-ui); letter-spacing: -.02em; color: #fff; overflow-wrap: anywhere; text-wrap: balance; animation: up 480ms var(--ease) both; }
 .heard[data-empty='true'] { font-size: 17px; line-height: 1.4; color: rgba(255,255,255,.5); }
 .reply { margin: 0; font: var(--fw-regular) 15px/1.4 var(--font-ui); color: rgba(255,255,255,.62); animation: up 520ms var(--ease) 80ms both; }
 .root[data-look='error'] .reply { color: #F2A099; }
 @keyframes up { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* what the answer lists, the options when it asks back, phrases to tap */
+.list { margin: 4px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 360px; text-align: left; }
+.list li { padding: 10px 14px; border-radius: 14px; background: #0A1230; box-shadow: inset 0 0 0 1px rgba(80,125,255,.14); font: var(--fw-regular) 14px/1.35 var(--font-ui); color: rgba(255,255,255,.86); animation: up 420ms var(--ease) both; animation-delay: calc(var(--k) * 50ms + 120ms); overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 6px; }
+.chip { min-height: 40px; padding: 0 16px; border: none; border-radius: 999px; background: #0A1230; box-shadow: inset 0 0 0 1px rgba(80,125,255,.22); color: #fff; font: var(--fw-regular) 14px var(--font-ui); cursor: pointer; animation: up 420ms var(--spring) both; animation-delay: calc(var(--k) * 60ms + 160ms); transition: transform 160ms var(--ease), background 200ms; -webkit-tap-highlight-color: transparent; }
+.chip[data-main='true'] { background: #fff; color: #030923; box-shadow: none; }
+.chip:active { transform: scale(.94); }
+.undo { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; padding: 8px 14px; border: none; border-radius: 999px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.75); font: var(--fw-regular) 13px var(--font-ui); cursor: pointer; animation: up 420ms var(--ease) 240ms both; }
+.undo:active { transform: scale(.95); }
+.words { overflow-y: auto; max-height: 48vh; scrollbar-width: none; }
+.words::-webkit-scrollbar { display: none; }
+/* typing instead of speaking */
+.type { width: 100%; max-width: 420px; margin-top: 14px; display: flex; justify-content: center; gap: 8px; animation: up 420ms var(--ease) 300ms both; }
+.type[data-open='true'] { padding: 6px 6px 6px 18px; border-radius: 999px; background: #0A1230; box-shadow: inset 0 0 0 1px rgba(80,125,255,.22); }
+.type input { flex: 1; min-width: 0; height: 40px; border: none; outline: none; background: none; color: #fff; font: var(--fw-regular) 16px var(--font-ui); }
+.type input::placeholder { color: rgba(255,255,255,.38); }
+.send { flex: none; width: 40px; height: 40px; border-radius: 50%; border: none; background: #fff; color: #030923; display: grid; place-items: center; cursor: pointer; transition: opacity 200ms, transform 160ms; }
+.send:disabled { opacity: .3; }
+.send:active { transform: scale(.92); }
+.typeBtn { border: none; background: none; color: rgba(255,255,255,.42); font: var(--fw-regular) 13px var(--font-ui); padding: 8px 14px; cursor: pointer; }
 @media (min-width: 1024px) { .root { padding-left: calc(var(--rail-w, 240px) + 24px); padding-bottom: 48px; } }
 @media (prefers-reduced-motion: reduce) { .root *, .root { animation: none !important; } }
+
+/* a long answer: the orb steps back so the words fit */
+.root[data-rich='true'] .stage { flex: 0 0 auto; min-height: 0; padding: 4vh 0 2vh; }
+.root[data-rich='true'] .orb { scale: .46; margin: -60px 0; }
+.root[data-rich='true'] .words { max-height: none; flex: 1; justify-content: flex-start; }
+.root[data-rich='true'] .chip { min-height: 36px; font-size: 13.5px; }

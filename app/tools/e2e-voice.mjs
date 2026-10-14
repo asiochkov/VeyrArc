@@ -24,6 +24,17 @@ try {
   await page.goto(APP + '/'); await page.waitForTimeout(1800);
   log('old «+» gone:', (await page.getByRole('button', { name: /^Добавить \(удерживайте|^Создать$/ }).count()) === 0);
   log('mood →', await ask('настроение отличное'));
+  // a question back, answered by voice: the assistant listens again by itself
+  await page.getByRole('button', { name: 'Ассистент VeyrArc' }).first().tap();
+  await page.waitForFunction(() => !!window.__rec, null, { timeout: 4000 });
+  await page.evaluate(() => { const r = window.__rec; window.__rec = null; r.onresult?.({ resultIndex: 0, results: [Object.assign([{ transcript: 'душ' }], { isFinal: true })] }); r.stop(); });
+  await page.waitForFunction(() => !!window.__rec, null, { timeout: 6000 }); log('asked back and listening again:', (await page.getByRole('dialog').innerText()).match(/Отметить[^\n]*/)?.[0]);
+  await page.evaluate(() => window.__say('да'));
+  await page.waitForTimeout(900);
+  log('voice «да» →', (await page.getByRole('dialog').innerText()).match(/Отметил[^\n]*/)?.[0]);
+  await page.locator('nav[aria-label]').last().tap(); await page.waitForTimeout(700);
+  await page.evaluate(() => { window.__rec = null; });
+  log('undo by voice →', await ask('отмени'));
   log('habit →', await ask('сделал холодный душ'));
   log('task →', await ask('задача позвонить маме завтра в 15:30'));
   log('unknown →', await ask('какая сегодня погода'));
@@ -37,7 +48,7 @@ try {
   await page.evaluate(() => window.__say('настроение 4'));
   await page.waitForTimeout(900);
   log('orb look after success:', await page.getByRole('dialog').getAttribute('data-look'));
-  log('no manual buttons:', (await page.getByRole('dialog').getByRole('button').count()) === 2);
+  log('no manual add buttons:', (await page.getByRole('dialog').getByRole('button', { name: /Событие|Привычка|Шаг цели/ }).count()) === 0);
   await page.screenshot({ path: S + 'voice-orb.png' });
   // no microphone permission: the error state with a clear message
   await page.locator('nav[aria-label]').last().tap(); await page.waitForTimeout(700);

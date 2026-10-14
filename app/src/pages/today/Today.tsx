@@ -37,6 +37,8 @@ export function Today() {
   const st = useToday();
   // the evening summary push opens the day review (/?review=1)
   const [review, setReview] = useState(() => new URLSearchParams(location.search).get('review') === '1');
+  // «итоги дня» said to the assistant
+  useEffect(() => { const on = () => setReview(true); window.addEventListener('veyrarc:review', on); return () => window.removeEventListener('veyrarc:review', on); }, []);
   const [oath, setOath] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const setHandler = useAddAction((x) => x.setHandler);

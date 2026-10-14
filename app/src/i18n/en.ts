@@ -651,8 +651,10 @@ export const en: Dict = {
     done: { one: '{n} task moved to tomorrow', other: '{n} tasks moved to tomorrow' },
   },
   voice: {
+    asking: 'Asking', typeHint: 'Type what to do', hintType: 'E.g. “done workout” or “what’s on today”',
+    type: 'Type instead', typePh: 'Say or type…', send: 'Send', undo: 'Undo', undoPhrase: 'undo',
     open: 'VeyrArc assistant', again: 'Speak again', noVoice: 'Voice input is not available in this browser',
-    stop: 'Stop', hint: 'For example: “mood 4”, “done workout”, “focus 25”',
+    stop: 'Stop', hint: 'Say it your way: “done workout”, “what’s on today”, “dentist tomorrow at 10”',
     state: { listening: 'Listening', processing: 'Thinking', speaking: 'Done', error: 'Didn’t work', idle: 'Tap the orb and speak' },
     sayIt: 'Say it', sayHint: '“Task call mom tomorrow at 3 pm”, “done workout”, “mood 4”',
     holdTip: 'Hold «+» to speak',
