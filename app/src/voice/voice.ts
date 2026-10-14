@@ -12,8 +12,10 @@ export type VoiceState = 'idle' | 'listening' | 'processing' | 'speaking' | 'err
 type Store = {
   state: VoiceState; heard: string; reply: string; ok: boolean;
   list: string[]; suggest: string[]; choices: Choice[]; canUndo: boolean;
+  /** speech can't be used here (no permission, no service): the panel switches to typing */
+  blocked: boolean;
 };
-export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false }));
+export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false, blocked: false }));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Rec = any;
@@ -143,10 +145,12 @@ export function startVoice() {
     rec = null; clearTimeout(silence);
     if (e.error === 'no-speech' || e.error === 'aborted') { set({ state: 'idle' }); return; }
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-      fail(ru ? 'Нет доступа к микрофону или распознаванию речи. Разрешите их в настройках браузера.' : 'No access to the microphone or speech recognition.');
+      set({ blocked: true });
+      fail(ru ? 'Нет доступа к микрофону. Разрешите его в настройках браузера — а пока напишите команду ниже.' : 'No microphone access. Allow it in browser settings — or type below.');
       return;
     }
-    fail(ru ? 'Не удалось распознать речь' : 'Could not recognise speech');
+    if (e.error === 'network' || e.error === 'language-not-supported') set({ blocked: true });
+    fail(ru ? (e.error === 'network' ? 'Распознавание речи сейчас недоступно — напишите команду ниже' : 'Не расслышал. Нажмите на шар и повторите') : 'Could not recognise speech');
   };
   r.onend = () => {
     if (rec === r) rec = null;

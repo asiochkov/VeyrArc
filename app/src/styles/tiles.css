@@ -25,7 +25,7 @@
   position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
   min-height: 168px; padding: 14px; border: none; border-radius: 30px; background: var(--c-tile); background-image: var(--c-glow); box-shadow: var(--c-edge); color: var(--text);
   text-align: left; font-family: var(--font-ui); text-decoration: none; overflow: hidden; min-width: 0;
-  animation: tlIn 756ms var(--ease-out-strong) both; animation-delay: calc(var(--i, 0) * 61ms + 108ms);
+  animation: tlIn 640ms var(--ease-out-strong) both; animation-delay: calc(min(var(--i, 0), 9) * 48ms + 70ms);
   transition: background-color 420ms var(--ease-out-strong), color 420ms var(--ease-out-strong), transform 180ms var(--ease-out);
 }
 a.tl, a.tl:hover { color: var(--text); }
@@ -86,3 +86,7 @@ textarea.field { padding: 14px 18px; min-height: 96px; resize: vertical; line-he
 @keyframes tlRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .tl, .tabs, .caption { animation: none !important; } }
 button.cb-white:disabled { background: var(--c-raise); color: rgba(255,255,255,.5); opacity: 1; }
+
+/* coming back to a screen: everything is there at once, with a short settle */
+:root[data-return='1'] .tl { animation-duration: 300ms; animation-delay: calc(min(var(--i, 0), 6) * 16ms); }
+:root[data-return='1'] .tabs, :root[data-return='1'] .caption { animation-duration: 260ms; animation-delay: 0ms; }

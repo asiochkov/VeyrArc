@@ -648,6 +648,7 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
   // first task — the morning hours stay above, a swipe away
   const scrollRef = useRef<HTMLDivElement>(null);
   const areaRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
   const opened = useRef(false);
   useEffect(() => {
     const sc = scrollRef.current, area = areaRef.current;
@@ -657,7 +658,9 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
     opened.current = true;
     const nd = new Date();
     const target = st.sel === st.today ? nd.getHours() + nd.getMinutes() / 60 : timed[0]?.s ?? 8;
-    const y = area.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop + (Math.max(h0, target) - h0) * ROW_M - sc.clientHeight * 0.3;
+    // the sticky strip covers the top: «now» lands a quarter into what is left below it
+    const stick = stickyRef.current?.offsetHeight ?? 0;
+    const y = area.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop + (Math.max(h0, target) - h0) * ROW_M - stick - (sc.clientHeight - stick) * 0.25;
     sc.scrollTo({ top: Math.max(0, y), behavior: first ? 'auto' : 'smooth' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [st.sel, st.ready]);
@@ -690,7 +693,9 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
         </div>
       )}
 
-      <div style={{ marginTop: 16, display: 'flex', gap: 8, touchAction: 'pan-y' }} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      {/* the week strip and the day line stay on top while the hours scroll under them */}
+      <div ref={stickyRef} className={s.mSticky}>
+      <div style={{ display: 'flex', gap: 8, touchAction: 'pan-y' }} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         {week.map((d, i) => {
           const on = d === st.sel;
           const has = st.items.some((x) => x.day === d);
@@ -704,13 +709,15 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
         })}
       </div>
 
-      <div style={{ marginTop: 20, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+      <div style={{ marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
         <div style={{ font: 'var(--fw-regular) 15px var(--font-ui)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{dayLabel(t, st.sel)}</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flex: 'none' }}>
           {st.sel !== st.today && <button type="button" className={s.todayBtn} onClick={st.goToday}>{t('common.today')}</button>}
           <button type="button" className={s.arrow} aria-label={t('calendar.prev')} onClick={() => st.setSel(addDays(st.sel, -1))}><Icon name="chevronLeft" size={15} sw={2} /></button>
           <button type="button" className={s.arrow} aria-label={t('calendar.next')} onClick={() => st.setSel(addDays(st.sel, 1))}><Icon name="chevron" size={15} sw={2} /></button>
+          <button type="button" className={`${s.arrow} ${s.arrowAdd}`} aria-label={t('calendar.newTaskShort')} onClick={() => st.openNew(st.sel)}><Icon name="plus" size={15} sw={2.2} /></button>
         </div>
+      </div>
       </div>
 
       {untimed.length > 0 && (
@@ -724,7 +731,12 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
       {timed.length > 0 && <div className={s.holdHint}><Icon name="move" size={13} sw={1.8} />{t('calendar.holdHint')}</div>}
       <div style={{ display: 'flex' }}>
         <div style={{ width: 48, flex: 'none', display: 'flex', flexDirection: 'column', paddingTop: 2 }}>
-          {hours.map((h) => <div key={h} className={s.mHour}>{h}</div>)}
+          {hours.map((h, i) => {
+            // the «now» pill sits on the hour column: the hour it covers steps aside
+            const nd = new Date(st.now), nowH = nd.getHours() + nd.getMinutes() / 60;
+            const hidden = st.sel === st.today && Math.abs(nowH - (h0 + i)) < 0.3;
+            return <div key={h} className={s.mHour} style={hidden ? { opacity: 0 } : undefined}>{h}</div>;
+          })}
         </div>
         <div ref={areaRef} className={s.mArea} data-day={st.sel} style={{ height: (h1 - h0 + 1) * ROW_M }} onClick={areaClick}>
           {st.sel === st.today && <NowLine now={st.now} h0={h0} row={ROW_M} />}

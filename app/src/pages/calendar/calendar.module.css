@@ -290,3 +290,7 @@ html[data-dragging], html[data-dragging] * { cursor: grabbing !important; }
 /* done tasks fade back (filter, not opacity: the entry animation owns opacity) */
 .ev[data-done='true'], .mEv[data-done='true'], .allDayItem[data-done='true'] { filter: saturate(.25) brightness(.55); }
 .ev[data-done='true'] .evTitle, .mEv[data-done='true'] .mEvTitle, .ev[data-done='true'] .evTime, .mEv[data-done='true'] .evTime { color: rgba(255,255,255,.75); text-decoration: line-through; text-decoration-color: rgba(255,255,255,.5); }
+
+/* phone planner: the week strip + day line stick to the top over the scrolling hours */
+.mSticky { position: sticky; top: -6px; z-index: 4; margin: 12px -10px 8px; padding: 8px 10px 10px; background: #000; box-shadow: 0 12px 16px -12px rgba(0,0,0,.9); }
+.arrowAdd { background: var(--c-on, #004BE0) !important; color: #fff !important; }

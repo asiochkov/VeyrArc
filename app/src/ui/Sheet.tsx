@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode, type TouchEvent } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type TouchEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from '../i18n';
 import { useIsDesktop } from '../lib/useIsDesktop';
@@ -16,13 +16,26 @@ export function Sheet({ open, onClose, title, children, size = 'auto', label }: 
   const desktop = useIsDesktop();
   const panel = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x0: number; y0: number; dy: number; axis?: 'x' | 'y' } | null>(null);
+  // closing plays out (slide down, backdrop fades) with the last content kept on screen
+  const [shown, setShown] = useState(open);
+  const last = useRef<{ children: ReactNode; title?: ReactNode }>({ children, title });
+  if (open) last.current = { children, title };
+  useEffect(() => {
+    if (open) { setShown(true); return; }
+    if (!shown) return;
+    const id = setTimeout(() => setShown(false), 260);
+    return () => clearTimeout(id);
+  }, [open, shown]);
   useEffect(() => {
     if (!open) return;
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
   }, [open, onClose]);
-  if (!open) return null;
+  if (!open && !shown) return null;
+  const closing = !open;
+  const body = open ? children : last.current.children;
+  const head = open ? title : last.current.title;
 
   const onStart = (e: TouchEvent) => {
     if ((panel.current?.scrollTop ?? 0) > 0) return;
@@ -45,22 +58,26 @@ export function Sheet({ open, onClose, title, children, size = 'auto', label }: 
     drag.current = null;
     if (!d || !panel.current) return;
     panel.current.style.transition = '';
-    if (d.dy > Math.min(140, panel.current.offsetHeight * 0.3)) onClose();
-    else panel.current.style.transform = '';
+    if (d.dy > Math.min(140, panel.current.offsetHeight * 0.3)) {
+      // leave from where the finger let go
+      panel.current.style.setProperty('--from', `${d.dy}px`);
+      panel.current.style.transform = '';
+      onClose();
+    } else panel.current.style.transform = '';
   };
 
   return createPortal(
-    <div className={s.backdrop} data-desktop={desktop} onClick={onClose}>
+    <div className={s.backdrop} data-desktop={desktop} data-closing={closing} onClick={closing ? undefined : onClose}>
       <div ref={panel} className={s.panel} data-size={size} role="dialog" aria-modal="true" aria-label={label ?? (typeof title === 'string' ? title : undefined)}
         onClick={(e) => e.stopPropagation()} onTouchStart={desktop ? undefined : onStart} onTouchMove={desktop ? undefined : onMove} onTouchEnd={desktop ? undefined : onEnd}>
         {!desktop && <div className={s.grabber} aria-hidden="true" />}
-        {title !== undefined && (
+        {head !== undefined && (
           <div className={s.head}>
-            <div className={s.title}>{title}</div>
+            <div className={s.title}>{head}</div>
             <button type="button" className={s.close} onClick={onClose} aria-label={t('common.close')}><Icon name="close" size={14} sw={2} /></button>
           </div>
         )}
-        {children}
+        {body}
       </div>
     </div>,
     document.body,

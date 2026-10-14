@@ -61,12 +61,13 @@ export function Analytics() {
   return (
     <div className={a.scroll} data-scroll>
       <div className={a.page}>
-        <AppHeader title={t('nav.analytics')} />
+        {/* phone: export is an icon in the header, the toolbar keeps one row */}
+        <AppHeader title={t('nav.analytics')} right={desktop ? undefined : <ExportButton t={t} sys={sys} icon />} />
         <div className={a.toolbar}>
           <Segmented variant="goals" value={period} onChange={setPeriod}
             options={[{ id: 'week', label: t('analytics.p.week') }, { id: 'month', label: t('analytics.p.month') }, { id: 'arc', label: 'Arc' }, { id: 'year', label: t('analytics.p.year') }]} />
           <button type="button" className={a.chip} aria-pressed={compare} onClick={() => setCompare(!compare)}>{t('analytics.compare')}</button>
-          <ExportButton t={t} sys={sys} />
+          {desktop && <ExportButton t={t} sys={sys} />}
         </div>
 
         <section className={a.hero}>
@@ -287,7 +288,7 @@ function bestFocusAgo(sys: SystemRaw) {
 }
 
 /* Export (section 8): a CSV of daily checks, or print / save as PDF. */
-function ExportButton({ t, sys }: { t: T; sys: SystemRaw }) {
+function ExportButton({ t, sys, icon }: { t: T; sys: SystemRaw; icon?: boolean }) {
   const [open, setOpen] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
@@ -313,7 +314,9 @@ function ExportButton({ t, sys }: { t: T; sys: SystemRaw }) {
   };
   return (
     <div className={a.exportWrap}>
-      <button ref={btn} type="button" className={a.chip} aria-expanded={open} onClick={() => setOpen(!open)}><Icon name="download" size={13} />{t('analytics.export')}</button>
+      {icon
+        ? <button ref={btn} type="button" className={a.iconBtn} aria-expanded={open} aria-label={t('analytics.export')} onClick={() => setOpen(!open)}><Icon name="download" size={18} sw={1.8} /></button>
+        : <button ref={btn} type="button" className={a.chip} aria-expanded={open} onClick={() => setOpen(!open)}><Icon name="download" size={13} />{t('analytics.export')}</button>}
       {open && pos && createPortal(
         <div className={a.menu} role="menu" style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 1000 }}>
           <button type="button" role="menuitem" onClick={csv}>CSV</button>

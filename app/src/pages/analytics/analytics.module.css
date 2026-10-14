@@ -185,3 +185,6 @@
   .tallM .strip > i { height: auto; aspect-ratio: 1; border-radius: 6px; }
 }
 .card, .hero { background-image: none !important; }
+
+.iconBtn { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--c-tile, #0A1230); color: var(--text); display: grid; place-items: center; cursor: pointer; transition: transform 160ms var(--ease-out); }
+.iconBtn:active { transform: scale(.92); }

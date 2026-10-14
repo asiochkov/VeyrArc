@@ -35,6 +35,9 @@ for (const [width, height] of SIZES) {
         for (let i = 0; i < els.length; i++) for (let j = i + 1; j < els.length; j++) {
           const a = els[i], c = els[j];
           if (a.contains(c) || c.contains(a) || a.closest('label') === c || c.closest('label') === a) continue;
+          // fixed chrome (the dock, toasts) floats over scrolling content: not a hit conflict
+          const fixedOf = (e) => { for (let p = e; p; p = p.parentElement) if (getComputedStyle(p).position === 'fixed') return p; return null; };
+          if (fixedOf(a) !== fixedOf(c)) continue;
           const ha = hit(a), bc = c.getBoundingClientRect(), hc = hit(c), ba = a.getBoundingClientRect();
           const ov = (x, y) => x.left < y.right - 1 && x.right > y.left + 1 && x.top < y.bottom - 1 && x.bottom > y.top + 1;
           if ((ov(ha, bc) && !ov(ba, bc)) || (ov(hc, ba) && !ov(bc, ba))) out.push('hit overlap: «' + name(a) + '» ↔ «' + name(c) + '»');

@@ -185,3 +185,18 @@ html[data-density='compact'] { --hit: 40px; }
 
 /* the floating dock covers the bottom of every mobile screen: scroll areas get room under their content */
 [data-dock] [data-scroll]::after { content: ''; display: block; flex: none; height: calc(96px + var(--safe-bottom)); }
+
+/* plain checkboxes (Recap, planner «focus») in the app's language instead of the browser's white box */
+input[type='checkbox']:not([class]) {
+  appearance: none; -webkit-appearance: none; width: 24px; height: 24px; margin: 0; flex: none; border-radius: 8px; cursor: pointer;
+  background: transparent; box-shadow: inset 0 0 0 1.6px rgba(232,237,243,.32); display: inline-grid; place-items: center; vertical-align: middle;
+  transition: background-color 240ms var(--ease-out-strong), box-shadow 240ms var(--ease-out-strong), transform 160ms var(--ease-out);
+}
+input[type='checkbox']:not([class])::after {
+  content: ''; width: 10px; height: 6px; margin-top: -3px; border: solid #fff; border-width: 0 0 2px 2px; transform: rotate(-45deg) scale(0);
+  transition: transform 300ms cubic-bezier(.34, 1.56, .64, 1);
+}
+input[type='checkbox']:not([class]):checked { background: var(--c-on); box-shadow: none; }
+input[type='checkbox']:not([class]):checked::after { transform: rotate(-45deg) scale(1); }
+input[type='checkbox']:not([class]):active { transform: scale(.9); }
+input[type='checkbox']:not([class]):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

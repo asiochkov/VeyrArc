@@ -5,7 +5,7 @@ import s from './ui.module.css';
 
 /* One toast system for the whole app: success / error / info, optional action (e.g. «Отменить»). */
 export type ToastKind = 'success' | 'error' | 'info';
-type Toast = { id: number; kind: ToastKind; text: string; action?: { label: string; run: () => void }; ms: number };
+type Toast = { id: number; kind: ToastKind; text: string; action?: { label: string; run: () => void }; ms: number; leaving?: boolean };
 type Store = { list: Toast[]; show: (t: Omit<Toast, 'id' | 'ms'> & { ms?: number }) => number; hide: (id: number) => void };
 
 let seq = 0;
@@ -20,7 +20,13 @@ export const useToasts = create<Store>((set, get) => ({
     timers.set(id, setTimeout(() => get().hide(id), ms));
     return id;
   },
-  hide: (id) => { clearTimeout(timers.get(id)); timers.delete(id); set({ list: get().list.filter((x) => x.id !== id) }); },
+  // leaving plays a short exit before the toast is removed
+  hide: (id) => {
+    clearTimeout(timers.get(id)); timers.delete(id);
+    if (!get().list.some((x) => x.id === id && !x.leaving)) return;
+    set({ list: get().list.map((x) => (x.id === id ? { ...x, leaving: true } : x)) });
+    setTimeout(() => set({ list: get().list.filter((x) => x.id !== id) }), 220);
+  },
 }));
 
 export const toast = {
@@ -41,7 +47,10 @@ export function Toaster() {
   return (
     <div className={s.toaster} aria-live="polite">
       {list.map((x) => (
-        <div key={x.id} className={s.toast} data-kind={x.kind} role={x.kind === 'error' ? 'alert' : 'status'}>
+        <div key={x.id} className={s.toast} data-kind={x.kind} data-leaving={!!x.leaving} role={x.kind === 'error' ? 'alert' : 'status'}
+          onTouchStart={(e) => { (e.currentTarget as HTMLElement).dataset.y0 = String(e.touches[0].clientY); }}
+          onTouchMove={(e) => { const el = e.currentTarget as HTMLElement; const dy = e.touches[0].clientY - Number(el.dataset.y0 ?? 0); if (dy > 0) { el.style.transform = `translateY(${dy}px)`; el.style.opacity = String(Math.max(0, 1 - dy / 90)); } }}
+          onTouchEnd={(e) => { const el = e.currentTarget as HTMLElement; const dy = parseFloat(el.style.transform.replace(/[^\d.-]/g, '') || '0'); if (dy > 40) hide(x.id); else { el.style.transform = ''; el.style.opacity = ''; } }}>
           <span className={s.toastIcon} aria-hidden="true"><Icon name={ICON[x.kind]} size={15} sw={2.4} /></span>
           <span className={s.toastText}>{x.text}</span>
           {x.action && <button type="button" className={s.toastAction} onClick={() => { x.action!.run(); hide(x.id); }}>{x.action.label}</button>}

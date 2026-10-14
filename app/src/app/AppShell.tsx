@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLangStore } from '../i18n';
 import { useIsDesktop } from '../lib/useIsDesktop';
@@ -18,6 +18,8 @@ import { Sidebar, SidebarDrawer, useSidebarCollapsed } from './Sidebar';
  * bare:     no navigation (Auth, Pro, Arc Recap)
  */
 export type Chrome = 'app' | 'settings' | 'bare';
+
+const seen = new Set<string>();
 
 export function AppShell({ chrome }: { chrome: Chrome }) {
   const isDesktop = useIsDesktop();
@@ -104,5 +106,11 @@ function useShortcuts(on: boolean, toggleSidebar: () => void) {
 /* A soft cross-fade with a small rise when the section changes (not on query/param changes inside it). */
 function RouteFade() {
   const { pathname } = useLocation();
-  return <div key={pathname.split('/')[1] || 'today'} className={s.routeFade}><Outlet /></div>;
+  const section = pathname.split('/')[1] || 'today';
+  // the full entrance choreography plays on the first visit; coming back is quick (no 1.5 s wait)
+  useLayoutEffect(() => {
+    document.documentElement.dataset.return = seen.has(section) ? '1' : '';
+    seen.add(section);
+  }, [section]);
+  return <div key={section} className={s.routeFade}><Outlet /></div>;
 }

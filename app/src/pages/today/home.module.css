@@ -31,7 +31,7 @@
   position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
   min-height: 176px; padding: 14px; border: none; border-radius: 30px; background: var(--c-tile); background-image: var(--c-glow); color: var(--text);
   text-align: left; font-family: var(--font-ui); text-decoration: none; overflow: hidden;
-  animation: tileIn 756ms var(--ease-out-strong) both; animation-delay: calc(var(--i, 0) * 61ms + 135ms);
+  animation: tileIn 640ms var(--ease-out-strong) both; animation-delay: calc(min(var(--i, 0), 9) * 48ms + 90ms);
   transition: background-color 420ms var(--ease-out-strong), color 420ms var(--ease-out-strong), transform 180ms var(--ease-out);
 }
 a.tile, a.tile:hover { color: var(--text); }
@@ -48,7 +48,7 @@ button.tile:active, a.tile:active { transform: scale(.97); }
 .tilePale .circleWhite { background: var(--c-on); color: #fff; }
 .tilePale .ring { color: var(--c-on); }
 .tileMint { background: var(--c-on); background-image: var(--c-glow-on); color: #FFFFFF; }
-.tile[data-just-on='true'] { animation: tileIn 756ms var(--ease-out-strong) both, switchOn 702ms var(--ease-out-strong); animation-delay: calc(var(--i, 0) * 61ms + 135ms), 0ms; }
+.tile[data-just-on='true'] { animation: tileIn 640ms var(--ease-out-strong) both, switchOn 702ms var(--ease-out-strong); animation-delay: calc(min(var(--i, 0), 9) * 48ms + 90ms), 0ms; }
 @keyframes switchOn { 0% { transform: scale(.96); } 55% { transform: scale(1.015); } 100% { transform: scale(1); } }
 
 .tileTop { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -184,3 +184,7 @@ button.circle:disabled { opacity: .35; cursor: default; }
 .lightenRow { display: flex; gap: 8px; flex-wrap: wrap; }
 .pillGhost { align-self: flex-start; height: 40px; padding: 0 16px; margin-top: 8px; border-radius: var(--r-pill); border: none; background: rgba(255,255,255,.1); color: #fff; font: var(--fw-regular) 14px var(--font-ui); cursor: pointer; }
 .pillGhost:active { transform: scale(.96); }
+
+/* coming back to a screen: everything is there at once, with a short settle */
+:global(:root[data-return='1']) .tile { animation-duration: 300ms; animation-delay: calc(min(var(--i, 0), 6) * 16ms); }
+:global(:root[data-return='1']) .tabs, :global(:root[data-return='1']) .head { animation-duration: 260ms; animation-delay: 0ms; }

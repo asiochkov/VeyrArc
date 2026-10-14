@@ -17,8 +17,8 @@ export function AssistantPanel() {
   const t = useT();
   const navigate = useNavigate();
   const open = useAssistant((a) => a.open);
-  const { state, heard, reply, ok, list, suggest, choices, canUndo } = useVoice();
-  const voice = voiceSupported();
+  const { state, heard, reply, ok, list, suggest, choices, canUndo, blocked } = useVoice();
+  const voice = voiceSupported() && !blocked;
   const [typing, setTyping] = useState(false);
   const [text, setText] = useState('');
   const input = useRef<HTMLInputElement>(null);
