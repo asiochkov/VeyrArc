@@ -6,12 +6,13 @@ import { GOAL_HUES } from '../mock/goals';
 import { HABIT_PALETTE } from '../mock/tracker';
 import {
   addGoalStep, createGoal, createHabit, deleteEvent, deleteGoal, deleteGoalStep, deleteHabit, logGoalTask, logHabit, logMood,
-  logRelapse, saveEvent, setEventDone,
+  logRelapse, saveEvent, saveFreeze, setEventDone,
 } from '../state/actions';
-import { nowAction, todayScore } from '../state/compute';
+import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
 import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/system';
 import { matchOf, type AskWhat, type Intent, type NavTo } from './nlu';
+import { useVoice } from './voice'; // used only inside callbacks (voice imports this module)
 
 /*
  * Intent → the app's own actions (ТЗ модуль 2: «AI никогда не вызывает базу напрямую»).
@@ -234,8 +235,8 @@ function answer(c: Ctx, what: AskWhat): Reply {
       const sc = todayScore({ habits: habitsOf(c), logs: sys.logs, days: sys.days, focus: sys.focus, goals: sys.goals, tasks: sys.tasks, entries: sys.entries }, day, arc?.started_on ?? null);
       return {
         ok: true,
-        say: ru ? `Сегодня ${sc.score} из 100. Привычки: ${doneH.length} из ${habits.length}${focusMin ? `, фокус ${focusMin} мин` : ''}.${sc.score >= 80 ? ' Отличный темп!' : habits.length - doneH.length > 0 ? ` Осталось ${habits.length - doneH.length} — успеете` : ''}`
-          : `Today ${sc.score}/100. Habits ${doneH.length} of ${habits.length}${focusMin ? `, focus ${focusMin} min` : ''}`,
+        say: ru ? `Индекс ${sc.index}${sc.delta > 0 ? `, +${sc.delta} за сегодня` : ''}. Привычки: ${doneH.length} из ${habits.length}${focusMin ? `, фокус ${focusMin} мин` : ''}.${sc.score >= 80 ? ' Отличный темп!' : habits.length - doneH.length > 0 ? ` Осталось ${habits.length - doneH.length} — успеете` : ''}`
+          : `Index ${sc.index}${sc.delta > 0 ? `, +${sc.delta} today` : ''}. Habits ${doneH.length} of ${habits.length}${focusMin ? `, focus ${focusMin} min` : ''}`,
       };
     }
     case 'focusToday': {
@@ -277,6 +278,34 @@ let navigate: ((to: string) => void) | null = null;
 export const bindNavigate = (fn: ((to: string) => void) | null) => { navigate = fn; };
 const go = (to: string) => { navigate?.(to); };
 const PAGE_RU: Record<NavTo, string> = { '/': 'Сегодня', '/disciplines': 'Дисциплины', '/planner': 'Планер', '/goals': 'Цели', '/analytics': 'Аналитика', '/settings': 'Настройки', '/settings/account': 'Аккаунт' };
+
+/** phrases to offer when the panel opens: what fits this screen, this hour and what is left today */
+export function hints(path: string, lang: 'ru' | 'en'): string[] {
+  const ru = lang === 'ru';
+  if (!ru) return examples(false);
+  const now = new Date();
+  const c: Ctx = { ru, sys: getSystem(), day: isoDay(now), now };
+  if (!c.sys) return examples(true);
+  const out: string[] = [];
+  const hour = now.getHours();
+  const open = habitsOf(c).filter((h) => scheduled(h, c.day) && !logOf(c, h.id)?.done);
+  const y = addDays(c.day, -1);
+  if (dayStatus({ habits: habitsOf(c), logs: c.sys.logs, days: c.sys.days }, y, c.day) === 'broken' && hour < 14) out.push('заморозь вчера');
+  if (path.startsWith('/planner')) out.push('что у меня завтра', 'задача созвон завтра в 15');
+  else if (path.startsWith('/goals')) out.push('какие у меня цели');
+  else if (path.startsWith('/disciplines')) out.push('добавь привычку чтение 20 минут');
+  if (open[0]) {
+    const h = open.find((x) => x.core) ?? open[0];
+    out.push(h.type === 'duration' ? `${h.name.toLowerCase().replace(/\s*\d+\s*мин.*$/, '')} ${h.minutes ?? 20} минут` : `отметь ${h.name.toLowerCase()}`);
+  }
+  if (now.getDay() === 0 && hour >= 17) out.push('итоги недели');
+  else if (hour >= 19) out.push('итоги дня');
+  else if (hour < 11) out.push('что у меня сегодня');
+  else out.push('что дальше');
+  if (!c.sys.days.find((d) => d.day === c.day)?.mood && hour >= 12) out.push('настроение 4');
+  if (!usePomodoro.getState().endsAt && hour >= 8 && hour < 19) out.push('фокус 25');
+  return [...new Set(out)].slice(0, 4);
+}
 
 export function examples(ru: boolean, c?: Ctx): string[] {
   if (!ru) return ['mood 4', 'done workout', 'what’s next', 'focus 25'];
@@ -442,6 +471,21 @@ function runOne(it: Intent, c: Ctx): Reply {
       go('/');
       setTimeout(() => window.dispatchEvent(new Event('veyrarc:review')), 1100);
       return { ok: true, say: ru ? 'Открываю итоги дня' : 'Opening the day review', close: true };
+    }
+    case 'weekReview': {
+      go('/');
+      setTimeout(() => window.dispatchEvent(new Event('veyrarc:week')), 1100);
+      return { ok: true, say: ru ? 'Открываю итоги недели' : 'Opening the week review', close: true };
+    }
+    case 'freeze': {
+      const y = addDays(day, -1);
+      const st = c.sys ? dayStatus({ habits: habitsOf(c), logs: c.sys.logs, days: c.sys.days }, y, day) : 'none';
+      if (st !== 'broken') return { ok: true, say: ru ? (st === 'frozen' ? 'Вчера уже заморожено' : 'Вчера серия не прерывалась — заморозка не нужна') : 'Yesterday doesn’t need a freeze' };
+      void saveFreeze(y).then((okF) => {
+        // the answer arrives after the server: the panel's reply line is updated in place
+        useVoice.setState({ reply: okF ? (ru ? 'Заморозка включена — серия сохранена' : 'Freeze used — streak saved') : (ru ? 'Заморозки на этой неделе закончились' : 'No freezes left this week'), ok: okF });
+      });
+      return { ok: true, say: ru ? 'Замораживаю вчерашний день…' : 'Freezing yesterday…' };
     }
     case 'lang': {
       useLangStore.getState().setLang(it.to);

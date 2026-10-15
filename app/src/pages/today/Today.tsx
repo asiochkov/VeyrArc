@@ -17,6 +17,11 @@ import { InfoDialog, MoodFace } from '../../ui/primitives';
 import { toast } from '../../ui/toast';
 import { OathSheet } from '../../ui/OathSheet';
 import { useAutoTour } from '../../ui/Tour';
+import { Comeback } from './Comeback';
+import { reviewDue, weekFocus, WeeklyReview } from './WeeklyReview';
+import { getSystem } from '../../state/system';
+import { Milestone, MILESTONES, milestoneSeen } from './Milestone';
+import { haptic } from '../../lib/haptics';
 import { EveningReview } from './EveningReview';
 import { isDone } from './HabitRow';
 import c from './cockpit.module.css';
@@ -37,6 +42,10 @@ export function Today() {
   const st = useToday();
   // the evening summary push opens the day review (/?review=1)
   const [review, setReview] = useState(() => new URLSearchParams(location.search).get('review') === '1');
+  // the weekly review: offered on its own on Sunday evening / Monday morning, or asked for («итоги недели»)
+  const [week, setWeek] = useState(false);
+  useEffect(() => { const on = () => setWeek(true); window.addEventListener('veyrarc:week', on); return () => window.removeEventListener('veyrarc:week', on); }, []);
+  useEffect(() => { if (st.data && reviewDue(getSystem())) { const id = setTimeout(() => setWeek(true), 1200); return () => clearTimeout(id); } }, [!!st.data]); // eslint-disable-line react-hooks/exhaustive-deps
   // «итоги дня» said to the assistant
   useEffect(() => { const on = () => setReview(true); window.addEventListener('veyrarc:review', on); return () => window.removeEventListener('veyrarc:review', on); }, []);
   const [oath, setOath] = useState(false);
@@ -58,6 +67,25 @@ export function Today() {
     return () => window.removeEventListener('veyrarc:recap', go);
   }, [navigate]);
   useAutoTour('today', !!st.data);
+  // all Core done just now: a wave over the tiles, a stronger buzz; a streak milestone opens its moment
+  const kept = st.data ? st.data.view.stats.streak > st.data.view.streakBase : null;
+  const wasKept = useRef<boolean | null>(null);
+  const [wave, setWave] = useState(false);
+  const [milestone, setMilestone] = useState<number | null>(null);
+  useEffect(() => {
+    if (kept == null || !st.data) return;
+    if (wasKept.current === false && kept) {
+      const n = st.data.view.stats.streak;
+      haptic('dayKept');
+      setWave(true);
+      setTimeout(() => setWave(false), 1500);
+      const arcId = st.data.arc?.id;
+      if (arcId && MILESTONES.includes(n) && !milestoneSeen(arcId, n)) setTimeout(() => setMilestone(n), 1100);
+      else toast.success(t('celebrate.dayKept', { n }));
+    }
+    wasKept.current = kept;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kept]);
 
   if (!st.ready || !st.data) return <PageState variant="today" error={st.loadError} onRetry={st.retry} />;
   const d = st.data;
@@ -78,7 +106,7 @@ export function Today() {
           <Link to="/planner" className={h.tab}>{t('home.plan')}<sup>{d.strip.length}</sup></Link>
         </div>
 
-        <div className={h.grid}>
+        <div className={h.grid} data-wave={wave}>
           {d.recovery && <RecoveryTile t={t} rec={d.recovery} style={n()} />}
           {d.lighten && d.lighten.why !== 'mood' && <LightenTile t={t} day={d.day} lt={d.lighten} style={n()} />}
           <ScoreTile t={t} d={d} style={n()} />
@@ -101,6 +129,9 @@ export function Today() {
         </div>
       </div>
       <EveningReview open={review} onClose={() => setReview(false)} />
+      <Comeback />
+      <WeeklyReview open={week} onClose={() => setWeek(false)} />
+      {milestone != null && d.arc && <Milestone n={milestone} arcId={d.arc.id} oath={d.arc.oath ?? null} length={d.view.stats.arcLength} onClose={() => setMilestone(null)} />}
       <OathSheet open={oath} onClose={() => setOath(false)} arcId={d.arc?.id ?? null} current={d.arc?.oath ?? ''} />
     </div>
   );
@@ -116,7 +147,10 @@ function Greeting({ t, d }: { t: T; d: TodayData }) {
   const date = now.toLocaleDateString(loc, { weekday: 'short', day: 'numeric', month: 'short' });
   return (
     <header className={h.head}>
-      <h1 className={h.hello}>{t(`home.hello.${periodOf()}`)}{first ? ',' : ''}{first && <><br />{first}</>}</h1>
+      <div className={h.helloWrap}>
+        <h1 className={h.hello}>{greeting(t, d)}{first ? ',' : ''}{first && <><br />{first}</>}</h1>
+        {weekFocus() && <span className={h.weekFocus}>{t('weekly.focusLine', { f: weekFocus()! })}</span>}
+      </div>
       <div className={h.headSide}>
         <div className={h.headBtns}>
           <AvatarMenu initials={hd.initials} />
@@ -126,6 +160,20 @@ function Greeting({ t, d }: { t: T; d: TodayData }) {
       </div>
     </header>
   );
+}
+
+/** one greeting per day: a moment of the arc or the streak first, otherwise a variant for the time of day */
+function greeting(t: T, d: TodayData) {
+  const s = d.view.stats, streak = d.view.streakBase;
+  const pick = (k: string) => { const l = t.list(`home.greet.${k}` as never); return l.length ? l[[...d.day].reduce((a, ch) => a + ch.charCodeAt(0), 0) % l.length] : ''; };
+  if (s.arcDay === 1) return pick('first');
+  if (s.arcDay === Math.round(s.arcLength / 2)) return pick('mid');
+  if (s.arcLength - s.arcDay <= 3) return pick('last');
+  if (streak === 30) return pick('month');
+  if (streak === 7) return pick('week');
+  const yesterday = d.week[d.week.findIndex((x) => x.day === d.day) - 1];
+  if (yesterday?.status === 'broken') return pick('restart');
+  return pick(periodOf()) || t(`home.hello.${periodOf()}`);
 }
 
 /* ---------------- tiles ---------------- */
@@ -143,9 +191,10 @@ function ScoreTile({ t, d, style }: TileProps) {
           <Ring pct={score / 100} />
         </span>
         <span className={h.tileText}>
-          <span className={h.bigNum}>{score}</span>
-          <span className={h.tileName}>{t('home.scoreTitle')}</span>
-          <span className={h.tileSub}>{(delta >= 0 ? '+' : '−') + Math.abs(delta)} {t('home.toIndex')} · {t('home.index', { n: index })}</span>
+          {/* one number across the app: the discipline index; the ring is how much of today is done */}
+          <span className={h.bigNum}>{index}</span>
+          <span className={h.tileName}>{t('home.indexTitle')}</span>
+          <span className={h.tileSub}>{delta > 0 ? t('home.indexToday', { d: delta }) : t('home.indexZero')}</span>
         </span>
       </button>
       <InfoDialog open={info} title={t('cockpit.scoreTitle')} okLabel={t('common.ok')} onClose={() => setInfo(false)} body={(
@@ -234,6 +283,8 @@ function NowTile({ t, d, style, onReview, onOath }: TileProps & { onReview: () =
       <span key={key} className={`${h.tileText} ${h.swap}`}>
         <span className={h.tileName2}>{call}</span>
         <span className={h.tileSub}>{t(`cockpit.period.${period}`)} · {sub}</span>
+        {/* the «why» stays in sight: the arc's promise under what to do now */}
+        {a.kind !== 'oath' && d.arc?.oath && <button type="button" className={h.oathLine} onClick={onOath}>«{d.arc.oath}»</button>}
       </span>
     </div>
   );
@@ -338,6 +389,7 @@ function LightenTile({ t, day, lt, style }: { t: T; day: string; lt: NonNullable
 /** A habit as a device: dark when open, light when done today. Counter → − / +, duration → play. */
 function HabitTile({ t, hb, style }: { t: T; hb: HabitT; style: React.CSSProperties }) {
   const done = isDone(hb);
+  const todayIdx = (new Date().getDay() + 6) % 7;
   const [justOn, setJustOn] = useState(false);
   const was = useRef(done);
   useEffect(() => {
@@ -400,6 +452,10 @@ function HabitTile({ t, hb, style }: { t: T; hb: HabitT; style: React.CSSPropert
     <span className={h.tileText}>
       <span className={h.tileName}>{t.pick(hb.title)}</span>
       <span className={h.tileSub}>{status}{hb.streak > 0 ? ` · ${t('home.streak', { n: hb.streak })}` : ''}</span>
+      {/* this week at a glance: the rhythm is what you don't want to break */}
+      <span className={h.weekDots} aria-hidden="true">
+        {hb.dots.map((v, i) => <i key={i} data-on={v === 1 || (i === todayIdx && done)} data-today={i === todayIdx} />)}
+      </span>
     </span>
   );
   const cls = `${h.tile} ${h.sq} ${on ? h.tileLight : ''}`;

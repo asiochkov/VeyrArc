@@ -24,6 +24,8 @@ export type Intent =
   | { kind: 'stepAdd'; goal: string; text: string }
   | { kind: 'relapse'; query: string }
   | { kind: 'review' }
+  | { kind: 'weekReview' }
+  | { kind: 'freeze' }
   | { kind: 'lang'; to: 'ru' | 'en' }
   | { kind: 'undo' }
   | { kind: 'help' }
@@ -322,6 +324,10 @@ function one(t: string, now: Date): Intent {
   // language
   if (st('английск|english').test(t) && st('язык|переключ|смени|сделай|switch|language|на английск').test(t)) return { kind: 'lang', to: 'en' };
   if (st('русск|russian').test(t) && st('язык|переключ|смени|сделай|switch|language|на русск').test(t)) return { kind: 'lang', to: 'ru' };
+
+  // weekly review, freeze yesterday
+  if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };
+  if (st('замороз|freeze').test(t) && !st('что так|сколько|how many').test(t)) return { kind: 'freeze' };
 
   // evening review
   if (st('итог[иа]? дня|подвед[иу] итог|подытож|закр(?:ыть|ой|оем) день|завершить день|вечерн[а-я]* обзор|daily review|close the day|review the day').test(t)) return { kind: 'review' };

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { useLangStore } from '../i18n';
 import { normalize, similarity, understand } from './nlu';
-import { runAll, type Choice, type Reply } from './run';
+import { hints, runAll, type Choice, type Reply } from './run';
 
 /*
  * Voice assistant state machine (ТЗ модуль 2.2): idle → listening → processing → speaking → idle,
@@ -127,7 +127,8 @@ export function startVoice() {
   r.continuous = false;
   let final = '';
   const asking = useVoice.getState().choices.length > 0;
-  set({ state: 'listening', heard: '', ok: true, ...(asking ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
+  const fresh = !useVoice.getState().reply; // just opened: the context hints stay on screen while listening
+  set({ state: 'listening', heard: '', ok: true, ...(asking || fresh ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
   navigator.vibrate?.(12);
   // nothing heard for 7 s → stop without doing anything; a pause after words ends the phrase
   silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, 7000);
@@ -172,7 +173,8 @@ export const useAssistant = create<Panel>(() => ({ open: false }));
 export function openAssistant() {
   if (useAssistant.getState().open) return;
   useAssistant.setState({ open: true });
-  set({ heard: '', reply: '', list: [], suggest: [], choices: [], canUndo: false, ok: true, state: 'idle' });
+  // phrases that fit this screen and this moment, ready to tap
+  set({ heard: '', reply: '', list: [], suggest: hints(location.pathname, lang()), choices: [], canUndo: false, ok: true, state: 'idle' });
   navigator.vibrate?.(10);
   // after the dock has merged; without speech recognition the panel opens on the text field
   if (voiceSupported()) setTimeout(() => { if (useAssistant.getState().open) startVoice(); }, 420);

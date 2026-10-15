@@ -1,0 +1,17 @@
+.root { position: fixed; inset: 0; z-index: var(--z-modal, 100); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: calc(var(--safe-top) + 24px) 28px calc(var(--safe-bottom) + 28px); background: #000; color: #fff; text-align: center; animation: in 420ms var(--ease-out-strong) both; overflow: hidden; }
+@keyframes in { from { opacity: 0; } to { opacity: 1; } }
+.glow { position: absolute; left: 50%; top: 38%; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,75,224,.55), rgba(0,75,224,0)); animation: breathe 3s ease-in-out infinite; pointer-events: none; }
+@keyframes breathe { 50% { transform: scale(1.08); opacity: .8; } }
+.arc { position: relative; width: min(280px, 76vw); height: auto; margin-bottom: -86px; }
+.trail { animation: draw 1.3s var(--ease-out-strong) 150ms both; }
+@keyframes draw { from { stroke-dashoffset: var(--len); } }
+.num { position: relative; font: var(--fw-light) 96px/1 var(--font-ui); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.unit { position: relative; font: var(--fw-regular) 13px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+.title { position: relative; margin: 28px 0 0; font: var(--fw-light) 34px/1.1 var(--font-ui); letter-spacing: -.03em; animation: up 600ms var(--ease-out-strong) 700ms both; }
+.line { position: relative; margin: 0; max-width: 320px; font: var(--fw-regular) 16px/1.45 var(--font-ui); color: rgba(255,255,255,.75); text-wrap: balance; animation: up 600ms var(--ease-out-strong) 850ms both; }
+.oath { position: relative; margin: 18px 0 0; max-width: 340px; display: flex; flex-direction: column; gap: 4px; font: italic var(--fw-light) 15px/1.4 var(--font-ui); color: rgba(255,255,255,.82); animation: up 600ms var(--ease-out-strong) 1000ms both; }
+.oath span { font: normal var(--fw-regular) 11px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.4); }
+.next { position: relative; margin-top: 32px; min-width: 200px; height: 52px; border: none; border-radius: 999px; background: #fff; color: #030923; font: var(--fw-medium) 16px var(--font-ui); cursor: pointer; animation: up 600ms var(--ease-out-strong) 1150ms both; }
+.next:active { transform: scale(.96); }
+@keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .root, .root * { animation: none !important; } }

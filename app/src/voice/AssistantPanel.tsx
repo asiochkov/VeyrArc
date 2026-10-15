@@ -61,7 +61,7 @@ export function AssistantPanel() {
             ))}
           </div>
         )}
-        {!listening && !choices.length && suggest.length > 0 && (
+        {(!listening || !heard) && !choices.length && suggest.length > 0 && (
           <div className={s.chips}>
             {suggest.slice(0, 14).map((x, i) => <button key={x} type="button" className={s.chip} style={{ '--k': i } as React.CSSProperties} onClick={() => say(x)}>«{x}»</button>)}
           </div>

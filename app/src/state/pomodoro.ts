@@ -1,3 +1,6 @@
+import { haptic } from '../lib/haptics';
+import { toast } from '../ui/toast';
+import { translate, useLangStore, type TKey } from '../i18n';
 import { create } from 'zustand';
 import { setProfile } from '../data/settings';
 import { useAuth } from '../lib/auth';
@@ -82,8 +85,15 @@ export const pomo = {
     if (!s.endsAt || remaining(s) > 0) return;
     const minutes = s.lengths[s.tab];
     logFocus(minutes, TYPE[s.tab], s.tab === 0 ? s.link : {});
-    navigator.vibrate?.([30, 60, 30]);
+    haptic('focusEnd');
     const next: PomoTab = s.tab === 0 ? (sessionNo >= 4 ? 2 : 1) : 0;
     usePomodoro.setState({ tab: next, endsAt: null, left: s.lengths[next] * 60, finished: s.finished + 1, link: s.tab === 0 ? s.link : s.link });
+    // the end of a focus block is a moment, not a silent switch (audit 1.15.3)
+    const tr = (k: TKey, v?: Record<string, string | number>) => translate(useLangStore.getState().lang, k, v);
+    if (s.tab === 0) {
+      const brk = s.lengths[next];
+      toast.action(tr('pomo.doneToast', { m: minutes, n: s.finished + 1 }), tr('pomo.breakCta', { m: brk }), () => pomo.start(), 9000);
+      window.dispatchEvent(new Event('veyrarc:focus-done'));
+    } else toast.info(tr('pomo.breakOver'), 5000);
   },
 };

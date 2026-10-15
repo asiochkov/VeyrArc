@@ -56,6 +56,8 @@ const cases: C[] = [
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
   ['медитация', { kind: 'guess' }],
+  ['подведи итоги недели', { kind: 'weekReview' }],
+  ['заморозь вчера', { kind: 'freeze' }],
 ];
 let fail = 0;
 for (const [text, want] of cases) {

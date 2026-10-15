@@ -47,7 +47,7 @@ try {
   r = await say('добавь привычку чтение 20 минут'); log('habit add →', r); expect(/Чтение/.test(r), 'habit add failed');
   r = await say('я сегодня почитал 20 минут'); log('duration →', r); expect(/Чтение/.test(r), 'duration log failed');
   r = await say('что осталось'); log('left →', r);
-  r = await say('как мои дела'); log('progress →', r); expect(/из 100/.test(r), 'progress missing');
+  r = await say('как мои дела'); log('progress →', r); expect(/Индекс \d+/.test(r), 'progress missing');
   r = await say('фокус 25'); log('focus →', r);
   r = await say('пауза'); log('pause →', r);
   r = await say('хочу научиться играть на гитаре'); log('goal →', r); expect(/цель/.test(r), 'goal add failed');
