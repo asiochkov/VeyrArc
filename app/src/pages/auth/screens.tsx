@@ -8,6 +8,7 @@ import { Icon } from '../../ui/Icon';
 import { Cta, InfoDialog } from '../../ui/primitives';
 import { config } from '../../config';
 import s from './auth.module.css';
+import { LegalLinks } from '../legal/LegalLinks';
 import { AuthLayout, up } from './AuthLayout';
 import { emailRe, useFlow } from './flow';
 import { EyeButton, Field, OrDivider, OtpInput, SocialRow, Strength, SubmitCta, useLoad, useResendTimer, useShake } from './parts';
@@ -37,6 +38,7 @@ export function Welcome() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, ...up(4) }}>
             <Cta loading={loading === 'start'} onClick={start}>{t('auth.startArc')}</Cta>
             <Cta variant="ghost" onClick={() => navigate('/login')}>{t('auth.haveAccount')}</Cta>
+            <div style={{ marginTop: 6 }}><LegalLinks lang={t.lang} /></div>
           </div>
         </div>
       )}

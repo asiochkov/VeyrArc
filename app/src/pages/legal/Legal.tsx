@@ -3,15 +3,109 @@ import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLangStore } from '../../i18n';
 import { Icon } from '../../ui/Icon';
+import { LegalLinks, type DocId } from './LegalLinks';
 
 /*
  * /terms and /privacy — not in the design; required by the sign-up links and
  * Google's consent screen. Built from the app's type and colours.
  */
 type Doc = { title: string; updated: string; sections: [string, string][] };
-const CONTACT = config.site.support;
+const S = config.seller;
+const CONTACT = S.email || config.site.support;
+const P = config.pricing;
+const rub = (v: number) => `${v.toLocaleString('ru-RU')} ₽`;
+const SITE = config.site.url;
+const REQ_RU = `${S.name}, ИНН ${S.inn}, ОГРНИП ${S.ogrnip}. Email: ${CONTACT}${S.phone ? `, телефон ${S.phone}` : ''}.`;
+const REQ_EN = `${S.name} (sole proprietor), INN ${S.inn}, OGRNIP ${S.ogrnip}. Email: ${CONTACT}${S.phone ? `, phone ${S.phone}` : ''}.`;
 
-const DOCS: Record<'terms' | 'privacy', Record<'ru' | 'en', Doc>> = {
+const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
+  pricing: {
+    ru: {
+      title: 'Тарифы', updated: 'Обновлено 15 октября 2026',
+      sections: [
+        ['Что такое VeyrArc', 'VeyrArc — веб-приложение для привычек, целей и планирования дня в формате 90-дневных арок: отметки привычек, серии, отказ от вредного, цели с шагами, планер, фокус-таймер, аналитика и голосовой ассистент. Работает в браузере на телефоне и компьютере, его можно установить на экран «Домой».'],
+        ['Бесплатно — 0 ₽', `Все основные функции: до ${config.limits.free.core} основных привычек и без ограничений дополнительных, до ${config.limits.free.goals} активных целей, планер, фокус-таймер, ассистент, ${config.limits.free.freezesPerWeek} заморозка серии в неделю.`],
+        [`Pro на месяц — ${rub(P.ru.monthly)}`, 'Безлимит основных привычек и целей, полная история и сравнение всех арок, корреляции настроения и привычек, 2 заморозки серии в неделю, полный отчёт по завершении арки. Доступ на 1 месяц с автопродлением, которое можно отключить в любой момент.'],
+        [`Pro на год — ${rub(P.ru.yearly)}`, `То же, что Pro на месяц, на 12 месяцев (выгоднее помесячной оплаты на ${Math.round((1 - P.ru.yearly / (P.ru.monthly * 12)) * 100)}%). С автопродлением, которое можно отключить в любой момент.`],
+        ['Пробный период', `${P.trialDays} дней Pro бесплатно, один раз на аккаунт, без привязки карты и без списаний.`],
+        ['Как получить услугу', 'Услуга оказывается онлайн, ничего не доставляется физически. После оплаты Pro включается в вашем аккаунте сразу — на сайте и во всех устройствах, где вы вошли. Подтверждение и кассовый чек приходят на email аккаунта.'],
+        ['Оплата', 'Банковской картой, через СБП или SberPay на защищённой странице ЮKassa. Данные карты мы не получаем и не храним.'],
+        ['Возврат', `В течение ${P.refundDays} дней после списания — по письму на ${CONTACT}. Подробно — в публичной оферте.`],
+        ['Продавец', REQ_RU],
+      ],
+    },
+    en: {
+      title: 'Pricing', updated: 'Updated October 15, 2026',
+      sections: [
+        ['What VeyrArc is', 'VeyrArc is a web app for habits, goals and day planning in 90-day arcs: habit check-ins, streaks, quitting, goals with steps, a planner, a focus timer, analytics and a voice assistant. It runs in the browser on phone and desktop and can be installed to the home screen.'],
+        ['Free — 0 ₽', `All the basics: up to ${config.limits.free.core} Core habits and unlimited Extra, up to ${config.limits.free.goals} active goals, planner, focus timer, assistant, ${config.limits.free.freezesPerWeek} streak freeze a week.`],
+        [`Pro monthly — ${rub(P.ru.monthly)}`, 'Unlimited Core habits and goals, full history and comparison of every arc, mood and habit correlations, 2 streak freezes a week, the full end-of-arc recap. One month of access, renews automatically, can be turned off any time.'],
+        [`Pro yearly — ${rub(P.ru.yearly)}`, 'Everything in Pro monthly for 12 months. Renews automatically, can be turned off any time.'],
+        ['Trial', `${P.trialDays} days of Pro free, once per account, no card, no charges.`],
+        ['How you receive it', 'The service is online; nothing is shipped. After payment Pro turns on in your account at once on every device you are signed in on. The confirmation and receipt are emailed to your account address.'],
+        ['Payment', 'Card, SBP or SberPay on the secure YooKassa page. We never receive or store card details.'],
+        ['Refunds', `Within ${P.refundDays} days of a charge — email ${CONTACT}. Details in the public offer.`],
+        ['Seller', REQ_EN],
+      ],
+    },
+  },
+  offer: {
+    ru: {
+      title: 'Публичная оферта', updated: 'Редакция от 15 октября 2026',
+      sections: [
+        ['1. Общие положения', `${S.name} (далее — Исполнитель) предлагает любому лицу (далее — Пользователь) заключить договор на условиях настоящей оферты. Акцептом оферты является оплата подписки Pro на сайте ${SITE} или в приложении VeyrArc. С момента акцепта договор считается заключённым (ст. 437, 438 ГК РФ).`],
+        ['2. Предмет', 'Исполнитель предоставляет Пользователю доступ к расширенным функциям веб-приложения VeyrArc (подписка Pro) на оплаченный период, а Пользователь оплачивает доступ. Состав функций указан на странице «Тарифы». Услуга оказывается дистанционно через интернет.'],
+        ['3. Стоимость и оплата', `Стоимость: ${rub(P.ru.monthly)} за 1 месяц или ${rub(P.ru.yearly)} за 12 месяцев, НДС не облагается. Оплата производится банковской картой, через СБП или SberPay с помощью платёжного сервиса ЮKassa (ООО НКО «ЮМани»). Кассовый чек направляется на email Пользователя.`],
+        ['4. Автопродление', 'Отмечая согласие при оформлении, Пользователь поручает Исполнителю списывать стоимость того же тарифа тем же способом оплаты в начале каждого следующего периода. Списание производится не ранее чем за сутки до окончания оплаченного периода. Автопродление отключается в приложении: Настройки → План → «Отключить автопродление»; доступ сохраняется до конца оплаченного периода, сохранённый способ оплаты отвязывается. Если списание не прошло, доступ к Pro прекращается по окончании оплаченного периода.'],
+        ['5. Пробный период', `Один раз на аккаунт предоставляется бесплатный пробный период ${P.trialDays} дней без привязки карты. По его окончании списаний не происходит.`],
+        ['6. Порядок оказания услуги', 'Доступ к Pro открывается автоматически сразу после поступления оплаты в аккаунте, с которого она совершена. Услуга считается оказанной надлежащим образом, если в течение оплаченного периода функции Pro доступны Пользователю.'],
+        ['7. Возврат', `Пользователь вправе отказаться от подписки и вернуть оплату за текущий период, направив письмо на ${CONTACT} в течение ${P.refundDays} дней с даты списания. Возврат производится тем же способом, которым была произведена оплата, в течение 10 рабочих дней; доступ к Pro при этом прекращается. По истечении этого срока оплата за начавшийся период не возвращается, но автопродление можно отключить в любой момент.`],
+        ['8. Права и обязанности', 'Исполнитель обеспечивает работу сервиса и сохранность данных Пользователя, вправе проводить технические работы и обновлять функции без ухудшения оплаченного объёма. Пользователь обязуется не нарушать работу сервиса и не передавать доступ третьим лицам.'],
+        ['9. Ответственность', 'Сервис предоставляется «как есть». Исполнитель не отвечает за перерывы в работе, вызванные обстоятельствами вне его контроля (сбои связи, хостинга, платёжных систем). VeyrArc не является медицинской или психологической услугой. Ответственность Исполнителя ограничена суммой, уплаченной Пользователем за текущий период.'],
+        ['10. Персональные данные', 'Обработка персональных данных — в соответствии с Политикой конфиденциальности, размещённой на сайте.'],
+        ['11. Срок действия и изменения', 'Договор действует до окончания оплаченного периода и продлевается при автопродлении. Исполнитель вправе изменять оферту; новая редакция действует с момента публикации и применяется к следующим периодам. Об изменении цены Пользователь уведомляется не позднее чем за 7 дней до списания.'],
+        ['12. Споры', 'Споры решаются путём переговоров, претензия рассматривается в течение 10 дней. Применяется право Российской Федерации.'],
+        ['13. Реквизиты Исполнителя', REQ_RU],
+      ],
+    },
+    en: {
+      title: 'Public offer', updated: 'Version of October 15, 2026',
+      sections: [
+        ['Note', 'The binding version of this offer is the Russian one. Summary below.'],
+        ['Subject', 'Access to VeyrArc Pro features for the paid period (1 or 12 months), delivered online. Paying for Pro accepts this offer.'],
+        ['Price and payment', `${rub(P.ru.monthly)} per month or ${rub(P.ru.yearly)} per year, no VAT, paid through YooKassa (card, SBP, SberPay). A receipt is emailed.`],
+        ['Auto-renewal', 'The same plan is charged with the same method at the start of each next period, at most a day before the paid period ends. Turn it off in Settings → Plan; access stays until the end of the paid period.'],
+        ['Refunds', `Email ${CONTACT} within ${P.refundDays} days of a charge to get that period refunded within 10 business days; Pro access ends.`],
+        ['Seller', REQ_EN],
+      ],
+    },
+  },
+  contacts: {
+    ru: {
+      title: 'Контакты и реквизиты', updated: '',
+      sections: [
+        ['Продавец', S.name],
+        ['ИНН', S.inn],
+        ['ОГРНИП', S.ogrnip],
+        ['Email', CONTACT],
+        ...(S.phone ? [['Телефон', S.phone] as [string, string]] : []),
+        ['Сайт', SITE],
+        ['Поддержка', `Пишите на ${CONTACT} — отвечаем в течение 1 рабочего дня.`],
+      ],
+    },
+    en: {
+      title: 'Contacts', updated: '',
+      sections: [
+        ['Seller', `${S.name} (sole proprietor)`],
+        ['INN', S.inn],
+        ['OGRNIP', S.ogrnip],
+        ['Email', CONTACT],
+        ...(S.phone ? [['Phone', S.phone] as [string, string]] : []),
+        ['Website', SITE],
+        ['Support', `Email ${CONTACT} — we reply within one business day.`],
+      ],
+    },
+  },
   terms: {
     ru: {
       title: 'Условия использования', updated: 'Обновлено 29 сентября 2026',
@@ -82,7 +176,7 @@ const DOCS: Record<'terms' | 'privacy', Record<'ru' | 'en', Doc>> = {
   },
 };
 
-export function Legal({ doc }: { doc: 'terms' | 'privacy' }) {
+export function Legal({ doc }: { doc: DocId }) {
   const lang = useLangStore((x) => x.lang);
   const d = DOCS[doc][lang];
   const navigate = useNavigate();
@@ -94,7 +188,7 @@ export function Legal({ doc }: { doc: 'terms' | 'privacy' }) {
           aria-label="back"><Icon name="back" size={18} sw={2} /></button>
         <div style={{ font: 'var(--fw-bold) 10px var(--font-mono)', letterSpacing: '.24em', color: 'rgba(var(--fg-rgb),.5)', marginTop: 26 }}>VEYRARC</div>
         <h1 style={{ font: 'var(--fw-heavy) 30px/1.15 var(--font-ui)', margin: '10px 0 0', color: 'var(--text-strong)', textWrap: 'balance' } as CSSProperties}>{d.title}</h1>
-        <div style={{ font: 'var(--fw-medium) 12px var(--font-mono)', color: 'rgba(var(--fg-rgb),.56)', marginTop: 10 }}>{d.updated}</div>
+        {d.updated && <div style={{ font: 'var(--fw-medium) 12px var(--font-mono)', color: 'rgba(var(--fg-rgb),.56)', marginTop: 10 }}>{d.updated}</div>}
         <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 22 }}>
           {d.sections.map(([h, p]) => (
             <section key={h}>
@@ -103,6 +197,7 @@ export function Legal({ doc }: { doc: 'terms' | 'privacy' }) {
             </section>
           ))}
         </div>
+        <div style={{ marginTop: 40, paddingTop: 20, borderTop: '1px solid rgba(var(--fg-rgb),.08)' }}><LegalLinks lang={lang} current={doc} /></div>
       </div>
     </div>
   );

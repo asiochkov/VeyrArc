@@ -8,6 +8,14 @@ export const config = {
     domain: new URL(SITE_URL).host,
     support: `support@${new URL(SITE_URL).host}`,
   },
+  /* Seller requisites for the offer / contacts pages (YooKassa checks them on the live site). */
+  seller: {
+    name: 'ИП —',        // «ИП Иванов Иван Иванович»
+    inn: '—',
+    ogrnip: '—',
+    email: '',           // a mailbox that really receives mail; falls back to site.support
+    phone: '',
+  },
   auth: {
     /* Sign in with Apple needs a paid Apple Developer account (decision B26). */
     apple: false,
