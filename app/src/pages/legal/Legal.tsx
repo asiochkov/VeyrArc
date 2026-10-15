@@ -18,7 +18,13 @@ const DOCS: Record<'terms' | 'privacy', Record<'ru' | 'en', Doc>> = {
       sections: [
         ['Сервис', 'VeyrArc — веб-приложение для привычек, отказов от вредного, целей и планирования. Пользуясь им, вы соглашаетесь с этими условиями.'],
         ['Аккаунт', 'Можно начать без регистрации: данные хранятся в гостевом аккаунте. Чтобы не потерять прогресс, привяжите email. Вы отвечаете за сохранность пароля.'],
-        ['Бета-версия', 'Сейчас VeyrArc работает в бета-версии: все функции доступны бесплатно и без ограничений. Никаких платежей и списаний нет. Перед появлением платных возможностей мы заранее сообщим об этом в приложении.'],
+        config.beta
+          ? ['Бета-версия', 'Сейчас VeyrArc работает в бета-версии: все функции доступны бесплатно и без ограничений. Никаких платежей и списаний нет. Перед появлением платных возможностей мы заранее сообщим об этом в приложении.']
+          : ['Подписка Pro', `Базовые функции бесплатны. Pro оформляется на месяц (${config.pricing.ru.monthly} ₽) или на год (${config.pricing.ru.yearly} ₽); один раз доступен бесплатный пробный период ${config.pricing.trialDays} дней без карты. Оплата проходит через ЮKassa (карта, СБП, SberPay); данные карты мы не получаем и не храним.`],
+        ...(config.beta ? [] : [
+          ['Автопродление', 'Оформляя подписку, вы соглашаетесь, что по окончании оплаченного периода стоимость того же тарифа списывается автоматически тем же способом оплаты. Отключить автопродление можно в любой момент: Настройки → План → «Отключить автопродление»; доступ к Pro сохранится до конца оплаченного периода, способ оплаты отвязывается.'] as [string, string],
+          ['Возврат', `Если Pro не подошёл, напишите на ${CONTACT} в течение ${config.pricing.refundDays} дней после списания — вернём деньги за этот период, доступ к Pro при этом закончится. Чек об оплате приходит на email аккаунта.`] as [string, string],
+        ]),
         ['Ваш контент', 'Названия привычек, записи дневника и заметки принадлежат вам. Мы храним их только для работы приложения.'],
         ['Ограничения', 'Не используйте сервис для незаконных целей и не пытайтесь получить доступ к чужим данным. VeyrArc не является медицинской рекомендацией.'],
         ['Удаление', 'Аккаунт можно удалить в Настройках → Данные. Все данные удаляются без возможности восстановления.'],
@@ -31,7 +37,13 @@ const DOCS: Record<'terms' | 'privacy', Record<'ru' | 'en', Doc>> = {
       sections: [
         ['The service', 'VeyrArc is a web app for habits, quitting bad habits, goals and planning. By using it you agree to these terms.'],
         ['Account', 'You can start without signing up: your data lives in a guest account. Link an email to keep your progress. You are responsible for your password.'],
-        ['Beta', 'VeyrArc is in beta: every feature is free and unlimited. There are no payments or charges. We will tell you in the app well before any paid features appear.'],
+        config.beta
+          ? ['Beta', 'VeyrArc is in beta: every feature is free and unlimited. There are no payments or charges. We will tell you in the app well before any paid features appear.']
+          : ['Pro subscription', `The basics are free. Pro is monthly or yearly; a ${config.pricing.trialDays}-day free trial without a card is available once. Payments go through YooKassa (card, SBP, SberPay); we never receive or store card details.`],
+        ...(config.beta ? [] : [
+          ['Auto-renewal', 'By subscribing you agree that at the end of each paid period the same plan is charged automatically with the same payment method. Turn auto-renewal off any time in Settings → Plan; Pro stays until the end of the paid period and the payment method is removed.'] as [string, string],
+          ['Refunds', `If Pro isn’t for you, write to ${CONTACT} within ${config.pricing.refundDays} days of a charge and we refund that period; Pro access ends. The receipt is sent to your account email.`] as [string, string],
+        ]),
         ['Your content', 'Habit names, journal entries and notes are yours. We store them only to run the app.'],
         ['Acceptable use', 'Do not use the service unlawfully or try to access other people’s data. VeyrArc is not medical advice.'],
         ['Deletion', 'Delete your account in Settings → Data. All data is removed permanently.'],
@@ -46,7 +58,7 @@ const DOCS: Record<'terms' | 'privacy', Record<'ru' | 'en', Doc>> = {
       sections: [
         ['Что мы собираем', 'Email, имя и фамилию (если вы их указали), язык и часовой пояс; ваши привычки, отметки, отказы, цели, записи дневника, задачи планера, настроение и фокус-сессии.'],
         ['Зачем', 'Только чтобы приложение работало: показывать прогресс, считать серии и индекс дисциплины, отправлять коды входа и напоминания, которые вы включили.'],
-        ['Где хранится', 'Данные хранятся в базе Supabase в ЕС (Франкфурт). Письма отправляются через Resend. Сайт размещён на Render. Доступ к вашим данным есть только у вашего аккаунта.'],
+        ['Где хранится', `Данные хранятся в базе Supabase в ЕС (Франкфурт). Письма отправляются через Resend. Сайт размещён на Render.${config.beta ? '' : ' Платежи обрабатывает ЮKassa (ООО НКО «ЮМани»): мы получаем только статус оплаты и маску карты, сами данные карты остаются у ЮKassa.'} Доступ к вашим данным есть только у вашего аккаунта.`],
         ['Кому передаём', 'Никому не продаём и не передаём данные для рекламы. Подрядчики выше обрабатывают данные только для работы сервиса.'],
         ['Вход через Google', 'При входе через Google мы получаем ваш email и имя. Другие данные Google-аккаунта не запрашиваются.'],
         ['Ваши права', 'Экспорт всех данных — Настройки → Данные → Экспортировать. Удаление аккаунта и всех данных — там же. По другим запросам пишите на почту ниже.'],

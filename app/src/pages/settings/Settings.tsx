@@ -19,6 +19,7 @@ import { useLangStore, useT, type Lang, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { Icon, type IconName } from '../../ui/Icon';
 import { ConfirmDialog, PhotoImg, Segmented } from '../../ui/primitives';
+import { cancelAutoRenew } from '../../lib/billing';
 import { useTheme } from '../../lib/theme';
 import { OathSheet } from '../../ui/OathSheet';
 import { roman } from '../../app/AppHeader';
@@ -89,6 +90,7 @@ export function Settings() {
   const [arcModal, setArcModal] = useState(false);
   const [accModal, setAccModal] = useState<AccountModal>(null);
   const [oathOpen, setOathOpen] = useState(false);
+  const [cancelAsk, setCancelAsk] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [imp, setImp] = useState<ReturnType<typeof parseImport>>(null);
   const [importing, setImporting] = useState(false);
@@ -264,13 +266,16 @@ export function Settings() {
               <span className={s.crown}><Icon name="crown" size={19} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)', color: '#f2e2c4' }}>{t('settings.proActive')}</span>
-                <span style={{ display: 'block', font: 'var(--fw-medium) 12px var(--font-ui)', color: 'rgba(var(--fg-rgb),.55)', marginTop: 3, whiteSpace: 'nowrap' }}>
-                  {t('settings.renews')} · <span style={{ fontFamily: 'var(--font-mono)' }}>{renew}</span>
+                <span style={{ display: 'block', font: 'var(--fw-medium) 12px/1.45 var(--font-ui)', color: 'rgba(var(--fg-rgb),.55)', marginTop: 3 }}>
+                  {!plan?.period ? t('settings.trialUntil') : plan.auto_renew ? t('settings.renews') : t('settings.activeUntil')} · <span style={{ fontFamily: 'var(--font-mono)' }}>{renew}</span>
+                  {plan?.period && plan.card && <><br />{plan.auto_renew ? t('settings.payWith', { c: plan.card }) : t('settings.autoOff')}</>}
                 </span>
               </span>
               <span className={s.proBadge}>PRO</span>
             </div>
-            <Link to="/pro" className={s.manage}>{t('settings.manage')}</Link>
+            {plan?.period && plan.auto_renew
+              ? <button type="button" className={s.manage} onClick={() => setCancelAsk(true)}>{t('settings.cancelRenew')}</button>
+              : <Link to="/pro" className={s.manage}>{plan?.period ? t('settings.renewAgain') : t('settings.manage')}</Link>}
           </div>
           )}
         </div>
@@ -317,6 +322,10 @@ export function Settings() {
         <div style={{ marginTop: 22 }}>{content}</div>
       )}
 
+      <ConfirmDialog open={cancelAsk} title={t('settings.cancelRenewTitle')} body={t('settings.cancelRenewBody', { date: renew ?? '' })}
+        confirmLabel={t('settings.cancelRenewOk')} cancelLabel={t('settings.keepRenew')} danger
+        onConfirm={() => { setCancelAsk(false); void cancelAutoRenew().then(() => toast.success(t('settings.cancelRenewDone'))).catch(() => toast.error(t('common.saveFailed'))); }}
+        onCancel={() => setCancelAsk(false)} />
       <ConfirmDialog
         open={arcModal} title={t('settings.newArcTitle')} body={t('settings.newArcBody', { d: hd.arcDay, n: hd.arcLength })}
         confirmLabel={t('settings.newArcOk')} cancelLabel={t('settings.cancel')}

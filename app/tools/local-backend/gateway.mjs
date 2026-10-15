@@ -35,6 +35,8 @@ http.createServer((req, res) => {
   let target;
   if (u.pathname.startsWith('/auth/v1')) target = { port: 9999, path: u.pathname.slice(8) + u.search };
   else if (u.pathname.startsWith('/rest/v1')) target = { port: 3000, path: (u.pathname.slice(8) || '/') + u.search };
+  // edge functions run locally by tools/local-backend/functions.sh (one Deno server per function)
+  else if (u.pathname.startsWith('/functions/v1/billing')) target = { port: 54400, path: '/' + u.search };
   else { res.writeHead(404, cors); return res.end(); }
   const p = http.request({ host: '127.0.0.1', port: target.port, path: target.path, method: req.method, headers: { ...req.headers, host: '127.0.0.1' } }, (r) => {
     const h = { ...r.headers, ...cors };

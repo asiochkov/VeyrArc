@@ -15,7 +15,7 @@ export const config = {
     google: import.meta.env.VITE_AUTH_GOOGLE === '1' || !import.meta.env.VITE_SUPABASE_URL,
   },
   /* Beta: everything open, no subscription anywhere in the app (the database has the same switch: private.flags.beta) */
-  beta: true,
+  beta: import.meta.env.VITE_BETA !== '0',
   arc: {
     lengthDays: 90,
   },

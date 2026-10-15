@@ -15,7 +15,7 @@ export type Profile = {
   reminder_time: string | null; notify_habits: boolean; notify_summary: boolean; notify_focus: boolean; notify_arc: boolean;
   onboarded_at: string | null; avatar_url?: string | null; pomodoro?: { lengths?: [number, number, number]; endsAt?: number | null; label?: string | null; tab?: number } | null; tour_done?: Record<string, boolean>; density?: 'comfortable' | 'compact'; quiet_from?: string | null; quiet_to?: string | null;
 };
-export type Plan = { plan: 'free' | 'pro'; period: 'monthly' | 'yearly' | null; status: string; renews_at: string | null };
+export type Plan = { plan: 'free' | 'pro'; period: 'monthly' | 'yearly' | null; status: string; renews_at: string | null; trial_used_at?: string | null; auto_renew?: boolean; card?: string | null };
 
 type AuthState = {
   ready: boolean;
@@ -35,7 +35,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     if (!uid) { set({ profile: null, plan: null }); return; }
     const [p, s] = await Promise.all([
       db().from('profiles').select('*').eq('id', uid).maybeSingle(),
-      db().from('subscriptions').select('plan, period, status, renews_at, trial_used_at').eq('user_id', uid).maybeSingle(),
+      db().from('subscriptions').select('plan, period, status, renews_at, trial_used_at, auto_renew, card').eq('user_id', uid).maybeSingle(),
     ]);
     const profile = (p.data as Profile | null) ?? null;
     set({ profile, plan: (s.data as Plan | null) ?? null });
