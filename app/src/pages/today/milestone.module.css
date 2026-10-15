@@ -7,9 +7,9 @@
 @keyframes draw { from { stroke-dashoffset: var(--len); } }
 .num { position: relative; font: var(--fw-light) 96px/1 var(--font-ui); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
 .unit { position: relative; font: var(--fw-regular) 13px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.5); }
-.title { position: relative; margin: 28px 0 0; font: 500 42px/1.05 var(--font-display); letter-spacing: -.01em; animation: up 600ms var(--ease-out-strong) 700ms both; }
+.title { position: relative; margin: 28px 0 0; font: var(--fw-regular) 42px/1.05 var(--font-ui); letter-spacing: -.01em; animation: up 600ms var(--ease-out-strong) 700ms both; }
 .line { position: relative; margin: 0; max-width: 320px; font: var(--fw-regular) 16px/1.45 var(--font-ui); color: rgba(255,255,255,.75); text-wrap: balance; animation: up 600ms var(--ease-out-strong) 850ms both; }
-.oath { position: relative; margin: 18px 0 0; max-width: 340px; display: flex; flex-direction: column; gap: 4px; font: italic 500 19px/1.35 var(--font-display); color: rgba(255,255,255,.88); animation: up 600ms var(--ease-out-strong) 1000ms both; }
+.oath { position: relative; margin: 18px 0 0; max-width: 340px; display: flex; flex-direction: column; gap: 4px; font: var(--fw-regular) 19px/1.35 var(--font-ui); color: rgba(255,255,255,.88); animation: up 600ms var(--ease-out-strong) 1000ms both; }
 .oath span { font: normal var(--fw-regular) 11px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.4); }
 .next { position: relative; margin-top: 32px; min-width: 200px; height: 52px; border: none; border-radius: 999px; background: #fff; color: #030923; font: var(--fw-medium) 16px var(--font-ui); cursor: pointer; animation: up 600ms var(--ease-out-strong) 1150ms both; }
 .next:active { transform: scale(.96); }

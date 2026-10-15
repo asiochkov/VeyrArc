@@ -38,7 +38,7 @@
 
 /* typography */
 .badge { white-space: nowrap; font: var(--fw-bold) 10px var(--font-mono); letter-spacing: .24em; color: var(--link); background: rgba(var(--hl-rgb),.04); border: 1px solid rgba(80,125,255,.12); border-radius: 999px; padding: 7px 14px;  }
-.h1big { font: 500 48px/1.02 var(--font-display); letter-spacing: -.02em; margin-top: 22px; text-wrap: balance; max-width: 320px; }
+.h1big { font: var(--fw-regular) 48px/1.02 var(--font-ui); letter-spacing: -.035em; margin-top: 22px; text-wrap: balance; max-width: 320px; }
 .h1 { font: var(--fw-regular) 32px/1.1 var(--font-ui); letter-spacing: -.035em; text-wrap: balance; }
 .h2 { font: var(--fw-regular) 30px/1.1 var(--font-ui); letter-spacing: -.035em; }
 .sub { font: var(--fw-medium) 14px/1.55 var(--font-ui); color: rgba(var(--fg-rgb),.58); }

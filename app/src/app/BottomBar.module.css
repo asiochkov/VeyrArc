@@ -1,39 +1,43 @@
 /* Mobile dock: pill + assistant drop. Intro: the pill grows out of a narrow blob, a dot becomes the
    white puck, icons appear left to right, the drop splits off to the right (a neck that thins out). */
 .dock {
-  --h: 64px; --gap: 8px; --ease: cubic-bezier(.2, .9, .25, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --h: 60px; --gap: 10px; --ease: cubic-bezier(.2, .9, .25, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
   position: fixed; z-index: var(--z-docked); left: 0; right: 0; bottom: 0;
-  display: flex; align-items: center; gap: var(--gap); padding: 10px 10px max(10px, var(--safe-bottom));
-  background: linear-gradient(to top, var(--dock-fade) 40%, transparent); pointer-events: none;
+  display: flex; align-items: center; gap: var(--gap); padding: 18px 14px max(12px, var(--safe-bottom));
+  background: linear-gradient(to top, var(--dock-fade) 30%, transparent); pointer-events: none;
+}
+/* frosted glass in both themes: the page shows through, a hairline edge, a soft lift */
+.glass {
+  background: var(--dock-bg); box-shadow: var(--dock-shadow), 0 0 0 .5px var(--dock-line);
+  -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
 }
 .bar {
   position: relative; flex: 1; display: flex; justify-content: space-around; align-items: center; height: var(--h); padding: 0 6px;
-  border-radius: 999px; background: #0A1230; box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(80,125,255,.16);
-  pointer-events: auto; clip-path: inset(0 0 round 999px);
+  border-radius: 999px; pointer-events: auto; clip-path: inset(-40px -40px round 999px);
   animation: grow 620ms var(--ease) both;
   transition: clip-path 520ms var(--ease);
 }
-@keyframes grow { 0% { clip-path: inset(0 36% round 999px); } 100% { clip-path: inset(0 0 round 999px); } }
+@keyframes grow { 0% { clip-path: inset(0 36% round 999px); } 100% { clip-path: inset(-40px -40px round 999px); } }
 .item {
-  position: relative; z-index: 1; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
-  color: rgba(232,237,243,.45); transition: color 320ms var(--ease), opacity 260ms var(--ease), transform 260ms var(--ease);
+  position: relative; z-index: 1; width: 52px; height: 44px; border-radius: 22px; display: grid; place-items: center;
+  color: var(--dock-icon); transition: color 320ms var(--ease), opacity 260ms var(--ease), transform 260ms var(--ease);
   animation: pop 420ms var(--spring) both; animation-delay: calc(380ms + var(--k) * 70ms);
+  -webkit-tap-highlight-color: transparent;
 }
 @keyframes pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
-.item:active { transform: scale(.88); }
-.item[data-active='true'] { color: #030923; }
-/* the white puck under the active section: grows from a dot, then glides between sections */
+.item:active { transform: scale(.9); }
+.item[data-active='true'] { color: #FFFFFF; }
+/* the active section: a brand-blue lozenge that grows from a dot, then glides between sections */
 .puck {
-  position: absolute; left: 0; top: 50%; width: 48px; height: 48px; margin-top: -24px; border-radius: 50%; background: #fff;
-  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  position: absolute; left: 0; top: 50%; width: 52px; height: 44px; margin-top: -22px; border-radius: 22px;
+  background: var(--c-on); box-shadow: 0 6px 16px rgba(0,75,224,.35), inset 0 1px 0 rgba(255,255,255,.18);
   transition: transform 460ms var(--spring), opacity 260ms;
   animation: dot 560ms var(--spring) 260ms both;
 }
 @keyframes dot { 0% { scale: 0; } 40% { scale: .18; } 100% { scale: 1; } }
 /* assistant drop + the neck that joins it to the pill during the split */
 .drop {
-  position: relative; z-index: 2; flex: none; width: 72px; height: var(--h); border-radius: 999px; border: none;
-  background: #0A1230; box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 0 1px rgba(80,125,255,.2);
+  position: relative; z-index: 2; flex: none; width: var(--h); height: var(--h); border-radius: 50%; border: none;
   display: grid; place-items: center; cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent;
   animation: split 700ms var(--spring) 760ms both;
   transition: transform 520ms var(--spring), opacity 300ms var(--ease), width 520ms var(--ease), margin 520ms var(--ease);
@@ -43,16 +47,16 @@
 .drop svg { transition: transform 600ms var(--spring); }
 .drop:hover svg { transform: rotate(45deg); }
 .neck {
-  position: absolute; z-index: 1; right: calc(10px + 72px - 14px); bottom: calc(max(10px, var(--safe-bottom)) + var(--h) / 2 - 11px);
-  width: calc(var(--gap) + 28px); height: 22px; border-radius: 11px; background: #0A1230; pointer-events: none;
+  position: absolute; z-index: 1; right: calc(14px + var(--h) - 14px); bottom: calc(max(12px, var(--safe-bottom)) + var(--h) / 2 - 10px);
+  width: calc(var(--gap) + 28px); height: 20px; border-radius: 10px; background: var(--dock-bg); pointer-events: none;
   animation: neck 700ms var(--ease) 760ms both;
 }
 @keyframes neck { 0% { transform: scaleY(1.6); opacity: 1; } 60% { transform: scaleY(.35); opacity: 1; } 100% { transform: scaleY(0); opacity: 0; } }
 
 /* live dot in the merged pill: listening / thinking / answer */
 .live { position: absolute; left: 50%; top: 50%; display: flex; gap: 5px; transform: translate(-50%, -50%) scale(.4); opacity: 0; transition: opacity 260ms, transform 420ms var(--spring); pointer-events: none; }
-.live i { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
-.live[data-state='listening'] i { background: #6E9BFF; animation: hop 900ms ease-in-out infinite; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: rgba(var(--fg-rgb),.9); }
+.live[data-state='listening'] i { background: var(--c-on-hi); animation: hop 900ms ease-in-out infinite; }
 .live[data-state='listening'] i:nth-child(2) { animation-delay: 120ms; } .live[data-state='listening'] i:nth-child(3) { animation-delay: 240ms; }
 .live[data-state='processing'] i { animation: fade 900ms ease-in-out infinite; }
 .live[data-state='processing'] i:nth-child(2) { animation-delay: 150ms; } .live[data-state='processing'] i:nth-child(3) { animation-delay: 300ms; }

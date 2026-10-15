@@ -4,9 +4,6 @@
  * works offline.
  */
 import '@fontsource-variable/inter';
-// display serif for the emotional moments (greeting, promise, milestones, recap) — has Cyrillic
-import '@fontsource-variable/cormorant';
-import '@fontsource-variable/cormorant/wght-italic.css';
 import '@fontsource/jetbrains-mono/500.css';
 import '@fontsource/jetbrains-mono/600.css';
 import '@fontsource/jetbrains-mono/700.css';

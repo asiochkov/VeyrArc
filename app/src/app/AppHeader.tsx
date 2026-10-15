@@ -34,7 +34,7 @@ export function AppHeader({ title, sub, right }: { title?: ReactNode; sub?: Reac
         <AvatarMenu initials={hd.initials} />
       </div>
       <InfoDialog open={oathOpen} title={t('arc.oathTitle')} okLabel={t('common.ok')} onClose={() => setOathOpen(false)}
-        body={hd.oath ? <span style={{ fontStyle: 'italic' }}>«{hd.oath}»</span> : t('arc.noOath')} />
+        body={hd.oath ? <span>«{hd.oath}»</span> : t('arc.noOath')} />
     </header>
   );
 }

@@ -233,7 +233,7 @@ function ArcTrack({ t, day, len, n, oath }: { t: T; day: number; len: number; n:
       <span className={a.arcLabel}>Arc {roman(n)} · {t('analytics.dayOf', { d: day, l: len })}</span>
       <span className={a.oath}>{oath ? `«${oath}»` : t('arc.noOathShort')}</span>
       <InfoDialog open={open} title={t('arc.oathTitle')} okLabel={t('common.ok')} onClose={() => setOpen(false)}
-        body={<>{oath ? <span style={{ fontStyle: 'italic' }}>«{oath}»</span> : t('arc.noOath')}<br /><br />{t('analytics.arcCheckpoints', { d: day, l: len })}</>} />
+        body={<>{oath ? <span>«{oath}»</span> : t('arc.noOath')}<br /><br />{t('analytics.arcCheckpoints', { d: day, l: len })}</>} />
     </button>
   );
 }

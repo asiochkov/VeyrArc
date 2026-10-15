@@ -96,7 +96,7 @@ export function Onboarding() {
               </div>
               <div style={{ marginTop: 18 }}>
                 <label className={s.label} htmlFor="ob-oath">{t('auth.oathLabel')}</label>
-                <textarea id="ob-oath" className={s.field} style={{ height: 96, paddingTop: 12, resize: 'none', lineHeight: 1.3, font: 'italic 500 21px var(--font-display)' }} maxLength={200}
+                <textarea id="ob-oath" className={s.field} style={{ height: 96, paddingTop: 12, resize: 'none', lineHeight: 1.3 }} maxLength={200}
                   value={oath} onChange={(e) => setOath(e.target.value)} placeholder={t('auth.oathPh')} />
                 {/* a few honest starting points — tap one, then make it yours */}
                 {!oath && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>

@@ -1,6 +1,6 @@
 /*
  * The shareable card (audit 1.13.2): a 1080×1920 story image drawn on the device — the arc name in
- * the display serif, the days kept as dots, three numbers, the promise. Shared through the system
+ * the arc name large, the days kept as dots, three numbers, the promise. Shared through the system
  * share sheet where files can be shared, otherwise saved as a PNG.
  */
 export type CardData = {
@@ -19,16 +19,16 @@ export async function drawCard(d: CardData): Promise<Blob> {
   const W = 1080, H = 1920;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d')!;
-  const serif = "'Cormorant Variable', 'Cormorant', Georgia, serif";
+  const serif = "'Inter Variable', Inter, system-ui, sans-serif";
   const sans = "-apple-system, 'SF Pro Display', 'Inter Variable', Inter, system-ui, sans-serif";
-  try { await Promise.all([document.fonts.load(`500 200px ${serif}`), document.fonts.load(`italic 500 60px ${serif}`)]); } catch { /* fallback fonts */ }
+  try { await Promise.all([document.fonts.load(`400 200px ${serif}`), document.fonts.load(`400 60px ${serif}`)]); } catch { /* fallback fonts */ }
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
   const g = ctx.createRadialGradient(W / 2, 560, 40, W / 2, 560, 760);
   g.addColorStop(0, 'rgba(0,75,224,.55)'); g.addColorStop(1, 'rgba(0,75,224,0)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.55)';
   ctx.font = `500 34px ${sans}`; ctx.fillText('VEYRARC', W / 2, 150);
-  ctx.fillStyle = '#fff'; ctx.font = `500 220px ${serif}`; ctx.fillText(d.arc, W / 2, 470);
+  ctx.fillStyle = '#fff'; ctx.font = `400 200px ${serif}`; ctx.fillText(d.arc, W / 2, 470);
   // the arc of days: dots along a shallow curve
   const n = d.days.length, x0 = 110, x1 = W - 110;
   for (let k = 0; k < n; k++) {
@@ -47,7 +47,7 @@ export async function drawCard(d: CardData): Promise<Blob> {
     ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.font = `400 30px ${sans}`; ctx.fillText(l, cx, 1385);
   });
   if (d.oath) {
-    ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = `italic 500 58px ${serif}`;
+    ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = `400 54px ${serif}`;
     wrap(ctx, `«${d.oath}»`, W - 220).forEach((ln, k) => ctx.fillText(ln, W / 2, 1550 + k * 72));
   }
   ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.font = `400 30px ${sans}`; ctx.fillText('veyrarc.online', W / 2, H - 110);

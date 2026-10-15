@@ -5,7 +5,7 @@
 .mark i:last-child { inset: auto; left: 50%; top: -5px; width: 10px; height: 10px; margin-left: -5px; border: none; border-radius: 50%; background: #fff; box-shadow: 0 0 14px rgba(var(--hl-rgb),.6); animation: dotIn 600ms var(--ease-spring) 700ms both; }
 @keyframes arcDraw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes dotIn { from { transform: scale(0); } to { transform: none; } }
-.title { margin: 0; font: 500 34px/1.1 var(--font-display); letter-spacing: -.01em; text-wrap: balance; }
+.title { margin: 0; font: var(--fw-regular) 34px/1.1 var(--font-ui); letter-spacing: -.01em; text-wrap: balance; }
 .body { margin: 0; font: var(--fw-regular) 16px/1.45 var(--font-ui); color: rgba(var(--fg-rgb),.82); text-wrap: balance; }
 .note { margin: 0; font: var(--fw-regular) 13px/1.4 var(--font-ui); color: rgba(var(--fg-rgb),.5); }
 .actions { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }

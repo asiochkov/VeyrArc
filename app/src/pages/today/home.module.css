@@ -6,7 +6,7 @@
 
 /* ---- greeting ---- */
 .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 8px 0; animation: rise 702ms var(--ease-out-strong) both; }
-.hello { margin: 0; font: 500 44px/1 var(--font-display); letter-spacing: -.02em; color: var(--text-strong); }
+.hello { margin: 0; font: var(--fw-regular) 38px/1.04 var(--font-ui); letter-spacing: -.035em; color: var(--text-strong); font-variation-settings: 'opsz' 32; }
 @media (min-width: 720px) { .hello { font-size: 48px; } }
 .headSide { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; }
 .headBtns { display: flex; gap: 8px; margin-bottom: 10px; }
@@ -190,7 +190,7 @@ button.circle:disabled { opacity: .35; cursor: default; }
 :global(:root[data-return='1']) .tabs, :global(:root[data-return='1']) .head { animation-duration: 260ms; animation-delay: 0ms; }
 
 /* the arc's promise under «what now» (audit 1.5.3) */
-.oathLine { display: block; margin-top: 8px; padding: 0; border: none; background: none; text-align: left; cursor: pointer; font: italic 500 16px/1.3 var(--font-display); color: rgba(var(--hl-rgb),.72); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.oathLine { display: block; margin-top: 8px; padding: 0; border: none; background: none; text-align: left; cursor: pointer; font: var(--fw-regular) 16px/1.3 var(--font-ui); color: rgba(var(--hl-rgb),.72); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 /* a habit's week: seven dots, today ringed */
 .weekDots { display: flex; gap: 4px; margin-top: 6px; }
 .weekDots i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .18; transition: opacity 300ms var(--ease-out-strong), transform 300ms var(--ease-spring); }

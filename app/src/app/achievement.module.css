@@ -7,5 +7,5 @@
 .card[data-tier='gold'] { --m: #F2CF6B; }
 .text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .text small { font: var(--fw-regular) 11px var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.55); }
-.text b { font: 500 22px/1.15 var(--font-display); }
+.text b { font: var(--fw-regular) 22px/1.15 var(--font-ui); }
 @media (prefers-reduced-motion: reduce) { .card, .medal { animation: none !important; } }

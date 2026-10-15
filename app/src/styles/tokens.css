@@ -31,7 +31,12 @@
   --hl-rgb: 255,255,255;
   --contrast: #FFFFFF;
   --contrast-ink: #030923;
-  --dock-fade: rgba(0,0,0,.92);
+  --dock-fade: rgba(0,0,0,.55);
+  /* dock glass: frosted, hairline edge, soft lift */
+  --dock-bg: rgba(24,27,36,.96);
+  --dock-line: rgba(255,255,255,.09);
+  --dock-icon: rgba(232,237,243,.56);
+  --dock-shadow: 0 10px 30px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.06) inset;
   /* palette (style reference): black page, navy tiles with a deep-blue glow, electric blue for «on» */
   --c-on: #004BE0;
   --c-on-hi: #1D63F2;
@@ -213,7 +218,7 @@
 
   /* typography (design brief §2): Apple's real SF first, Inter as the close fallback */
   --font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter Variable', 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Cormorant Variable', 'Cormorant', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-display: var(--font-ui);
   --font-ui-rounded: ui-rounded, 'SF Pro Rounded', 'Inter Variable', 'Inter', system-ui, sans-serif;
   --font-mono: var(--font-ui); /* one family across the app; numbers use tabular figures */
   --fs-11: 11px; --fs-12: 12px; --fs-13: 13px; --fs-14: 14px; --fs-15: 15px;
