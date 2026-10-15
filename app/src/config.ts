@@ -10,9 +10,9 @@ export const config = {
   },
   /* Seller requisites for the offer / contacts pages (YooKassa checks them on the live site). */
   seller: {
-    name: 'ИП —',        // «ИП Иванов Иван Иванович»
-    inn: '—',
-    ogrnip: '—',
+    name: 'ИП Иочков Арсений Сергеевич',
+    inn: '631612000117',
+    ogrnip: '',          // 15 digits, from the EGRIP extract (egrul.nalog.ru)
     email: '',           // a mailbox that really receives mail; falls back to site.support
     phone: '',
   },

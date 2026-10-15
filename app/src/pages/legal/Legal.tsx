@@ -15,8 +15,8 @@ const CONTACT = S.email || config.site.support;
 const P = config.pricing;
 const rub = (v: number) => `${v.toLocaleString('ru-RU')} ₽`;
 const SITE = config.site.url;
-const REQ_RU = `${S.name}, ИНН ${S.inn}, ОГРНИП ${S.ogrnip}. Email: ${CONTACT}${S.phone ? `, телефон ${S.phone}` : ''}.`;
-const REQ_EN = `${S.name} (sole proprietor), INN ${S.inn}, OGRNIP ${S.ogrnip}. Email: ${CONTACT}${S.phone ? `, phone ${S.phone}` : ''}.`;
+const REQ_RU = `${S.name}, ИНН ${S.inn}${S.ogrnip ? `, ОГРНИП ${S.ogrnip}` : ''}. Email: ${CONTACT}${S.phone ? `, телефон ${S.phone}` : ''}.`;
+const REQ_EN = `${S.name} (sole proprietor), INN ${S.inn}${S.ogrnip ? `, OGRNIP ${S.ogrnip}` : ''}. Email: ${CONTACT}${S.phone ? `, phone ${S.phone}` : ''}.`;
 
 const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
   pricing: {
@@ -86,7 +86,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
       sections: [
         ['Продавец', S.name],
         ['ИНН', S.inn],
-        ['ОГРНИП', S.ogrnip],
+        ...(S.ogrnip ? [['ОГРНИП', S.ogrnip] as [string, string]] : []),
         ['Email', CONTACT],
         ...(S.phone ? [['Телефон', S.phone] as [string, string]] : []),
         ['Сайт', SITE],
@@ -98,7 +98,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
       sections: [
         ['Seller', `${S.name} (sole proprietor)`],
         ['INN', S.inn],
-        ['OGRNIP', S.ogrnip],
+        ...(S.ogrnip ? [['OGRNIP', S.ogrnip] as [string, string]] : []),
         ['Email', CONTACT],
         ...(S.phone ? [['Phone', S.phone] as [string, string]] : []),
         ['Website', SITE],
