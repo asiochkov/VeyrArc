@@ -17,7 +17,7 @@ const AUTH = 'Basic ' + btoa(`${env('YOOKASSA_SHOP_ID')}:${env('YOOKASSA_SECRET_
 const APP_URL = env('APP_URL', 'https://veyrarc.onrender.com').replace(/\/$/, '');
 const RECEIPT = env('YOOKASSA_RECEIPT', '1') !== '0';
 type Period = 'monthly' | 'yearly';
-const PRICE: Record<Period, number> = { monthly: Number(env('PRICE_MONTHLY', '490')), yearly: Number(env('PRICE_YEARLY', '3490')) };
+const PRICE: Record<Period, number> = { monthly: Number(env('PRICE_MONTHLY', '249')), yearly: Number(env('PRICE_YEARLY', '2200')) };
 const TITLE: Record<Period, string> = { monthly: 'VeyrArc Pro — 1 месяц', yearly: 'VeyrArc Pro — 1 год' };
 
 const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret', 'access-control-allow-methods': 'POST, OPTIONS' };

@@ -57,7 +57,7 @@ try {
   let s = sub(uid);
   assert(s[0] === 'pro' && s[1] === 'yearly' && s[2] === 'active' && s[3] === 'true' && s[4] === 'Visa •• 4477', 'subscription after pay: ' + s);
   const until = s[5];
-  assert(sql(`select count(*) from public.payments where user_id='${uid}' and status='succeeded' and kind='initial' and amount=3490`) === '1', 'payment recorded');
+  assert(sql(`select count(*) from public.payments where user_id='${uid}' and status='succeeded' and kind='initial' and amount=2200`) === '1', 'payment recorded');
   assert(sql(`select count(*) from private.billing_methods where user_id='${uid}'`) === '1', 'card saved server-side');
   log('paid yearly, Pro until', until);
 

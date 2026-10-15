@@ -35,8 +35,9 @@ export const config = {
   /* No prices in the design; the Pro screen shows none. Fill in when billing exists. */
   /* UX audit 4.5: RU in rubles, EN in dollars; payments are not connected yet (trial only). */
   pricing: {
-    ru: { monthly: 490, yearly: 3490, currency: 'RUB' },
-    en: { monthly: 6.99, yearly: 49, currency: 'USD' },
+    ru: { monthly: 249, yearly: 2200, currency: 'RUB' },
+    // payments are in rubles only (YooKassa): the English screens show the same ruble prices
+    en: { monthly: 249, yearly: 2200, currency: 'RUB' },
     trialDays: 7,
     refundDays: 14,
   },
