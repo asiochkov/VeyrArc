@@ -78,16 +78,16 @@ export function Legal({ doc }: { doc: 'terms' | 'privacy' }) {
     <div style={{ height: '100%', overflowY: 'auto', background: 'var(--bg)', color: 'var(--text)' }}>
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 18px 60px' }}>
         <button type="button" onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
-          style={{ cursor: 'pointer', padding: 0, width: 44, height: 44, borderRadius: '50%', background: 'var(--card)', border: '1px solid rgba(168,203,239,.1)', display: 'grid', placeItems: 'center', color: 'rgba(232,237,243,.7)' }}
+          style={{ cursor: 'pointer', padding: 0, width: 44, height: 44, borderRadius: '50%', background: 'var(--card)', border: '1px solid rgba(168,203,239,.1)', display: 'grid', placeItems: 'center', color: 'rgba(var(--fg-rgb),.7)' }}
           aria-label="back"><Icon name="back" size={18} sw={2} /></button>
-        <div style={{ font: 'var(--fw-bold) 10px var(--font-mono)', letterSpacing: '.24em', color: 'rgba(232,237,243,.5)', marginTop: 26 }}>VEYRARC</div>
+        <div style={{ font: 'var(--fw-bold) 10px var(--font-mono)', letterSpacing: '.24em', color: 'rgba(var(--fg-rgb),.5)', marginTop: 26 }}>VEYRARC</div>
         <h1 style={{ font: 'var(--fw-heavy) 30px/1.15 var(--font-ui)', margin: '10px 0 0', color: 'var(--text-strong)', textWrap: 'balance' } as CSSProperties}>{d.title}</h1>
-        <div style={{ font: 'var(--fw-medium) 12px var(--font-mono)', color: 'rgba(232,237,243,.56)', marginTop: 10 }}>{d.updated}</div>
+        <div style={{ font: 'var(--fw-medium) 12px var(--font-mono)', color: 'rgba(var(--fg-rgb),.56)', marginTop: 10 }}>{d.updated}</div>
         <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 22 }}>
           {d.sections.map(([h, p]) => (
             <section key={h}>
               <h2 style={{ font: 'var(--fw-bold) 15px var(--font-ui)', margin: 0, color: 'var(--text-strong)' }}>{h}</h2>
-              <p style={{ font: 'var(--fw-regular) 14px/1.6 var(--font-ui)', margin: '8px 0 0', color: 'rgba(232,237,243,.7)', maxWidth: '65ch' }}>{p}</p>
+              <p style={{ font: 'var(--fw-regular) 14px/1.6 var(--font-ui)', margin: '8px 0 0', color: 'rgba(var(--fg-rgb),.7)', maxWidth: '65ch' }}>{p}</p>
             </section>
           ))}
         </div>

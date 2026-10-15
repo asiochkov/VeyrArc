@@ -53,9 +53,9 @@
 
 /* ---- Segmented: a dark pill track, the chosen item is a white pill (same as the dock) ---- */
 .seg { display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: var(--c-tile); background-image: var(--c-glow); }
-.segItem { flex: 1; white-space: nowrap; border: none; border-radius: 999px; cursor: pointer; background: transparent; color: rgba(232,237,243,.5);
+.segItem { flex: 1; white-space: nowrap; border: none; border-radius: 999px; cursor: pointer; background: transparent; color: rgba(var(--fg-rgb),.5);
   padding: 9px 14px; font: var(--fw-regular) 14px var(--font-ui); letter-spacing: -.01em; transition: background-color var(--dur-base) var(--ease-out-strong), color var(--dur-base) var(--ease-out); }
-.segItem:hover { color: rgba(232,237,243,.8); }
+.segItem:hover { color: rgba(var(--fg-rgb),.8); }
 .segItem[aria-pressed='true'] { background: var(--c-on); color: #FFFFFF; }
 .segAmber .segItem[aria-pressed='true'] { background: var(--c-on); }
 .seg-calendar .segItem, .seg-range .segItem { flex: none; }
@@ -190,7 +190,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2.5px solid rgba(255,255,255,.3);
+  border: 2.5px solid rgba(var(--hl-rgb),.3);
   border-top-color: #fff;
   animation: wwSpin .7s linear infinite;
 }
@@ -209,7 +209,7 @@
 @keyframes modalIn { from { opacity: 0; transform: scale(1.04) translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modalTitle { font: var(--fw-regular) 22px/1.2 var(--font-ui); letter-spacing: -.025em; }
-.modalBody { font: var(--fw-regular) 14px/1.5 var(--font-ui); color: rgba(232,237,243,.6); }
+.modalBody { font: var(--fw-regular) 14px/1.5 var(--font-ui); color: rgba(var(--fg-rgb),.6); }
 .modalActions { display: flex; gap: 10px; margin-top: 10px; }
 .modalCancel { flex: 1; min-height: 52px; border-radius: 999px; border: none; background: var(--c-raise); color: var(--text); font: var(--fw-medium) 15px var(--font-ui); cursor: pointer; transition: transform var(--dur-fast) var(--ease-out); }
 .modalCancel:active, .modalConfirm:active { transform: scale(.96); }
@@ -224,6 +224,7 @@
 }
 @media (min-width: 1024px) { .toaster { bottom: 24px; } }
 .toast {
+  --fg-rgb: 255,255,255; --hl-rgb: 255,255,255; --text: #FFFFFF; --text-strong: #FFFFFF; 
   pointer-events: auto; width: 100%; max-width: 440px; display: flex; align-items: center; gap: 12px;
   padding: 10px 10px 10px 12px; border-radius: 24px; background: var(--c-on); color: #FFFFFF; border: none;
   box-shadow: 0 16px 40px rgba(0,0,0,.5); font: var(--fw-medium) 14px/1.35 var(--font-ui); animation: toastIn 420ms var(--ease-out-strong); transition: transform 200ms var(--ease-out), opacity 200ms; touch-action: pan-x;
@@ -236,7 +237,7 @@
 .toast[data-kind='error'] .toastIcon { color: #FFFFFF; background: var(--dot-coral); }
 .toastText { flex: 1; min-width: 0; padding: 6px 0; }
 .toastAction { flex: none; height: 36px; padding: 0 16px; border-radius: 999px; border: none; background: #FFFFFF; color: var(--c-on); font: var(--fw-medium) 13px var(--font-ui); cursor: pointer; }
-.toastClose { flex: none; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: rgba(255,255,255,.65); display: grid; place-items: center; cursor: pointer; }
+.toastClose { flex: none; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: rgba(var(--hl-rgb),.65); display: grid; place-items: center; cursor: pointer; }
 
 /* ===== tile language overrides ===== */
 .cta { border-radius: 999px; font-weight: var(--fw-regular); letter-spacing: -.01em; transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-base); }
@@ -245,4 +246,4 @@
 .cta-ghost { background: var(--c-sheet); background-image: var(--c-glow); color: var(--text); border: none; }
 .cta-danger { background: #2A1C1B; color: var(--dot-coral); border: none; }
 .cta-dangerSolid { background: #F2A099; color: #1A0705; }
-.cta:disabled { background: var(--c-sheet); background-image: var(--c-glow); color: rgba(232,237,243,.3); }
+.cta:disabled { background: var(--c-sheet); background-image: var(--c-glow); color: rgba(var(--fg-rgb),.3); }

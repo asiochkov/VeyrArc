@@ -1,5 +1,6 @@
 @import './tokens.css';
 @import './tiles.css';
+@import './light.css';
 
 /* Verbatim from the <helmet> blocks of project/*.dc.html */
 * { box-sizing: border-box; scrollbar-width: none; }
@@ -8,7 +9,7 @@ html, body, #root { width: 100%; min-width: 100%; max-width: 100%; height: 100%;
 /* an app, not a page: no pinch/double-tap zoom, no sideways drift, no rubber-band on the page */
 html[data-fit-screen], html[data-fit-screen] body { min-height: var(--app-h); }
 /* below the shell (if iOS reports a short viewport) the page shows the bottom bar's colour, not a dark strip */
-html { background: #000; } /* = var(--bar) without alpha; the body keeps var(--bg) */
+html { background: var(--bg); } /* = var(--bar) without alpha; the body keeps var(--bg) */
 html, body { overflow: hidden; overscroll-behavior: none; touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* app feel: no grey tap flash, no double-tap zoom delay; drag surfaces opt in to touch-action: none themselves */
 button, a, [role='button'], [role='checkbox'], [role='switch'], label { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
@@ -51,7 +52,7 @@ a { color: var(--link); text-decoration: none; }
 a:hover { color: var(--link-hover); }
 ::selection { background: rgba(0,75,224,.3); }
 input::placeholder { color: currentColor; opacity: .38; }
-textarea::placeholder { color: rgba(232,237,243,.52); }
+textarea::placeholder { color: rgba(var(--fg-rgb),.52); }
 textarea:disabled { opacity: .45; cursor: not-allowed; }
 
 /* Calendar week grid keeps a visible scrollbar (VeyrArc Calendar.dc.html) */
@@ -189,7 +190,7 @@ html[data-density='compact'] { --hit: 40px; }
 /* plain checkboxes (Recap, planner «focus») in the app's language instead of the browser's white box */
 input[type='checkbox']:not([class]) {
   appearance: none; -webkit-appearance: none; width: 24px; height: 24px; margin: 0; flex: none; border-radius: 8px; cursor: pointer;
-  background: transparent; box-shadow: inset 0 0 0 1.6px rgba(232,237,243,.32); display: inline-grid; place-items: center; vertical-align: middle;
+  background: transparent; box-shadow: inset 0 0 0 1.6px rgba(var(--fg-rgb),.32); display: inline-grid; place-items: center; vertical-align: middle;
   transition: background-color 240ms var(--ease-out-strong), box-shadow 240ms var(--ease-out-strong), transform 160ms var(--ease-out);
 }
 input[type='checkbox']:not([class])::after {

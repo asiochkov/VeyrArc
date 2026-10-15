@@ -279,7 +279,7 @@ function DayView({ t, sys, goal, today }: { t: T; sys: SystemRaw; goal: GoalDb; 
           {[0, 1, 2, 3, 4].map((i) => (
             <button key={i} type="button" className={g.moodBtn} aria-pressed={mood === i + 1} aria-label={words[i]} disabled={future}
               onClick={() => logMood(mood === i + 1 ? null : i, date)}>
-              <MoodFace level={i} size={18} color={mood === i + 1 ? '#FFFFFF' : 'rgba(232,237,243,.45)'} />
+              <MoodFace level={i} size={18} color={mood === i + 1 ? '#FFFFFF' : 'rgba(var(--fg-rgb),.45)'} />
             </button>
           ))}
         </div>

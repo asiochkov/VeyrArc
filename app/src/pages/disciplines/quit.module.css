@@ -8,10 +8,10 @@
 .since { position: relative; cursor: pointer; }
 .dateInput { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
 .goal { display: flex; flex-direction: column; gap: 8px; padding: 0 4px; }
-.track { height: 6px; border-radius: 6px; background: rgba(255,255,255,.18); overflow: hidden; }
+.track { height: 6px; border-radius: 6px; background: rgba(var(--hl-rgb),.18); overflow: hidden; }
 .track > i { display: block; height: 100%; border-radius: 6px; background: #FFFFFF; transform-origin: left; animation: grow 1215ms var(--ease-out-strong) 270ms both; }
 @keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
 .miles { display: flex; justify-content: space-between; }
-.miles > span { font: var(--fw-regular) 11px var(--font-ui); color: rgba(255,255,255,.5); font-variant-numeric: tabular-nums; }
-.miles > span[data-on='true'] { color: #FFFFFF; }
-.miles > span[data-next='true'] { color: #FFFFFF; text-decoration: underline; text-underline-offset: 3px; }
+.miles > span { font: var(--fw-regular) 11px var(--font-ui); color: rgba(var(--hl-rgb),.5); font-variant-numeric: tabular-nums; }
+.miles > span[data-on='true'] { color: var(--text-strong); }
+.miles > span[data-next='true'] { color: var(--text-strong); text-decoration: underline; text-underline-offset: 3px; }

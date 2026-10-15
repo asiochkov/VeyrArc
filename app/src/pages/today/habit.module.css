@@ -4,7 +4,7 @@
 .row[data-just-done='true'] { animation: rowFlash 459ms var(--ease-in-out); }
 @keyframes rowFlash { 0%, 100% { background: transparent; } 50% { background: var(--accent-tint); } }
 
-.check { flex: none; width: 28px; height: 28px; padding: 0; border-radius: var(--r-xs); border: 2px solid rgba(255,255,255,.2); background: transparent; color: transparent; display: grid; place-items: center; cursor: pointer; transition: border-color var(--dur-fast), background-color var(--dur-fast); }
+.check { flex: none; width: 28px; height: 28px; padding: 0; border-radius: var(--r-xs); border: 2px solid rgba(var(--hl-rgb),.2); background: transparent; color: transparent; display: grid; place-items: center; cursor: pointer; transition: border-color var(--dur-fast), background-color var(--dur-fast); }
 .check:active { transform: scale(.92); }
 .check[data-on='true'] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); animation: checkFillIn 351ms var(--ease-out-strong); }
 .check svg path { stroke-dasharray: 24; stroke-dashoffset: 24; }

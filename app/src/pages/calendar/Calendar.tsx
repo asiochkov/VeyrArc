@@ -397,7 +397,7 @@ function Editor({ t, st, d }: { t: T; st: St; d: Draft }) {
           const cat = EV_CAT[k];
           const on = ev.c === k;
           return (
-            <button key={k} type="button" className={s.tag} style={{ cursor: 'pointer', color: on ? cat.hue : 'rgba(232,237,243,.5)', background: on ? cat.hue + '28' : 'rgba(255,255,255,.05)' }}
+            <button key={k} type="button" className={s.tag} style={{ cursor: 'pointer', color: on ? cat.hue : 'rgba(var(--fg-rgb),.5)', background: on ? cat.hue + '28' : 'rgba(255,255,255,.05)' }}
               onClick={() => set({ c: k })} aria-pressed={on}>
               <span className={s.tagDot} style={{ background: cat.hue }} />{t(`calendar.cats.${cat.tag}`)}
             </button>
@@ -596,7 +596,7 @@ function DesktopCalendar({ t, st }: { t: T; st: St }) {
         {st.view === 'month' && (
           <div style={{ marginTop: 20, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <div className={s.grid7} style={{ gap: 8, marginBottom: 8 }}>
-              {dows.map((w) => <div key={w} style={{ font: 'var(--fw-regular) 11px var(--font-mono)', letterSpacing: '.08em', color: 'rgba(232,237,243,.56)', padding: '0 4px' }}>{w}</div>)}
+              {dows.map((w) => <div key={w} style={{ font: 'var(--fw-regular) 11px var(--font-mono)', letterSpacing: '.08em', color: 'rgba(var(--fg-rgb),.56)', padding: '0 4px' }}>{w}</div>)}
             </div>
             <div className={s.grid7} style={{ flex: 1, gridAutoRows: '1fr', gap: 8 }}>
               {monthCells(st.cursor).map((day) => {
@@ -677,9 +677,9 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
       <div style={{ marginTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <button type="button" className={s.mMonthBtn} onClick={() => { st.setCursor(monthStart(st.sel)); st.setMonthOpen(!st.monthOpen); }} aria-expanded={st.monthOpen}>
-            {monthName} <span style={{ display: 'inline-grid', placeItems: 'center', transition: 'transform .2s', transform: `rotate(${st.monthOpen ? 180 : 0}deg)`, color: 'rgba(232,237,243,.5)' }}><Icon name="chevronDown" size={18} sw={2} /></span>
+            {monthName} <span style={{ display: 'inline-grid', placeItems: 'center', transition: 'transform .2s', transform: `rotate(${st.monthOpen ? 180 : 0}deg)`, color: 'rgba(var(--fg-rgb),.5)' }}><Icon name="chevronDown" size={18} sw={2} /></span>
           </button>
-          <div style={{ font: 'var(--fw-regular) 12px var(--font-ui)', color: 'rgba(232,237,243,.6)', marginTop: 4 }}>
+          <div style={{ font: 'var(--fw-regular) 12px var(--font-ui)', color: 'rgba(var(--fg-rgb),.6)', marginTop: 4 }}>
             {st.sel === st.today ? t('calendar.tasksToday', { n: dayItems.length }) : t('calendar.tasksOn', { n: dayItems.length, d: dayLabel(t, st.sel) })}
           </div>
         </div>
@@ -701,8 +701,8 @@ function MobileCalendar({ t, st }: { t: T; st: St }) {
           const has = st.items.some((x) => x.day === d);
           return (
             <button key={d} type="button" className={s.selBtn} aria-pressed={on} data-today={d === st.today} onClick={() => st.setSel(d)}>
-              <span style={{ font: 'var(--fw-regular) 17px var(--font-ui)', color: on ? '#fff' : '#E8EDF3' }}>{parseDay(d).getDate()}</span>
-              <span style={{ font: 'var(--fw-regular) 10px var(--font-mono)', color: on ? 'rgba(255,255,255,.75)' : 'rgba(232,237,243,.4)' }}>{dows[i]}</span>
+              <span style={{ font: 'var(--fw-regular) 17px var(--font-ui)', color: on ? '#fff' : 'var(--text)' }}>{parseDay(d).getDate()}</span>
+              <span style={{ font: 'var(--fw-regular) 10px var(--font-mono)', color: on ? 'rgba(255,255,255,.75)' : 'rgba(var(--fg-rgb),.4)' }}>{dows[i]}</span>
               <span className={s.selDot} style={{ opacity: has ? 1 : 0, background: on ? '#fff' : 'var(--accent)' }} />
             </button>
           );

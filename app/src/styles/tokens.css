@@ -11,9 +11,9 @@
   --safe-left: env(safe-area-inset-left, 0px);
   /* text hierarchy */
   --text-primary: var(--text);
-  --text-secondary: rgba(232,237,243,.72);
-  --text-muted: rgba(232,237,243,.52);
-  --text-disabled: rgba(232,237,243,.32);
+  --text-secondary: rgba(var(--fg-rgb),.72);
+  --text-muted: rgba(var(--fg-rgb),.52);
+  --text-disabled: rgba(var(--fg-rgb),.32);
   /* layers */
   --z-sheet: 60;
   --z-banner: 70;
@@ -26,6 +26,12 @@
 
   /* base */
   --bg: #000000;
+  /* theme channels (light theme flips them): text/lines tone, highlight overlays, white «bubble» fills */
+  --fg-rgb: 232,237,243;
+  --hl-rgb: 255,255,255;
+  --contrast: #FFFFFF;
+  --contrast-ink: #030923;
+  --dock-fade: rgba(0,0,0,.92);
   /* palette (style reference): black page, navy tiles with a deep-blue glow, electric blue for «on» */
   --c-on: #004BE0;
   --c-on-hi: #1D63F2;
@@ -66,7 +72,7 @@
   --surface-1: #02071C;
   --surface-2: #050F38;
   --surface-3: #030923;   /* sheet, modal, menu */
-  --line-contrast: rgba(255,255,255,.16);
+  --line-contrast: rgba(var(--hl-rgb),.16);
   --accent-hover: #85B1E0;
   --accent-press: #5C8EC4;
   --accent-ink: #FFFFFF;
@@ -76,8 +82,8 @@
   --accent-ring: rgba(0,75,224,.28);
   --pro-ink: #241A06;
   --pro-text: #F2E2C4;
-  --pro-tint: rgba(255,255,255,.14);
-  --pro-tint-strong: rgba(255,255,255,.22);
+  --pro-tint: rgba(var(--hl-rgb),.14);
+  --pro-tint-strong: rgba(var(--hl-rgb),.22);
   --pro-grad: linear-gradient(90deg, #FFFFFF, #DCE6FF);
   --success-tint: rgba(95,191,155,.14);
   --danger-tint: rgba(229,100,90,.12);
@@ -113,29 +119,29 @@
   --ev-purple: #8670C4;
 
   /* @deprecated (design brief §1): the alpha ladders below stay only for old code; new code uses the semantic tokens above */
-  /* text alphas: rgba(232,237,243,a) */
-  --t-18: rgba(232,237,243,.18);
-  --t-22: rgba(232,237,243,.22);
-  --t-25: rgba(232,237,243,.25);
-  --t-28: rgba(232,237,243,.28);
-  --t-30: rgba(232,237,243,.3);
-  --t-32: rgba(232,237,243,.5);
-  --t-34: rgba(232,237,243,.5);
-  --t-35: rgba(232,237,243,.52);
-  --t-38: rgba(232,237,243,.54);
-  --t-40: rgba(232,237,243,.56);
-  --t-42: rgba(232,237,243,.58);
-  --t-45: rgba(232,237,243,.6);
-  --t-50: rgba(232,237,243,.5);
-  --t-55: rgba(232,237,243,.55);
-  --t-58: rgba(232,237,243,.58);
-  --t-60: rgba(232,237,243,.6);
-  --t-65: rgba(232,237,243,.65);
-  --t-70: rgba(232,237,243,.7);
-  --t-72: rgba(232,237,243,.72);
-  --t-75: rgba(232,237,243,.75);
-  --t-80: rgba(232,237,243,.8);
-  --t-85: rgba(232,237,243,.85);
+  /* text alphas: rgba(var(--fg-rgb),a) */
+  --t-18: rgba(var(--fg-rgb),.18);
+  --t-22: rgba(var(--fg-rgb),.22);
+  --t-25: rgba(var(--fg-rgb),.25);
+  --t-28: rgba(var(--fg-rgb),.28);
+  --t-30: rgba(var(--fg-rgb),.3);
+  --t-32: rgba(var(--fg-rgb),.5);
+  --t-34: rgba(var(--fg-rgb),.5);
+  --t-35: rgba(var(--fg-rgb),.52);
+  --t-38: rgba(var(--fg-rgb),.54);
+  --t-40: rgba(var(--fg-rgb),.56);
+  --t-42: rgba(var(--fg-rgb),.58);
+  --t-45: rgba(var(--fg-rgb),.6);
+  --t-50: rgba(var(--fg-rgb),.5);
+  --t-55: rgba(var(--fg-rgb),.55);
+  --t-58: rgba(var(--fg-rgb),.58);
+  --t-60: rgba(var(--fg-rgb),.6);
+  --t-65: rgba(var(--fg-rgb),.65);
+  --t-70: rgba(var(--fg-rgb),.7);
+  --t-72: rgba(var(--fg-rgb),.72);
+  --t-75: rgba(var(--fg-rgb),.75);
+  --t-80: rgba(var(--fg-rgb),.8);
+  --t-85: rgba(var(--fg-rgb),.85);
 
   /* ice borders/fills: rgba(168,203,239,a) */
   --ice-04: rgba(168,203,239,.04);
@@ -174,34 +180,34 @@
   --blue-50: rgba(0,75,224,.5);
   --blue-75: rgba(0,75,224,.75);
 
-  /* gold fills: rgba(255,255,255,a) */
-  --gold-08: rgba(255,255,255,.08);
-  --gold-09: rgba(255,255,255,.09);
-  --gold-10: rgba(255,255,255,.10);
-  --gold-12: rgba(255,255,255,.12);
-  --gold-14: rgba(255,255,255,.14);
-  --gold-16: rgba(255,255,255,.16);
-  --gold-20: rgba(255,255,255,.20);
-  --gold-22: rgba(255,255,255,.22);
-  --gold-25: rgba(255,255,255,.25);
-  --gold-28: rgba(255,255,255,.28);
-  --gold-30: rgba(255,255,255,.3);
-  --gold-35: rgba(255,255,255,.35);
+  /* gold fills: rgba(var(--hl-rgb),a) */
+  --gold-08: rgba(var(--hl-rgb),.08);
+  --gold-09: rgba(var(--hl-rgb),.09);
+  --gold-10: rgba(var(--hl-rgb),.10);
+  --gold-12: rgba(var(--hl-rgb),.12);
+  --gold-14: rgba(var(--hl-rgb),.14);
+  --gold-16: rgba(var(--hl-rgb),.16);
+  --gold-20: rgba(var(--hl-rgb),.20);
+  --gold-22: rgba(var(--hl-rgb),.22);
+  --gold-25: rgba(var(--hl-rgb),.25);
+  --gold-28: rgba(var(--hl-rgb),.28);
+  --gold-30: rgba(var(--hl-rgb),.3);
+  --gold-35: rgba(var(--hl-rgb),.35);
 
   /* amber fills: rgba(232,165,75,a) */
   --amber-14: rgba(0,75,224,.14);
   --amber-50: rgba(0,75,224,.5);
 
   /* white alphas */
-  --w-03: rgba(255,255,255,.03);
-  --w-035: rgba(255,255,255,.035);
-  --w-04: rgba(255,255,255,.04);
-  --w-05: rgba(255,255,255,.05);
-  --w-06: rgba(255,255,255,.06);
-  --w-07: rgba(255,255,255,.07);
-  --w-08: rgba(255,255,255,.08);
-  --w-09: rgba(255,255,255,.09);
-  --w-12: rgba(255,255,255,.12);
+  --w-03: rgba(var(--hl-rgb),.03);
+  --w-035: rgba(var(--hl-rgb),.035);
+  --w-04: rgba(var(--hl-rgb),.04);
+  --w-05: rgba(var(--hl-rgb),.05);
+  --w-06: rgba(var(--hl-rgb),.06);
+  --w-07: rgba(var(--hl-rgb),.07);
+  --w-08: rgba(var(--hl-rgb),.08);
+  --w-09: rgba(var(--hl-rgb),.09);
+  --w-12: rgba(var(--hl-rgb),.12);
 
   --error-soft: rgba(229,100,90,.12);
 
@@ -235,20 +241,20 @@
   --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
   --shadow-md: 0 12px 32px rgba(0,0,0,.4);
   --shadow-lg: 0 20px 48px rgba(0,0,0,.5);
-  --shadow-plate-light: 0 1px 0 rgba(255,255,255,.6) inset, 0 8px 24px rgba(0,0,0,.35);
+  --shadow-plate-light: 0 1px 0 rgba(var(--hl-rgb),.6) inset, 0 8px 24px rgba(0,0,0,.35);
   --shadow-accent: 0 6px 20px rgba(0,75,224,.35);
-  --shadow-pro: 0 10px 26px rgba(255,255,255,.28);
+  --shadow-pro: 0 10px 26px rgba(var(--hl-rgb),.28);
   --z-nav: 10; --z-fab: 20; --z-popover: 30; --z-docked: 40; --z-tour: 90; --z-modal: 100;
 
   /* plates (§3.2): dark is the default, light is the «switched on» accent — two per screen at most */
   --plate-dark: #02071C;
   --plate-dark-ink: var(--text);
   --plate-dark-secondary: var(--text-secondary);
-  --plate-dark-glow: radial-gradient(70% 60% at 15% 20%, rgba(255,255,255,.06), transparent 70%);
+  --plate-dark-glow: radial-gradient(70% 60% at 15% 20%, rgba(var(--hl-rgb),.06), transparent 70%);
   --plate-light: #F2F4F7;
   --plate-light-ink: #0A0D12;
   --plate-light-secondary: #4A5260;
-  --plate-light-glow: radial-gradient(70% 60% at 85% 15%, rgba(255,255,255,.8), transparent 60%);
+  --plate-light-glow: radial-gradient(70% 60% at 85% 15%, rgba(var(--hl-rgb),.8), transparent 60%);
   --plate-light-chip-bg: #E6E9EE;
   --plate-light-chip-ink: #0A0D12;
   --plate-light-divider: rgba(10,13,18,.08);

@@ -1,0 +1,57 @@
+/*
+ * Light theme (audit 1.3.1): its own system, not an inversion. Paper-white tiles on a cool light
+ * ground, the same electric blue for «on». Blue surfaces keep white text; the dock, the assistant
+ * and milestone moments stay dark on purpose (they are immersive), in both themes.
+ */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #EEF1F6;
+  --fg-rgb: 11,19,40;
+  --hl-rgb: 11,19,40;
+  --contrast: #0B1328;
+  --contrast-ink: #FFFFFF;
+  --dock-fade: rgba(238,241,246,.94);
+  --c-on: #004BE0;
+  --c-on-hi: #1D63F2;
+  --c-tile: #FFFFFF;
+  --c-tile-2: #F6F8FB;
+  --c-raise: #E7EBF3;
+  --c-raise-hi: #DCE2EE;
+  --c-field: #F1F4F9;
+  --c-sheet: #FFFFFF;
+  --c-edge: inset 0 0 0 1px rgba(11,19,40,.06);
+  --text: #0B1328;
+  --text-strong: #050817;
+  --text-secondary: rgba(11,19,40,.72);
+  --text-muted: rgba(11,19,40,.56);
+  --text-disabled: rgba(11,19,40,.36);
+  --link: #0040C0;
+  --link-hover: #002E8C;
+  --now: #004BE0;
+  --line: rgba(11,19,40,.08);
+  --line-strong: rgba(11,19,40,.16);
+  --line-contrast: rgba(11,19,40,.16);
+  --card: rgba(255,255,255,.92); --card-end: rgba(255,255,255,.95); --card-92: rgba(255,255,255,.92); --menu: rgba(255,255,255,.98);
+  --well: rgba(11,19,40,.04); --well-65: rgba(11,19,40,.05); --well-70: rgba(11,19,40,.06);
+  --bar: rgba(238,241,246,.96);
+  --popover: #FFFFFF; --modal: #FFFFFF;
+  --overlay: rgba(11,19,40,.38);
+  --surface-0: #F6F8FB; --surface-1: #EEF1F6; --surface-2: #E7EBF3; --surface-3: #FFFFFF;
+  --plate-dark: #FFFFFF;
+  --shadow-sm: 0 1px 2px rgba(11,19,40,.06);
+  --shadow-md: 0 8px 24px rgba(11,19,40,.08);
+  --shadow-lg: 0 16px 40px rgba(11,19,40,.12);
+  --gold-ink: #FFFFFF;
+}
+/* blue surfaces reset the theme channels in their own rules (white text in both themes) */
+/* tiles: a soft lift instead of the dark theme's inner edge */
+:root[data-theme='light'] :is([class*='_tile_'], .tl):not([class*='_tileLight_']):not([class*='_tileMint_']):not([class*='_tilePale_']) {
+  box-shadow: 0 1px 2px rgba(11,19,40,.04), 0 6px 18px rgba(11,19,40,.05);
+}
+/* the score tile is «pale» (white) in the dark theme; on light it becomes the dark accent tile */
+:root[data-theme='light'] [class*='_tilePale_'] { background: #0B1328 !important; color: #FFFFFF !important; --fg-rgb: 255,255,255; --hl-rgb: 255,255,255; }
+:root[data-theme='light'] [class*='_tilePale_'] [class*='_tileSub_'] { color: rgba(255,255,255,.6) !important; }
+:root[data-theme='light'] [class*='_tilePale_'] [class*='_tileName_'], :root[data-theme='light'] [class*='_tilePale_'] [class*='_bigNum_'] { color: #FFFFFF !important; }
+:root[data-theme='light'] [class*='_tilePale_'] [class*='_ring_'] { color: #FFFFFF; }
+/* sheets and dialogs */
+:root[data-theme='light'] [class*='_panel_'] { box-shadow: 0 -10px 40px rgba(11,19,40,.12); }

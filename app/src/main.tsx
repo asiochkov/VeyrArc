@@ -14,6 +14,7 @@ import { router } from './app/router';
 import { useLangStore } from './i18n';
 import { initAuth, useAuth } from './lib/auth';
 import { startDensity } from './lib/density';
+import { initTheme } from './lib/theme';
 import { startRealtime } from './lib/realtime';
 import { fitStandaloneHeight, startPwa } from './lib/pwa';
 import './styles/fonts';
@@ -22,6 +23,7 @@ import './styles/global.css';
 document.documentElement.lang = useLangStore.getState().lang;
 initAuth();
 startDensity();
+initTheme();
 startPwa();
 fitStandaloneHeight();
 // iOS Safari ignores user-scalable=no: block pinch-zoom gestures explicitly

@@ -273,7 +273,7 @@ function QuitsTab({ t, data }: { t: T; data: ReturnType<typeof buildTracker> & {
           </div>
         </div>
       ) : data.refusals.length > 0 && (
-        <button type="button" className="field-pill" style={{ cursor: 'pointer', border: 'none', color: 'rgba(232,237,243,.5)', font: 'inherit', justifyContent: 'space-between' }} onClick={() => setAdding(true)}>{t('disc.addQuit')}<span className="cb cb-white"><Icon name="plus" size={20} sw={1.8} /></span></button>
+        <button type="button" className="field-pill" style={{ cursor: 'pointer', border: 'none', color: 'rgba(var(--fg-rgb),.5)', font: 'inherit', justifyContent: 'space-between' }} onClick={() => setAdding(true)}>{t('disc.addQuit')}<span className="cb cb-white"><Icon name="plus" size={20} sw={1.8} /></span></button>
       )}
       <ConfirmDialog open={!!slipQuit} title={t('tracker.relapseTitle')} confirmLabel={t('tracker.relapseOk')} cancelLabel={t('common.cancel')}
         body={<>{t('tracker.relapseBody', { d: slipDays, b: Math.max(slipQuit?.best ?? 0, slipDays) })}<textarea className={d.note} value={note} maxLength={500} placeholder={t('tracker.relapseNote')} onChange={(e) => setNote(e.target.value)} /></>}

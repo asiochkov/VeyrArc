@@ -73,7 +73,7 @@ export function Onboarding() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8 }}>
               {stepLabels.map((label, i) => (
                 <button key={i} type="button" className={s.obStep} data-on={i === ob} onClick={() => { if (i <= ob) go(i); }}>
-                  <span className={s.obNum} style={i === ob ? undefined : { color: i < ob ? '#FFFFFF' : 'rgba(232,237,243,.38)' }}>{'0' + (i + 1)}</span>
+                  <span className={s.obNum} style={i === ob ? undefined : { color: i < ob ? '#FFFFFF' : 'rgba(var(--fg-rgb),.38)' }}>{'0' + (i + 1)}</span>
                   <span className={s.obLabel}>{label}</span>
                 </button>
               ))}
@@ -117,7 +117,7 @@ export function Onboarding() {
                         <span className={s.dirIcon}><Icon name={DIR_ICONS[id]} size={18} sw={1.8} /></span>
                         <span style={{ flex: 1, minWidth: 0, font: 'var(--fw-bold) 15px var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t(`auth.dirs.${id}`)}</span>
                         {cnt > 0 && <span className={s.dirCount}>{cnt}</span>}
-                        <span style={{ display: 'grid', color: 'rgba(232,237,243,.54)', transition: 'transform .2s', transform: `rotate(${open ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
+                        <span style={{ display: 'grid', color: 'rgba(var(--fg-rgb),.54)', transition: 'transform .2s', transform: `rotate(${open ? 90 : 0}deg)` }}><Icon name="chevron" size={16} sw={2} /></span>
                       </button>
                       {open && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 14px 14px', animation: 'wwUp .3s ease both' }}>
@@ -312,7 +312,7 @@ export function Account() {
               <span className={s.upsellIcon}><Icon name="lock" size={20} sw={1.8} /></span>
               <div style={{ flex: '1 1 calc(100% - 56px)', minWidth: 0 }}>
                 <div style={{ font: 'var(--fw-heavy) 15px var(--font-ui)', color: '#f2e2c4' }}>{t('auth.upsellTitle')}</div>
-                <div style={{ font: 'var(--fw-medium) 13px/1.45 var(--font-ui)', color: 'rgba(232,237,243,.58)', marginTop: 3 }}>{t('auth.upsellSub')}</div>
+                <div style={{ font: 'var(--fw-medium) 13px/1.45 var(--font-ui)', color: 'rgba(var(--fg-rgb),.58)', marginTop: 3 }}>{t('auth.upsellSub')}</div>
               </div>
               <Link to="/pro" className={s.goldBtn}>{t('auth.openPro')}</Link>
             </div>
@@ -332,7 +332,7 @@ export function Account() {
                 {config.auth.apple && (
                   <div className={s.subRow}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}><Icon name="apple" size={18} /><span>Apple</span></span>
-                    <button type="button" onClick={() => setAppleLinked(!appleLinked)} style={{ height: 34, padding: '0 14px', borderRadius: 10, cursor: 'pointer', font: 'var(--fw-bold) 12px var(--font-ui)', ...(appleLinked ? { background: 'transparent', border: '1px solid rgba(168,203,239,.12)', color: 'rgba(232,237,243,.58)' } : { background: '#2D6CF0', border: 'none', color: '#FFFFFF' }) }}>
+                    <button type="button" onClick={() => setAppleLinked(!appleLinked)} style={{ height: 34, padding: '0 14px', borderRadius: 10, cursor: 'pointer', font: 'var(--fw-bold) 12px var(--font-ui)', ...(appleLinked ? { background: 'transparent', border: '1px solid rgba(168,203,239,.12)', color: 'rgba(var(--fg-rgb),.58)' } : { background: '#2D6CF0', border: 'none', color: '#FFFFFF' }) }}>
                       {appleLinked ? t('auth.unlink') : t('auth.link')}
                     </button>
                   </div>
