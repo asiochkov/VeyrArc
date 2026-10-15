@@ -16,6 +16,7 @@ import { PageState } from '../../ui/PageState';
 import { InfoDialog, MoodFace } from '../../ui/primitives';
 import { toast } from '../../ui/toast';
 import { OathSheet } from '../../ui/OathSheet';
+import { ArcTrail } from '../../ui/ArcTrail';
 import { useAutoTour } from '../../ui/Tour';
 import { Comeback } from './Comeback';
 import { reviewDue, weekFocus, WeeklyReview } from './WeeklyReview';
@@ -109,8 +110,9 @@ export function Today() {
         <div className={h.grid} data-wave={wave}>
           {d.recovery && <RecoveryTile t={t} rec={d.recovery} style={n()} />}
           {d.lighten && d.lighten.why !== 'mood' && <LightenTile t={t} day={d.day} lt={d.lighten} style={n()} />}
-          <ScoreTile t={t} d={d} style={n()} />
+          {/* one hero first — what to do now, with the «why» under it — then the state of the day */}
           <NowTile t={t} d={d} style={n()} onReview={() => setReview(true)} onOath={() => setOath(true)} />
+          <ScoreTile t={t} d={d} style={n()} />
           <ArcTile t={t} d={d} style={n()} />
           {shown.map((x) => <HabitTile key={x.id} t={t} hb={x} style={n()} />)}
           {filter !== 'extra' && core.length === 0 && (
@@ -275,7 +277,7 @@ function NowTile({ t, d, style, onReview, onOath }: TileProps & { onReview: () =
   }
   const night = period === 'evening' || period === 'night';
   return (
-    <div className={`${h.tile} ${h.tall} ${h.tileLight}`} style={style} aria-live="polite" data-tour="today-now">
+    <div className={`${h.tile} ${h.wide} ${h.hero} ${h.tileLight}`} style={style} aria-live="polite" data-tour="today-now">
       <span className={h.tileTop}>
         <span className={h.circle} style={{ background: '#FFFFFF', color: 'var(--c-on)' }}><Icon name={night ? 'moon' : 'sun'} size={18} sw={1.8} /></span>
         {run && <button type="button" className={`${h.circle} ${h.circleInk}`} onClick={run} aria-label={sub}><Icon name="arrowRight" size={17} sw={1.8} /></button>}
@@ -321,7 +323,8 @@ function ArcTile({ t, d, style }: TileProps) {
         <span className={h.tileSub}>
           <button type="button" className={h.inlineBtn} onClick={() => setInfo('freeze')} aria-label={t('explain.freezeTitle')}><Icon name="snowSm" size={12} /> {t('home.freeze', { a: d.freezes.used, b: d.freezes.allowed })}</button> · {t('home.best', { n: s.streakRecord })}
         </span>
-        <span className={h.arcBar}><i style={{ width: (s.arcDay / s.arcLength) * 100 + '%' }} /></span>
+        {/* the arc itself: the walked part, today's dot, the 30/45/60 marks */}
+        <span className={h.trail}><ArcTrail day={s.arcDay} length={s.arcLength} label={t('home.dayOf', { d: s.arcDay, l: s.arcLength })} /></span>
       </span>
       <InfoDialog open={info === 'streak'} title={t('cockpit.streakTitle')} body={t('cockpit.streakBody')} okLabel={t('common.ok')} onClose={() => setInfo(null)} />
       <InfoDialog open={info === 'freeze'} title={t('explain.freezeTitle')} body={t('cockpit.freezeBody', { n: d.freezes.allowed })} okLabel={t('common.ok')} onClose={() => setInfo(null)} />
@@ -460,7 +463,7 @@ function HabitTile({ t, hb, style }: { t: T; hb: HabitT; style: React.CSSPropert
   );
   const cls = `${h.tile} ${h.sq} ${on ? h.tileLight : ''}`;
   return hb.type === 'binary' ? (
-    <button type="button" className={cls} style={style} data-just-on={justOn} onClick={toggle} role="checkbox" aria-checked={done} aria-label={t.pick(hb.title)}>{top}{text}</button>
+    <button type="button" className={cls} style={style} data-just-on={justOn} onClick={toggle} role="checkbox" aria-checked={done} aria-label={t.pick(hb.title)} aria-description={`${status}${hb.streak > 0 ? ` · ${t('home.streak', { n: hb.streak })}` : ''}${hb.core ? ' · Core' : ''}`}>{top}{text}</button>
   ) : (
     <div className={cls} style={style} data-just-on={justOn}>{top}{text}</div>
   );
@@ -514,7 +517,7 @@ function PlanTile({ t, d, style }: TileProps) {
         <Link to="/planner" className={h.circle} aria-label={t('home.plan')}><Icon name="cal" size={18} sw={1.8} /></Link>
         <button type="button" className={h.circle} onClick={() => useAdd.getState().openAdd('event')} aria-label={t('empty.addEvent')}><Icon name="plus" size={16} sw={1.8} /></button>
       </span>
-      {d.strip.length > 0 && (
+      {d.strip.length > 1 && (
         <span className={h.events}>
           {d.strip.slice(0, 5).map((p) => {
             const cur = !!p.starts_at && p.starts_at.slice(0, 5) <= nowHm && (p.ends_at ?? p.starts_at).slice(0, 5) > nowHm;
@@ -529,7 +532,8 @@ function PlanTile({ t, d, style }: TileProps) {
       )}
       <span className={h.tileText}>
         <span className={h.tileName}>{t('home.plan')}</span>
-        <span className={h.tileSub}>{d.strip.length ? t('home.planNext', { n: d.strip.length }) : t('home.planFree')}</span>
+        {/* one item: it is the line itself (no cramped list in the low tile) */}
+        <span className={h.tileSub}>{d.strip.length === 1 ? `${d.strip[0].starts_at ? d.strip[0].starts_at.slice(0, 5) : t('calendar.untimed').toLowerCase()} · ${d.strip[0].title}` : d.strip.length ? t('home.planNext', { n: d.strip.length }) : t('home.planFree')}</span>
       </span>
     </div>
   );

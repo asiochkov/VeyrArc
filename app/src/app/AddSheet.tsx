@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useT, type T } from '../i18n';
 import { isoDay } from '../lib/day';
 import { addDays, DAYS_ALL } from '../data/model';
+import { HABIT_LIBRARY, libraryDays, type HabitTemplate } from '../data/habitLibrary';
 import { HABIT_PALETTE } from '../mock/tracker';
 import { addGoalStep, createHabit, saveEvent } from '../state/actions';
 import { pomo, type PomoLink } from '../state/pomodoro';
@@ -79,11 +80,47 @@ function HabitForm({ t, onDone }: { t: T; onDone: () => void }) {
     toast.action(t(h.core ? 'add.habitCreatedCore' : 'add.habitCreated'), t('add.setup'), () => navigate(`/disciplines?setup=${h.id}`), 5000);
     onDone();
   };
+  // a ready habit from the library: the right kind, target and rhythm in one tap
+  const existing = useSystem((r) => r.habits.filter((h) => !h.archived_at).map((h) => h.name.toLowerCase())).data ?? [];
+  const [cat, setCat] = useState<HabitTemplate['cat']>('body');
+  const fromTemplate = (tp: HabitTemplate) => {
+    const h = createHabit({
+      id: crypto.randomUUID(), name: t.pick(tp.name), icon: tp.icon, hue: HABIT_PALETTE[count % HABIT_PALETTE.length], type: tp.type,
+      target: tp.target ?? null, unit: tp.unit && t.lang === 'ru' ? tp.unit : null, minutes: tp.minutes ?? null, days: libraryDays(tp), category: tp.cat, core: core < 3,
+    });
+    navigator.vibrate?.(25);
+    toast.action(t(h.core ? 'add.habitCreatedCore' : 'add.habitCreated'), t('add.setup'), () => navigate(`/disciplines?setup=${h.id}`), 5000);
+    onDone();
+  };
   return (
     <form className={s.form} onSubmit={(e) => { e.preventDefault(); submit(); }}>
-      <input className={s.input} value={name} autoFocus maxLength={80} placeholder={t('add.habitPh')} onChange={(e) => setName(e.target.value)} enterKeyHint="done" />
-      <div className={s.hint}>{t('add.habitHint')}</div>
-      <button type="submit" className={s.primary} disabled={!name.trim()}>{t('common.add')}</button>
+      <input className={s.input} value={name} maxLength={80} placeholder={t('add.habitPh')} onChange={(e) => setName(e.target.value)} enterKeyHint="done" />
+      {name.trim() ? (
+        <>
+          <div className={s.hint}>{t('add.habitHint')}</div>
+          <button type="submit" className={s.primary}>{t('common.add')}</button>
+        </>
+      ) : (
+        <div className={s.lib}>
+          <div className={s.libHead}>{t('add.library')}</div>
+          <div className={s.libCats} data-hscroll>
+            {(['body', 'mind', 'disc', 'prod'] as const).map((c) => <button key={c} type="button" className={s.libCat} aria-pressed={cat === c} onClick={() => setCat(c)}>{t(`categories.${c}`)}</button>)}
+          </div>
+          <div className={s.libList}>
+            {HABIT_LIBRARY.filter((x) => x.cat === cat).map((x) => {
+              const has = existing.includes(t.pick(x.name).toLowerCase());
+              const what = x.type === 'counter' ? `${x.target}${x.unit && t.lang === 'ru' ? ' ' + x.unit : ''}` : x.type === 'duration' ? t('units.min', { m: x.minutes ?? 0 }) : '';
+              return (
+                <button key={x.key} type="button" className={s.libItem} disabled={has} onClick={() => fromTemplate(x)}>
+                  <span className={s.libIcon}><Icon name={x.icon as IconName} size={18} sw={1.8} /></span>
+                  <span className={s.libText}><b>{t.pick(x.name)}{what && <em> · {what}</em>}</b><small>{has ? t('add.libraryHave') : t.pick(x.why)}</small></span>
+                  <Icon name={has ? 'check' : 'plus'} size={16} sw={2} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </form>
   );
 }

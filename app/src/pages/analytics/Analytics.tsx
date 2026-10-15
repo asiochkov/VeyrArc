@@ -21,6 +21,7 @@ import { InfoDialog, Segmented } from '../../ui/primitives';
 import { ProModule } from '../../ui/ProModule';
 import { useAutoTour } from '../../ui/Tour';
 import a from './analytics.module.css';
+import { computeAchievements } from '../../data/achievements';
 
 /*
  * Analytics (Master Changeset section 8, was Profile): the index, the arc, domain cards on one
@@ -50,10 +51,10 @@ export function Analytics() {
     const today = isoDay();
     const from = period === 'week' ? addDays(today, -6) : period === 'month' ? addDays(today, -29) : period === 'arc' ? (arc?.started_on ?? addDays(today, -29)) : addDays(today, -364);
     const idx = computeIndex(raw, from, today);
-    return { sys, p, arc, idx, insights: computeInsights(sys) };
+    return { sys, p, arc, idx, insights: computeInsights(sys), ach: computeAchievements(sys, today) };
   }, [q.data, pro, hd.initials, period]);
   if (!data) return <PageState variant="grid" error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
-  const { sys, p, arc, idx, insights } = data;
+  const { sys, p, arc, idx, insights, ach } = data;
   const cur = p.PERIOD_DATA[period];
   const prev = cur.value - cur.delta;
   const status = cur.value >= 800 ? 'great' : cur.value >= 550 ? 'steady' : 'grow';
@@ -84,6 +85,20 @@ export function Analytics() {
         </section>
 
         <div className={a.grid}>
+          {/* overview first (audit 1.9.1): the index above, one observation about you, then the details */}
+          <Card className={`${a.span12} ${a.insightHero}`} title={t('analytics.insights')} icon="spark">
+            {insights.length === 0 ? <div className={a.meta}>{t('analytics.noInsights')}</div> : (
+              <div className={a.insights}>
+                {(pro ? insights : insights.slice(0, 1)).map((x) => (
+                  <div key={x.id} className={a.insight}>
+                    <span>{t(x.text.key as never, x.text.vars)}</span>
+                    {x.action && <Link to={x.action.to} className={a.insightAct}>{t(x.action.key as never)}</Link>}
+                  </div>
+                ))}
+                {!pro && insights.length > 1 && <div className={a.meta}>{t('analytics.moreInPro', { n: insights.length - 1 })}</div>}
+              </div>
+            )}
+          </Card>
           <Card className={a.span6} title={t('profile.habits')} icon="checklist" to="/disciplines">
             <div className={a.big}>{p.habitsCard.total}%<span className={a.small}>{t('analytics.streakAvg', { n: p.habitsCard.streakAvg })}</span></div>
             <Spark vals={p.habitsSpark} />
@@ -119,29 +134,17 @@ export function Analytics() {
             <div className={a.meta}>{t('analytics.heatBest', { n: p.heatBestStreak })}</div>
           </Card>
 
-          <Card className={a.span6} title={t('analytics.insights')} icon="spark">
-            {insights.length === 0 ? <div className={a.meta}>{t('analytics.noInsights')}</div> : (
-              <div className={a.insights}>
-                {(pro ? insights : insights.slice(0, 1)).map((x) => (
-                  <div key={x.id} className={a.insight}>
-                    <span>{t(x.text.key as never, x.text.vars)}</span>
-                    {x.action && <Link to={x.action.to} className={a.insightAct}>{t(x.action.key as never)}</Link>}
-                  </div>
-                ))}
-                {!pro && insights.length > 1 && <div className={a.meta}>{t('analytics.moreInPro', { n: insights.length - 1 })}</div>}
-              </div>
-            )}
-          </Card>
           <Card className={a.span6} title={t('events.title')} icon="pulse">
             <Activity t={t} />
           </Card>
-          <Card className={a.span12} title={t('profile.achievements')} icon="trophy">
+          {/* the collection: tiers, progress to each (audit 1.9.4) */}
+          <Card className={a.span12} title={t('profile.achievements')} icon="trophy" right={<span className={a.meta}>{t('ach.collection', { a: ach.filter((x) => x.unlocked).length, b: ach.length })}</span>}>
             <div className={a.ach}>
-              {p.achievements.map((x, i) => (
-                <div key={i} className={a.achItem} data-on={x.unlocked}>
+              {ach.map((x) => (
+                <div key={x.id} className={a.achItem} data-on={x.unlocked} data-tier={x.tier}>
                   <Icon name={x.icon} size={16} />
                   <span className={a.achName}>{t.pick(x.label)}</span>
-                  <span className={a.achProg}>{x.unlocked ? '✓' : x.progress}</span>
+                  <span className={a.achProg}>{x.unlocked ? '✓' : `${Math.floor(x.cur)}/${x.max}`}</span>
                 </div>
               ))}
             </div>

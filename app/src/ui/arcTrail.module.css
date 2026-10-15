@@ -1,0 +1,14 @@
+.trail { display: block; width: 100%; height: auto; overflow: visible; }
+.base { fill: none; stroke: rgba(var(--fg-rgb), .14); stroke-width: 2; stroke-linecap: round; }
+.walked { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; animation: walk 1.4s var(--ease-out-strong) .3s both; }
+@keyframes walk { from { stroke-dasharray: 0 1; } }
+.mark { fill: rgba(var(--fg-rgb), .3); }
+.mark[data-done='true'] { fill: currentColor; }
+.dot { fill: currentColor; animation: pop 600ms var(--ease-spring) 1s both; }
+.halo { fill: currentColor; opacity: .18; animation: halo 2.6s ease-in-out 1.4s infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pop { from { transform: scale(0); transform-box: fill-box; transform-origin: center; } }
+@keyframes halo { 0%, 100% { transform: scale(1); opacity: .18; } 50% { transform: scale(1.6); opacity: 0; } }
+.loader { display: block; width: min(220px, 60vw); height: 30px; overflow: visible; color: var(--c-on); }
+.draw { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: .22 1; animation: run 1.5s var(--ease-in-out) infinite; }
+@keyframes run { from { stroke-dashoffset: .22; } to { stroke-dashoffset: -1; } }
+@media (prefers-reduced-motion: reduce) { .walked, .dot, .halo, .draw { animation: none !important; } }

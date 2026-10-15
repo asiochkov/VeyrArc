@@ -201,3 +201,5 @@ input[type='checkbox']:not([class]):checked { background: var(--c-on); box-shado
 input[type='checkbox']:not([class]):checked::after { transform: rotate(-45deg) scale(1); }
 input[type='checkbox']:not([class]):active { transform: scale(.9); }
 input[type='checkbox']:not([class]):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@keyframes boot { from { opacity: 0; } to { opacity: 1; } }

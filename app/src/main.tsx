@@ -6,6 +6,7 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 import { RouterProvider } from 'react-router-dom';
 import { ErrorBoundary } from './app/ErrorBoundary';
 import { OfflineBanner } from './app/OfflineBanner';
+import { AchievementWatcher } from './app/AchievementWatcher';
 import { StagingBadge } from './app/StagingBadge';
 import { Toaster } from './ui/toast';
 import { bindSystem, SYSTEM_KEY } from './state/system';
@@ -62,6 +63,7 @@ createRoot(document.getElementById('root')!).render(
         <StagingBadge />
         <OfflineBanner />
         <Toaster />
+        <AchievementWatcher />
       </PersistQueryClientProvider>
     </ErrorBoundary>
   </StrictMode>,

@@ -188,3 +188,9 @@
 
 .iconBtn { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--c-tile, #0A1230); color: var(--text); display: grid; place-items: center; cursor: pointer; transition: transform 160ms var(--ease-out); }
 .iconBtn:active { transform: scale(.92); }
+
+.insightHero .insight span { font: 500 21px/1.3 var(--font-display); color: var(--text-strong); }
+
+.achItem[data-on='true'][data-tier='gold'] { background: #F2CF6B; color: #1a1205; --fg-rgb: 26,18,5; }
+.achItem[data-on='true'][data-tier='silver'] { background: #D6DEEA; color: #0B1328; --fg-rgb: 11,19,40; }
+.achItem[data-on='true'][data-tier='bronze'] { background: #D9A26B; color: #1a0f05; --fg-rgb: 26,15,5; }

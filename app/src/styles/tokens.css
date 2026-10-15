@@ -213,6 +213,7 @@
 
   /* typography (design brief §2): Apple's real SF first, Inter as the close fallback */
   --font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter Variable', 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Cormorant Variable', 'Cormorant', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-ui-rounded: ui-rounded, 'SF Pro Rounded', 'Inter Variable', 'Inter', system-ui, sans-serif;
   --font-mono: var(--font-ui); /* one family across the app; numbers use tabular figures */
   --fs-11: 11px; --fs-12: 12px; --fs-13: 13px; --fs-14: 14px; --fs-15: 15px;

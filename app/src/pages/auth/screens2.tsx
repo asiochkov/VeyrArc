@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useHeader } from '../../data/header';
 import { buildToday } from '../../data/today';
-import { todayRawOf, useSystem } from '../../state/system';
+import { SYSTEM_KEY, todayRawOf, useSystem } from '../../state/system';
 import { fetchAccountStats } from '../../data/profile';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -96,8 +96,12 @@ export function Onboarding() {
               </div>
               <div style={{ marginTop: 18 }}>
                 <label className={s.label} htmlFor="ob-oath">{t('auth.oathLabel')}</label>
-                <textarea id="ob-oath" className={s.field} style={{ height: 84, paddingTop: 12, resize: 'none', lineHeight: 1.4 }} maxLength={200}
+                <textarea id="ob-oath" className={s.field} style={{ height: 96, paddingTop: 12, resize: 'none', lineHeight: 1.3, font: 'italic 500 21px var(--font-display)' }} maxLength={200}
                   value={oath} onChange={(e) => setOath(e.target.value)} placeholder={t('auth.oathPh')} />
+                {/* a few honest starting points — tap one, then make it yours */}
+                {!oath && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  {t.list('oath.ideas').slice(0, 3).map((x) => <button key={x} type="button" className={s.oathIdea} onClick={() => setOath(x)}>{x}</button>)}
+                </div>}
                 <div className={s.small} style={{ marginTop: 6 }}>{t('auth.oathHint')}</div>
               </div>
             </div>
@@ -181,6 +185,7 @@ export function DayOne() {
   const t = useT();
   const navigate = useNavigate();
   const { f, habits, time, oath, setCreated, resetOnboarding } = useFlow();
+  const qc = useQueryClient();
   const [holdP, setHoldP] = useState(0);
   const [celebrate, setCelebrate] = useState(false);
   const [saveErr, setSaveErr] = useState(false);
@@ -201,7 +206,8 @@ export function DayOne() {
         if (navigator.vibrate) navigator.vibrate(30);
         setSaveErr(false);
         const wait = new Promise((r) => { timer.current = setTimeout(r, 600); });
-        const save = hasBackend ? saveOnboarding({ name: f.pname, habits, time, oath }).then(setCreated) : Promise.resolve();
+        // drop any system snapshot fetched before the save (it would show an empty Today)
+        const save = hasBackend ? saveOnboarding({ name: f.pname, habits, time, oath }).then(setCreated).then(() => { void qc.resetQueries({ queryKey: SYSTEM_KEY }); }) : Promise.resolve();
         // the start only counts once it is saved: on failure the user sees why and holds again
         void Promise.all([wait, save]).then(() => { resetOnboarding(); navigate('/', { replace: true }); }, () => { setCelebrate(false); setHoldP(0); setSaveErr(true); });
         return;

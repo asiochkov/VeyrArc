@@ -26,13 +26,15 @@ const plural = (lang: Lang, n: number, one: string, few: string, many: string) =
   const m10 = n % 10, m100 = n % 100;
   return m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? few : many;
 };
+// the same reminder every day stops being read (audit 2.12): titles rotate by the day, the tone stays calm
+const pick = <T,>(xs: T[]) => xs[Math.floor(Date.now() / 86400000) % xs.length];
 const TEXT = {
   reminder: (l: Lang, n: number) => l === 'en'
-    ? { title: 'Time to check in', body: `${n} ${plural(l, n, 'habit', '', 'habits')} left for today` }
-    : { title: 'Время отметить привычки', body: `Осталось ${n} ${plural(l, n, 'привычка', 'привычки', 'привычек')} на сегодня` },
+    ? { title: pick(['Time to check in', 'One small step', 'Your day is waiting']), body: `${n} ${plural(l, n, 'habit', '', 'habits')} left for today` }
+    : { title: pick(['Время отметить привычки', 'Один маленький шаг', 'День ждёт тебя', 'Самое время']), body: `Осталось ${n} ${plural(l, n, 'привычка', 'привычки', 'привычек')} на сегодня` },
   evening: (l: Lang, n: number) => l === 'en'
-    ? { title: 'Make it before midnight', body: `${n} ${plural(l, n, 'habit is', '', 'habits are')} still open — keep your streak` }
-    : { title: 'Успей до полуночи', body: `${n} ${plural(l, n, 'привычка не отмечена', 'привычки не отмечены', 'привычек не отмечено')} — сохрани серию` },
+    ? { title: pick(['Still time today', 'Before the day closes', 'One more for today']), body: `${n} ${plural(l, n, 'habit is', '', 'habits are')} still open — a few minutes keep the streak` }
+    : { title: pick(['Ещё есть время', 'Пока день не закрылся', 'Одна отметка до серии']), body: `${n} ${plural(l, n, 'привычка не отмечена', 'привычки не отмечены', 'привычек не отмечено')} — пара минут, и серия цела` },
   event: (l: Lang, title: string, m: number, at: string) => l === 'en'
     ? { title, body: m <= 1 ? `Starts now · ${at}` : `In ${m} min · ${at}` }
     : { title, body: m <= 1 ? `Начинается сейчас · ${at}` : `Через ${m} мин · ${at}` },

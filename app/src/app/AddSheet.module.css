@@ -28,3 +28,21 @@
 .switch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; overflow: visible; }
 .switchBtn { flex-direction: column; justify-content: center; gap: 6px; height: 68px; padding: 0 4px; border-radius: 20px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background-color 220ms var(--ease-out), transform 160ms var(--ease-out); }
 .switchBtn:active { transform: scale(.95); }
+
+/* habit library (audit 1.6.2) */
+.lib { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.libHead { font: var(--fw-medium) 13px var(--font-ui); color: rgba(var(--fg-rgb),.6); padding: 0 4px; }
+.libCats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.libCats::-webkit-scrollbar { display: none; }
+.libCat { flex: none; height: 36px; padding: 0 14px; border: none; border-radius: 999px; background: var(--c-raise); color: rgba(var(--fg-rgb),.75); font: var(--fw-regular) 14px var(--font-ui); cursor: pointer; }
+.libCat[aria-pressed='true'] { background: var(--c-on); color: #FFFFFF; }
+.libList { display: flex; flex-direction: column; gap: 6px; max-height: 46vh; overflow-y: auto; overscroll-behavior: contain; }
+.libItem { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 14px 10px 10px; border: none; border-radius: 18px; background: var(--c-tile-2); color: var(--text); text-align: left; cursor: pointer; animation: libIn 360ms var(--ease-out-strong) both; transition: transform 160ms var(--ease-out); }
+.libItem:active { transform: scale(.98); }
+.libItem:disabled { opacity: .5; cursor: default; }
+.libIcon { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--c-raise); color: var(--c-on-hi, #1D63F2); }
+.libText { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.libText b { font: var(--fw-regular) 15px var(--font-ui); }
+.libText b em { font-style: normal; color: rgba(var(--fg-rgb),.5); }
+.libText small { font: var(--fw-regular) 12.5px var(--font-ui); color: rgba(var(--fg-rgb),.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@keyframes libIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

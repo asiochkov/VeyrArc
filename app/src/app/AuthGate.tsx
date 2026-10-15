@@ -1,3 +1,4 @@
+import { ArcLoader } from '../ui/ArcTrail';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { runMaintenance } from '../lib/maintenance';
@@ -22,7 +23,8 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   }, [uid, onboarded, qc]);
   useEffect(() => (hasBackend && uid && onboarded ? startReminders(qc) : undefined), [uid, onboarded, qc]);
   if (!hasBackend) return children;
-  if (!ready) return <div style={{ height: '100%', background: 'var(--bg)' }} />;
+  // signing in: the arc draws itself (the brand mark as the loader), after a short beat so fast starts stay blank
+  if (!ready) return <div style={{ height: '100%', background: 'var(--bg)', display: 'grid', placeItems: 'center', animation: 'boot 1ms 400ms both' }}><ArcLoader /></div>;
   if (!session) return <Navigate to="/welcome" replace />;
   if (profile && !profile.onboarded_at) return <Navigate to="/onboarding" replace />;
   return children;

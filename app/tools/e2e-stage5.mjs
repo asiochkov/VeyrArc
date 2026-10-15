@@ -40,6 +40,8 @@ try {
   log('Today → Arc Recap:', new URL(page.url()).pathname);
   const arcs = sql(`select string_agg(number || ':' || started_on || '→' || coalesce(ended_on::text,'…'), ' | ' order by number) from arcs where user_id='${uid}'`);
   log('arcs:', arcs, '| summary:', sql(`select summary::text from arcs where user_id='${uid}' and number = 1`));
+  // the recap is a story now: tap through to the last slide, then start the next arc
+  for (let k = 0; k < 12 && !(await page.getByRole('button', { name: /Начать Arc II/ }).count()); k++) { await page.mouse.click(330, 420); await page.waitForTimeout(500); }
   await page.getByRole('button', { name: /Начать Arc II/ }).click({ timeout: 10000 });
   await page.waitForURL((u) => new URL(u).pathname === '/');
   await page.waitForTimeout(1500);
