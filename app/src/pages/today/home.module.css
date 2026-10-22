@@ -216,3 +216,10 @@ button.circle:disabled { opacity: .35; cursor: default; }
 .grid > .arcTile { grid-row: span 5; }
 .planLow .tileText { flex: 1; min-width: 0; }
 .planLow .tileSub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* reminders hint after the first check-in */
+.pushHint { display: flex; flex-direction: row; align-items: center; gap: 12px; min-height: 0; padding: 14px 12px 14px 16px; }
+.pushHint .tileText { flex: 1; min-width: 0; }
+.pushBtn { flex: none; min-height: 40px; padding: 0 16px; border: none; border-radius: 999px; background: var(--c-on); color: #FFFFFF; font: var(--fw-regular) 14px var(--font-ui); cursor: pointer; }
+.pushBtn:active { transform: scale(.96); }
+.pushClose { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: none; border-radius: 50%; background: transparent; color: rgba(var(--fg-rgb),.45); cursor: pointer; }

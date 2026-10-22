@@ -1,7 +1,7 @@
 // VeyrArc · push reminders (UX audit 3.6 / 5.7). Called every minute by pg_cron.
 //  - reminder: at the user's reminder time (onboarding), if habits are left for today
 //  - evening:  21:00–23:00 local, if habits are still left («успей до полуночи»)
-//  - silence:  19:00–21:00 local, if the app was not opened for 3+ days
+//  - silence:  19:00–21:00 local, after 3, 7 and 14 days away — once each, then nothing
 //  - event:    a planner task with a time starts within 15 minutes (once per task)
 //  - plan:     at the reminder time with no habits left but tasks planned for today
 //  - overdue:  at the reminder time, yesterday's unfinished tasks
@@ -29,10 +29,10 @@ const plural = (lang: Lang, n: number, one: string, few: string, many: string) =
 // the same reminder every day stops being read (audit 2.12): titles rotate by the day, the tone stays calm
 const pick = <T,>(xs: T[]) => xs[Math.floor(Date.now() / 86400000) % xs.length];
 const TEXT = {
-  reminder: (l: Lang, n: number) => l === 'en'
+  reminder: (l: Lang, n: number, one?: string | null) => one ? (l === 'en' ? { title: 'One small step', body: `Today: «${one}»` } : { title: 'Один маленький шаг', body: `На сегодня осталось: «${one}»` }) : l === 'en'
     ? { title: pick(['Time to check in', 'One small step', 'Your day is waiting']), body: `${n} ${plural(l, n, 'habit', '', 'habits')} left for today` }
     : { title: pick(['Время отметить привычки', 'Один маленький шаг', 'День ждёт тебя', 'Самое время']), body: `Осталось ${n} ${plural(l, n, 'привычка', 'привычки', 'привычек')} на сегодня` },
-  evening: (l: Lang, n: number) => l === 'en'
+  evening: (l: Lang, n: number, one?: string | null) => one ? (l === 'en' ? { title: 'Still time today', body: `Only «${one}» is left — a few minutes keep the streak` } : { title: 'Ещё есть время', body: `Осталось только «${one}» — пара минут, и серия цела` }) : l === 'en'
     ? { title: pick(['Still time today', 'Before the day closes', 'One more for today']), body: `${n} ${plural(l, n, 'habit is', '', 'habits are')} still open — a few minutes keep the streak` }
     : { title: pick(['Ещё есть время', 'Пока день не закрылся', 'Одна отметка до серии']), body: `${n} ${plural(l, n, 'привычка не отмечена', 'привычки не отмечены', 'привычек не отмечено')} — пара минут, и серия цела` },
   event: (l: Lang, title: string, m: number, at: string) => l === 'en'
@@ -70,9 +70,14 @@ const TEXT = {
   focus: (l: Lang, label: string | null) => l === 'en'
     ? { title: 'Focus session done', body: label ? `«${label}» — time for a break` : 'Time for a short break' }
     : { title: 'Фокус-сессия завершена', body: label ? `«${label}» — время для перерыва` : 'Время для короткого перерыва' },
-  silence: (l: Lang) => l === 'en'
-    ? { title: 'Your Arc is on pause', body: 'Three days without check-ins. One small step today brings the index back.' }
-    : { title: 'Твой Arc на паузе', body: 'Три дня без отметок. Один маленький шаг сегодня — и индекс снова растёт.' },
+  // after leaving: three messages at most (3, 7 and 14 days), different in tone, then silence
+  silence: (l: Lang, rung: 3 | 7 | 14) => l === 'en'
+    ? rung === 3 ? { title: 'Your Arc is on pause', body: 'Three days without check-ins. One small step today brings the index back.' }
+      : rung === 7 ? { title: 'What got in the way?', body: 'A week away. Open the app — you can make your habits smaller so they fit your days again.' }
+        : { title: 'Your Arc is waiting', body: 'No rush at all. It stays as you left it — come back whenever you are ready.' }
+    : rung === 3 ? { title: 'Твой Arc на паузе', body: 'Три дня без отметок. Один маленький шаг сегодня — и индекс снова растёт.' }
+      : rung === 7 ? { title: 'Что помешало?', body: 'Неделя без отметок. Загляни — привычки можно сделать меньше, чтобы они снова влезали в твои дни.' }
+        : { title: 'Твой Arc ждёт', body: 'Никакой спешки. Всё останется как есть — возвращайся, когда будет настроение.' },
 };
 
 function local(tz: string) {
@@ -194,13 +199,16 @@ Deno.serve(async (req) => {
       }
     }
 
+    let lastLeft: string | null = null; // the name of the only habit left (a push that names it is read, a counter is not)
     const undone = async () => {
-      const { data: habits } = await sb.from('habits').select('id, days').eq('user_id', uid).is('archived_at', null);
+      const { data: habits } = await sb.from('habits').select('id, days, name').eq('user_id', uid).is('archived_at', null);
       const today = (habits ?? []).filter((h) => scheduled(h.days, wd));
       if (!today.length) return 0;
       const { data: logs } = await sb.from('habit_logs').select('habit_id').eq('user_id', uid).eq('day', day).eq('done', true);
       const done = new Set((logs ?? []).map((l) => l.habit_id));
-      return today.filter((h) => !done.has(h.id)).length;
+      const left = today.filter((h) => !done.has(h.id));
+      lastLeft = left.length === 1 ? String(left[0].name) : null;
+      return left.length;
     };
 
     // planner tasks starting soon: one push per task
@@ -238,18 +246,26 @@ Deno.serve(async (req) => {
     const rt = rt0 && inQuiet(rt0, qf, qt) ? qt : rt0;
     if (p.notify_habits && rt && hm >= rt && hm < addHours(rt, 2)) {
       const n = await undone();
-      if (n) { kind = 'reminder'; msg = TEXT.reminder(lang, n); }
+      if (n) { kind = 'reminder'; msg = TEXT.reminder(lang, n, lastLeft); }
       else {
         const { count } = await sb.from('plan_items').select('id', { count: 'exact', head: true }).eq('user_id', uid).eq('day', day).eq('done', false);
         if (count) { kind = 'plan'; msg = TEXT.plan(lang, count); }
       }
     }
-    if (!kind && p.notify_habits && hm >= '21:00' && hm < '23:00') { const n = await undone(); if (n) { kind = 'evening'; msg = TEXT.evening(lang, n); } }
-    if (!kind && p.last_seen_at && Date.now() - new Date(p.last_seen_at).getTime() > 3 * 86400000 && hm >= '19:00' && hm < '21:00') { kind = 'silence'; msg = TEXT.silence(lang); }
+    if (!kind && p.notify_habits && hm >= '21:00' && hm < '23:00') { const n = await undone(); if (n) { kind = 'evening'; msg = TEXT.evening(lang, n, lastLeft); } }
+    // «silence» ladder: one message at 3, 7 and 14 days away, then nothing (the person is not nagged for months);
+    // each rung is logged against the day the person was last seen, so it goes out once per absence
+    let logDay = day;
+    let logKind: string = kind ?? '';
+    if (!kind && p.last_seen_at && hm >= '19:00' && hm < '21:00') {
+      const away = Math.floor((Date.now() - new Date(p.last_seen_at).getTime()) / 86400000);
+      const rung = away >= 14 ? 14 : away >= 7 ? 7 : away >= 3 ? 3 : 0;
+      if (rung) { kind = 'silence'; msg = TEXT.silence(lang, rung); logKind = 'silence:' + rung; logDay = new Date(p.last_seen_at).toISOString().slice(0, 10); }
+    }
     if (!kind || !msg) continue;
 
-    const { error: dup } = await sb.from('push_log').insert({ user_id: uid, kind, day });
-    if (dup) continue; // already sent today
+    const { error: dup } = await sb.from('push_log').insert({ user_id: uid, kind: logKind, day: logDay });
+    if (dup) continue; // already sent (today, or for this absence)
 
     // push contract: type + deep link (the service worker opens `url`)
     sent += await send(list!, { ...msg, tag: kind, type: kind, url: kind === 'silence' ? '/' : kind === 'plan' ? '/planner' : '/?from=push' });

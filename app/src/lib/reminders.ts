@@ -13,6 +13,18 @@ import { isoDay } from './day';
  */
 export const notificationsSupported = () => typeof window !== 'undefined' && 'Notification' in window;
 
+/** What this device can do about notifications — the onboarding and Today say the truth about it.
+ *  'home': iPhone/iPad in Safari — push only works from the installed app (Share → Add to Home Screen). */
+export type PushStatus = 'granted' | 'denied' | 'ask' | 'home' | 'unsupported';
+export function pushStatus(): PushStatus {
+  if (typeof window === 'undefined') return 'unsupported';
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const standalone = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  const ok = 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
+  if (!ok) return ios && !standalone ? 'home' : 'unsupported';
+  return Notification.permission === 'granted' ? 'granted' : Notification.permission === 'denied' ? 'denied' : 'ask';
+}
+
 export async function askPermission() {
   if (!notificationsSupported()) return false;
   const ok = Notification.permission === 'granted' || (await Notification.requestPermission()) === 'granted';

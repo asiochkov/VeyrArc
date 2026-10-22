@@ -327,6 +327,7 @@ export const ru = {
     day1: 'День 1 из 90.',
     ready: 'Готов?',
     imIn: 'Я в деле',
+    coreNote: 'Первые две привычки — Core: они ведут серию. Остальные — Extra, они не ломают серию. Сделаешь их Core, когда войдёшь в ритм.',
     holdHint: 'Удерживай 1,5 секунды',
     holding: 'Держи…',
     go: 'Поехали',
@@ -358,6 +359,10 @@ export const ru = {
     subscription: 'Подписка',
     logout: 'Выйти',
     deleteAccount: 'Удалить аккаунт',
+  },
+  pushHint: {
+    askTitle: 'Включить напоминания?', askBody: 'Придут вечером, если останется что отметить. Серия не потеряется.',
+    homeTitle: 'Чтобы приходили напоминания', homeBody: 'На iPhone: Поделиться → «На экран Домой», затем открой VeyrArc с иконки.',
   },
   pro: {
     needConsent: 'Отметь согласие на автопродление — без него оплату не провести.',
@@ -981,6 +986,7 @@ export const ru = {
     streakTitle: 'Серия', streakHint: 'Все Core за день — +1 к серии',
     daysInRow: { one: 'день подряд', few: 'дня подряд', many: 'дней подряд', other: 'дня подряд' },
     todayMark: 'сегодня', streakDay: 'день серии',
+    streakWill: 'закрой день — будет {n}',
     markDone: 'Отметить выполненным', markUndo: 'Снять отметку',
     scoreDelta: '{d} к индексу', index: 'индекс {n}',
     stateDone: 'готово', stateSoon: 'скоро', stateNow: 'сейчас',

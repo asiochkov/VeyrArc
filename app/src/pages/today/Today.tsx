@@ -19,6 +19,7 @@ import { OathSheet } from '../../ui/OathSheet';
 import { ArcTrail } from '../../ui/ArcTrail';
 import { useAutoTour } from '../../ui/Tour';
 import { Comeback } from './Comeback';
+import { PushHint } from './PushHint';
 import { reviewDue, weekFocus, WeeklyReview } from './WeeklyReview';
 import { getSystem } from '../../state/system';
 import { Milestone, MILESTONES, milestoneSeen } from './Milestone';
@@ -108,6 +109,7 @@ export function Today() {
         </div>
 
         <div className={h.grid} data-wave={wave}>
+          <PushHint style={n()} />
           {d.recovery && <RecoveryTile t={t} rec={d.recovery} style={n()} />}
           {d.lighten && d.lighten.why !== 'mood' && <LightenTile t={t} day={d.day} lt={d.lighten} style={n()} />}
           {/* one hero first — what to do now, with the «why» under it — then the state of the day */}
@@ -296,6 +298,8 @@ function ArcTile({ t, d, style }: TileProps) {
   const [info, setInfo] = useState<'streak' | 'freeze' | null>(null);
   const dows = t.list('weekdays.short');
   const s = d.view.stats;
+  const kept = s.streak > d.view.streakBase;
+  const shownStreak = kept ? d.view.streakBase + 1 : d.view.streakBase;
   return (
     <div className={`${h.tile} ${h.wide} ${h.arcTile}`} style={style}>
       {/* the streak first: what it is, and how many days in a row — big, top right */}
@@ -304,10 +308,11 @@ function ArcTile({ t, d, style }: TileProps) {
           <span className={h.streakLabel}><Icon name="flame" size={16} sw={1.8} />{t('home.streakTitle')}</span>
           <span className={h.tileSub}>{t('home.streakHint')}</span>
         </button>
-        {/* today is always a day of the streak: the first day reads 1 */}
-        <span className={h.streakBig} data-on={d.view.streakBase + 1 > 1}>
-          <b key={d.view.streakBase}>{d.view.streakBase + 1}</b>
-          <small>{t('home.streakDay')}</small>
+        {/* the number is the days already kept; today joins it only once the day is closed (an inflated number that
+            resets looks like a lie) — until then a quiet «будет N» says what closing the day does */}
+        <span className={h.streakBig} data-on={kept ? d.view.streakBase + 1 > 1 : d.view.streakBase > 1}>
+          <b key={shownStreak}>{shownStreak}</b>
+          <small>{kept ? t('home.streakDay') : t('home.streakWill', { n: d.view.streakBase + 1 })}</small>
         </span>
       </span>
       <span className={h.week}>

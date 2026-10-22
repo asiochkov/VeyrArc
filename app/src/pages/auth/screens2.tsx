@@ -10,7 +10,7 @@ import { config } from '../../config';
 import { useLangStore, useT } from '../../i18n';
 import { deleteAccount, signOut, useAuth, userEmail, isProPlan } from '../../lib/auth';
 import { saveOnboarding } from '../../lib/onboarding';
-import { askPermission, notificationsSupported } from '../../lib/reminders';
+import { askPermission, pushStatus } from '../../lib/reminders';
 import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
 import { Cta, PhotoImg } from '../../ui/primitives';
@@ -47,6 +47,8 @@ export function Onboarding() {
   const t = useT();
   const navigate = useNavigate();
   const { f, setF, habits, toggleHabit, time, setTime, perm, setPerm, ob, setOb, oath, setOath } = useFlow();
+  const ps = pushStatus(); // the truth about this device: «allowed» is shown only when it really is
+  useEffect(() => { if (ps === 'granted' && !perm) setPerm(true); }, [ps, perm, setPerm]);
   const [sdir, setSdir] = useState<1 | -1>(1);
   const [focus, setFocus] = useState<DirId | null>('body');
   const [photo, setPhoto] = useState<string | null>(useAuth.getState().profile?.avatar_url ?? null);
@@ -158,13 +160,13 @@ export function Onboarding() {
                 <span className={s.iconTile}><Icon name="bellAuth" size={20} sw={1.8} /></span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ font: 'var(--fw-bold) 15px var(--font-ui)' }}>{t('auth.notifications')}</div>
-                  <div className={s.small} style={{ marginTop: 3 }}>{perm ? t('auth.permOn', { t: time }) : t('auth.permOff')}</div>
+                  <div className={s.small} style={{ marginTop: 3 }}>{perm ? t('auth.permOn', { t: time }) : ps === 'home' ? t('settings.dev.homeD') : ps === 'denied' ? t('settings.dev.deniedD') : ps === 'unsupported' ? t('settings.dev.unsupportedD') : t('auth.permOff')}</div>
                 </div>
                 {perm ? (
                   <span className={s.permOk}><Icon name="check" size={14} sw={2.6} /> {t('auth.permGranted')}</span>
-                ) : (
-                  <button type="button" className={s.ctaSm} onClick={() => { void askPermission().then((ok) => setPerm(ok || !notificationsSupported())); }}>{t('auth.allow')}</button>
-                )}
+                ) : ps === 'ask' ? (
+                  <button type="button" className={s.ctaSm} onClick={() => { void askPermission().then((ok) => setPerm(ok)); }}>{t('auth.allow')}</button>
+                ) : null}
               </div>
             </div>
           )}
@@ -242,6 +244,7 @@ export function DayOne() {
           <div className={s.small} role={saveErr ? 'alert' : undefined} style={{ marginTop: 20, minHeight: 20, ...up(4), ...(saveErr ? { color: 'var(--error)' } : {}) }}>
             {saveErr ? t('auth.startFailed') : celebrate ? t('auth.go') : holdP > 0 ? t('auth.holding') : t('auth.holdHint')}
           </div>
+          {habits.length > 2 && !celebrate && <div className={s.small} style={{ marginTop: 10, maxWidth: 300, ...up(5) }}>{t('auth.coreNote')}</div>}
         </div>
       )}
     </AuthLayout>

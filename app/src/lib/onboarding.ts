@@ -50,7 +50,7 @@ export async function saveOnboarding(v: { name: string; habits: string[]; time: 
       const c = CHIP[p.h.ru];
       return {
         name: p.h[lang], category: p.dir, icon: c?.icon ?? HABIT_ICON[p.dir as Exclude<DirId, 'quit'>], hue: HUE[p.dir], sort: i,
-        core: i < 5, // onboarding picks are the arc's Core habits (Free: up to 5)
+        core: i < 2, // the first week: at most two Core habits — one slip in five would break the streak on day 2; the rest are Extra until the rhythm is there
         type: c?.counter ? 'counter' : c?.minutes ? 'duration' : 'binary', target: c?.counter ?? null,
         unit: c?.counter ? (lang === 'en' ? 'glasses' : 'стаканов') : null, minutes: c?.minutes ?? null,
       };

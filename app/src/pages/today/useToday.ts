@@ -50,7 +50,7 @@ export function useToday() {
     const y = addDays(day, -1);
     const yStatus = dayStatus(idx, y, day);
     const frozenThisWeek = sys.days.filter((x) => x.frozen && x.day >= weekStart(y) && x.day <= addDays(weekStart(y), 6)).length;
-    const recovery = yStatus === 'broken' && view.streakBase === 0 && d.getHours() < 12 && !recoveryDismissed(y)
+    const recovery = yStatus === 'broken' && view.streakBase === 0 && d.getHours() < 23 && !recoveryDismissed(y)
       && dayStatus(idx, addDays(day, -2), day) !== 'broken' && dayStatus(idx, addDays(day, -2), day) !== 'none'
       ? { day: y, left: Math.max(0, freezesAllowed - frozenThisWeek) } : null;
     const action = nowAction({ habits: raw.habits, logs: sys.logs, plan: sys.plan, arcStart: arc?.started_on ?? null, oath: arc?.oath ?? null }, d, reviewDone(day));

@@ -322,6 +322,7 @@ export const en: Dict = {
     day1: 'Day 1 of 90.',
     ready: 'Ready?',
     imIn: 'I’m in',
+    coreNote: 'Your first two habits are Core: they carry the streak. The rest are Extra and never break it. Make them Core once you are in the rhythm.',
     holdHint: 'Hold for 1.5 seconds',
     holding: 'Hold…',
     go: 'Let’s go',
@@ -353,6 +354,10 @@ export const en: Dict = {
     subscription: 'Subscription',
     logout: 'Sign out',
     deleteAccount: 'Delete account',
+  },
+  pushHint: {
+    askTitle: 'Turn on reminders?', askBody: 'They arrive in the evening if something is left to check. Your streak stays safe.',
+    homeTitle: 'To get reminders', homeBody: 'On iPhone: Share → Add to Home Screen, then open VeyrArc from the icon.',
   },
   pro: {
     needConsent: 'Tick the auto-renewal consent — the payment can’t go through without it.',
@@ -972,6 +977,7 @@ export const en: Dict = {
     streakTitle: 'Streak', streakHint: 'All Core done in a day — +1',
     daysInRow: { one: 'day in a row', other: 'days in a row' },
     todayMark: 'today', streakDay: 'streak day',
+    streakWill: 'close the day — it becomes {n}',
     markDone: 'Mark as done', markUndo: 'Undo',
     scoreDelta: '{d} to index', index: 'index {n}',
     stateDone: 'done', stateSoon: 'soon', stateNow: 'now',
