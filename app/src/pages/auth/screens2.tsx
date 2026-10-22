@@ -10,6 +10,7 @@ import { config } from '../../config';
 import { useLangStore, useT } from '../../i18n';
 import { deleteAccount, signOut, useAuth, userEmail, isProPlan } from '../../lib/auth';
 import { saveOnboarding } from '../../lib/onboarding';
+import { track } from '../../lib/analytics';
 import { askPermission, pushStatus } from '../../lib/reminders';
 import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
@@ -61,7 +62,7 @@ export function Onboarding() {
     toggleHabit(id);
   };
   const valid = ob === 0 ? !!f.pname.trim() : ob === 1 ? habits.length >= 1 : true;
-  const go = (n: number) => { setSdir(n > ob ? 1 : -1); setOb(n); };
+  const go = (n: number) => { setSdir(n > ob ? 1 : -1); setOb(n); track('onboarding_step', { step: n, habits: habits.length }); };
   const next = () => { if (ob < 2) go(ob + 1); else navigate('/day-one'); };
   const slide = sdir > 0 ? s.slideL : s.slideR;
   const stepLabels = t.list('auth.obSteps');
@@ -209,7 +210,7 @@ export function DayOne() {
         setSaveErr(false);
         const wait = new Promise((r) => { timer.current = setTimeout(r, 600); });
         // drop any system snapshot fetched before the save (it would show an empty Today)
-        const save = hasBackend ? saveOnboarding({ name: f.pname, habits, time, oath }).then(setCreated).then(() => { void qc.resetQueries({ queryKey: SYSTEM_KEY }); }) : Promise.resolve();
+        const save = hasBackend ? saveOnboarding({ name: f.pname, habits, time, oath }).then(setCreated).then(() => { void qc.resetQueries({ queryKey: SYSTEM_KEY }); track('onboarding_done', { habits: habits.length }); }) : Promise.resolve();
         // the start only counts once it is saved: on failure the user sees why and holds again
         void Promise.all([wait, save]).then(() => { resetOnboarding(); navigate('/', { replace: true }); }, () => { setCelebrate(false); setHoldP(0); setSaveErr(true); });
         return;

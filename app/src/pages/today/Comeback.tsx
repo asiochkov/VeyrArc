@@ -5,6 +5,7 @@ import { startNewArc } from '../../data/settings';
 import { daysBetween } from '../../data/model';
 import { useT } from '../../i18n';
 import { useAuth } from '../../lib/auth';
+import { track } from '../../lib/analytics';
 import { isoDay } from '../../lib/day';
 import { hasBackend } from '../../lib/supabase';
 import { activeArc, SYSTEM_KEY, useSystem } from '../../state/system';
@@ -39,7 +40,7 @@ export function Comeback() {
     const arc = activeArc(sys);
     if (!seen || !arc || arc.started_on > seen || !sys.habits.some((h) => !h.archived_at)) return;
     const gap = daysBetween(seen, today);
-    if (gap >= 5) setState({ gap, since: seen });
+    if (gap >= 5) { setState({ gap, since: seen }); track('comeback_shown', { gap }); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!q.data]);
   if (!state || !q.data) return null;
@@ -52,11 +53,12 @@ export function Comeback() {
   const fresh = async () => {
     if (!hasBackend) { close(); return; }
     setBusy(true);
+    track('comeback_choice', { choice: 'fresh' });
     try { await startNewArc(); await qc.invalidateQueries({ queryKey: SYSTEM_KEY }); toast.success(t('comeback.freshDone')); close(); }
     catch { toast.error(t('common.saveFailed')); }
     finally { setBusy(false); }
   };
-  const keep = <Cta key="keep" variant={deep ? 'ghost' : 'primary'} onClick={close}>{t('comeback.keep', { n: roman(arc.number), d: day })}</Cta>;
+  const keep = <Cta key="keep" variant={deep ? 'ghost' : 'primary'} onClick={() => { track('comeback_choice', { choice: 'keep' }); close(); }}>{t('comeback.keep', { n: roman(arc.number), d: day })}</Cta>;
   const anew = <Cta key="new" variant={deep ? 'primary' : 'ghost'} loading={busy} onClick={() => { void fresh(); }}>{t('comeback.fresh')}</Cta>;
   return (
     <Sheet open onClose={close} label={t('comeback.title', { name: first })}>

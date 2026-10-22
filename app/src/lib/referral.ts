@@ -28,7 +28,7 @@ export async function claimStored() {
   const c = get();
   if (!c || !hasBackend) return;
   const { error } = await db().rpc('claim_referral', { p_code: c });
-  if (!error) put(null);
+  if (!error) { put(null); void import('./analytics').then((m) => m.track('referral_joined')).catch(() => {}); }
 }
 
 export type MyReferral = { code: string; invited: number; rewarded: number; bonus: number };

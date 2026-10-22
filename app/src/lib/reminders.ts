@@ -28,7 +28,7 @@ export function pushStatus(): PushStatus {
 export async function askPermission() {
   if (!notificationsSupported()) return false;
   const ok = Notification.permission === 'granted' || (await Notification.requestPermission()) === 'granted';
-  if (ok) void import('./push').then((m) => m.subscribePush()).catch(() => {});
+  if (ok) { void import('./push').then((m) => m.subscribePush()).catch(() => {}); void import('./analytics').then((m) => m.track('push_enabled')).catch(() => {}); }
   return ok;
 }
 

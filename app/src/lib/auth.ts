@@ -43,6 +43,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     const profile = (p.data as Profile | null) ?? null;
     set({ profile, plan: (s.data as Plan | null) ?? null, bonusFreezes: (b.data as { freezes: number } | null)?.freezes ?? 0 });
     void import('./referral').then((m) => m.claimStored()).catch(() => {});
+    void import('./analytics').then((m) => { m.trackOnce('open', 'app_open'); m.flushPushOpen(); }).catch(() => {});
     if (profile?.lang && profile.lang !== useLangStore.getState().lang) useLangStore.getState().setLang(profile.lang);
   },
 }));
@@ -112,6 +113,7 @@ export async function signUpOrLink(v: { first: string; last: string; email: stri
 export async function verifyEmail(kind: 'signup' | 'link', email: string, code: string, pw: string) {
   const { error } = await db().auth.verifyOtp({ email, token: code, type: kind === 'link' ? 'email_change' : 'signup' });
   if (error) throw error;
+  void import('./analytics').then((m) => m.track('signup', { via: kind })).catch(() => {});
   if (kind === 'link' && pw) {
     const r = await db().auth.updateUser({ password: pw });
     if (r.error) throw r.error;
@@ -175,5 +177,6 @@ export const trialUsed = (p: Plan | null) => !!(p as (Plan & { trial_used_at?: s
 export async function startTrial() {
   const { error } = await db().rpc('start_trial');
   if (error) throw error;
+  void import('./analytics').then((m) => m.track('trial_start')).catch(() => {});
   await useAuth.getState().loadProfile();
 }

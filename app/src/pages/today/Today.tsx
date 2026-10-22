@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { roman, AvatarMenu } from '../../app/AppHeader';
 import { useAdd, useAddAction } from '../../app/nav';
+import { track, trackEver } from '../../lib/analytics';
 import { useHeader } from '../../data/header';
 import { useT, type T } from '../../i18n';
 import { useAuth } from '../../lib/auth';
@@ -21,7 +22,7 @@ import { useAutoTour } from '../../ui/Tour';
 import { Comeback } from './Comeback';
 import { PushHint } from './PushHint';
 import { reviewDue, weekFocus, WeeklyReview } from './WeeklyReview';
-import { getSystem } from '../../state/system';
+import { getSystem, useSystem } from '../../state/system';
 import { Milestone, MILESTONES, milestoneSeen } from './Milestone';
 import { haptic } from '../../lib/haptics';
 import { EveningReview } from './EveningReview';
@@ -69,6 +70,16 @@ export function Today() {
     return () => window.removeEventListener('veyrarc:recap', go);
   }, [navigate]);
   useAutoTour('today', !!st.data);
+  // analytics: the first check-in (the moment of value) and a lost streak, once
+  const anyDone = useSystem((r) => r.logs.some((l) => l.done)).data;
+  const born = useAuth((a) => a.session?.user.created_at);
+  useEffect(() => {
+    if (!anyDone) return;
+    const min = born ? Math.round((Date.now() - new Date(born).getTime()) / 60000) : null;
+    if (min != null && min < 7 * 1440) trackEver('first_check', 'first_check', { minutes_since_signup: min });
+  }, [anyDone, born]);
+  const lostDay = st.data?.recovery ? st.data.day : null;
+  useEffect(() => { if (lostDay) trackEver('lost-' + lostDay, 'streak_lost'); }, [lostDay]);
   // all Core done just now: a wave over the tiles, a stronger buzz; a streak milestone opens its moment
   const kept = st.data ? st.data.view.stats.streak > st.data.view.streakBase : null;
   const wasKept = useRef<boolean | null>(null);
@@ -79,6 +90,7 @@ export function Today() {
     if (wasKept.current === false && kept) {
       const n = st.data.view.stats.streak;
       haptic('dayKept');
+      track('day_kept', { streak: st.data.view.stats.streak });
       setWave(true);
       setTimeout(() => setWave(false), 1500);
       const arcId = st.data.arc?.id;

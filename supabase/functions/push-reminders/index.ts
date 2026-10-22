@@ -104,6 +104,12 @@ const inQuiet = (hm: string, from?: string | null, to?: string | null) => {
 };
 async function send(subs: { id: string; endpoint: string; p256dh: string; auth: string }[], payload: Record<string, unknown>) {
   let n = 0;
+  // every push carries where it came from (?from=push&k=kind): the app counts push_open per kind
+  if (typeof payload.url === 'string' && !payload.url.includes('from=push')) {
+    payload = { ...payload, url: payload.url + (payload.url.includes('?') ? '&' : '?') + 'from=push&k=' + encodeURIComponent(String(payload.type ?? 'push')) };
+  } else if (typeof payload.url === 'string') {
+    payload = { ...payload, url: payload.url + '&k=' + encodeURIComponent(String(payload.type ?? 'push')) };
+  }
   for (const s of subs) {
     try {
       await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(payload));

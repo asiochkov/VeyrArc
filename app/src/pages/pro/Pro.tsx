@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { isAnon, isProPlan, startTrial, trialUsed, useAuth } from '../../lib/auth';
 import { BillingError, checkout, settlePending } from '../../lib/billing';
 import { haptic } from '../../lib/haptics';
+import { track } from '../../lib/analytics';
 import { hasBackend } from '../../lib/supabase';
 import { config } from '../../config';
 import { useT } from '../../i18n';
@@ -29,6 +30,7 @@ export function Pro() {
   const [payMode, setPayMode] = useState(false);
   const [agree, setAgree] = useState(false);
   const [back, setBack] = useState<'checking' | 'ok' | 'fail' | 'slow' | null>(params.get('paid') ? 'checking' : null);
+  useEffect(() => { track('paywall_view'); }, []);
   const perks = t.list('pro.perks');
   const P = config.pricing[t.lang];
   const money = (v: number) => new Intl.NumberFormat(t.lang === 'en' ? 'en-US' : 'ru-RU', { style: 'currency', currency: P.currency, maximumFractionDigits: P.currency === 'RUB' ? 0 : 2 }).format(v);
