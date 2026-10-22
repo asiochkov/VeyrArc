@@ -23,6 +23,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
     ru: {
       title: 'Тарифы', updated: 'Обновлено 15 октября 2026',
       sections: [
+        ...(config.beta ? [['Сейчас бета', 'Пока VeyrArc в бета-версии, все функции доступны бесплатно и никаких списаний нет. Тарифы ниже — для платной подписки, которая появится позже; о её запуске мы заранее сообщим в приложении.'] as [string, string]] : []),
         ['Что такое VeyrArc', 'VeyrArc — веб-приложение для привычек, целей и планирования дня в формате 90-дневных арок: отметки привычек, серии, отказ от вредного, цели с шагами, планер, фокус-таймер, аналитика и голосовой ассистент. Работает в браузере на телефоне и компьютере, его можно установить на экран «Домой».'],
         ['Бесплатно — 0 ₽', `Все основные функции: до ${config.limits.free.core} основных привычек и без ограничений дополнительных, до ${config.limits.free.goals} активных целей, планер, фокус-таймер, ассистент, ${config.limits.free.freezesPerWeek} заморозка серии в неделю.`],
         [`Pro на месяц — ${rub(P.ru.monthly)}`, 'Безлимит основных привычек и целей, полная история и сравнение всех арок, корреляции настроения и привычек, 2 заморозки серии в неделю, полный отчёт по завершении арки. Доступ на 1 месяц с автопродлением, которое можно отключить в любой момент.'],
@@ -37,6 +38,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
     en: {
       title: 'Pricing', updated: 'Updated October 15, 2026',
       sections: [
+        ...(config.beta ? [['Beta now', 'While VeyrArc is in beta every feature is free and nothing is charged. The plans below are for the paid subscription that will come later; we will announce it in the app first.'] as [string, string]] : []),
         ['What VeyrArc is', 'VeyrArc is a web app for habits, goals and day planning in 90-day arcs: habit check-ins, streaks, quitting, goals with steps, a planner, a focus timer, analytics and a voice assistant. It runs in the browser on phone and desktop and can be installed to the home screen.'],
         ['Free — 0 ₽', `All the basics: up to ${config.limits.free.core} Core habits and unlimited Extra, up to ${config.limits.free.goals} active goals, planner, focus timer, assistant, ${config.limits.free.freezesPerWeek} streak freeze a week.`],
         [`Pro monthly — ${rub(P.ru.monthly)}`, 'Unlimited Core habits and goals, full history and comparison of every arc, mood and habit correlations, 2 streak freezes a week, the full end-of-arc recap. One month of access, renews automatically, can be turned off any time.'],
@@ -53,6 +55,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
     ru: {
       title: 'Публичная оферта', updated: 'Редакция от 15 октября 2026',
       sections: [
+        ...(config.beta ? [['Сейчас бета', 'Пока VeyrArc в бета-версии, все функции доступны бесплатно и никаких списаний нет. Тарифы ниже — для платной подписки, которая появится позже; о её запуске мы заранее сообщим в приложении.'] as [string, string]] : []),
         ['1. Общие положения', `${S.name} (далее — Исполнитель) предлагает любому лицу (далее — Пользователь) заключить договор на условиях настоящей оферты. Акцептом оферты является оплата подписки Pro на сайте ${SITE} или в приложении VeyrArc. С момента акцепта договор считается заключённым (ст. 437, 438 ГК РФ).`],
         ['2. Предмет', 'Исполнитель предоставляет Пользователю доступ к расширенным функциям веб-приложения VeyrArc (подписка Pro) на оплаченный период, а Пользователь оплачивает доступ. Состав функций указан на странице «Тарифы». Услуга оказывается дистанционно через интернет.'],
         ['3. Стоимость и оплата', `Стоимость: ${rub(P.ru.monthly)} за 1 месяц или ${rub(P.ru.yearly)} за 12 месяцев, НДС не облагается. Оплата производится банковской картой, через СБП или SberPay с помощью платёжного сервиса ЮKassa (ООО НКО «ЮМани»). Кассовый чек направляется на email Пользователя.`],
@@ -71,6 +74,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
     en: {
       title: 'Public offer', updated: 'Version of October 15, 2026',
       sections: [
+        ...(config.beta ? [['Beta now', 'While VeyrArc is in beta every feature is free and nothing is charged. The plans below are for the paid subscription that will come later; we will announce it in the app first.'] as [string, string]] : []),
         ['Note', 'The binding version of this offer is the Russian one. Summary below.'],
         ['Subject', 'Access to VeyrArc Pro features for the paid period (1 or 12 months), delivered online. Paying for Pro accepts this offer.'],
         ['Price and payment', `${rub(P.ru.monthly)} per month or ${rub(P.ru.yearly)} per year, no VAT, paid through YooKassa (card, SBP, SberPay). A receipt is emailed.`],
