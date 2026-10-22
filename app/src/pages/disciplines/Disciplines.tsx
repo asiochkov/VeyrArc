@@ -22,6 +22,7 @@ import { QuitTile } from './QuitTile';
 import { Sheet } from '../../ui/Sheet';
 import { defaultQuitDraft, QuitOptions, sinceIso, type QuitDraft } from '../tracker/ComposerOptions';
 import d from './disciplines.module.css';
+import { useAdd } from '../../app/nav';
 import { HabitSetup } from './HabitSetup';
 import { useHoldReorder } from '../../ui/useHoldReorder';
 
@@ -153,7 +154,7 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
             {extra.map((h) => <button key={h.id} type="button" className={d.pickRow} onClick={() => { setPicking(false); toggleCore(h.id); }}><Icon name={h.icon} size={15} />{t.pick(h.name)}</button>)}
           </span>
         ) : t('disc.pickEmpty')}
-        onConfirm={() => { setPicking(false); document.getElementById('disc-composer')?.focus(); }} onCancel={() => setPicking(false)} />
+        onConfirm={() => { setPicking(false); useAdd.getState().openAdd('habit'); }} onCancel={() => setPicking(false)} />
     </>
   );
 }
@@ -222,10 +223,16 @@ function Composer({ t, coreN, count }: { t: T; coreN: number; count: number }) {
     toast.action(t(h.core ? 'add.habitCreatedCore' : 'add.habitCreated'), t('add.setup'), () => setParams((p) => { const x = new URLSearchParams(p); x.set('setup', h.id); return x; }), 5000);
   };
   return (
-    <form className="field-pill" onSubmit={(e) => { e.preventDefault(); submit(); }}>
-      <input id="disc-composer" value={name} maxLength={80} placeholder={t('add.habitPh')} onChange={(e) => setName(e.target.value)} enterKeyHint="done" aria-label={t('add.habitPh')} />
-      <button type="submit" className="cb cb-white" disabled={!name.trim()} aria-label={t('common.add')}><Icon name="plus" size={20} sw={1.8} /></button>
-    </form>
+    <>
+      {/* 22 ready habits with the right rhythm: the add sheet opens on its library */}
+      <button type="button" className={d.libBtn} onClick={() => useAdd.getState().openAdd('habit')}>
+        <Icon name="checklist" size={18} sw={1.7} /><span>{t('add.libraryOpen')}</span><Icon name="chevron" size={16} sw={1.8} />
+      </button>
+      <form className="field-pill" onSubmit={(e) => { e.preventDefault(); submit(); }}>
+        <input id="disc-composer" value={name} maxLength={80} placeholder={t('add.habitPh')} onChange={(e) => setName(e.target.value)} enterKeyHint="done" aria-label={t('add.habitPh')} />
+        <button type="submit" className="cb cb-white" disabled={!name.trim()} aria-label={t('common.add')}><Icon name="plus" size={20} sw={1.8} /></button>
+      </form>
+    </>
   );
 }
 

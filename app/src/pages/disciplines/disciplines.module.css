@@ -65,3 +65,9 @@
 .addBtn { min-height: 56px; border: none; border-radius: 999px; background: var(--c-on); color: #FFFFFF; font: var(--fw-regular) 16px var(--font-ui); cursor: pointer; transition: transform 160ms; }
 .addBtn:active { transform: scale(.97); }
 .addBtn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* shortcut to the habit library under the composer */
+.libBtn { width: 100%; margin: 0 0 10px; min-height: 52px; padding: 0 18px; display: flex; align-items: center; gap: 12px; border: none; border-radius: 999px; background: var(--c-field); color: var(--text-strong); font: var(--fw-regular) 15px var(--font-ui); text-align: left; cursor: pointer; box-shadow: inset 0 0 0 1px var(--line); transition: transform 160ms; -webkit-tap-highlight-color: transparent; }
+.libBtn > span { flex: 1; min-width: 0; }
+.libBtn > svg:last-child { color: rgba(var(--fg-rgb),.4); }
+.libBtn:active { transform: scale(.98); }

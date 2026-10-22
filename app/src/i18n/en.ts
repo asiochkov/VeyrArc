@@ -734,6 +734,7 @@ export const en: Dict = {
     tiles: { habit: 'Habit', event: 'Event', goalTask: 'Goal step', focus: 'Focus' },
     sub: { habit: 'A daily action', event: 'In the Planner, with date and time', goalTask: 'A daily step toward a goal', focus: 'Start the timer' },
     habitPh: 'What will you do every day?',
+    libraryOpen: 'Pick from 22 ready habits',
     library: 'Or pick a ready one — with the right rhythm', libraryHave: 'already added',
     habitHint: 'Creates a daily check. Type, schedule and Core/Extra are in «Set up».',
     habitCreated: 'Habit created',
