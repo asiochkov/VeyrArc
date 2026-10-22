@@ -22,6 +22,7 @@ type AuthState = {
   session: Session | null;
   profile: Profile | null;
   plan: Plan | null;
+  bonusFreezes: number;
   loadProfile: () => Promise<void>;
 };
 
@@ -30,15 +31,18 @@ export const useAuth = create<AuthState>((set, get) => ({
   session: null,
   profile: null,
   plan: null,
+  bonusFreezes: 0,
   loadProfile: async () => {
     const uid = get().session?.user.id;
     if (!uid) { set({ profile: null, plan: null }); return; }
-    const [p, s] = await Promise.all([
+    const [p, s, b] = await Promise.all([
       db().from('profiles').select('*').eq('id', uid).maybeSingle(),
       db().from('subscriptions').select('plan, period, status, renews_at, trial_used_at, auto_renew, card').eq('user_id', uid).maybeSingle(),
+      db().from('referral_bonus').select('freezes').eq('user_id', uid).maybeSingle(),
     ]);
     const profile = (p.data as Profile | null) ?? null;
-    set({ profile, plan: (s.data as Plan | null) ?? null });
+    set({ profile, plan: (s.data as Plan | null) ?? null, bonusFreezes: (b.data as { freezes: number } | null)?.freezes ?? 0 });
+    void import('./referral').then((m) => m.claimStored()).catch(() => {});
     if (profile?.lang && profile.lang !== useLangStore.getState().lang) useLangStore.getState().setLang(profile.lang);
   },
 }));

@@ -359,6 +359,11 @@ export const en: Dict = {
     askTitle: 'Turn on reminders?', askBody: 'They arrive in the evening if something is left to check. Your streak stays safe.',
     homeTitle: 'To get reminders', homeBody: 'On iPhone: Share → Add to Home Screen, then open VeyrArc from the icon.',
   },
+  invite: {
+    title: 'Invite a friend', sub: 'When your friend makes their first check-in, you both get a bonus streak freeze.',
+    share: 'Share the link', copyLink: 'Copy the link', copied: 'Link copied',
+    shareText: 'I track my habits in VeyrArc — join me:', stats: 'Invited: {n} · counted: {m}', bonus: 'freezes in stock: {n}',
+  },
   pro: {
     needConsent: 'Tick the auto-renewal consent — the payment can’t go through without it.',
     needAccount: 'To pay, save your account with an email — the subscription stays tied to it.',

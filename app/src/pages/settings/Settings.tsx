@@ -20,6 +20,7 @@ import { useIsDesktop } from '../../lib/useIsDesktop';
 import { Icon, type IconName } from '../../ui/Icon';
 import { ConfirmDialog, PhotoImg, Segmented } from '../../ui/primitives';
 import { cancelAutoRenew } from '../../lib/billing';
+import { InviteCard } from './InviteCard';
 import { useTheme } from '../../lib/theme';
 import { OathSheet } from '../../ui/OathSheet';
 import { roman } from '../../app/AppHeader';
@@ -158,6 +159,7 @@ export function Settings() {
             </span>
             <span style={{ color: 'rgba(var(--fg-rgb),.56)' }}><Icon name="chevron" size={16} sw={2} /></span>
           </button>
+          {hasBackend && <InviteCard />}
         </div>
       )}
       {show('appearance') && (
