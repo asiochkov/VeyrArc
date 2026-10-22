@@ -8,6 +8,9 @@ try {
   const uid = sql("select id from auth.users order by created_at desc limit 1");
   log('Core after onboarding:', sql(`select count(*) from habits where user_id='${uid}' and core`));
   await page.goto(APP + '/disciplines');
+  // onboarding now makes only the first two habits Core; a new habit is Core while there are fewer than 3
+  await page.locator('#disc-composer').fill('Третья'); await page.locator('#disc-composer').press('Enter');
+  await page.locator('[data-zone="core"]').getByText('Третья').waitFor(); log('3rd habit joins Core');
   await page.locator('#disc-composer').fill('Шестая');
   await page.locator('#disc-composer').press('Enter');
   await page.locator('[data-zone="extra"]').getByText('Шестая').waitFor(); log('6th habit goes to Extra (Extra is unlimited)');
