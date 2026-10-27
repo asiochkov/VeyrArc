@@ -78,17 +78,7 @@
         </div>
 
         <!-- grid -->
-        <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;grid-template-areas:'pro planner today' 'mood pomo pomo' 'streak pomo pomo' 'analytics focus best'">
-
-          <!-- pro -->
-          <sc-if value="{{ showPro }}" hint-placeholder-val="{{ true }}">
-          <div style="grid-area:pro;min-width:0;background:linear-gradient(160deg,rgba(232,183,94,.10),rgba(13,17,22,.9) 60%);border:1px solid rgba(232,183,94,.22);border-radius:20px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px">
-            <div style="width:46px;height:46px;border-radius:14px;background:rgba(232,183,94,.14);border:1px solid rgba(232,183,94,.3);display:grid;place-items:center;color:#E8B75E">{{ icLock }}</div>
-            <div style="font:700 15px 'Manrope';color:#f2e2c4">VeyrArc Pro</div>
-            <div style="font:400 12px/1.5 'Manrope';color:rgba(232,237,243,.55);max-width:210px">Открой полную аналитику, историю Arc и безлимит привычек</div>
-            <a href="VeyrArc Pro.dc.html" style="margin-top:6px;width:100%;max-width:220px;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:12px 26px;font:700 13px 'Manrope';cursor:pointer;display:block;text-align:center;box-sizing:border-box">Открыть Pro</a>
-          </div>
-          </sc-if>
+        <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;grid-template-areas:'planner planner today' 'mood pomo pomo' 'streak pomo pomo' 'analytics focus best'">
 
           <!-- planner -->
           <div style="grid-area:planner;min-width:0;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column">
@@ -285,8 +275,8 @@
         </div>
       </div>
 
-      <!-- analytics + pro row -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+      <!-- analytics -->
+      <div style="margin-top:12px">
         <div style="background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:16px 14px;text-align:center">
           <div style="font:700 9px 'JetBrains Mono',monospace;letter-spacing:.14em;color:rgba(232,237,243,.4)">АНАЛИТИКА ДНЯ</div>
           <div style="position:relative;width:92px;height:92px;margin:10px auto 6px">
@@ -304,14 +294,6 @@
             <div><div style="height:16px;display:grid;place-items:center">{{ moodMini }}</div><div style="font:600 8px 'JetBrains Mono',monospace;letter-spacing:.08em;color:rgba(232,237,243,.4);margin-top:2px">НАСТР.</div></div>
           </div>
         </div>
-        <sc-if value="{{ showPro }}" hint-placeholder-val="{{ true }}">
-        <div style="background:linear-gradient(160deg,rgba(232,183,94,.12),rgba(13,17,22,.9) 65%);border:1px solid rgba(232,183,94,.22);border-radius:20px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px">
-          <div style="width:40px;height:40px;border-radius:12px;background:rgba(232,183,94,.14);border:1px solid rgba(232,183,94,.3);display:grid;place-items:center;color:#E8B75E">{{ icLock }}</div>
-          <div style="font:700 14px 'Manrope';color:#f2e2c4">VeyrArc Pro</div>
-          <div style="font:400 11px/1.45 'Manrope';color:rgba(232,237,243,.55)">Открой полную аналитику, историю Arc и безлимит</div>
-          <a href="VeyrArc Pro.dc.html" style="margin-top:4px;width:100%;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:10px;font:700 12.5px 'Manrope';cursor:pointer;display:block;text-align:center;box-sizing:border-box">Открыть Pro</a>
-        </div>
-        </sc-if>
       </div>
 
       <!-- today -->
@@ -429,7 +411,7 @@
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:980},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showPro&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;focusMinutes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:25,&quot;min&quot;:5,&quot;max&quot;:90,&quot;step&quot;:5,&quot;unit&quot;:&quot;мин&quot;,&quot;tsType&quot;:&quot;number&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1360,&quot;height&quot;:980},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;focusMinutes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:25,&quot;min&quot;:5,&quot;max&quot;:90,&quot;step&quot;:5,&quot;unit&quot;:&quot;мин&quot;,&quot;tsType&quot;:&quot;number&quot;}}">
 class Component extends DCLogic {
   state = {
     view: (this.props && this.props.startView) || 'desktop',
@@ -528,7 +510,6 @@ class Component extends DCLogic {
   }
 
   renderVals() {
-    const showPro = (this.props && this.props.showPro !== undefined) ? this.props.showPro : true;
     const fm = (this.props && this.props.focusMinutes) || 25;
     const isD = this.state.view === 'desktop';
 
@@ -630,7 +611,7 @@ class Component extends DCLogic {
       setMobile: () => this.setState({ view: 'mobile' }),
       tabDesktopStyle: isD ? switchOn : switchOff,
       tabMobileStyle: isD ? switchOff : switchOn,
-      showPro, todayCount, dayPct, dayOffset: (301.6 * (1 - dayPct / 100)).toFixed(1),
+      todayCount, dayPct, dayOffset: (301.6 * (1 - dayPct / 100)).toFixed(1),
       catBody: catFrac('Тело'), catMind: catFrac('Разум'), catDisc: catFrac('Дисциплина'),
       moodMini: this.moodFace(this.state.moodSel, '#A8CBEF'),
       moodLabel: ['Плохо', 'Так себе', 'Спокойно', 'Хорошо', 'Отлично'][this.state.moodSel],
@@ -643,7 +624,7 @@ class Component extends DCLogic {
       icPlus: this.icon('plus', { size: 28 }), icHome: this.icon('home', { size: 28 }), icChecklist: this.icon('checklist', { size: 28 }),
       icCal: this.icon('cal', { size: 28 }), icTune: this.icon('tune', { size: 28 }), icPerson: this.icon('person', { size: 28 }), icTarget: this.icon('target', { size: 28 }),
       icGear: this.icon('gear', { size: 17 }), icChevron: this.icon('chevron'),
-      icLock: this.icon('lock', { size: 18 }), icReset: this.icon('reset', { size: 18 }),
+      icReset: this.icon('reset', { size: 18 }),
       icTune2: this.icon('tune', { size: 18 }), icPlay: this.icon('play', { size: 22, color: '#06121f' }),
 
       railItemStyle: 'width:68px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:rgba(232,237,243,.42);cursor:pointer;overflow:hidden;transition:background-color .2s ease',

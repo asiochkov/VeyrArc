@@ -56,7 +56,6 @@
             <div style="font:700 10px/1 'JetBrains Mono',monospace;letter-spacing:.26em;color:rgba(232,237,243,.34)">VEYRARC</div>
           </div>
           <div style="display:flex;align-items:center;gap:12px">
-            <span style="{{ proBadgeStyle }}">{{ proBadgeLabel }}</span>
             <button style="width:40px;height:40px;border-radius:50%;background:#6FA0D6;color:#06121f;border:none;display:grid;place-items:center;font:700 12px 'Manrope';cursor:pointer">AP</button>
           </div>
         </div>
@@ -194,24 +193,18 @@
 
           <div style="grid-area:corr;position:relative;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px;overflow:hidden">
             <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.18em;color:rgba(232,237,243,.4)">КОРРЕЛЯЦИИ</div>
-            <div style="{{ blurStyle }}">
+            <div>
               <div style="font:600 14px/1.5 'Manrope';color:#E8EDF3;margin-top:14px">{{ correlationText }}</div>
             </div>
-            <sc-if value="{{ isNotPro }}" hint-placeholder-val="{{ true }}">
-            <div style="{{ lockOverlayStyle }}"><span style="color:#E8B75E">{{ icLock }}</span><span style="font:700 12px 'Manrope';color:#f2e2c4">Доступно в Pro</span></div>
-            </sc-if>
           </div>
 
           <div style="grid-area:arc;position:relative;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:20px;padding:22px;overflow:hidden">
             <div style="font:700 10px 'JetBrains Mono',monospace;letter-spacing:.18em;color:rgba(232,237,243,.4)">СРАВНЕНИЕ ARC</div>
-            <div style="{{ blurStyle }};display:flex;gap:20px;margin-top:14px;align-items:flex-end">
+            <div style="display:flex;gap:20px;margin-top:14px;align-items:flex-end">
               <div><div style="font:700 22px 'JetBrains Mono',monospace">{{ arcCompare.current }}</div><div style="font:600 10px 'Manrope';color:rgba(232,237,243,.45)">Arc 2</div></div>
               <div><div style="font:700 22px 'JetBrains Mono',monospace;color:rgba(232,237,243,.5)">{{ arcCompare.previous }}</div><div style="font:600 10px 'Manrope';color:rgba(232,237,243,.45)">Arc 1</div></div>
               <div style="font:700 13px 'JetBrains Mono',monospace;color:#5FBF9B">{{ arcCompare.deltaLabel }}</div>
             </div>
-            <sc-if value="{{ isNotPro }}" hint-placeholder-val="{{ true }}">
-            <div style="{{ lockOverlayStyle }}"><span style="color:#E8B75E">{{ icLock }}</span><span style="font:700 12px 'Manrope';color:#f2e2c4">Доступно в Pro</span></div>
-            </sc-if>
           </div>
 
         </div>
@@ -232,18 +225,6 @@
             <div style="{{ historyTooltipStyle }}"><div style="font:700 15px 'JetBrains Mono',monospace">{{ indexValue }}</div><div style="font:600 10px 'Manrope';color:rgba(232,237,243,.55);white-space:nowrap">{{ statusLabel }}</div></div>
           </div>
         </div>
-
-        <!-- PRO BANNER -->
-        <sc-if value="{{ isNotPro }}" hint-placeholder-val="{{ true }}">
-        <div style="margin-top:16px;background:linear-gradient(160deg,rgba(232,183,94,.10),rgba(13,17,22,.9) 60%);border:1px solid rgba(232,183,94,.22);border-radius:20px;padding:24px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-          <div style="width:46px;height:46px;flex:none;border-radius:14px;background:rgba(232,183,94,.14);border:1px solid rgba(232,183,94,.3);display:grid;place-items:center;color:#E8B75E">{{ icLock }}</div>
-          <div style="flex:1;min-width:220px">
-            <div style="font:700 15px 'Manrope';color:#f2e2c4">VeyrArc Pro</div>
-            <div style="font:400 12px/1.5 'Manrope';color:rgba(232,237,243,.55)">Открой полную аналитику, историю Arc и безлимит привычек</div>
-          </div>
-          <a href="VeyrArc Pro.dc.html" style="background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:12px 26px;font:700 13px 'Manrope';cursor:pointer;display:inline-block;text-align:center">Открыть Pro</a>
-        </div>
-        </sc-if>
 
         <!-- RECOMMENDATIONS CAROUSEL -->
         <div style="margin-top:16px">
@@ -273,7 +254,6 @@
 
       <div style="flex:none;display:flex;justify-content:space-between;align-items:center;padding:16px 16px 0">
         <button onClick="{{ toggleMenu }}" style="width:44px;height:44px;border-radius:11px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.1);color:rgba(232,237,243,.7);cursor:pointer;display:grid;place-items:center">{{ icMenu }}</button>
-        <span style="{{ proBadgeStyle }}">{{ proBadgeLabel }}</span>
         <button style="width:36px;height:36px;border-radius:50%;background:#6FA0D6;color:#06121f;border:none;display:grid;place-items:center;font:700 11px 'Manrope';cursor:pointer">AP</button>
       </div>
       <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
@@ -444,7 +424,6 @@ class Component extends DCLogic {
     device: (this.props && this.props.startView) || 'desktop',
     navReady: false, menuOpen: false,
     period: 'month', histRange: '6m',
-    isPro: true,
   };
   componentDidMount() { setTimeout(() => this.setState({ navReady: true }), 500); }
 
@@ -518,9 +497,6 @@ class Component extends DCLogic {
     const arrowBtn = (color) => 'position:absolute;top:20px;right:20px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.06);display:grid;place-items:center;color:' + (color || 'rgba(232,237,243,.6)');
     const heroGlow = 'position:absolute;inset:-40% -20% auto -10%;height:280px;background:radial-gradient(closest-side,rgba(111,160,214,.35),rgba(232,165,75,.18) 55%,transparent 80%);filter:blur(10px);pointer-events:none;z-index:0';
 
-    const isNotPro = false;
-    const blurStyle = isNotPro ? 'filter:blur(5px);user-select:none' : '';
-    const lockOverlayStyle = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(5,7,10,.35)';
 
     const achievements = [
       { label: '7 дней подряд', icon: 'flame', unlocked: true },
@@ -567,8 +543,6 @@ class Component extends DCLogic {
       tabDesktopStyle: isD ? switchOn : switchOff, tabMobileStyle: isD ? switchOff : switchOn,
 
       toggleMenu: () => this.setState(st => ({ menuOpen: !st.menuOpen })), menuOpen: this.state.menuOpen,
-      isNotPro, proBadgeLabel: 'PRO',
-      proBadgeStyle: 'font:700 10px "JetBrains Mono",monospace;letter-spacing:.1em;border-radius:999px;padding:6px 12px;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06',
 
       indexValue, ringOffset, indexPct,
       deltaLabel: (delta >= 0 ? '+' : '') + delta + ' pts', deltaStyle: 'font:700 15px "JetBrains Mono",monospace;color:' + (delta >= 0 ? '#5FBF9B' : '#D96A5B'),
@@ -590,8 +564,7 @@ class Component extends DCLogic {
       icArrow: this.icon('arrow'), weekdayShort: ['Пн','','Ср','','Пт','',''],
       heatLegend: ['rgba(255,255,255,.05)', 'rgba(111,160,214,.28)', 'rgba(111,160,214,.5)', 'rgba(111,160,214,.75)', '#6FA0D6'],
       achievements,
-      correlationText, arcCompare, blurStyle, lockOverlayStyle,
-      icLock: this.icon('lock'),
+      correlationText, arcCompare,
 
       histRanges, historyChart: this.spark(histData, 900, 100, '#6FA0D6'), historyChartM: this.spark(histData, 340, 80, '#6FA0D6'), historyTooltipStyle,
 

@@ -116,15 +116,6 @@
         </sc-if>
 
         <sc-if value="{{ addingGoal }}" hint-placeholder-val="{{ false }}">
-          <sc-if value="{{ limitReached }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top:14px;max-width:420px;background:linear-gradient(160deg,rgba(232,183,94,.12),rgba(13,17,22,.9) 65%);border:1px solid rgba(232,183,94,.25);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:8px">
-            <div style="color:#E8B75E">{{ icLock }}</div>
-            <div style="font:700 14px 'Manrope';color:#f2e2c4">Достигнут лимит целей</div>
-            <div style="font:400 12px/1.5 'Manrope';color:rgba(232,237,243,.55)">На бесплатном тарифе доступно до {{ freeLimit }} активных целей. Открой Pro для безлимита.</div>
-            <button onClick="{{ cancelAddGoal }}" style="align-self:flex-start;margin-top:4px;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:9px 18px;font:700 12px 'Manrope';cursor:pointer">Понятно</button>
-          </div>
-          </sc-if>
-          <sc-if value="{{ limitOk }}" hint-placeholder-val="{{ true }}">
           <div style="margin-top:14px;max-width:380px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:10px">
             <input value="{{ newGoalName }}" onChange="{{ onNewGoalName }}" placeholder="Название цели" style="background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:12px;padding:10px 14px;font:600 13px 'Manrope';color:#E8EDF3;outline:none"/>
             <div style="display:flex;gap:6px">
@@ -140,7 +131,6 @@
               <button onClick="{{ confirmAddGoal }}" style="flex:1;background:#E8A54B;border:none;color:#06121f;border-radius:11px;padding:10px;font:700 12px 'Manrope';cursor:pointer">Создать</button>
             </div>
           </div>
-          </sc-if>
         </sc-if>
 
         <!-- DAY -->
@@ -314,15 +304,6 @@
         </sc-if>
 
         <sc-if value="{{ addingGoal }}" hint-placeholder-val="{{ false }}">
-          <sc-if value="{{ limitReached }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top:12px;background:linear-gradient(160deg,rgba(232,183,94,.12),rgba(13,17,22,.9) 65%);border:1px solid rgba(232,183,94,.25);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:8px">
-            <div style="color:#E8B75E">{{ icLock }}</div>
-            <div style="font:700 13.5px 'Manrope';color:#f2e2c4">Достигнут лимит целей</div>
-            <div style="font:400 11.5px/1.5 'Manrope';color:rgba(232,237,243,.55)">До {{ freeLimit }} активных целей на free. Открой Pro для безлимита.</div>
-            <button onClick="{{ cancelAddGoal }}" style="align-self:flex-start;background:linear-gradient(90deg,#E8B75E,#d9a94f);color:#241a06;border:none;border-radius:999px;padding:9px 18px;font:700 12px 'Manrope';cursor:pointer">Понятно</button>
-          </div>
-          </sc-if>
-          <sc-if value="{{ limitOk }}" hint-placeholder-val="{{ true }}">
           <div style="margin-top:12px;background:rgba(13,17,22,.85);border:1px solid rgba(168,203,239,.10);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px">
             <input value="{{ newGoalName }}" onChange="{{ onNewGoalName }}" placeholder="Название цели" style="background:rgba(255,255,255,.06);border:1px solid rgba(168,203,239,.18);border-radius:12px;padding:10px 14px;font:600 13px 'Manrope';color:#E8EDF3;outline:none"/>
             <div style="display:flex;gap:6px">
@@ -335,7 +316,6 @@
               <button onClick="{{ confirmAddGoal }}" style="flex:1;background:#E8A54B;border:none;color:#06121f;border-radius:11px;padding:10px;font:700 12px 'Manrope';cursor:pointer">Создать</button>
             </div>
           </div>
-          </sc-if>
         </sc-if>
 
         <!-- DAY -->
@@ -469,7 +449,6 @@ class Component extends DCLogic {
   addDays(s, delta) { const dt = this.parseYmd(s); dt.setDate(dt.getDate() + delta); return this.ymd(dt.getFullYear(), dt.getMonth(), dt.getDate()); }
 
   TODAY_YMD = '2026-09-22';
-  FREE_LIMIT = 3;
   WEEKDAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
   MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   WEEKDAY_NAMES = ['вс','пн','вт','ср','чт','пт','сб'];
@@ -482,7 +461,7 @@ class Component extends DCLogic {
     selectedGoalId: 'travel',
     viewDate: '2026-09-22',
     viewMonth: { y: 2026, m: 8 },
-    addingGoal: false, limitReached: false,
+    addingGoal: false,
     newGoalName: '', newGoalType: 'process', newGoalDeadline: '',
     menuGoalId: null, renaming: false, renameValue: '',
     expandedTaskId: null, streakPanelOpen: false, adhocOpen: false, adhocText: '',
@@ -688,8 +667,7 @@ class Component extends DCLogic {
       confirmRename: () => { const id = this.state.menuGoalId; const val = this.state.renameValue.trim(); this.setState(st => ({ goals: st.goals.map(g => g.id === id ? Object.assign({}, g, { title: val || g.title }) : g), menuGoalId: null, renaming: false })); },
 
       addingGoal: this.state.addingGoal, notAddingGoal: !this.state.addingGoal,
-      limitReached: this.state.limitReached, limitOk: !this.state.limitReached, freeLimit: this.FREE_LIMIT,
-      startAddGoal: () => this.setState({ addingGoal: true, limitReached: activeGoals.length >= this.FREE_LIMIT, newGoalName: '', newGoalType: 'process', newGoalDeadline: '' }),
+      startAddGoal: () => this.setState({ addingGoal: true, newGoalName: '', newGoalType: 'process', newGoalDeadline: '' }),
       cancelAddGoal: () => this.setState({ addingGoal: false }),
       newGoalName: this.state.newGoalName, onNewGoalName: (ev) => this.setState({ newGoalName: ev.target.value }),
       newGoalDeadline: this.state.newGoalDeadline, onNewGoalDeadline: (ev) => this.setState({ newGoalDeadline: ev.target.value }),
@@ -742,7 +720,7 @@ class Component extends DCLogic {
       prevMonth: () => this.setState(st => { const dt = new Date(st.viewMonth.y, st.viewMonth.m - 1, 1); return { viewMonth: { y: dt.getFullYear(), m: dt.getMonth() } }; }),
       nextMonth: () => this.setState(st => { const dt = new Date(st.viewMonth.y, st.viewMonth.m + 1, 1); return { viewMonth: { y: dt.getFullYear(), m: dt.getMonth() } }; }),
 
-      icPlus: this.icon('plus'), icPlusSm: this.icon('plus', { size: 16, sw: 2.2 }), icLock: this.icon('lock'),
+      icPlus: this.icon('plus'), icPlusSm: this.icon('plus', { size: 16, sw: 2.2 }),
       icChevL: this.icon('chevL'), icChevR: this.icon('chevR'),
       icHome: this.icon('home'), icChecklist: this.icon('checklist'), icCal: this.icon('cal'),
       icPerson: this.icon('person'), icTarget: this.icon('target'), icTargetBig: this.icon('target', { size: 40 }),
