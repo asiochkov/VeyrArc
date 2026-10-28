@@ -212,6 +212,23 @@ export function restoreQuit(q: QuitRow) {
   patchSystem((r) => ({ ...r, quits: [...r.quits.filter((x) => x.id !== q.id), q] }));
   write(async () => { ok(await db().from('quits').update({ archived_at: null }).eq('id', q.id)); });
 }
+const relapseReal = new Map<string, Promise<string>>();
+let lastRelapse: { quitId: string; tempId: string; prevCleanSince: string; prevBest: number } | null = null;
+/** the handle of the slip logged last (for the assistant's journal): consumed once */
+export const takeRelapseOp = () => { const x = lastRelapse; lastRelapse = null; return x; };
+/** Undo a slip by its handle — also after a reload (the real row is found by quit and time). */
+export function undoRelapseOp(op: { quitId: string; tempId: string; prevCleanSince: string; prevBest: number }) {
+  patchSystem((r) => ({
+    ...r,
+    quits: r.quits.map((x) => (x.id === op.quitId ? { ...x, clean_since: op.prevCleanSince, best_days: op.prevBest } : x)),
+    relapses: r.relapses.filter((x) => x.id !== op.tempId),
+  }));
+  write(async () => {
+    const known = relapseReal.get(op.tempId);
+    const real = known ? await known : getSystem()?.relapses.filter((x) => x.quit_id === op.quitId).sort((a, b) => b.at.localeCompare(a.at))[0]?.id;
+    if (real) ok(await db().rpc('undo_relapse', { p_relapse: real }));
+  });
+}
 /** A slip: the timer restarts, the best run is kept; returns a function that undoes it. */
 export function logRelapse(id: string, note: string) {
   const sys = getSystem();
@@ -226,6 +243,8 @@ export function logRelapse(id: string, note: string) {
   }));
   let gotId: (v: string) => void = () => {};
   const rid = new Promise<string>((res) => { gotId = res; });
+  relapseReal.set(tempId, rid);
+  lastRelapse = { quitId: id, tempId, prevCleanSince: q.clean_since, prevBest: q.best_days };
   write(async () => { const r = ok(await db().rpc('log_relapse', { p_quit: id, p_note: note || null })); gotId((r.data as { id: string }).id); });
   return () => {
     patchSystem((r) => ({ ...r, quits: r.quits.map((x) => (x.id === id ? q : x)), relapses: r.relapses.filter((x) => x.id !== tempId) }));
@@ -294,4 +313,38 @@ export function saveOath(arcId: string, text: string) {
   const oath = text.trim().slice(0, 280);
   patchSystem((r) => ({ ...r, arcs: r.arcs.map((a) => (a.id === arcId ? { ...a, oath } : a)) }));
   write(async () => { ok(await db().from('arcs').update({ oath }).eq('id', arcId)); });
+}
+
+/* ---- day note and water (assistant, ТЗ 6.10.1) ---- */
+/** The note of a day (≤ 500 characters); null clears it. */
+export function saveDayNote(day: string, note: string | null) {
+  const v = note == null ? null : note.slice(0, 500);
+  patchSystem((r) => ({
+    ...r,
+    days: r.days.some((d) => d.day === day)
+      ? r.days.map((d) => (d.day === day ? { ...d, note: v } : d))
+      : [...r.days, { day, mood: null, water: 0, frozen: false, note: v }],
+  }));
+  write({ t: 'day_entries', a: 'upsert', v: { day, note: v }, oc: 'user_id,day' });
+}
+/** The day's glass counter, 0…40. */
+export function logWater(glasses: number, day = isoDay()) {
+  const water = Math.max(0, Math.min(40, Math.round(glasses)));
+  patchSystem((r) => ({
+    ...r,
+    days: r.days.some((d) => d.day === day)
+      ? r.days.map((d) => (d.day === day ? { ...d, water } : d))
+      : [...r.days, { day, mood: null, water, frozen: false }],
+  }));
+  write({ t: 'day_entries', a: 'upsert', v: { day, water }, oc: 'user_id,day' });
+}
+/** Adds a line to the goal's diary of that day (what is already there stays). */
+export function appendGoalDiary(goalId: string, day: string, text: string, onSaved: () => void = () => {}, onFailed: () => void = () => {}) {
+  const cur = getSystem()?.entries.find((e) => e.goal_id === goalId && e.day === day)?.diary ?? '';
+  saveDiary(goalId, day, cur ? `${cur}\n${text}` : text, onSaved, onFailed);
+}
+/** A mood back to «not set» (the assistant's undo): logMood only sets a value. */
+export function clearMood(day = isoDay()) {
+  patchSystem((r) => ({ ...r, days: r.days.map((d) => (d.day === day ? { ...d, mood: null } : d)) }));
+  write({ t: 'day_entries', a: 'upsert', v: { day, mood: null }, oc: 'user_id,day' });
 }

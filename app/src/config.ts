@@ -1,5 +1,6 @@
+import { env } from './lib/env';
 /* Product configuration. Values the design does not specify live here. */
-const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) || 'https://veyrarc.online';
+const SITE_URL = (env.VITE_SITE_URL as string | undefined) || 'https://veyrarc.online';
 export const config = {
   /* Decision B25: production domain (OAuth redirects, Resend sender, PWA scope). */
   site: {
@@ -20,10 +21,10 @@ export const config = {
     /* Sign in with Apple needs a paid Apple Developer account (decision B26). */
     apple: false,
     /* shown only once Google OAuth keys are set in Supabase (VITE_AUTH_GOOGLE=1); always shown in the design preview */
-    google: import.meta.env.VITE_AUTH_GOOGLE === '1' || !import.meta.env.VITE_SUPABASE_URL,
+    google: env.VITE_AUTH_GOOGLE === '1' || !env.VITE_SUPABASE_URL,
   },
   /* Beta: everything open, no subscription anywhere in the app (the database has the same switch: private.flags.beta) */
-  beta: import.meta.env.VITE_BETA !== '0',
+  beta: env.VITE_BETA !== '0',
   arc: {
     lengthDays: 90,
   },

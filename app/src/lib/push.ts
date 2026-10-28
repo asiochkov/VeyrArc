@@ -1,13 +1,14 @@
 import { useLangStore } from '../i18n';
 import { useAuth } from './auth';
 import { db, hasBackend } from './supabase';
+import { env } from './env';
 
 /*
  * Web push (UX audit 3.6): the device subscribes once notifications are allowed;
  * the server (Edge Function push-reminders, every 15 min) sends reminders even when
  * the app is closed. iOS delivers web push only to the app added to the home screen.
  */
-const VAPID = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
+const VAPID = env.VITE_VAPID_PUBLIC_KEY as string | undefined;
 
 const b64ToBytes = (b64: string) => {
   const pad = '='.repeat((4 - (b64.length % 4)) % 4);

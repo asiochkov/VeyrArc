@@ -1,5 +1,6 @@
 import { useAuth } from './auth';
 import { db, hasBackend } from './supabase';
+import { env } from './env';
 
 /*
  * Product analytics, free and in our own hands. Events go into our Supabase table `app_events`
@@ -9,7 +10,7 @@ import { db, hasBackend } from './supabase';
  * referral_joined, app_open.
  * Never throws and never blocks the UI; events fired before the account exists are dropped.
  */
-const METRIKA = import.meta.env.VITE_METRIKA_ID as string | undefined;
+const METRIKA = env.VITE_METRIKA_ID as string | undefined;
 type Props = Record<string, string | number | boolean | null>;
 const once = new Set<string>();
 

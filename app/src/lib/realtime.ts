@@ -6,6 +6,7 @@ import { SYSTEM_KEY } from '../state/system';
 import { toast } from '../ui/toast';
 import { useAuth } from './auth';
 import { db, hasBackend } from './supabase';
+import { env } from './env';
 
 /*
  * Cross-device sync (Master Changeset task 38): changes made on another device arrive through
@@ -15,7 +16,7 @@ import { db, hasBackend } from './supabase';
 const TABLES = ['habits', 'habit_logs', 'day_entries', 'focus_sessions', 'plan_items', 'goals', 'goal_tasks', 'goal_entries', 'quits', 'quit_relapses', 'arcs'];
 
 export function startRealtime(qc: QueryClient) {
-  if (!hasBackend || import.meta.env.VITE_REALTIME === '0') return;
+  if (!hasBackend || env.VITE_REALTIME === '0') return;
   let ch: RealtimeChannel | null = null;
   let uid: string | null = null;
   let timer: ReturnType<typeof setTimeout> | undefined;

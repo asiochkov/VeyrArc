@@ -1,4 +1,5 @@
 import { registerSW } from 'virtual:pwa-register';
+import { env } from './env';
 
 /*
  * Keeps the installed app on the latest release: an iOS home-screen app is usually resumed, not
@@ -6,7 +7,7 @@ import { registerSW } from 'virtual:pwa-register';
  * foreground (and hourly). A new version activates at once and the page reloads into it.
  */
 export function startPwa() {
-  if (!('serviceWorker' in navigator) || import.meta.env.DEV) return;
+  if (!('serviceWorker' in navigator) || env.DEV) return;
   registerSW({
     immediate: true,
     onRegisteredSW(_url, reg) {

@@ -1,4 +1,4 @@
-import type { PlanRow } from '../../data/model';
+import type { PlanRow, QuitRow } from '../../data/model';
 
 // What the assistant did, in a form that can be stored and reverted later (ТЗ 5.3, journal.ts).
 export type UndoOp =
@@ -19,8 +19,8 @@ export type UndoOp =
   | { t: 'goal.task'; goalId: string; taskId: string; day: string; prev: boolean }
   | { t: 'quit.add'; id: string }
   | { t: 'quit.patch'; id: string; prev: Record<string, unknown> }
-  | { t: 'quit.archive'; id: string; prev: boolean }
-  | { t: 'relapse.undo'; id: string } // logRelapse has its own undo handle
+  | { t: 'quit.archive'; id: string; prev: boolean; row?: QuitRow } // prev: was it archived before; row is needed to bring one back
+  | { t: 'relapse.undo'; quitId: string; tempId: string; prevCleanSince: string; prevBest: number } // from actions.takeRelapseOp()
   | { t: 'diary'; goalId: string; day: string; prev: string | null }
   | { t: 'oath'; arcId: string; prev: string | null }
   | { t: 'prefs'; key: string; prev: unknown } // local assistant settings

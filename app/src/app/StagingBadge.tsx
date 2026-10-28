@@ -1,5 +1,6 @@
+import { env } from '../lib/env';
 /* The staging clone (veyrarc-staging) shows a small «ТЕСТ» badge so it is never mistaken for the live app. */
-export const isStaging = import.meta.env.VITE_APP_ENV === 'staging';
+export const isStaging = env.VITE_APP_ENV === 'staging';
 
 export function StagingBadge() {
   if (!isStaging) return null;

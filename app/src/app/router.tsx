@@ -24,6 +24,7 @@ function Redirect({ to }: { to: string }) {
   return <Navigate to={to + search + hash} replace />;
 }
 import { GuestOnly, RequireAuth } from './AuthGate';
+import { env } from '../lib/env';
 
 /* screens past the first one load on demand, so the app starts with a smaller bundle */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,7 +102,7 @@ const routes: RouteObject[] = [
  * a single page without server rewrites, so routing lives in memory and a
  * screen list (not part of the design, preview only) links to every route.
  */
-export const router = import.meta.env.VITE_PREVIEW && import.meta.env.MODE === 'preview'
+export const router = env.VITE_PREVIEW && env.MODE === 'preview'
   ? createMemoryRouter([
     { element: <PreviewLayout />, children: [...routes, { path: '/__screens', element: <PreviewScreens /> }] },
   ], { initialEntries: ['/__screens'] })
