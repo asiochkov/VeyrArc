@@ -24,6 +24,7 @@ import type { Source } from '../nlp/types';
  * завтра?»), a reference («её», «вторую»). Whatever is left goes to the parser, then to the executors; changes are journaled.
  */
 
+const SELF_CONFIRM = new Set(['task.deleteSeries']);
 const TIME_CHIPS: [string, [string, string], string | null][] = [['morning', ['Утром', 'Morning'], '09:00'], ['day', ['Днём', 'Afternoon'], '14:00'], ['evening', ['Вечером', 'Evening'], '19:00'], ['none', ['Без времени', 'No time'], null]];
 
 /** a change goes into the journal; buttons inside a reply (a question the executor asked) journal what they do too */
@@ -62,6 +63,8 @@ function reply(ds: Decision[], env: ParseEnv, c: ExecCtx, src: Source): Reply {
   switch (d.action) {
     case 'execute': return finish([d.parsed], env, c, src);
     case 'confirm': {
+      // these ask by themselves, with the number they found
+      if (SELF_CONFIRM.has(d.parsed.kind)) return finish([d.parsed], env, c, src);
       ctx.confirm = { expiresAt: Date.now() + DIALOG.pendingTtlMs };
       const p = d.parsed;
       return R.confirm(previewOf(p, env.lang), { choices: [

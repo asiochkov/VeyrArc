@@ -528,3 +528,60 @@
 {"id":"g0528","lang":"en","text":"how many steps are left in the goal marathon","expect":{"kind":"goal.stepsLeft","slots":{"query":"marathon"}},"split":"train","tags":[]}
 {"id":"g0529","lang":"en","text":"give me a challenge for the week","expect":{"kind":"goal.challenge","slots":{}},"split":"test","tags":[]}
 {"id":"g0530","lang":"en","text":"which goal is closest to done","expect":{"kind":"goal.closest","slots":{}},"split":"test","tags":[]}
+{"id":"g0531","lang":"ru","text":"каждый понедельник в десять созвон","expect":{"kind":"task.addRecurring","slots":{"title":"созвон","time":"10:00","rule":{"freq":"weekly","days":1}}},"split":"test","tags":[]}
+{"id":"g0532","lang":"ru","text":"каждую пятницу в 18 подведение итогов","expect":{"kind":"task.addRecurring","slots":{"title":"подведение итогов","time":"18:00"}},"split":"test","tags":[]}
+{"id":"g0533","lang":"ru","text":"каждый вторник и четверг в семь вечера йога","expect":{"kind":"task.addRecurring","slots":{"title":"йога","time":"19:00","rule":{"freq":"weekly","days":10}}},"split":"train","tags":[]}
+{"id":"g0534","lang":"ru","text":"каждую неделю по понедельникам и средам в семь утра пробежка","expect":{"kind":"task.addRecurring","slots":{"title":"пробежка","time":"07:00","rule":{"freq":"weekly","days":5}}},"split":"train","tags":[]}
+{"id":"g0535","lang":"ru","text":"раз в две недели в пятницу в десять отчёт","expect":{"kind":"task.addRecurring","slots":{"title":"отчёт","rule":{"freq":"biweekly","days":16}}},"split":"train","tags":[]}
+{"id":"g0536","lang":"ru","text":"каждое первое число в девять оплата аренды","expect":{"kind":"task.addRecurring","slots":{"title":"оплата аренды","time":"09:00","rule":{"freq":"monthly","dom":1}}},"split":"train","tags":[]}
+{"id":"g0537","lang":"ru","text":"по будням в девять планёрка","expect":{"kind":"task.addRecurring","slots":{"title":"планёрка","time":"09:00","rule":{"freq":"weekdays"}}},"split":"test","tags":[]}
+{"id":"g0538","lang":"ru","text":"каждый день в 22 таблетки","expect":{"kind":"task.addRecurring","slots":{"title":"таблетки","time":"22:00","rule":{"freq":"daily"}}},"split":"train","tags":[]}
+{"id":"g0539","lang":"ru","text":"удали все будущие созвоны с командой","expect":{"kind":"task.deleteSeries","slots":{"query":"созвоны с командой"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0540","lang":"ru","text":"удали все предстоящие встречи с Димой","expect":{"kind":"task.deleteSeries","slots":{"query":"встречи с Димой"},"action":"confirm"},"split":"test","tags":[]}
+{"id":"g0541","lang":"ru","text":"убери все будущие тренировки","expect":{"kind":"task.deleteSeries","slots":{"query":"тренировки"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0542","lang":"ru","text":"сдвинь всё после обеда на час позже","expect":{"kind":"task.moveBulk","slots":{"shiftMin":60},"action":"confirm"},"split":"test","tags":[]}
+{"id":"g0543","lang":"ru","text":"сдвинь все встречи на 30 минут раньше","expect":{"kind":"task.moveBulk","slots":{"shiftMin":-30},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0544","lang":"ru","text":"передвинь все дела на два часа позже","expect":{"kind":"task.moveBulk","slots":{"shiftMin":120},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0545","lang":"ru","text":"перенеси вечерние дела на завтра","expect":{"kind":"task.moveBulk","slots":{"part":"evening","day":"2026-10-29"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0546","lang":"ru","text":"перенеси покупки на завтра","expect":{"kind":"task.moveBulk","slots":{"query":"купить","day":"2026-10-29"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0547","lang":"ru","text":"перенеси звонки на пятницу","expect":{"kind":"task.moveBulk","slots":{"query":"звонки","day":"2026-10-30"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0548","lang":"ru","text":"сократи созвон на 15 минут","expect":{"kind":"task.duration","slots":{"query":"созвон","minutes":15,"shorten":true}},"split":"train","tags":[]}
+{"id":"g0549","lang":"ru","text":"сделай встречу короче","expect":{"kind":"task.duration","slots":{"query":"встречу","shorten":true}},"split":"train","tags":[]}
+{"id":"g0550","lang":"ru","text":"удлини зал на час","expect":{"kind":"task.duration","slots":{"query":"зал","minutes":60}},"split":"train","tags":[]}
+{"id":"g0551","lang":"ru","text":"сделай созвон рабочим","expect":{"kind":"task.category","slots":{"query":"созвон"}},"split":"test","tags":[]}
+{"id":"g0552","lang":"ru","text":"поменяй категорию созвона на работу","expect":{"kind":"task.category","slots":{"query":"созвона","category":"работу"}},"split":"test","tags":[]}
+{"id":"g0553","lang":"ru","text":"измени категорию отчёта на срочную","expect":{"kind":"task.category","slots":{"query":"отчёта"}},"split":"train","tags":[]}
+{"id":"g0554","lang":"ru","text":"добавь заметку к встрече с врачом: взять анализы","expect":{"kind":"task.note","slots":{"query":"встрече с врачом","text":"взять анализы"}},"split":"train","tags":[]}
+{"id":"g0555","lang":"ru","text":"добавь заметку к созвону: подготовить отчёт","expect":{"kind":"task.note","slots":{"query":"созвону","text":"подготовить отчёт"}},"split":"train","tags":[]}
+{"id":"g0556","lang":"ru","text":"запиши в заметку к стоматологу: взять паспорт","expect":{"kind":"task.note","slots":{"query":"стоматологу","text":"взять паспорт"}},"split":"train","tags":[]}
+{"id":"g0557","lang":"ru","text":"отметь все задачи выполненными","expect":{"kind":"task.doneAll","slots":{}},"split":"train","tags":[]}
+{"id":"g0558","lang":"ru","text":"заверши все дела на сегодня","expect":{"kind":"task.doneAll","slots":{}},"split":"test","tags":[]}
+{"id":"g0559","lang":"ru","text":"закрой весь план","expect":{"kind":"task.doneAll","slots":{}},"split":"train","tags":[]}
+{"id":"g0560","lang":"ru","text":"повтори задачу на завтра","expect":{"kind":"task.duplicate","slots":{"day":"2026-10-29"}},"split":"train","tags":[]}
+{"id":"g0561","lang":"ru","text":"продублируй созвон на пятницу","expect":{"kind":"task.duplicate","slots":{"query":"созвон","day":"2026-10-30"}},"split":"train","tags":[]}
+{"id":"g0562","lang":"ru","text":"скопируй встречу с Димой на завтра","expect":{"kind":"task.duplicate","slots":{"query":"встречу с Димой","day":"2026-10-29"}},"split":"train","tags":[]}
+{"id":"g0563","lang":"ru","text":"скопируй вчерашний план на сегодня","expect":{"kind":"task.duplicate","slots":{"from":"2026-10-27","day":"2026-10-28"}},"split":"train","tags":[]}
+{"id":"g0564","lang":"ru","text":"дублируй вчерашние невыполненные задачи на сегодня","expect":{"kind":"task.duplicate","slots":{"from":"2026-10-27","undoneOnly":true}},"split":"train","tags":[]}
+{"id":"g0565","lang":"ru","text":"скопируй вчерашний план на завтра","expect":{"kind":"task.duplicate","slots":{"from":"2026-10-27","day":"2026-10-29"}},"split":"test","tags":[]}
+{"id":"g0566","lang":"ru","text":"перенеси на ближайшее свободное окно","expect":{"kind":"plan.moveToFree","slots":{}},"split":"test","tags":[]}
+{"id":"g0567","lang":"ru","text":"перенеси созвон на ближайшее свободное время","expect":{"kind":"plan.moveToFree","slots":{"query":"созвон"}},"split":"train","tags":[]}
+{"id":"g0568","lang":"ru","text":"перенеси встречу с Димой на ближайшее свободное окно","expect":{"kind":"plan.moveToFree","slots":{"query":"встречу с Димой"}},"split":"train","tags":[]}
+{"id":"g0569","lang":"ru","text":"поставь буфер пятнадцать минут между встречами","expect":{"kind":"plan.buffer","slots":{"minutes":15}},"split":"test","tags":[]}
+{"id":"g0570","lang":"ru","text":"буфер 10 минут между делами","expect":{"kind":"plan.buffer","slots":{"minutes":10}},"split":"train","tags":[]}
+{"id":"g0571","lang":"ru","text":"добавь буфер 20 минут между встречами","expect":{"kind":"plan.buffer","slots":{"minutes":20}},"split":"train","tags":[]}
+{"id":"g0572","lang":"ru","text":"три главных дела на сегодня","expect":{"kind":"task.top3","slots":{}},"split":"test","tags":[]}
+{"id":"g0573","lang":"ru","text":"главные дела на сегодня: созвон, отчёт, зал","expect":{"kind":"task.top3","slots":{"items":["созвон","отчёт","зал"]}},"split":"train","tags":[]}
+{"id":"g0574","lang":"ru","text":"сделай главными созвон и отчёт","expect":{"kind":"task.top3","slots":{"items":["созвон","отчёт"]}},"split":"train","tags":[]}
+{"id":"g0575","lang":"ru","text":"не больше пяти дел в день","expect":{"kind":"plan.limit","slots":{"n":5}},"split":"test","tags":[]}
+{"id":"g0576","lang":"ru","text":"не больше 7 дел","expect":{"kind":"plan.limit","slots":{"n":7}},"split":"train","tags":[]}
+{"id":"g0577","lang":"ru","text":"максимум четыре дела в день","expect":{"kind":"plan.limit","slots":{"n":4}},"split":"test","tags":[]}
+{"id":"g0578","lang":"ru","text":"блок на глубокую работу завтра утром на два часа","expect":{"kind":"task.deepBlock","slots":{"day":"2026-10-29","minutes":120}},"split":"train","tags":[]}
+{"id":"g0579","lang":"ru","text":"блок на глубокую работу на три часа","expect":{"kind":"task.deepBlock","slots":{"minutes":180}},"split":"train","tags":[]}
+{"id":"g0580","lang":"ru","text":"окно для глубокой работы сегодня на час","expect":{"kind":"task.deepBlock","slots":{"minutes":60}},"split":"train","tags":[]}
+{"id":"g0581","lang":"ru","text":"купить: молоко, хлеб, яйца","expect":{"kind":"task.addMany","slots":{"items":[{"title":"купить молоко"},{"title":"купить хлеб"},{"title":"купить яйца"}]}},"split":"test","tags":[]}
+{"id":"g0582","lang":"ru","text":"купи: сыр, помидоры","expect":{"kind":"task.addMany","slots":{"items":[{"title":"купить сыр"},{"title":"купить помидоры"}]}},"split":"train","tags":[]}
+{"id":"g0583","lang":"ru","text":"добавь в завтра: стоматолог в десять, звонок маме в пять, зал в семь","expect":{"kind":"task.addMany","slots":{"day":"2026-10-29"}},"split":"train","tags":[]}
+{"id":"g0584","lang":"ru","text":"запиши на завтра: оплатить счёт, написать Диме","expect":{"kind":"task.addMany","slots":{"day":"2026-10-29"}},"split":"train","tags":[]}
+{"id":"g0585","lang":"ru","text":"список дел на выходные: убрать, поехать на дачу, встретиться с Димой","expect":{"kind":"task.addMany","slots":{"day":"2026-10-31"}},"split":"test","tags":[]}
+{"id":"g0586","lang":"ru","text":"дела на выходные: гулять, читать","expect":{"kind":"task.addMany","slots":{"day":"2026-10-31"}},"split":"test","tags":[]}
+{"id":"g0587","lang":"ru","text":"вычеркни звонок маме и отчёт","expect":{"kind":"task.doneMany","slots":{}},"split":"train","tags":[]}

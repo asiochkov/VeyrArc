@@ -2,11 +2,13 @@
  * Text cleaning before parsing (ТЗ 6.5): lower case, ё→е, punctuation out (digits keep their ":" "." "-"), filler words and the
  * assistant's own name removed. Pure: no store, no clock.
  */
-const FILLERS = ['это самое', 'в общем', 'так сказать', 'ну вот', 'как бы', 'ну', 'э', 'эм', 'ээ', 'короче', 'значит', 'типа', 'слушай', 'пожалуйста', 'вот', 'please', 'um', 'uh', 'like'];
+const FILLERS = ['это самое', 'в общем', 'так сказать', 'ну вот', 'как бы', 'ну', 'э', 'эм', 'ээ', 'значит', 'типа', 'слушай', 'пожалуйста', 'вот', 'please', 'um', 'uh', 'like'];
 const B = '(?<![\\p{L}\\d])';
 const E = '(?![\\p{L}\\d])';
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const fillerRe = new RegExp(`${B}(?:${FILLERS.map(esc).join('|')})${E}`, 'gu');
+// «короче» at the end is the comparative («сделай встречу короче»); anywhere else it is a filler
+const shortlyRe = new RegExp(`${B}короче(?= \\S)`, 'gu');
 
 export function normalize(raw: string, o: { assistantName?: string | null } = {}): string {
   let s = raw.toLowerCase().replace(/ё/g, 'е').replace(/(\p{L})['’](\p{L})/gu, '$1$2');
@@ -18,7 +20,7 @@ export function normalize(raw: string, o: { assistantName?: string | null } = {}
     const n = o.assistantName.toLowerCase().replace(/ё/g, 'е').trim();
     if (n) s = s.replace(new RegExp(`${B}${esc(n)}${E}`, 'gu'), ' ');
   }
-  s = s.replace(fillerRe, ' ');
+  s = s.replace(shortlyRe, ' ').replace(fillerRe, ' ');
   return s.replace(/\s+/g, ' ').trim();
 }
 

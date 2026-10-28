@@ -53,7 +53,7 @@ export const INTENTS: IntentSpec[] = [
   S('goal.challenge', 'R2', [], [173]),
   // planner: writing
   S('task.add', 'R2', ['title']), S('task.addMany', 'R2', ['items'], [203, 204, 205]), S('task.addRecurring', 'R2', ['title', 'rule'], [40, 149, 150]),
-  S('task.move', 'R2', []), S('task.moveBulk', 'R2', ['day'], [43, 44, 206]), S('task.delete', 'R3', ['query']), S('task.deleteSeries', 'R3', ['query'], [151]),
+  S('task.move', 'R2', []), S('task.moveBulk', 'R2', [], [43, 44, 206]), S('task.delete', 'R3', ['query']), S('task.deleteSeries', 'R3', ['query'], [151]),
   S('task.duration', 'R2', ['query'], [48]), S('task.category', 'R2', ['query', 'category'], [49]), S('task.note', 'R2', ['query', 'text'], [50]),
   S('task.doneAll', 'R2', [], [51]), S('task.doneMany', 'R1', ['items'], [207]), S('task.duplicate', 'R2', [], [53, 133]),
   S('task.top3', 'R2', [], [195]), S('task.deepBlock', 'R2', ['minutes'], [201]), S('plan.autoSchedule', 'R2', [], [42]),

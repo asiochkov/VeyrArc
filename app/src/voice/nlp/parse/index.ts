@@ -14,6 +14,7 @@ import './rules/habits2';
 import './rules/mood2';
 import './rules/quits';
 import './rules/goals';
+import './rules/planner2';
 import type { Decision, Parsed, ParseEnv } from '../types';
 
 /*

@@ -36,7 +36,8 @@ function run(cs: Case[]) {
     const lang = c.lang ?? 'ru';
     dialog.reset();
     const before = snap();
-    const jBefore = journal.list().length;
+    journal.clear();
+    const jBefore = 0;
     let r: Reply = { ok: true, kind: 'info', screen: '', speech: '' };
     for (const phrase of Array.isArray(c.say) ? c.say : [c.say]) { r = say(phrase, lang); if (r.choices?.length && c.answer !== -1) r = press(r, c.answer ?? 0); }
     const label = Array.isArray(c.say) ? c.say.join(' → ') : c.say;
