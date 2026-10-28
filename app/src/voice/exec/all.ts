@@ -10,3 +10,4 @@ import './rituals';
 import './analytics';
 import './settings';
 import './assistant';
+import './habitCore';

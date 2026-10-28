@@ -824,3 +824,48 @@
 {"id":"g0824","lang":"ru","text":"это ошибка","expect":{"kind":"feedback.wrong","slots":{}},"split":"test","tags":[]}
 {"id":"g0825","lang":"ru","text":"ты не так понял","expect":{"kind":"feedback.wrong","slots":{}},"split":"test","tags":[]}
 {"id":"g0826","lang":"en","text":"that is wrong","expect":{"kind":"feedback.wrong","slots":{}},"split":"train","tags":[]}
+{"id":"g0827","lang":"ru","text":"запомни качалка это тренировка","expect":{"kind":"prefs.alias.add","slots":{"alias":"качалка","target":"тренировка"}},"split":"test","tags":[]}
+{"id":"g0828","lang":"ru","text":"запомни зарядка это тренировка","expect":{"kind":"prefs.alias.add","slots":{"alias":"зарядка","target":"тренировка"}},"split":"train","tags":[]}
+{"id":"g0829","lang":"en","text":"remember gym means workout","expect":{"kind":"prefs.alias.add","slots":{"alias":"gym","target":"workout"}},"split":"train","tags":[]}
+{"id":"g0830","lang":"ru","text":"говори медленнее","expect":{"kind":"prefs.speech","slots":{"op":"slower"}},"split":"test","tags":[]}
+{"id":"g0831","lang":"ru","text":"говори быстрее","expect":{"kind":"prefs.speech","slots":{"op":"faster"}},"split":"train","tags":[]}
+{"id":"g0832","lang":"ru","text":"говори тише","expect":{"kind":"prefs.speech","slots":{"op":"quieter"}},"split":"train","tags":[]}
+{"id":"g0833","lang":"ru","text":"говори громче","expect":{"kind":"prefs.speech","slots":{"op":"louder"}},"split":"train","tags":[]}
+{"id":"g0834","lang":"ru","text":"замолчи","expect":{"kind":"prefs.speech","slots":{"op":"stop"}},"split":"test","tags":[]}
+{"id":"g0835","lang":"en","text":"speak slower","expect":{"kind":"prefs.speech","slots":{"op":"slower"}},"split":"train","tags":[]}
+{"id":"g0836","lang":"en","text":"be quiet","expect":{"kind":"prefs.speech","slots":{"op":"stop"}},"split":"train","tags":[]}
+{"id":"g0837","lang":"ru","text":"говори только текстом","expect":{"kind":"prefs.speech","slots":{"op":"textOnly"}},"split":"train","tags":[]}
+{"id":"g0838","lang":"ru","text":"включи голос","expect":{"kind":"prefs.speech","slots":{"op":"voiceOn"}},"split":"train","tags":[]}
+{"id":"g0839","lang":"en","text":"turn on the voice","expect":{"kind":"prefs.speech","slots":{"op":"voiceOn"}},"split":"test","tags":[]}
+{"id":"g0840","lang":"ru","text":"режим диктора","expect":{"kind":"prefs.speech","slots":{"op":"narratorOn"}},"split":"test","tags":[]}
+{"id":"g0841","lang":"ru","text":"выключи режим диктора","expect":{"kind":"prefs.speech","slots":{"op":"narratorOff"}},"split":"train","tags":[]}
+{"id":"g0842","lang":"en","text":"narrator mode","expect":{"kind":"prefs.speech","slots":{"op":"narratorOn"}},"split":"train","tags":[]}
+{"id":"g0843","lang":"ru","text":"говори коротко","expect":{"kind":"prefs.style","slots":{"style":"brief"}},"split":"train","tags":[]}
+{"id":"g0844","lang":"ru","text":"говори подробнее","expect":{"kind":"prefs.style","slots":{"style":"detailed"}},"split":"train","tags":[]}
+{"id":"g0845","lang":"en","text":"keep it short","expect":{"kind":"prefs.style","slots":{"style":"brief"}},"split":"train","tags":[]}
+{"id":"g0846","lang":"ru","text":"будь строже","expect":{"kind":"prefs.style","slots":{"tone":"strict"}},"split":"train","tags":[]}
+{"id":"g0847","lang":"ru","text":"будь мягче","expect":{"kind":"prefs.style","slots":{"tone":"soft"}},"split":"train","tags":[]}
+{"id":"g0848","lang":"en","text":"be softer","expect":{"kind":"prefs.style","slots":{"tone":"soft"}},"split":"train","tags":[]}
+{"id":"g0849","lang":"ru","text":"называйся макс","expect":{"kind":"prefs.style","slots":{"name":"макс"}},"split":"test","tags":[]}
+{"id":"g0850","lang":"en","text":"your name is max","expect":{"kind":"prefs.style","slots":{"name":"max"}},"split":"train","tags":[]}
+{"id":"g0851","lang":"ru","text":"не хвали меня","expect":{"kind":"prefs.style","slots":{"praise":false}},"split":"test","tags":[]}
+{"id":"g0852","lang":"en","text":"no praise","expect":{"kind":"prefs.style","slots":{"praise":false}},"split":"train","tags":[]}
+{"id":"g0853","lang":"ru","text":"не озвучивай списки","expect":{"kind":"prefs.style","slots":{"speakLists":false}},"split":"test","tags":[]}
+{"id":"g0854","lang":"en","text":"lists on screen only","expect":{"kind":"prefs.style","slots":{"speakLists":false}},"split":"train","tags":[]}
+{"id":"g0855","lang":"ru","text":"повтори","expect":{"kind":"repeat","slots":{}},"split":"test","tags":[]}
+{"id":"g0856","lang":"ru","text":"скажи ещё раз","expect":{"kind":"repeat","slots":{}},"split":"train","tags":[]}
+{"id":"g0857","lang":"en","text":"repeat that","expect":{"kind":"repeat","slots":{}},"split":"train","tags":[]}
+{"id":"g0858","lang":"ru","text":"ещё раз помедленнее","expect":{"kind":"repeat","slots":{"slow":true}},"split":"test","tags":[]}
+{"id":"g0859","lang":"ru","text":"что ты сейчас сделал","expect":{"kind":"journal.show","slots":{}},"split":"train","tags":[]}
+{"id":"g0860","lang":"ru","text":"покажи журнал","expect":{"kind":"journal.show","slots":{}},"split":"train","tags":[]}
+{"id":"g0861","lang":"en","text":"what did you just do","expect":{"kind":"journal.show","slots":{}},"split":"train","tags":[]}
+{"id":"g0862","lang":"ru","text":"отмени последние три действия","expect":{"kind":"undo","slots":{"n":3}},"split":"test","tags":[]}
+{"id":"g0863","lang":"en","text":"undo the last 3 actions","expect":{"kind":"undo","slots":{"n":3}},"split":"test","tags":[]}
+{"id":"g0864","lang":"ru","text":"что нового","expect":{"kind":"whatsnew","slots":{}},"split":"train","tags":[]}
+{"id":"g0865","lang":"ru","text":"чему ты научился","expect":{"kind":"whatsnew","slots":{}},"split":"train","tags":[]}
+{"id":"g0866","lang":"en","text":"what is new","expect":{"kind":"whatsnew","slots":{}},"split":"train","tags":[]}
+{"id":"g0867","lang":"ru","text":"как это сказать отметить привычку","expect":{"kind":"howto","slots":{"mode":"say","query":"отметить привычку"}},"split":"train","tags":[]}
+{"id":"g0868","lang":"en","text":"how do i say mark a habit","expect":{"kind":"howto","slots":{"mode":"say","query":"mark a habit"}},"split":"train","tags":[]}
+{"id":"g0869","lang":"ru","text":"что я не пробовал","expect":{"kind":"unexplored","slots":{}},"split":"test","tags":[]}
+{"id":"g0870","lang":"ru","text":"что ещё ты умеешь","expect":{"kind":"unexplored","slots":{}},"split":"train","tags":[]}
+{"id":"g0871","lang":"en","text":"what else can you do","expect":{"kind":"unexplored","slots":{}},"split":"train","tags":[]}
