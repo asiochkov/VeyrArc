@@ -23,7 +23,7 @@ add(
     if (/заметк|комментар/u.test(rest)) return null;
     const lv = moodLevel(rest);
     if (lv === null) return null;
-    const note = rest.match(/(?:потому что|из за|так как) (.+)$/);
+    const note = rest.match(/(?:пот[оа]м[уа] что|из за|так как) (.+)$/);
     return { level: lv, note: note?.[1] };
   } },
   { kind: 'mood.set', score: 0.82, full: true, re: rx('^(?:что то )?(?:мне (?:сегодня )?|чувствую себя |я себя чувствую |день (?:был |сегодня )|сегодня |я |у меня )(.+)$'), slots: (m, c) => {
@@ -76,10 +76,10 @@ add(
     return { amount: num(m[1]), query: m[2] };
   } },
   { kind: 'counter.steps', re: rx('‹(?:прошел|прошла|нашагал\\p{L}*|сделал\\p{L}*) (\\d+) шаг\\p{L}*›'), slots: (m) => ({ amount: num(m[1]) }) },
-  { kind: 'counter.add', over: ['habit.done'], re: rx('‹(?:пробежал\\p{L}*|проплыл\\p{L}*|прошел|прошла) (\\d+(?:[.,]\\d+)?) (километр\\p{L}*|км)›'), slots: (m) => ({ amount: num(m[1]), query: m[2] }) },
+  { kind: 'counter.add', over: ['habit.done'], re: rx('‹(?:пробежал\\p{L}*|проплыл\\p{L}*|прошел|прошла|проехал\\p{L}*) (\\d+(?:[.,]\\d+)?) (километр\\p{L}*|км)(?: за (\\d+) минут\\p{L}*)?›'), slots: (m) => ({ amount: num(m[1]), query: m[2], minutes: num(m[3]) }) },
   { kind: 'counter.remaining', re: rx('‹сколько (?:еще )?осталось до нормы(?: по (.+))?›'), slots: (m) => ({ query: tidy(m[1]) || undefined }) },
   { kind: 'counter.set', re: rx('‹(?:я )?ошибся(?: было)? (\\d+) (\\p{L}+)›'), slots: (m) => ({ amount: num(m[1]), query: m[2] }) },
-  { kind: 'sleep.log', full: true, re: rx('‹лег\\p{L}* (?:спать )?в (\\d{1,2})(?::(\\d\\d))? .*?встал\\p{L}* в (\\d{1,2})(?::(\\d\\d))?›'), slots: (m) => {
+  { kind: 'sleep.log', full: true, re: rx('‹лег\\p{L}* (?:спать )?в (\\d{1,2})(?:[: ](\\d\\d))? .*?встал\\p{L}* в (\\d{1,2})(?:[: ](\\d\\d))?›'), slots: (m) => {
     let bed = Number(m[1]); const wake = Number(m[3]);
     if (bed >= 6 && bed <= 12) bed = bed === 12 ? 0 : bed + 12;
     const hrs = ((wake + Number(m[4] ?? 0) / 60) - (bed + Number(m[2] ?? 0) / 60) + 24) % 24;

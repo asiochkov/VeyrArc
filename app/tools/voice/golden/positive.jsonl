@@ -384,3 +384,50 @@
 {"id":"g0384","lang":"en","text":"simplify the habit reading","expect":{"kind":"habit.simplify","slots":{"query":"reading"}},"split":"train","tags":[]}
 {"id":"g0385","lang":"en","text":"why do i skip workout","expect":{"kind":"habit.why","slots":{"query":"workout"}},"split":"train","tags":[]}
 {"id":"g0386","lang":"en","text":"do i have too many habits","expect":{"kind":"habit.overload","slots":{}},"split":"train","tags":[]}
+{"id":"g0387","lang":"ru","text":"выпила 2 стакана воды","expect":{"kind":"water.add","slots":{"amount":2}},"split":"train","tags":[]}
+{"id":"g0388","lang":"ru","text":"плюс стакан воды","expect":{"kind":"water.add","slots":{"amount":1}},"split":"test","tags":[]}
+{"id":"g0389","lang":"ru","text":"добавь два стакана воды","expect":{"kind":"water.add","slots":{"amount":2}},"split":"train","tags":[]}
+{"id":"g0390","lang":"ru","text":"сколько стаканов воды сегодня","expect":{"kind":"water.ask","slots":{}},"split":"train","tags":[]}
+{"id":"g0391","lang":"ru","text":"сколько я выпил воды","expect":{"kind":"water.ask","slots":{}},"split":"test","tags":[]}
+{"id":"g0392","lang":"ru","text":"сколько уже воды","expect":{"kind":"water.ask","slots":{}},"split":"train","tags":[]}
+{"id":"g0393","lang":"ru","text":"настроение пять потому что была пробежка","expect":{"kind":"mood.set","slots":{"level":5,"note":"была пробежка"}},"split":"test","tags":[]}
+{"id":"g0394","lang":"ru","text":"настроение три из-за работы","expect":{"kind":"mood.set","slots":{"level":3,"note":"работы"}},"split":"test","tags":[]}
+{"id":"g0395","lang":"ru","text":"настроение два потому что не выспался","expect":{"kind":"mood.set","slots":{"level":2,"note":"не выспался"}},"split":"train","tags":[]}
+{"id":"g0396","lang":"ru","text":"запиши к настроению был тяжёлый день","expect":{"kind":"mood.note","slots":{"text":"был тяжёлый день"}},"split":"train","tags":[]}
+{"id":"g0397","lang":"ru","text":"заметка к настроению устал","expect":{"kind":"mood.note","slots":{"text":"устал"}},"split":"train","tags":[]}
+{"id":"g0398","lang":"ru","text":"в какие дни у меня плохое настроение","expect":{"kind":"mood.worstDays","slots":{}},"split":"test","tags":[]}
+{"id":"g0399","lang":"ru","text":"худшие дни по настроению","expect":{"kind":"mood.worstDays","slots":{}},"split":"train","tags":[]}
+{"id":"g0400","lang":"ru","text":"когда у меня самое низкое настроение","expect":{"kind":"mood.worstDays","slots":{}},"split":"test","tags":[]}
+{"id":"g0401","lang":"ru","text":"от чего зависит моё настроение","expect":{"kind":"mood.drivers","slots":{}},"split":"test","tags":[]}
+{"id":"g0402","lang":"ru","text":"что улучшает моё настроение","expect":{"kind":"mood.drivers","slots":{}},"split":"train","tags":[]}
+{"id":"g0403","lang":"ru","text":"что связано с моим настроением","expect":{"kind":"mood.drivers","slots":{}},"split":"train","tags":[]}
+{"id":"g0404","lang":"ru","text":"как менялось моё настроение","expect":{"kind":"mood.trend","slots":{}},"split":"train","tags":[]}
+{"id":"g0405","lang":"ru","text":"как менялось настроение","expect":{"kind":"mood.trend","slots":{}},"split":"train","tags":[]}
+{"id":"g0406","lang":"ru","text":"настроение растёт или падает","expect":{"kind":"mood.trend","slots":{}},"split":"train","tags":[]}
+{"id":"g0407","lang":"ru","text":"подход 20","expect":{"kind":"counter.add","slots":{"amount":20}},"split":"train","tags":[]}
+{"id":"g0408","lang":"ru","text":"ещё подход 12","expect":{"kind":"counter.add","slots":{"amount":12}},"split":"train","tags":[]}
+{"id":"g0409","lang":"ru","text":"сколько осталось до нормы по отжиманиям","expect":{"kind":"counter.remaining","slots":{"query":"отжиманиям"}},"split":"test","tags":[]}
+{"id":"g0410","lang":"ru","text":"сколько ещё нужно до нормы","expect":{"kind":"counter.remaining","slots":{}},"split":"train","tags":[]}
+{"id":"g0411","lang":"ru","text":"сколько надо до нормы по воде","expect":{"kind":"counter.remaining","slots":{"query":"воде"}},"split":"test","tags":[]}
+{"id":"g0412","lang":"ru","text":"обнули отжимания","expect":{"kind":"counter.set","slots":{"query":"отжимания","amount":0}},"split":"train","tags":[]}
+{"id":"g0413","lang":"ru","text":"сбрось шаги","expect":{"kind":"counter.set","slots":{"query":"шаги","amount":0}},"split":"test","tags":[]}
+{"id":"g0414","lang":"ru","text":"исправь отжимания на двадцать","expect":{"kind":"counter.set","slots":{"query":"отжимания","amount":20}},"split":"train","tags":[]}
+{"id":"g0415","lang":"ru","text":"я ошибся было десять","expect":{"kind":"counter.set","slots":{"amount":10}},"split":"train","tags":[]}
+{"id":"g0416","lang":"ru","text":"прошёл 10000 шагов","expect":{"kind":"counter.steps","slots":{"amount":10000}},"split":"test","tags":[]}
+{"id":"g0417","lang":"ru","text":"сегодня шагов двенадцать тысяч","expect":{"kind":"counter.steps","slots":{"amount":12000}},"split":"train","tags":[]}
+{"id":"g0418","lang":"ru","text":"нашагал девять тысяч шагов","expect":{"kind":"counter.steps","slots":{"amount":9000}},"split":"train","tags":[]}
+{"id":"g0419","lang":"ru","text":"лёг в 12 проснулся в 8","expect":{"kind":"sleep.log","slots":{"hours":8}},"split":"test","tags":[]}
+{"id":"g0420","lang":"ru","text":"засыпал в двенадцать встал в восемь","expect":{"kind":"sleep.log","slots":{"hours":8}},"split":"train","tags":[]}
+{"id":"g0421","lang":"ru","text":"лёг в одиннадцать тридцать встал в семь","expect":{"kind":"sleep.log","slots":{"hours":7.5}},"split":"test","tags":[]}
+{"id":"g0422","lang":"ru","text":"спал восемь часов","expect":{"kind":"sleep.log","slots":{"hours":8}},"split":"train","tags":[]}
+{"id":"g0423","lang":"ru","text":"поспал шесть часов","expect":{"kind":"sleep.log","slots":{"hours":6}},"split":"train","tags":[]}
+{"id":"g0424","lang":"ru","text":"выспался семь часов","expect":{"kind":"sleep.log","slots":{"hours":7}},"split":"train","tags":[]}
+{"id":"g0425","lang":"ru","text":"пробежал 10 километров за час","expect":{"kind":"counter.add","slots":{"amount":10,"query":"километров"}},"split":"train","tags":[]}
+{"id":"g0426","lang":"ru","text":"проплыл два километра","expect":{"kind":"counter.add","slots":{"amount":2,"query":"километра"}},"split":"train","tags":[]}
+{"id":"g0427","lang":"ru","text":"пробежал 3 километра за 18 минут","expect":{"kind":"counter.add","slots":{"amount":3,"minutes":18}},"split":"train","tags":[]}
+{"id":"g0428","lang":"en","text":"add a glass of water","expect":{"kind":"water.add","slots":{"amount":1}},"split":"train","tags":[]}
+{"id":"g0429","lang":"en","text":"how many glasses have i had today","expect":{"kind":"water.ask","slots":{}},"split":"train","tags":[]}
+{"id":"g0430","lang":"en","text":"how has my mood changed","expect":{"kind":"mood.trend","slots":{}},"split":"train","tags":[]}
+{"id":"g0431","lang":"en","text":"what improves my mood","expect":{"kind":"mood.drivers","slots":{}},"split":"train","tags":[]}
+{"id":"g0432","lang":"en","text":"reset pushups","expect":{"kind":"counter.set","slots":{"query":"pushups","amount":0}},"split":"test","tags":[]}
+{"id":"g0433","lang":"en","text":"i slept 8 hours","expect":{"kind":"sleep.log","slots":{"hours":8}},"split":"train","tags":[]}

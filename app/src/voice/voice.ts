@@ -3,6 +3,7 @@ import { useLangStore } from '../i18n';
 import { similarity } from './nlu';
 import { hints } from './run';
 import { handlePhrase, handleSilence } from './dialog/manager';
+import { dialog } from './dialog/context';
 import { yesno, ordinal } from './dialog/grammars';
 import { normalize } from './nlp/normalize';
 import { prefs } from './prefs';
@@ -208,4 +209,4 @@ hooks.open = (_src, gesture) => {
 };
 hooks.toggle = () => { if (session.state === 'live' || session.state === 'requesting') stopVoice(); else startVoice(); };
 useVoice.subscribe((s) => { if (useAssistant.getState().phase !== s.state) useAssistant.setState({ phase: s.state }); });
-hooks.close = () => { clearTimeout(closeAfter); cancelVoice(); set({ choices: [] }); };
+hooks.close = () => { clearTimeout(closeAfter); cancelVoice(); set({ choices: [] }); dialog.reset(); };

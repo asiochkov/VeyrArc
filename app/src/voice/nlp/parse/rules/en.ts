@@ -97,7 +97,7 @@ en(
   ], slots: (m, c) => {
     const first = tidy(m[1]);
     if (/^(?:habit|goal|quit|note|promise|alarm|timer|focus|theme|dark|light)/.test(first)) return null;
-    if (/^(?:mood|water)/.test(first)) return null;
+    if (/^(?:mood|water)/.test(first) || /glass|water/.test(first)) return null;
     const t = strip(first);
     if (!t) return null;
     const out: Record<string, unknown> = { title: t, day: c.when.date, time: c.when.time, end: c.when.end ?? (c.when.duration && c.when.time ? plusMin(c.when.time, c.when.duration) : undefined) };

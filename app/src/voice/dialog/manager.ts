@@ -26,20 +26,28 @@ import type { Source } from '../nlp/types';
 
 const TIME_CHIPS: [string, [string, string], string | null][] = [['morning', ['Утром', 'Morning'], '09:00'], ['day', ['Днём', 'Afternoon'], '14:00'], ['evening', ['Вечером', 'Evening'], '19:00'], ['none', ['Без времени', 'No time'], null]];
 
-function finish(parsed: Parsed[], env: ParseEnv, c: ExecCtx, src: Source): Reply {
-  const r = parsed.length === 1 ? execute(parsed[0], c) : executeMany(parsed, c);
+/** a change goes into the journal; buttons inside a reply (a question the executor asked) journal what they do too */
+function record(r: Reply, p: Parsed): Reply {
   const ctx = dialog.get();
-  ctx.misses = r.ok ? 0 : ctx.misses;
-  if (r.ok && r.kind !== 'ask') {
-    const p = parsed[0];
+  if (r.undo?.length) {
+    const e = journal.add({ kind: p.kind, label: r.screen.slice(0, 80), ops: r.undo });
+    ctx.action = { at: Date.now(), parsed: p, journalId: e.id };
+  } else if (r.undoable) ctx.action = { at: Date.now(), parsed: p };
+  if (r.choices) return { ...r, choices: r.choices.map((ch) => ({ ...ch, run: () => { const x = ch.run(); return x instanceof Promise ? x.then((y) => record(y, p)) : record(x, p); } })) };
+  return r;
+}
+
+function finish(parsed: Parsed[], env: ParseEnv, c: ExecCtx, src: Source): Reply {
+  const r0 = parsed.length === 1 ? execute(parsed[0], c) : executeMany(parsed, c);
+  const ctx = dialog.get();
+  ctx.misses = r0.ok ? 0 : ctx.misses;
+  const p = parsed[0];
+  const r = record(r0, p);
+  if (r0.ok && r0.kind !== 'ask') {
     const task = typeof p.slots.query === 'string' && p.kind.startsWith('task.') ? { id: p.slots.id as string | undefined, name: p.slots.query } : undefined;
     const habit = typeof p.slots.query === 'string' && p.kind.startsWith('habit.') ? { id: p.slots.id as string | undefined, name: p.slots.query } : undefined;
     const title = typeof p.slots.title === 'string' && p.kind === 'task.add' ? { name: p.slots.title } : undefined;
-    dialog.remember(p, { task: task ?? title, habit }, r.list);
-    if (r.undo?.length) {
-      const e = journal.add({ kind: p.kind, label: r.screen.slice(0, 80), ops: r.undo });
-      ctx.action = { at: Date.now(), parsed: p, journalId: e.id };
-    } else if (r.undoable) ctx.action = { at: Date.now(), parsed: p };
+    dialog.remember(p, { task: task ?? title, habit }, r0.list);
   }
   void env; void src;
   return r;
@@ -166,12 +174,27 @@ function answer(text: string, env: ParseEnv, c: ExecCtx, src: Source): Reply | n
   return finish([p], env, c, src);
 }
 
+/** a mode that lasts until the panel closes: in the water mode «ещё стакан» is plus one, with no questions */
+function mode(text: string, env: ParseEnv, c: ExecCtx): Reply | null {
+  const ctx = dialog.get();
+  if (ctx.mode !== 'water') return null;
+  const t = normalize(text);
+  if (/^(?:хватит|стоп|всё|все|закончили|отбой|stop|enough|done)$/.test(t)) { ctx.mode = undefined; return R.done(env.lang === 'ru' ? 'Хорошо, закончили с водой' : 'Okay, done with water'); }
+  if (/^(?:ещ[её]|ещ[её] один|ещ[её] стакан|плюс|плюс один|плюс стакан|стакан|один|another|one more|another glass|plus one)$/.test(t)) {
+    const p: Parsed = { kind: 'water.add', slots: { amount: 1 }, confidence: 0.95, risk: 'R1', missing: [], why: ['water mode'] };
+    return finish([p], env, c, 'voice');
+  }
+  return null;
+}
+
 export function handlePhrase(text: string, src: Source = 'voice', asr: number | null = null, envIn?: ParseEnv): Reply {
   const env = envIn ?? envFromSystem();
   const c = ctxOf(env);
   // a running flow hears the phrase first: an answer to its step wins over a new command
   const ft = flowTurn(text, c);
   if (ft) return ft;
+  const md = mode(text, env, c);
+  if (md) return md;
   const ans = answer(text, env, c, src);
   if (ans) return ans;
   const corr = correction(text, env, c, src);

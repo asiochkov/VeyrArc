@@ -23,6 +23,7 @@ add(
   ], slots: (m, c) => {
     const first = c.body.split(' ')[0];
     // «добавь привычку…», «поставь будильник…», «запиши обещание…» are not tasks
+    if (/стакан|glass/.test(tidy(m[1]))) return null;
     if (NOUNS.some((n) => levenshtein(n, tidy(m[1]).split(' ')[0].slice(0, n.length + 1)) <= 2) && first !== 'напомни') return null;
     if (/^(?:к настроени|в настроени|к заметк|привычк|цель|цели|отказ|заметк|обещани|будильник|таймер|фокус|напоминани|тему|тёмн|темн)/u.test(tidy(m[1])) && first !== 'напомни') return null;
     if (/^(?:поставь|запиши|добавь)$/u.test(first) && /^(?:настроени|вод|галочк|отметк|дедлайн|тему|таймер)/u.test(tidy(m[1]))) return null;

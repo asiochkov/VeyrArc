@@ -19,6 +19,8 @@ export type DialogContext = {
   flow?: FlowState;
   /** phrases in a row that were not understood */
   misses: number;
+  /** a mode that lasts until the panel closes: «water» = every «ещё стакан» is plus one */
+  mode?: 'water';
 };
 const fresh = (): DialogContext => ({ last: { at: 0 }, misses: 0 });
 let ctx: DialogContext = fresh();
