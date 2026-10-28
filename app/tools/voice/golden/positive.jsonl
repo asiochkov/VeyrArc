@@ -1,0 +1,185 @@
+{"id":"g0001","lang":"ru","text":"настроение пять","expect":{"kind":"mood.set","slots":{"level":5}},"split":"test","tags":[]}
+{"id":"g0002","lang":"ru","text":"настроение три","expect":{"kind":"mood.set","slots":{"level":3}},"split":"test","tags":[]}
+{"id":"g0003","lang":"ru","text":"сегодня настроение просто супер","expect":{"kind":"mood.set","slots":{"level":5}},"split":"train","tags":[]}
+{"id":"g0004","lang":"ru","text":"что-то мне сегодня тревожно","expect":{"kind":"mood.set","slots":{"level":2}},"split":"train","tags":["regress"]}
+{"id":"g0005","lang":"ru","text":"день был не очень","expect":{"kind":"mood.set","slots":{"level":2}},"split":"test","tags":["regress"]}
+{"id":"g0006","lang":"ru","text":"чувствую себя отлично","expect":{"kind":"mood.set","slots":{"level":5}},"split":"train","tags":[]}
+{"id":"g0007","lang":"ru","text":"мне сегодня паршиво","expect":{"kind":"mood.set","slots":{"level":1}},"split":"test","tags":[]}
+{"id":"g0008","lang":"ru","text":"настроение хорошее","expect":{"kind":"mood.set","slots":{"level":4}},"split":"test","tags":[]}
+{"id":"g0009","lang":"ru","text":"настроение так себе","expect":{"kind":"mood.set","slots":{"level":2}},"split":"test","tags":[]}
+{"id":"g0010","lang":"ru","text":"настроение четыре потому что хорошо выспался","expect":{"kind":"mood.set","slots":{"level":4,"note":"хорошо выспался"}},"split":"test","tags":[]}
+{"id":"g0011","lang":"ru","text":"я устал и ничего не хочу","expect":{"kind":"mood.set","slots":{"level":2}},"split":"train","tags":["regress"]}
+{"id":"g0012","lang":"ru","text":"сегодня выгорел совсем","expect":{"kind":"mood.set","slots":{"level":1}},"split":"train","tags":[]}
+{"id":"g0013","lang":"ru","text":"добавь к настроению заметку устал после работы","expect":{"kind":"mood.note","slots":{"text":"устал после работы"}},"split":"test","tags":[]}
+{"id":"g0014","lang":"ru","text":"когда у меня обычно плохое настроение","expect":{"kind":"mood.worstDays","slots":{}},"split":"train","tags":[]}
+{"id":"g0015","lang":"ru","text":"что влияет на моё настроение","expect":{"kind":"mood.drivers","slots":{}},"split":"train","tags":[]}
+{"id":"g0016","lang":"ru","text":"какая тенденция по настроению","expect":{"kind":"mood.trend","slots":{}},"split":"test","tags":[]}
+{"id":"g0017","lang":"en","text":"i feel terrible","expect":{"kind":"mood.set","slots":{"level":1}},"split":"train","tags":[]}
+{"id":"g0018","lang":"en","text":"i feel great","expect":{"kind":"mood.set","slots":{"level":5}},"split":"train","tags":[]}
+{"id":"g0019","lang":"en","text":"mood four","expect":{"kind":"mood.set","slots":{"level":4}},"split":"train","tags":[]}
+{"id":"g0020","lang":"ru","text":"выпил три стакана воды","expect":{"kind":"water.add","slots":{"amount":3}},"split":"train","tags":[]}
+{"id":"g0021","lang":"ru","text":"выпил стакан воды","expect":{"kind":"water.add","slots":{"amount":1}},"split":"train","tags":[]}
+{"id":"g0022","lang":"ru","text":"ещё стакан воды","expect":{"kind":"water.add","slots":{"amount":1}},"split":"train","tags":[]}
+{"id":"g0023","lang":"ru","text":"выпил 2 стакан воды","expect":{"kind":"water.add","slots":{"amount":2}},"split":"train","tags":["regress"]}
+{"id":"g0024","lang":"ru","text":"сколько воды я выпил сегодня","expect":{"kind":"water.ask","slots":{}},"split":"train","tags":[]}
+{"id":"g0025","lang":"ru","text":"отмечай воду по стакану","expect":{"kind":"water.step","slots":{}},"split":"test","tags":[]}
+{"id":"g0026","lang":"en","text":"i drank two glasses of water","expect":{"kind":"water.add","slots":{"amount":2}},"split":"train","tags":[]}
+{"id":"g0027","lang":"ru","text":"отметь тренировку","expect":{"kind":"habit.done","slots":{"query":"тренировку"}},"split":"train","tags":[]}
+{"id":"g0028","lang":"ru","text":"сделал зарядку","expect":{"kind":"habit.done","slots":{"query":"зарядку"}},"split":"train","tags":[]}
+{"id":"g0029","lang":"ru","text":"тренировка выполнена","expect":{"kind":"habit.done","slots":{"query":"тренировка"}},"split":"test","tags":[]}
+{"id":"g0030","lang":"ru","text":"я сегодня уже позанимался английским","expect":{"kind":"habit.done","slots":{"query":"английским"}},"split":"train","tags":[]}
+{"id":"g0031","lang":"ru","text":"поставь галочку на чтении","expect":{"kind":"habit.done","slots":{"query":"чтении"}},"split":"test","tags":[]}
+{"id":"g0032","lang":"ru","text":"медитировал двадцать минут","expect":{"kind":"habit.done","slots":{"query":"медитировал","minutes":20}},"split":"train","tags":[]}
+{"id":"g0033","lang":"ru","text":"помедитировал десять минут","expect":{"kind":"habit.done","slots":{"minutes":10}},"split":"train","tags":[]}
+{"id":"g0034","lang":"ru","text":"сделал заряд ку","expect":{"kind":"habit.done","slots":{"query":"зарядку"}},"split":"test","tags":["regress"]}
+{"id":"g0035","lang":"ru","text":"отметь мидитацию","expect":{"kind":"habit.done","slots":{"query":"медитацию"}},"split":"train","tags":["regress"]}
+{"id":"g0036","lang":"ru","text":"отметь тренеровку","expect":{"kind":"habit.done","slots":{"query":"тренировку"}},"split":"test","tags":["regress"]}
+{"id":"g0037","lang":"ru","text":"отметь медитацию пожалуйста спасибо","expect":{"kind":"habit.done","slots":{"query":"медитацию"}},"split":"test","tags":["regress"]}
+{"id":"g0038","lang":"ru","text":"Вейр отметь тренировка","expect":{"kind":"habit.done","slots":{"query":"тренировка"}},"split":"train","tags":["regress"]}
+{"id":"g0039","lang":"ru","text":"ну это самое сделал короче зарядку","expect":{"kind":"habit.done","slots":{"query":"зарядку"}},"split":"test","tags":["regress"]}
+{"id":"g0040","lang":"ru","text":"я не делал зарядку","expect":{"kind":"habit.undone","slots":{"query":"зарядку"}},"split":"test","tags":[]}
+{"id":"g0041","lang":"ru","text":"сними галочку с медитации","expect":{"kind":"habit.undone","slots":{"query":"медитации"}},"split":"train","tags":[]}
+{"id":"g0042","lang":"ru","text":"отметь все привычки","expect":{"kind":"habit.doneAll","slots":{}},"split":"train","tags":[]}
+{"id":"g0043","lang":"ru","text":"отметь всё утреннее","expect":{"kind":"habit.markGroup","slots":{"group":"утреннее"}},"split":"test","tags":[]}
+{"id":"g0044","lang":"ru","text":"верни отметку вчерашней медитации","expect":{"kind":"habit.markPast","slots":{"query":"медитации","day":"2026-10-27"}},"split":"train","tags":[]}
+{"id":"g0045","lang":"en","text":"mark workout as done","expect":{"kind":"habit.done","slots":{"query":"workout"}},"split":"train","tags":[]}
+{"id":"g0046","lang":"en","text":"i did my workout","expect":{"kind":"habit.done","slots":{"query":"workout"}},"split":"test","tags":[]}
+{"id":"g0047","lang":"en","text":"i meditated for twenty minutes","expect":{"kind":"habit.done","slots":{"minutes":20}},"split":"train","tags":[]}
+{"id":"g0048","lang":"en","text":"undo the meditation check","expect":{"kind":"habit.undone","slots":{"query":"meditation"}},"split":"test","tags":[]}
+{"id":"g0049","lang":"ru","text":"подход пятнадцать","expect":{"kind":"counter.add","slots":{"amount":15}},"split":"train","tags":[]}
+{"id":"g0050","lang":"ru","text":"ещё пятнадцать отжиманий","expect":{"kind":"counter.add","slots":{"amount":15,"query":"отжиманий"}},"split":"train","tags":[]}
+{"id":"g0051","lang":"ru","text":"прошёл восемь тысяч шагов","expect":{"kind":"counter.steps","slots":{"amount":8000}},"split":"train","tags":[]}
+{"id":"g0052","lang":"ru","text":"сколько осталось до нормы по воде","expect":{"kind":"counter.remaining","slots":{"query":"воде"}},"split":"train","tags":[]}
+{"id":"g0053","lang":"ru","text":"я ошибся было десять отжиманий","expect":{"kind":"counter.set","slots":{"amount":10,"query":"отжиманий"}},"split":"train","tags":[]}
+{"id":"g0054","lang":"ru","text":"лёг в одиннадцать встал в семь","expect":{"kind":"sleep.log","slots":{"hours":8}},"split":"test","tags":[]}
+{"id":"g0055","lang":"ru","text":"спал семь с половиной часов","expect":{"kind":"sleep.log","slots":{"hours":7.5}},"split":"train","tags":[]}
+{"id":"g0056","lang":"ru","text":"пробежал пять километров за тридцать минут","expect":{"kind":"counter.add","slots":{"amount":5,"query":"километров"}},"split":"train","tags":[]}
+{"id":"g0057","lang":"ru","text":"напомни завтра купить молоко","expect":{"kind":"task.add","slots":{"title":"купить молоко","day":"2026-10-29"}},"split":"test","tags":[]}
+{"id":"g0058","lang":"ru","text":"в четверг в семь вечера встреча с Димой","expect":{"kind":"task.add","slots":{"title":"встреча с Димой","day":"2026-10-29","time":"19:00"}},"split":"train","tags":["regress"]}
+{"id":"g0059","lang":"ru","text":"запланируй стоматолога на следующий вторник в десять утра","expect":{"kind":"task.add","slots":{"title":"стоматолога","day":"2026-11-03","time":"10:00"}},"split":"test","tags":[]}
+{"id":"g0060","lang":"ru","text":"добавь в планер оплатить интернет до конца недели","expect":{"kind":"task.add","slots":{"title":"оплатить интернет","day":"2026-10-30"}},"split":"train","tags":[]}
+{"id":"g0061","lang":"ru","text":"через полчаса позвонить в банк","expect":{"kind":"task.add","slots":{"title":"позвонить в банк","day":"2026-10-28","time":"15:30"}},"split":"test","tags":[]}
+{"id":"g0062","lang":"ru","text":"завтра утром сходить в магазин","expect":{"kind":"task.add","slots":{"title":"сходить в магазин","day":"2026-10-29","time":"09:00"}},"split":"test","tags":[]}
+{"id":"g0063","lang":"ru","text":"записаться к врачу на пятое ноября","expect":{"kind":"task.add","slots":{"title":"записаться к врачу","day":"2026-11-05"}},"split":"train","tags":[]}
+{"id":"g0064","lang":"ru","text":"напомни мне в субботу в два часа дня про день рождения","expect":{"kind":"task.add","slots":{"title":"день рождения","day":"2026-10-31","time":"14:00"}},"split":"test","tags":[]}
+{"id":"g0065","lang":"ru","text":"купить хлеб","expect":{"kind":"task.add","slots":{"title":"купить хлеб"}},"split":"train","tags":[]}
+{"id":"g0066","lang":"ru","text":"двадцать девятого в 12:30 обед с партнёрами","expect":{"kind":"task.add","slots":{"title":"обед с партнёрами","day":"2026-10-29","time":"12:30"}},"split":"train","tags":[]}
+{"id":"g0067","lang":"ru","text":"в половине пятого встреча","expect":{"kind":"task.add","slots":{"title":"встреча","time":"16:30"}},"split":"train","tags":[]}
+{"id":"g0068","lang":"ru","text":"без пятнадцати шесть созвон","expect":{"kind":"task.add","slots":{"title":"созвон","time":"17:45"}},"split":"train","tags":[]}
+{"id":"g0069","lang":"ru","text":"завтра в восемь тридцать зал","expect":{"kind":"task.add","slots":{"title":"зал","day":"2026-10-29","time":"08:30"}},"split":"train","tags":[]}
+{"id":"g0070","lang":"ru","text":"завтра в 10 стоматолог","expect":{"kind":"task.add","slots":{"title":"стоматолог","day":"2026-10-29","time":"10:00"}},"split":"train","tags":[]}
+{"id":"g0071","lang":"ru","text":"в пятницу созвон с командой с 15 до 16","expect":{"kind":"task.add","slots":{"title":"созвон с командой","day":"2026-10-30","time":"15:00","end":"16:00"}},"split":"train","tags":[]}
+{"id":"g0072","lang":"ru","text":"завтра в 9 утра стамотолог","expect":{"kind":"task.add","slots":{"title":"стоматолог","day":"2026-10-29","time":"09:00"}},"split":"test","tags":["regress"]}
+{"id":"g0073","lang":"ru","text":"запиши мне на субботу поездку на дачу","expect":{"kind":"task.add","slots":{"title":"поездку на дачу","day":"2026-10-31"}},"split":"test","tags":[]}
+{"id":"g0074","lang":"ru","text":"напомни мне через два часа выпить таблетки","expect":{"kind":"task.add","slots":{"title":"выпить таблетки","time":"17:00"}},"split":"train","tags":[]}
+{"id":"g0075","lang":"ru","text":"хочу чтобы ты напомнил про тренировку","expect":{"kind":"task.add","slots":{"title":"тренировку"}},"split":"train","tags":["regress"]}
+{"id":"g0076","lang":"ru","text":"завтра в 0:30 встреча","expect":{"kind":"task.add","slots":{"title":"встреча","day":"2026-10-29","time":"00:30"}},"split":"test","tags":[]}
+{"id":"g0077","lang":"ru","text":"послезавтра в 6 вечера ужин","expect":{"kind":"task.add","slots":{"title":"ужин","day":"2026-10-30","time":"18:00"}},"split":"train","tags":[]}
+{"id":"g0078","lang":"ru","text":"через 10 минут позвонить","expect":{"kind":"task.add","slots":{"title":"позвонить","time":"15:10"}},"split":"train","tags":[]}
+{"id":"g0079","lang":"ru","text":"в конце месяца отчёт","expect":{"kind":"task.add","slots":{"title":"отчёт","day":"2026-10-31"}},"split":"test","tags":[]}
+{"id":"g0080","lang":"ru","text":"через две недели визит к врачу","expect":{"kind":"task.add","slots":{"title":"визит к врачу","day":"2026-11-11"}},"split":"train","tags":[]}
+{"id":"g0081","lang":"ru","text":"в понедельник в восемь вечера тренировка на полтора часа","expect":{"kind":"task.add","slots":{"title":"тренировка","day":"2026-11-02","time":"20:00","end":"21:30"}},"split":"train","tags":[]}
+{"id":"g0082","lang":"ru","text":"в пятницу встреча с Димой","expect":{"kind":"task.add","slots":{"title":"встреча с Димой","day":"2026-10-30"},"action":"ask-slot"},"split":"train","tags":["time"]}
+{"id":"g0083","lang":"en","text":"add task call dad tomorrow at 6 pm","expect":{"kind":"task.add","slots":{"title":"call dad","day":"2026-10-29","time":"18:00"}},"split":"train","tags":[]}
+{"id":"g0084","lang":"en","text":"remind me to drink water at 5","expect":{"kind":"task.add","slots":{"title":"drink water","time":"17:00"}},"split":"train","tags":[]}
+{"id":"g0085","lang":"en","text":"add a meeting on friday at noon","expect":{"kind":"task.add","slots":{"title":"meeting","day":"2026-10-30","time":"12:00"}},"split":"test","tags":[]}
+{"id":"g0086","lang":"ru","text":"слушай ну я сегодня утром сходил в зал потом выпил воды и ещё почитал немного","expect":{"kind":"multi","multi":[{"kind":"habit.done","slots":{"query":"зал"}},{"kind":"water.add","slots":{}},{"kind":"habit.done","slots":{"query":"почитал"}}]},"split":"test","tags":["regress","multi"]}
+{"id":"g0087","lang":"ru","text":"сделал зарядку, выпил воды и почитал","expect":{"kind":"multi","multi":[{"kind":"habit.done","slots":{"query":"зарядку"}},{"kind":"water.add","slots":{}},{"kind":"habit.done","slots":{"query":"почитал"}}]},"split":"train","tags":["regress","multi"]}
+{"id":"g0088","lang":"ru","text":"настроение 4. задача позвонить маме","expect":{"kind":"multi","multi":[{"kind":"mood.set","slots":{"level":4}},{"kind":"task.add","slots":{"title":"позвонить маме"}}]},"split":"test","tags":["regress","multi"]}
+{"id":"g0089","lang":"ru","text":"отметь что я сегодня позанимался и поставь настроение хорошее","expect":{"kind":"multi","multi":[{"kind":"habit.done","slots":{}},{"kind":"mood.set","slots":{"level":4}}]},"split":"test","tags":["regress","multi"]}
+{"id":"g0090","lang":"ru","text":"добавь в планер завтра в девять утра зарядка а потом в десять созвон с командой","expect":{"kind":"multi","multi":[{"kind":"task.add","slots":{"title":"зарядка","day":"2026-10-29","time":"09:00"}},{"kind":"task.add","slots":{"title":"созвон с командой","day":"2026-10-29","time":"10:00"}}]},"split":"train","tags":["regress","multi"]}
+{"id":"g0091","lang":"ru","text":"перенеси созвон на завтра на 11","expect":{"kind":"task.move","slots":{"query":"созвон","day":"2026-10-29","time":"11:00"}},"split":"train","tags":[]}
+{"id":"g0092","lang":"ru","text":"отложи всё на послезавтра","expect":{"kind":"task.moveBulk","slots":{"day":"2026-10-30"},"action":"confirm"},"split":"test","tags":[]}
+{"id":"g0093","lang":"ru","text":"перенеси встречу с Димой на пятницу","expect":{"kind":"task.move","slots":{"query":"встречу с Димой","day":"2026-10-30"}},"split":"test","tags":[]}
+{"id":"g0094","lang":"ru","text":"удали встречу с Димой","expect":{"kind":"task.delete","slots":{"query":"встречу с Димой"}},"split":"train","tags":[]}
+{"id":"g0095","lang":"ru","text":"отмени завтрашнюю встречу","expect":{"kind":"task.delete","slots":{"query":"встречу"}},"split":"train","tags":[]}
+{"id":"g0096","lang":"ru","text":"сотри все задачи","expect":{"kind":"task.delete","slots":{"query":"все"},"action":"confirm"},"split":"train","tags":["regress"]}
+{"id":"g0097","lang":"ru","text":"продли созвон на полчаса","expect":{"kind":"task.duration","slots":{"query":"созвон"}},"split":"train","tags":[]}
+{"id":"g0098","lang":"ru","text":"закрой все задачи на сегодня","expect":{"kind":"task.doneAll","slots":{}},"split":"train","tags":[]}
+{"id":"g0099","lang":"ru","text":"вычеркни хлеб и молоко","expect":{"kind":"task.doneMany","slots":{}},"split":"train","tags":[]}
+{"id":"g0100","lang":"ru","text":"освободи вечер","expect":{"kind":"task.moveBulk","slots":{"day":"2026-10-29"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0101","lang":"en","text":"move the standup to tomorrow at 11","expect":{"kind":"task.move","slots":{"query":"standup","day":"2026-10-29","time":"11:00"}},"split":"test","tags":[]}
+{"id":"g0102","lang":"en","text":"delete the dentist appointment","expect":{"kind":"task.delete","slots":{"query":"dentist"}},"split":"train","tags":[]}
+{"id":"g0103","lang":"ru","text":"что у меня на завтра","expect":{"kind":"plan.day","slots":{"day":"2026-10-29"}},"split":"test","tags":[]}
+{"id":"g0104","lang":"ru","text":"а что у меня сегодня по плану","expect":{"kind":"plan.day","slots":{"day":"2026-10-28"}},"split":"test","tags":[]}
+{"id":"g0105","lang":"ru","text":"так, ну давай посмотрим что у меня сегодня по плану","expect":{"kind":"plan.day","slots":{"day":"2026-10-28"}},"split":"train","tags":["regress"]}
+{"id":"g0106","lang":"ru","text":"что у меня в субботу","expect":{"kind":"plan.day","slots":{"day":"2026-10-31"}},"split":"test","tags":[]}
+{"id":"g0107","lang":"ru","text":"сколько у меня осталось дел","expect":{"kind":"list.remaining","slots":{}},"split":"test","tags":[]}
+{"id":"g0108","lang":"ru","text":"какая у меня серия по бегу","expect":{"kind":"habit.streak","slots":{"query":"бегу"}},"split":"train","tags":[]}
+{"id":"g0109","lang":"ru","text":"какая у меня самая длинная серия","expect":{"kind":"stats.longestStreak","slots":{}},"split":"train","tags":[]}
+{"id":"g0110","lang":"ru","text":"сколько я сегодня работал","expect":{"kind":"focus.sum","slots":{}},"split":"train","tags":[]}
+{"id":"g0111","lang":"ru","text":"сколько я работал на этой неделе","expect":{"kind":"focus.sum","slots":{}},"split":"train","tags":[]}
+{"id":"g0112","lang":"ru","text":"как у меня дела на этой неделе","expect":{"kind":"stats.week","slots":{}},"split":"test","tags":[]}
+{"id":"g0113","lang":"ru","text":"когда у меня следующая встреча","expect":{"kind":"plan.next","slots":{}},"split":"train","tags":[]}
+{"id":"g0114","lang":"ru","text":"сколько дней я не курю","expect":{"kind":"quit.days","slots":{}},"split":"train","tags":[]}
+{"id":"g0115","lang":"ru","text":"какой у меня сейчас индекс","expect":{"kind":"stats.index","slots":{}},"split":"train","tags":[]}
+{"id":"g0116","lang":"ru","text":"что я не успел вчера","expect":{"kind":"plan.overdue","slots":{}},"split":"train","tags":[]}
+{"id":"g0117","lang":"ru","text":"во сколько у меня тренировка","expect":{"kind":"plan.next","slots":{"query":"тренировка"}},"split":"train","tags":[]}
+{"id":"g0118","lang":"ru","text":"сколько встреч на этой неделе","expect":{"kind":"plan.count","slots":{}},"split":"train","tags":[]}
+{"id":"g0119","lang":"ru","text":"когда я завтра свободен","expect":{"kind":"plan.freeSlots","slots":{"day":"2026-10-29"}},"split":"test","tags":[]}
+{"id":"g0120","lang":"ru","text":"есть ли конфликты на этой неделе","expect":{"kind":"plan.conflicts","slots":{}},"split":"train","tags":[]}
+{"id":"g0121","lang":"ru","text":"что осталось купить","expect":{"kind":"list.remaining","slots":{"query":"купить"}},"split":"train","tags":[]}
+{"id":"g0122","lang":"ru","text":"какая привычка у меня самая слабая","expect":{"kind":"habit.weakest","slots":{}},"split":"train","tags":[]}
+{"id":"g0123","lang":"ru","text":"какую привычку я чаще всего пропускаю","expect":{"kind":"habit.weakest","slots":{}},"split":"test","tags":[]}
+{"id":"g0124","lang":"en","text":"what do i have today","expect":{"kind":"plan.day","slots":{"day":"2026-10-28"}},"split":"test","tags":[]}
+{"id":"g0125","lang":"en","text":"how is my week going","expect":{"kind":"stats.week","slots":{}},"split":"test","tags":[]}
+{"id":"g0126","lang":"en","text":"what's next","expect":{"kind":"plan.next","slots":{}},"split":"train","tags":[]}
+{"id":"g0127","lang":"en","text":"how many days since i smoked","expect":{"kind":"quit.days","slots":{}},"split":"test","tags":[]}
+{"id":"g0128","lang":"ru","text":"включи таймер на двадцать пять минут","expect":{"kind":"timer.simple","slots":{"seconds":1500}},"split":"train","tags":[]}
+{"id":"g0129","lang":"ru","text":"поставь таймер на десять минут","expect":{"kind":"timer.simple","slots":{"seconds":600}},"split":"train","tags":[]}
+{"id":"g0130","lang":"ru","text":"фокус двадцать пять минут","expect":{"kind":"focus.start","slots":{"minutes":25}},"split":"train","tags":["regress"]}
+{"id":"g0131","lang":"ru","text":"начни фокус на час","expect":{"kind":"focus.start","slots":{"minutes":60}},"split":"train","tags":[]}
+{"id":"g0132","lang":"ru","text":"фокус 25","expect":{"kind":"focus.start","slots":{"minutes":25}},"split":"test","tags":[]}
+{"id":"g0133","lang":"ru","text":"останови таймер","expect":{"kind":"focus.stop","slots":{}},"split":"train","tags":[]}
+{"id":"g0134","lang":"ru","text":"поставь фокус на паузу","expect":{"kind":"focus.pause","slots":{}},"split":"train","tags":[]}
+{"id":"g0135","lang":"ru","text":"продли фокус на пять минут","expect":{"kind":"focus.extend","slots":{"minutes":5}},"split":"test","tags":[]}
+{"id":"g0136","lang":"ru","text":"сколько осталось до конца фокуса","expect":{"kind":"focus.remaining","slots":{}},"split":"train","tags":[]}
+{"id":"g0137","lang":"en","text":"start a 25 minute focus","expect":{"kind":"focus.start","slots":{"minutes":25}},"split":"train","tags":[]}
+{"id":"g0138","lang":"ru","text":"добавь привычку пить воду восемь стаканов","expect":{"kind":"habit.add","slots":{"title":"пить воду","target":8}},"split":"test","tags":[]}
+{"id":"g0139","lang":"ru","text":"создай привычку читать по 30 минут","expect":{"kind":"habit.add","slots":{"title":"читать","minutes":30}},"split":"train","tags":["regress"]}
+{"id":"g0140","lang":"ru","text":"удали привычку чтение","expect":{"kind":"habit.remove","slots":{"query":"чтение"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0141","lang":"ru","text":"переименуй привычку зарядка в разминка","expect":{"kind":"habit.rename","slots":{"query":"зарядка","to":"разминка"}},"split":"train","tags":[]}
+{"id":"g0142","lang":"ru","text":"переименуй зарядку в разминку","expect":{"kind":"habit.rename","slots":{"query":"зарядку","to":"разминку"}},"split":"train","tags":[]}
+{"id":"g0143","lang":"ru","text":"зарядка только по будням","expect":{"kind":"habit.schedule","slots":{"query":"зарядка","days":31}},"split":"train","tags":[]}
+{"id":"g0144","lang":"ru","text":"сделай чтение главной привычкой","expect":{"kind":"habit.core","slots":{"query":"чтение","core":true}},"split":"train","tags":[]}
+{"id":"g0145","lang":"ru","text":"поставь привычку чтение на паузу","expect":{"kind":"habit.pause","slots":{"query":"чтение"}},"split":"test","tags":[]}
+{"id":"g0146","lang":"ru","text":"добавь привычку из библиотеки медитация","expect":{"kind":"habit.addFromLibrary","slots":{"query":"медитация"}},"split":"test","tags":[]}
+{"id":"g0147","lang":"ru","text":"заверши цель марафон","expect":{"kind":"goal.complete","slots":{"query":"марафон"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0148","lang":"ru","text":"создай цель накопить на машину","expect":{"kind":"goal.add","slots":{"title":"накопить на машину"}},"split":"train","tags":[]}
+{"id":"g0149","lang":"ru","text":"поставь дедлайн по марафону на первое декабря","expect":{"kind":"goal.deadline","slots":{"day":"2026-12-01","query":"марафону"}},"split":"train","tags":[]}
+{"id":"g0150","lang":"ru","text":"какой следующий шаг по марафону","expect":{"kind":"goal.next","slots":{"query":"марафону"}},"split":"train","tags":[]}
+{"id":"g0151","lang":"ru","text":"добавь отказ от сладкого","expect":{"kind":"quit.add","slots":{"title":"сладкого"}},"split":"test","tags":[]}
+{"id":"g0152","lang":"ru","text":"хочу бросить курить","expect":{"kind":"quit.add","slots":{"title":"курить"}},"split":"train","tags":[]}
+{"id":"g0153","lang":"ru","text":"сорвался но это была одна сигарета","expect":{"kind":"quit.relapse","slots":{"note":"это была одна сигарета"},"action":"confirm"},"split":"test","tags":[]}
+{"id":"g0154","lang":"ru","text":"смени тему на светлую","expect":{"kind":"settings.theme","slots":{"value":"light"}},"split":"train","tags":[]}
+{"id":"g0155","lang":"ru","text":"включи тёмную тему","expect":{"kind":"settings.theme","slots":{"value":"dark"}},"split":"train","tags":[]}
+{"id":"g0156","lang":"ru","text":"напоминай в девять вечера","expect":{"kind":"settings.reminder","slots":{"time":"21:00"}},"split":"train","tags":[]}
+{"id":"g0157","lang":"ru","text":"не беспокой с одиннадцати до семи","expect":{"kind":"settings.quiet","slots":{"from":"23:00","to":"07:00"}},"split":"train","tags":[]}
+{"id":"g0158","lang":"ru","text":"выгрузи мои данные","expect":{"kind":"export.data","slots":{},"action":"confirm"},"split":"test","tags":[]}
+{"id":"g0159","lang":"ru","text":"удали мой аккаунт","expect":{"kind":"account.delete","slots":{},"action":"reject"},"split":"test","tags":[]}
+{"id":"g0160","lang":"ru","text":"запиши обещание до конца сезона бегаю три раза в неделю","expect":{"kind":"arc.oath.set","slots":{"text":"бегаю три раза в неделю"}},"split":"train","tags":[]}
+{"id":"g0161","lang":"ru","text":"какой сегодня день сезона","expect":{"kind":"arc.day","slots":{}},"split":"test","tags":[]}
+{"id":"g0162","lang":"en","text":"create a habit reading 20 minutes","expect":{"kind":"habit.add","slots":{"title":"reading","minutes":20}},"split":"train","tags":[]}
+{"id":"g0163","lang":"en","text":"open my goals","expect":{"kind":"nav.page","slots":{"page":"goals"}},"split":"train","tags":[]}
+{"id":"g0164","lang":"en","text":"create a goal save for a car","expect":{"kind":"goal.add","slots":{"title":"save for a car"}},"split":"train","tags":[]}
+{"id":"g0165","lang":"en","text":"switch to the light theme","expect":{"kind":"settings.theme","slots":{"value":"light"}},"split":"train","tags":[]}
+{"id":"g0166","lang":"ru","text":"открой цели","expect":{"kind":"nav.page","slots":{"page":"goals"}},"split":"train","tags":[]}
+{"id":"g0167","lang":"ru","text":"покажи планер","expect":{"kind":"nav.page","slots":{"page":"planner"}},"split":"train","tags":[]}
+{"id":"g0168","lang":"ru","text":"открой настройки","expect":{"kind":"nav.page","slots":{"page":"settings"}},"split":"train","tags":[]}
+{"id":"g0169","lang":"ru","text":"вернись назад","expect":{"kind":"nav.back","slots":{}},"split":"train","tags":[]}
+{"id":"g0170","lang":"ru","text":"отмени","expect":{"kind":"undo","slots":{}},"split":"train","tags":[]}
+{"id":"g0171","lang":"ru","text":"отмени последнее действие","expect":{"kind":"undo","slots":{}},"split":"train","tags":[]}
+{"id":"g0172","lang":"ru","text":"что ты умеешь","expect":{"kind":"help","slots":{}},"split":"train","tags":[]}
+{"id":"g0173","lang":"ru","text":"привет","expect":{"kind":"chat.hello","slots":{}},"split":"train","tags":[]}
+{"id":"g0174","lang":"ru","text":"спасибо","expect":{"kind":"chat.thanks","slots":{}},"split":"train","tags":[]}
+{"id":"g0175","lang":"ru","text":"привет как мои дела","expect":{"kind":"stats.week","slots":{}},"split":"test","tags":["regress"]}
+{"id":"g0176","lang":"ru","text":"кто ты","expect":{"kind":"chat.who","slots":{}},"split":"train","tags":[]}
+{"id":"g0177","lang":"ru","text":"почему у меня сбилась серия","expect":{"kind":"stats.whyDropped","slots":{}},"split":"test","tags":["regress"]}
+{"id":"g0178","lang":"ru","text":"что такое помодоро","expect":{"kind":"howto","slots":{"query":"помодоро"}},"split":"test","tags":["regress"]}
+{"id":"g0179","lang":"ru","text":"проведи меня по привычкам","expect":{"kind":"flow.start","slots":{"id":"walk"}},"split":"test","tags":[]}
+{"id":"g0180","lang":"ru","text":"утренний брифинг","expect":{"kind":"flow.start","slots":{"id":"morning"}},"split":"train","tags":[]}
+{"id":"g0181","lang":"ru","text":"подведи вечер","expect":{"kind":"flow.start","slots":{"id":"evening"}},"split":"train","tags":[]}
+{"id":"g0182","lang":"ru","text":"мне тяжело сегодня","expect":{"kind":"flow.start","slots":{"id":"tough"}},"split":"train","tags":[]}
+{"id":"g0183","lang":"ru","text":"у меня полчаса что успеть","expect":{"kind":"flow.start","slots":{"id":"fit","minutes":30}},"split":"train","tags":[]}
+{"id":"g0184","lang":"en","text":"good morning","expect":{"kind":"flow.start","slots":{"id":"morning"}},"split":"train","tags":[]}
+{"id":"g0185","lang":"en","text":"walk me through my habits","expect":{"kind":"flow.start","slots":{"id":"walk"}},"split":"train","tags":[]}

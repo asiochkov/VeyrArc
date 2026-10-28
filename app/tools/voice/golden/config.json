@@ -1,0 +1,1 @@
+{ "enforce": false, "q1": 0.95, "q2": 0.9, "note": "enforce is switched on at WP3.5 once the new pipeline replaces the legacy adapter (see docs/voice/decisions.md)" }
