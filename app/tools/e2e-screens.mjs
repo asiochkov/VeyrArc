@@ -1,6 +1,6 @@
 /* Guest with data → every app screen renders without errors; settings persist. */
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
-const S = '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/';
+const S = (process.env.SHOT_DIR || (await import('node:path')).join((await import('node:os')).tmpdir(), 'veyrarc-shots')) + '/';
 for (const [name, vp] of [['desktop', { width: 1280, height: 832 }], ['mobile', { width: 390, height: 844 }]]) {
   const { browser, page, errors } = await open(vp);
   try {

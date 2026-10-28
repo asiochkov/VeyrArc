@@ -1,7 +1,7 @@
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
 /* Disciplines (Master Changeset task 15): Core/Extra, composer, move to Extra, quits + relapse, persisted after reload. */
 const { browser, page, errors } = await open();
-const S = '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/';
+const S = (process.env.SHOT_DIR || (await import('node:path')).join((await import('node:os')).tmpdir(), 'veyrarc-shots')) + '/';
 try {
   await guestOnboard(page, { 'Тело': ['Холодный душ'] });
   await page.goto(APP + '/disciplines');

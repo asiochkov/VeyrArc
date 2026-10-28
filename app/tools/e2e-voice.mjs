@@ -1,6 +1,6 @@
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
 // Assistant: tap the mark next to the dock, «say» a phrase (fake SpeechRecognition), check the app did it
-const S = '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/';
+const S = (process.env.SHOT_DIR || (await import('node:path')).join((await import('node:os')).tmpdir(), 'veyrarc-shots')) + '/';
 const { browser, page, errors } = await open({ width: 390, height: 844 }, { hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 await page.addInitScript(() => {
   class R { start() { if (window.__deny) { setTimeout(() => { this.onerror?.({ error: 'not-allowed' }); this.onend?.(); }, 50); return; } window.__rec = this; } stop() { setTimeout(() => this.onend?.(), 30); } abort() { this.onend?.(); } }

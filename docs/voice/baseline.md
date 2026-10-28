@@ -1,0 +1,19 @@
+# Базовая линия (до работ над ассистентом 2.0)
+
+Дата: 2026-10-28 · код: `71ae04d` (develop) · ветка работ: `feature/voice-2`.
+
+## Сборка
+- `npm run typecheck`: 18 с · `npm run build`: 25 с (vite: 3,2 с).
+- Размер чанков (gzip, байты): `index` 90 687 · `auth` 56 642 · `react-dom` 42 344 · `i18n` 38 047 · `dist` 18 775 · `Calendar` 10 323 · `Legal` 8 379 · `useQuery` 7 547.
+- Критерий Q8: основной бандл (`index`) растёт не более чем на 8 КБ gzip, то есть не выше 98 879 байт.
+
+## Существующие тесты (все зелёные)
+- unit: `tools/unit/voice-intents.test.ts` — 59 из 59.
+- e2e: 17 скриптов `tools/e2e-*.mjs`; `e2e-autoconfirm` на стенде без автоподтверждения почты не проходит (известно, к ассистенту не относится).
+
+## Golden set (2026-10-28, parser: legacy)
+
+- positive (test split): 44.3%
+- noisy: 26.1%
+- negative violations: 122
+- phrases: 361

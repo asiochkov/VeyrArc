@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "compare": "node tools/design-compare.mjs",
-    "build:preview": "tsc -b && vite build --mode preview --base ./ --outDir dist-preview && node tools/preview-page.mjs"
+    "build:preview": "tsc -b && vite build --mode preview --base ./ --outDir dist-preview && node tools/preview-page.mjs",
+    "test:voice": "tsx tools/voice/run-golden.ts && tsx tools/unit/run-all.ts",
+    "train:voice": "tsx tools/voice/train.ts",
+    "coverage:voice": "tsx tools/voice/coverage.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
@@ -30,6 +33,7 @@
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
     "vite-plugin-pwa": "^1.3.0"

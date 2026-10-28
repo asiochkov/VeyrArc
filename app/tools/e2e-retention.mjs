@@ -1,7 +1,7 @@
 /* 1.2 retention: index tile, all-Core wave + toast, comeback after a pause, weekly review, assistant hints. */
 import { execSync } from 'node:child_process';
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
-const S = '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/';
+const S = (process.env.SHOT_DIR || (await import('node:path')).join((await import('node:os')).tmpdir(), 'veyrarc-shots')) + '/';
 const { browser, page, errors } = await open({ width: 390, height: 844 }, { hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 await page.addInitScript(() => { Object.defineProperty(window, 'webkitSpeechRecognition', { value: undefined, configurable: true }); Object.defineProperty(window, 'SpeechRecognition', { value: undefined, configurable: true }); });
 const expect = (c, m) => { if (!c) throw new Error(m); };

@@ -1,6 +1,6 @@
 /* Screenshots of app screens for a fresh guest: VP=390x844 R=/,/planner node tools/shot.mjs */
 import { APP, guestOnboard, open } from './e2e-lib.mjs';
-const OUT = process.env.OUT || '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/';
+const OUT = process.env.OUT || (process.env.SHOT_DIR || (await import('node:path')).join((await import('node:os')).tmpdir(), 'veyrarc-shots')) + '/';
 const [w, h] = (process.env.VP || '390x844').split('x').map(Number);
 const { browser, page, errors } = await open({ width: w, height: h });
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });

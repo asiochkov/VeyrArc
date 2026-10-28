@@ -42,6 +42,6 @@ try {
   if (fin !== 'false') throw new Error('stored offline change not sent');
   console.log(errors.length ? 'page errors: ' + errors.join(' | ') : 'no page errors');
 } catch (e) {
-  await page.screenshot({ path: '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/e2e-fail.png' });
+  await page.screenshot({ path: `${(process.env.SHOT_DIR || (await import('node:path')).join((await import('node:os')).tmpdir(), 'veyrarc-shots')) + '/'}e2e-fail.png` });
   console.error('✗', e.message.split('\n')[0], '@', page.url()); process.exitCode = 1;
 } finally { await browser.close(); }

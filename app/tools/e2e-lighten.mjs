@@ -1,7 +1,7 @@
 /* «Режим восстановления»: a low mood with open planner tasks → the card offers to move them to
    tomorrow; nothing moves until «Применить»; «Вернуть» brings them back; «Не сейчас» hides it for the day. */
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
-const S = '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/';
+const S = (process.env.SHOT_DIR || (await import('node:path')).join((await import('node:os')).tmpdir(), 'veyrarc-shots')) + '/';
 const { browser, page, errors } = await open({ width: 390, height: 844 }, { hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 const card = () => page.getByRole('status', { name: 'Режим восстановления' });
 const addTask = async (title) => {
