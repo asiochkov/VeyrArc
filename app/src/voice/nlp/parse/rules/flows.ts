@@ -1,0 +1,62 @@
+import { add, rx } from '../engine';
+import { listAfter } from './goals';
+import { num, tidy } from './util';
+
+/* WP5.8 phrases: practices, notes, rituals, planning flows (catalog 68, 69, 114, 115, 121–130, 134, 185, 187, 188, 193, 197, 202, 225). */
+const flow = (id: string, extra: Record<string, unknown> = {}) => () => ({ id, ...extra });
+add(
+  { kind: 'flow.start', re: rx('^(?:с чего (?:мне )?начать|что делать в первую очередь|с чего начнем)$'), slots: flow('start') },
+  { kind: 'flow.start', re: rx('^(?:продиктуй мысль|режим диктовки|продиктую мысль|запиши мысль|запиши что я скажу)$'), slots: flow('dictation') },
+  { kind: 'flow.start', re: rx('^(?:режим тренировки|начни тренировку по подходам|тренировка по подходам|веди меня по подходам)$'), slots: flow('workout') },
+  { kind: 'flow.start', over: ['focus.break', 'focus.start'], re: rx('^отдых$'), slots: flow('rest') },
+  { kind: 'flow.start', over: ['focus.break', 'focus.start', 'timer.simple'], re: rx('^отдых (\\d+) (секунд\\p{L}*|минут\\p{L}*)$'), slots: (m) => ({ id: 'rest', seconds: /мин/.test(m[2]) ? num(m[1])! * 60 : num(m[1]) }) },
+  { kind: 'flow.start', over: ['habit.timer'], re: rx('^дыхани\\p{L}* 4[ -]7[ -]8$|^дыхани\\p{L}* четыре семь восемь$'), slots: flow('breathe', { pattern: '478' }) },
+  { kind: 'flow.start', over: ['habit.timer'], re: rx('^(?:дыхани\\p{L}* квадратом|дыхани\\p{L}* по квадрату|квадратное дыхание|подыши со мной|давай подышим|подышим)$'), slots: flow('box') },
+  { kind: 'flow.start', over: ['habit.timer'], re: rx('^заземление(?: 5[ -]4[ -]3[ -]2[ -]1)?$|^заземлени\\p{L}* пять четыре три два один$|^практика заземления$'), slots: flow('ground') },
+  { kind: 'flow.start', re: rx('^(?:минутная пауза|минута тишины|пауза на минуту|минутку тишины)$'), slots: flow('pause') },
+  { kind: 'flow.start', over: ['habit.timer'], re: rx('^(?:растяжка|разминка)(?: (\\d+) минут\\p{L}*)?$'), slots: (m, c) => ({ id: 'stretch', minutes: c.when.duration ?? num(m[1]) }) },
+  { kind: 'flow.start', over: ['habit.timer'], re: rx('^(?:разминка для глаз|гимнастика для глаз|зарядка для глаз|отдых для глаз)$'), slots: flow('eyes') },
+  { kind: 'flow.start', re: rx('^(?:включи|запусти|поставь) (?:мне )?(белый шум|шум дождя|дождь|мягкий шум|шум)$'), slots: (m) => ({ id: 'noise', kind: /дожд/.test(m[1]) ? 'rain' : /мягк/.test(m[1]) ? 'brown' : 'white' }) },
+  { kind: 'flow.start', re: rx('^(?:выключи|останови|отключи) (?:белый )?шум$|^включи тишину$|^тишина$'), slots: flow('noise', { off: true }) },
+  { kind: 'flow.start', re: rx('^(?:благодарность дня|благодарность|(?:три|3) благодарности|за что я благодарен)$'), slots: flow('gratitude') },
+  { kind: 'flow.start', re: rx('^что (?:было )?(?:сложн\\p{L}*|трудн\\p{L}*)(?: сегодня)?$'), slots: flow('hard') },
+  { kind: 'flow.start', re: rx('^что я узнал(?:а)?(?: сегодня)?$'), slots: flow('learned') },
+  { kind: 'flow.start', re: rx('^(?:недельная рефлексия|рефлексия недели|рефлексия за неделю)$'), slots: flow('weekreflect') },
+  { kind: 'flow.start', over: ['plan.week', 'plan.day'], re: rx('^(?:спланируй|планируем|давай спланируем|запланируй) (?:мне )?неделю$'), slots: flow('planweek') },
+  { kind: 'flow.start', full: true, re: rx('^(?:подготовь меня к (?:завтрашнему дню|завтра)|подготовка (?:к|на) завтра|подготовь (?:мне )?завтра)$'), slots: flow('prep') },
+  { kind: 'flow.start', re: rx('^(?:включи )?демонстраци\\p{L}*(?: возможностей)?$|^покажи что ты умеешь по шагам$'), slots: flow('demo') },
+  { kind: 'ritual.create', over: ['goal.addFull', 'task.add', 'habit.add'], src: 'raw', re: rx('^(?:создай|сделай|добавь|заведи) (\\p{L}+) ритуал\\s*:\\s*(.+)$'), slots: (m) => ({ name: tidy(m[1]), steps: listAfter(m[2], /^/) }) },
+  { kind: 'ritual.run', over: ['habit.timer', 'flow.start'], re: rx('^(?:запусти|начни|включи|давай) (\\p{L}+) ритуал$|^(?:запусти|начни) ритуал (\\p{L}+)$'), slots: (m) => ({ name: tidy(m[1] ?? m[2]) }) },
+  { kind: 'ritual.edit', over: ['task.move'], re: rx('^перестрой (?:(\\p{L}+) )?ритуал[: ]*(?:сначала|первым)\\s+(.+)$'), slots: (m) => ({ name: tidy(m[1]), op: 'first', step: tidy(m[2]) }) },
+  { kind: 'ritual.edit', over: ['task.move'], re: rx('^перестрой (?:(\\p{L}+) )?ритуал[: ]*(?:в конце|последним)\\s+(.+)$'), slots: (m) => ({ name: tidy(m[1]), op: 'last', step: tidy(m[2]) }) },
+  { kind: 'ritual.edit', re: rx('^добавь в (?:(\\p{L}+) )?ритуал шаг (.+)$'), slots: (m) => ({ name: tidy(m[1]), op: 'add', step: tidy(m[2]) }) },
+  { kind: 'ritual.edit', re: rx('^убери из (?:(\\p{L}+) )?ритуала шаг (.+)$'), slots: (m) => ({ name: tidy(m[1]), op: 'remove', step: tidy(m[2]) }) },
+  { kind: 'ritual.list', re: rx('‹(?:покажи|какие|список) (?:мои )?ритуал\\p{L}*(?: и шаблон\\p{L}*)?›|^мои ритуалы$') },
+);
+const en = (...rules: Parameters<typeof add>) => add(...rules.map((r) => ({ ...r, lang: 'en' as const })));
+en(
+  { kind: 'flow.start', re: rx('^(?:where (?:do i|should i) start|what should i start with|where to start)$'), slots: flow('start') },
+  { kind: 'flow.start', re: rx('^(?:dictation mode|dictate a thought|let me dictate|take a note as i speak)$'), slots: flow('dictation') },
+  { kind: 'flow.start', re: rx('^(?:workout mode|guide me through sets|start workout mode)$'), slots: flow('workout') },
+  { kind: 'flow.start', over: ['focus.break'], re: rx('^rest$'), slots: flow('rest') },
+  { kind: 'flow.start', over: ['focus.break', 'timer.simple'], re: rx('^rest (?:for )?(\\d+) (seconds?|minutes?)$'), slots: (m) => ({ id: 'rest', seconds: /min/.test(m[2]) ? num(m[1])! * 60 : num(m[1]) }) },
+  { kind: 'flow.start', re: rx('^breathing 4[ -]7[ -]8$|^4[ -]7[ -]8 breathing$'), slots: flow('breathe', { pattern: '478' }) },
+  { kind: 'flow.start', re: rx('^(?:box breathing|square breathing|breathe with me|lets breathe)$'), slots: flow('box') },
+  { kind: 'flow.start', re: rx('^(?:grounding(?: 5[ -]4[ -]3[ -]2[ -]1)?|grounding exercise)$'), slots: flow('ground') },
+  { kind: 'flow.start', re: rx('^(?:(?:one|1) minute pause|a minute of quiet|minute of silence|quiet minute)$'), slots: flow('pause') },
+  { kind: 'flow.start', re: rx('^(?:stretch|stretching)(?: (?:for )?(\\d+) minutes?)?$'), slots: (m, c) => ({ id: 'stretch', minutes: c.when.duration ?? num(m[1]) }) },
+  { kind: 'flow.start', re: rx('^(?:eye break|eye exercise|eyes break|rest my eyes)$'), slots: flow('eyes') },
+  { kind: 'flow.start', re: rx('^(?:turn on|start|play) (white noise|rain|rain noise|soft noise|noise)$'), slots: (m) => ({ id: 'noise', kind: /rain/.test(m[1]) ? 'rain' : /soft/.test(m[1]) ? 'brown' : 'white' }) },
+  { kind: 'flow.start', re: rx('^(?:turn off|stop) (?:the )?(?:white )?noise$|^silence$'), slots: flow('noise', { off: true }) },
+  { kind: 'flow.start', re: rx('^(?:gratitude|daily gratitude|gratitude of the day)$'), slots: flow('gratitude') },
+  { kind: 'flow.start', re: rx('^what was hard(?: today)?$'), slots: flow('hard') },
+  { kind: 'flow.start', re: rx('^what did i learn(?: today)?$'), slots: flow('learned') },
+  { kind: 'flow.start', re: rx('^(?:weekly reflection|reflect on my week|week reflection)$'), slots: flow('weekreflect') },
+  { kind: 'flow.start', over: ['plan.week', 'plan.day', 'task.add'], re: rx('^(?:plan my week|plan the week|lets plan the week)$'), slots: flow('planweek') },
+  { kind: 'flow.start', full: true, re: rx('^(?:prepare me for tomorrow|get me ready for tomorrow|prep for tomorrow)$'), slots: flow('prep') },
+  { kind: 'flow.start', re: rx('^(?:start the demo|demo|show me what you can do step by step)$'), slots: flow('demo') },
+  { kind: 'ritual.create', over: ['task.add', 'habit.add'], src: 'raw', re: rx('^(?:create|make|add) (?:a |my )?(\\p{L}+) ritual\\s*:\\s*(.+)$'), slots: (m) => ({ name: tidy(m[1]), steps: listAfter(m[2], /^/) }) },
+  { kind: 'ritual.run', re: rx('^(?:start|run|begin) (?:my |the )?(\\p{L}+) ritual$'), slots: (m) => ({ name: tidy(m[1]) }) },
+  { kind: 'ritual.edit', re: rx('^rearrange (?:the |my )?(?:(\\p{L}+) )?ritual[: ]*(?:first|start with)\\s+(.+)$'), slots: (m) => ({ name: tidy(m[1]), op: 'first', step: tidy(m[2]) }) },
+  { kind: 'ritual.list', re: rx('‹(?:show|list) (?:my )?rituals(?: and templates)?›') },
+);

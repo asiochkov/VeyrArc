@@ -24,6 +24,13 @@ export function reviewWeek(now = new Date()) {
   return now.getDay() === 1 && now.getHours() < 14 ? addDays(weekStart(today), -7) : weekStart(today);
 }
 /** keep the line the person chose to carry into the week (the screen and the assistant both write it here) */
+/** the storage key and the old value of the line that saveWeekFocus() is about to write (for undo) */
+export function weekFocusSlot(now = new Date()) {
+  const from = reviewWeek(now);
+  const key = FOCUS(now.getDay() === 0 ? addDays(from, 7) : weekStart(isoDay(now)));
+  return { key, prev: get(key) };
+}
+export function restoreLocal(key: string, prev: string | null) { try { if (prev == null) localStorage.removeItem(key); else localStorage.setItem(key, prev); } catch { /* no storage */ } }
 export function saveWeekFocus(text: string, now = new Date()) {
   const from = reviewWeek(now);
   const target = now.getDay() === 0 ? addDays(from, 7) : weekStart(isoDay(now));

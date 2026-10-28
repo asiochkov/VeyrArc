@@ -95,7 +95,7 @@ export const INTENTS: IntentSpec[] = [
   // notes, wins, search
   S('notes.read', 'R0', [], [189]), S('wins.add', 'R2', ['text'], [186]), S('wins.list', 'R0', [], [194]), S('search.all', 'R0', ['query'], [190, 191, 192]),
   // rituals, templates, rules
-  S('ritual.create', 'R2', ['name', 'steps'], [128]), S('ritual.edit', 'R2', ['name'], [130]), S('ritual.list', 'R0', [], [134]), S('ritual.run', 'R1', ['name'], [129]),
+  S('ritual.create', 'R2', ['name', 'steps'], [128]), S('ritual.edit', 'R2', [], [130]), S('ritual.list', 'R0', [], [134]), S('ritual.run', 'R1', ['name'], [129]),
   S('template.save', 'R2', ['name'], [131]), S('template.apply', 'R2', ['name'], [132]), S('template.delete', 'R3', ['name'], [135]), S('template.list', 'R0'),
   S('rule.ifthen', 'R1', [], [137]),
   // guided flows: flow.start{id}

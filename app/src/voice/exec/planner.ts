@@ -16,7 +16,7 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const LIMIT_EVENTS = 30; // a series is at most this many events (decision #24)
 const no = (c: ExecCtx): Reply => R.info(c.ru ? 'Хорошо, ничего не меняю' : 'Okay, nothing changed');
 const ask = (c: ExecCtx, say: string, yes: () => Reply): Reply => R.confirm(say, { choices: [{ label: c.ru ? 'Да' : 'Yes', yes: true, run: yes }, { label: c.ru ? 'Нет' : 'No', yes: false, run: () => no(c) }] });
-const newEvent = (title: string, day: string, start: string | null, end: string | null, extra: Partial<PlanRow> = {}): PlanRow =>
+export const newEvent = (title: string, day: string, start: string | null, end: string | null, extra: Partial<PlanRow> = {}): PlanRow =>
   ({ id: crypto.randomUUID(), title: cap(title).slice(0, 120), day, starts_at: start, ends_at: end, note: null, done: false, category_id: null, ...extra });
 const endFor = (start: string | null, minutes = 60) => (start ? fromMin(Math.min(23 * 60 + 59, toMin(start) + minutes)) : null);
 /** open tasks near today: the pool a phrase like «перенеси созвон» searches */

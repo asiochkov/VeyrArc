@@ -27,15 +27,19 @@ export interface FlowDef {
   answer(c: ExecCtx, f: FlowState, a: Answer): FlowOut;
   /** the current step said again */
   repeat?(c: ExecCtx, f: FlowState): FlowOut;
+  /** «стоп» in the middle: stop timers, save what was gathered; the returned line is the closing reply */
+  stop?(c: ExecCtx, f: FlowState): FlowOut | void;
 }
 
 const FLOWS = new Map<string, FlowDef>();
 export const defineFlow = (d: FlowDef) => { FLOWS.set(d.id, d); };
 export const hasFlow = (id: string) => FLOWS.has(id);
 export const flowActive = () => !!dialog.get().flow;
+/** a timed practice ran out by itself: the flow that waited for it is over */
+export const endFlow = (id: string) => { const ctx = dialog.get(); if (ctx.flow?.id === id) ctx.flow = undefined; };
 
 const CONTROL: [RegExp, Answer['control']][] = [
-  [/^(?:стоп|хватит|выход|достаточно|заверши|остановись|stop|enough|quit|exit)$/, 'stop'],
+  [/^(?:стоп|хватит|выход|достаточно|заверши|остановись|готово|все|сохрани|stop|enough|quit|exit|done|finished)$/, 'stop'],
   [/^(?:повтори|ещё раз|еще раз|repeat|again)$/, 'repeat'],
   [/^(?:дальше|далее|следующ\p{L}*|пропусти|skip|next)$/u, 'next'],
   [/^(?:назад|вернись|back|previous)$/, 'back'],
@@ -84,7 +88,12 @@ export function flowTurn(text: string, c: ExecCtx): Reply | null {
   const def = FLOWS.get(f.id);
   if (!def) { dialog.get().flow = undefined; return null; }
   const a = answerOf(text);
-  if (a.control === 'stop') { dialog.get().flow = undefined; return R.done(c.ru ? 'Хорошо, остановились' : 'Okay, stopped'); }
+  if (a.control === 'stop') {
+    dialog.get().flow = undefined;
+    const out = def.stop?.(c, f);
+    if (out) return apply(def, null, { ...out, end: true }, c);
+    return R.done(c.ru ? 'Хорошо, остановились' : 'Okay, stopped');
+  }
   if (a.control === 'repeat' && def.repeat) return apply(def, f, def.repeat(c, f), c);
   const usable = a.control !== null || f.listen === 'free' || f.listen === 'none'
     || (f.listen === 'yesno' && a.yn !== null) || (f.listen === 'number' && (a.num !== null || a.yn !== null)) || (f.listen === 'mood' && (a.mood !== null || a.yn === 'skip'));

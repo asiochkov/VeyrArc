@@ -2,6 +2,7 @@ import {
   archiveQuit, clearMood, deleteEvent, deleteGoal, deleteGoalStep, deleteHabit, logGoalTask, logHabit, logMood, logWater,
   renameGoalStep, restoreGoalStep, restoreQuit, saveDayNote, saveDiary, saveEvent, saveOath, setEventDone, undoRelapseOp, updateGoal, updateHabit, updateQuit,
 } from '../../state/actions';
+import { restoreLocal } from '../../pages/today/WeeklyReview';
 import { usePrefs, type Prefs } from '../prefs';
 import type { UndoOp } from './types';
 
@@ -33,6 +34,7 @@ export function applyUndo(op: UndoOp): void {
     case 'relapse.undo': return undoRelapseOp(op);
     case 'diary': return saveDiary(op.goalId, op.day, op.prev ?? '', () => {}, () => {});
     case 'oath': return saveOath(op.arcId, op.prev ?? '');
+    case 'local': return restoreLocal(op.key, op.prev);
     case 'prefs': return usePrefs.getState().set({ [op.key]: op.prev } as Partial<Prefs>);
     case 'batch': { for (const o of [...op.ops].reverse()) applyUndo(o); return; }
   }

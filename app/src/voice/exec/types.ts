@@ -23,6 +23,7 @@ export type UndoOp =
   | { t: 'relapse.undo'; quitId: string; tempId: string; prevCleanSince: string; prevBest: number } // from actions.takeRelapseOp()
   | { t: 'diary'; goalId: string; day: string; prev: string | null }
   | { t: 'oath'; arcId: string; prev: string | null }
+  | { t: 'local'; key: string; prev: string | null } // a line kept in this device's storage (the focus of the week)
   | { t: 'prefs'; key: string; prev: unknown } // local assistant settings
   | { t: 'batch'; ops: UndoOp[] };
 

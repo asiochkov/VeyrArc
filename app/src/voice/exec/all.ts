@@ -6,3 +6,4 @@ import './goals';
 import './planner';
 import './planRead';
 import './focus';
+import './rituals';

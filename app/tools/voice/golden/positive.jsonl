@@ -655,3 +655,68 @@
 {"id":"g0655","lang":"ru","text":"хочу выучить испанский","expect":{"kind":"goal.add","slots":{"title":"выучить испанский"}},"split":"test","tags":[]}
 {"id":"g0656","lang":"ru","text":"вычеркни хлеб","expect":{"kind":"task.doneMany","slots":{"items":["хлеб"]}},"split":"train","tags":[]}
 {"id":"g0657","lang":"en","text":"i want to learn guitar","expect":{"kind":"goal.add","slots":{"title":"learn guitar"}},"split":"test","tags":[]}
+{"id":"g0658","lang":"ru","text":"с чего начать","expect":{"kind":"flow.start","slots":{"id":"start"}},"split":"test","tags":[]}
+{"id":"g0659","lang":"ru","text":"с чего мне начать","expect":{"kind":"flow.start","slots":{"id":"start"}},"split":"train","tags":[]}
+{"id":"g0660","lang":"en","text":"where should i start","expect":{"kind":"flow.start","slots":{"id":"start"}},"split":"train","tags":[]}
+{"id":"g0661","lang":"ru","text":"продиктуй мысль","expect":{"kind":"flow.start","slots":{"id":"dictation"}},"split":"test","tags":[]}
+{"id":"g0662","lang":"ru","text":"режим диктовки","expect":{"kind":"flow.start","slots":{"id":"dictation"}},"split":"train","tags":[]}
+{"id":"g0663","lang":"en","text":"dictation mode","expect":{"kind":"flow.start","slots":{"id":"dictation"}},"split":"test","tags":[]}
+{"id":"g0664","lang":"ru","text":"режим тренировки","expect":{"kind":"flow.start","slots":{"id":"workout"}},"split":"train","tags":[]}
+{"id":"g0665","lang":"en","text":"workout mode","expect":{"kind":"flow.start","slots":{"id":"workout"}},"split":"train","tags":[]}
+{"id":"g0666","lang":"ru","text":"отдых девяносто секунд","expect":{"kind":"flow.start","slots":{"id":"rest","seconds":90}},"split":"train","tags":[]}
+{"id":"g0667","lang":"ru","text":"отдых 2 минуты","expect":{"kind":"flow.start","slots":{"id":"rest","seconds":120}},"split":"test","tags":[]}
+{"id":"g0668","lang":"en","text":"rest for 90 seconds","expect":{"kind":"flow.start","slots":{"id":"rest","seconds":90}},"split":"train","tags":[]}
+{"id":"g0669","lang":"ru","text":"дыхание четыре семь восемь","expect":{"kind":"flow.start","slots":{"id":"breathe","pattern":"478"}},"split":"train","tags":[]}
+{"id":"g0670","lang":"ru","text":"дыхание 4-7-8","expect":{"kind":"flow.start","slots":{"id":"breathe","pattern":"478"}},"split":"test","tags":[]}
+{"id":"g0671","lang":"en","text":"breathing 4-7-8","expect":{"kind":"flow.start","slots":{"id":"breathe","pattern":"478"}},"split":"train","tags":[]}
+{"id":"g0672","lang":"ru","text":"дыхание квадратом","expect":{"kind":"flow.start","slots":{"id":"box"}},"split":"train","tags":[]}
+{"id":"g0673","lang":"ru","text":"давай подышим","expect":{"kind":"flow.start","slots":{"id":"box"}},"split":"train","tags":[]}
+{"id":"g0674","lang":"en","text":"box breathing","expect":{"kind":"flow.start","slots":{"id":"box"}},"split":"train","tags":[]}
+{"id":"g0675","lang":"ru","text":"заземление пять четыре три два один","expect":{"kind":"flow.start","slots":{"id":"ground"}},"split":"train","tags":[]}
+{"id":"g0676","lang":"ru","text":"заземление","expect":{"kind":"flow.start","slots":{"id":"ground"}},"split":"train","tags":[]}
+{"id":"g0677","lang":"en","text":"grounding","expect":{"kind":"flow.start","slots":{"id":"ground"}},"split":"test","tags":[]}
+{"id":"g0678","lang":"ru","text":"минутная пауза","expect":{"kind":"flow.start","slots":{"id":"pause"}},"split":"train","tags":[]}
+{"id":"g0679","lang":"ru","text":"минута тишины","expect":{"kind":"flow.start","slots":{"id":"pause"}},"split":"train","tags":[]}
+{"id":"g0680","lang":"en","text":"one minute pause","expect":{"kind":"flow.start","slots":{"id":"pause"}},"split":"test","tags":[]}
+{"id":"g0681","lang":"ru","text":"растяжка пять минут","expect":{"kind":"flow.start","slots":{"id":"stretch","minutes":5}},"split":"train","tags":[]}
+{"id":"g0682","lang":"ru","text":"растяжка","expect":{"kind":"flow.start","slots":{"id":"stretch"}},"split":"test","tags":[]}
+{"id":"g0683","lang":"en","text":"stretch for 5 minutes","expect":{"kind":"flow.start","slots":{"id":"stretch","minutes":5}},"split":"test","tags":[]}
+{"id":"g0684","lang":"ru","text":"разминка для глаз","expect":{"kind":"flow.start","slots":{"id":"eyes"}},"split":"test","tags":[]}
+{"id":"g0685","lang":"ru","text":"гимнастика для глаз","expect":{"kind":"flow.start","slots":{"id":"eyes"}},"split":"train","tags":[]}
+{"id":"g0686","lang":"en","text":"eye break","expect":{"kind":"flow.start","slots":{"id":"eyes"}},"split":"train","tags":[]}
+{"id":"g0687","lang":"ru","text":"включи белый шум","expect":{"kind":"flow.start","slots":{"id":"noise","kind":"white"}},"split":"train","tags":[]}
+{"id":"g0688","lang":"ru","text":"включи шум дождя","expect":{"kind":"flow.start","slots":{"id":"noise","kind":"rain"}},"split":"train","tags":[]}
+{"id":"g0689","lang":"ru","text":"выключи шум","expect":{"kind":"flow.start","slots":{"id":"noise","off":true}},"split":"train","tags":[]}
+{"id":"g0690","lang":"en","text":"turn on white noise","expect":{"kind":"flow.start","slots":{"id":"noise","kind":"white"}},"split":"test","tags":[]}
+{"id":"g0691","lang":"ru","text":"благодарность дня","expect":{"kind":"flow.start","slots":{"id":"gratitude"}},"split":"train","tags":[]}
+{"id":"g0692","lang":"ru","text":"три благодарности","expect":{"kind":"flow.start","slots":{"id":"gratitude"}},"split":"train","tags":[]}
+{"id":"g0693","lang":"en","text":"gratitude of the day","expect":{"kind":"flow.start","slots":{"id":"gratitude"}},"split":"train","tags":[]}
+{"id":"g0694","lang":"ru","text":"что было сложным сегодня","expect":{"kind":"flow.start","slots":{"id":"hard"}},"split":"test","tags":[]}
+{"id":"g0695","lang":"ru","text":"что было трудным","expect":{"kind":"flow.start","slots":{"id":"hard"}},"split":"train","tags":[]}
+{"id":"g0696","lang":"en","text":"what was hard today","expect":{"kind":"flow.start","slots":{"id":"hard"}},"split":"train","tags":[]}
+{"id":"g0697","lang":"ru","text":"что я узнал сегодня","expect":{"kind":"flow.start","slots":{"id":"learned"}},"split":"train","tags":[]}
+{"id":"g0698","lang":"ru","text":"что я узнал","expect":{"kind":"flow.start","slots":{"id":"learned"}},"split":"train","tags":[]}
+{"id":"g0699","lang":"en","text":"what did i learn today","expect":{"kind":"flow.start","slots":{"id":"learned"}},"split":"test","tags":[]}
+{"id":"g0700","lang":"ru","text":"недельная рефлексия","expect":{"kind":"flow.start","slots":{"id":"weekreflect"}},"split":"test","tags":[]}
+{"id":"g0701","lang":"ru","text":"рефлексия недели","expect":{"kind":"flow.start","slots":{"id":"weekreflect"}},"split":"train","tags":[]}
+{"id":"g0702","lang":"en","text":"weekly reflection","expect":{"kind":"flow.start","slots":{"id":"weekreflect"}},"split":"train","tags":[]}
+{"id":"g0703","lang":"ru","text":"спланируй неделю","expect":{"kind":"flow.start","slots":{"id":"planweek"}},"split":"train","tags":[]}
+{"id":"g0704","lang":"ru","text":"давай спланируем неделю","expect":{"kind":"flow.start","slots":{"id":"planweek"}},"split":"train","tags":[]}
+{"id":"g0705","lang":"en","text":"plan my week","expect":{"kind":"flow.start","slots":{"id":"planweek"}},"split":"train","tags":[]}
+{"id":"g0706","lang":"ru","text":"подготовь меня к завтрашнему дню","expect":{"kind":"flow.start","slots":{"id":"prep"}},"split":"train","tags":[]}
+{"id":"g0707","lang":"ru","text":"подготовка к завтра","expect":{"kind":"flow.start","slots":{"id":"prep"}},"split":"test","tags":[]}
+{"id":"g0708","lang":"en","text":"prepare me for tomorrow","expect":{"kind":"flow.start","slots":{"id":"prep"}},"split":"test","tags":[]}
+{"id":"g0709","lang":"ru","text":"включи демонстрацию возможностей","expect":{"kind":"flow.start","slots":{"id":"demo"}},"split":"train","tags":[]}
+{"id":"g0710","lang":"ru","text":"включи демонстрацию","expect":{"kind":"flow.start","slots":{"id":"demo"}},"split":"train","tags":[]}
+{"id":"g0711","lang":"en","text":"start the demo","expect":{"kind":"flow.start","slots":{"id":"demo"}},"split":"train","tags":[]}
+{"id":"g0712","lang":"ru","text":"создай утренний ритуал: зарядка, вода, медитация","expect":{"kind":"ritual.create","slots":{"name":"утренний","steps":["зарядка","вода","медитация"]}},"split":"train","tags":[]}
+{"id":"g0713","lang":"ru","text":"создай вечерний ритуал: чтение, вода","expect":{"kind":"ritual.create","slots":{"name":"вечерний","steps":["чтение","вода"]}},"split":"train","tags":[]}
+{"id":"g0714","lang":"en","text":"create a morning ritual: workout, water, meditation","expect":{"kind":"ritual.create","slots":{"name":"morning","steps":["workout","water","meditation"]}},"split":"test","tags":[]}
+{"id":"g0715","lang":"ru","text":"запусти утренний ритуал","expect":{"kind":"ritual.run","slots":{"name":"утренний"}},"split":"train","tags":[]}
+{"id":"g0716","lang":"ru","text":"начни вечерний ритуал","expect":{"kind":"ritual.run","slots":{"name":"вечерний"}},"split":"train","tags":[]}
+{"id":"g0717","lang":"en","text":"start my morning ritual","expect":{"kind":"ritual.run","slots":{"name":"morning"}},"split":"test","tags":[]}
+{"id":"g0718","lang":"ru","text":"перестрой ритуал: сначала вода","expect":{"kind":"ritual.edit","slots":{"op":"first","step":"вода"}},"split":"train","tags":[]}
+{"id":"g0719","lang":"ru","text":"перестрой утренний ритуал: сначала вода","expect":{"kind":"ritual.edit","slots":{"name":"утренний","op":"first","step":"вода"}},"split":"train","tags":[]}
+{"id":"g0720","lang":"ru","text":"покажи мои ритуалы и шаблоны","expect":{"kind":"ritual.list","slots":{}},"split":"train","tags":[]}
+{"id":"g0721","lang":"ru","text":"покажи мои ритуалы","expect":{"kind":"ritual.list","slots":{}},"split":"train","tags":[]}
+{"id":"g0722","lang":"en","text":"show my rituals and templates","expect":{"kind":"ritual.list","slots":{}},"split":"train","tags":[]}

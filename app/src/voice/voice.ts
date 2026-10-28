@@ -92,6 +92,16 @@ function speak(text: string, then?: () => void) {
   setTimeout(() => { if (useVoice.getState().state === 'processing') { set({ state: 'speaking' }); setTimeout(done, 1200); } }, 900);
 }
 
+/* a timed practice (breathing, rest, stretching) says its next line: shown in the panel and spoken */
+if (typeof window !== 'undefined') {
+  window.addEventListener('veyrarc:practice', (e) => {
+    const d = (e as CustomEvent<{ text: string; done?: boolean }>).detail;
+    if (!d?.text) return;
+    set({ reply: d.text, state: 'speaking', ok: true });
+    speak(d.text, () => set({ state: 'idle' }));
+  });
+}
+
 let closeAfter: ReturnType<typeof setTimeout> | undefined;
 async function show(r: Reply | Promise<Reply>) {
   const rep = await r;

@@ -1,7 +1,7 @@
 import { addDays, weekStart } from '../../data/model';
 import { logMood, saveDayNote, saveEvent } from '../../state/actions';
 import { periodOf } from '../../state/compute';
-import { saveWeekFocus, stats } from '../../pages/today/WeeklyReview';
+import { saveWeekFocus, stats, weekFocusSlot } from '../../pages/today/WeeklyReview';
 import { currentStreak, hm, habitsToday, markHabit, openHabits, plural, q, sortedByTime, tasksOf, toMin } from '../exec/common';
 import type { UndoOp } from '../exec/types';
 import { register } from '../exec';
@@ -155,8 +155,9 @@ defineFlow({
   repeat(c) { return { say: c.ru ? 'Что берёшь в следующую неделю?' : 'What will you carry into next week?', listen: 'free' }; },
   answer(c, _f, a) {
     if (a.control === 'next' || !a.text) return { say: c.ru ? 'Хорошо, без записи' : 'Okay, nothing saved', end: true };
+    const slot = weekFocusSlot(c.now);
     const v = saveWeekFocus(a.text, c.now);
-    return { say: c.ru ? `Записал на неделю: ${q(v)}` : `Saved for the week: “${v}”`, end: true };
+    return { say: c.ru ? `Записал на неделю: ${q(v)}` : `Saved for the week: “${v}”`, end: true, ops: [{ t: 'local', key: slot.key, prev: slot.prev }] };
   },
 });
 
