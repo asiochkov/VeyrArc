@@ -2,3 +2,4 @@
 import './habits';
 import './mood';
 import './quits';
+import './goals';

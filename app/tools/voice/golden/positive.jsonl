@@ -459,3 +459,72 @@
 {"id":"g0459","lang":"en","text":"set the quit goal for smoking to 30 days","expect":{"kind":"quit.goal","slots":{"query":"smoking","days":30}},"split":"test","tags":[]}
 {"id":"g0460","lang":"en","text":"archive the quit from coffee","expect":{"kind":"quit.archive","slots":{"query":"coffee"},"action":"confirm"},"split":"train","tags":[]}
 {"id":"g0461","lang":"en","text":"when do i usually slip","expect":{"kind":"quit.when","slots":{}},"split":"test","tags":[]}
+{"id":"g0462","lang":"ru","text":"что дальше по цели марафон","expect":{"kind":"goal.next","slots":{"query":"марафон"}},"split":"train","tags":[]}
+{"id":"g0463","lang":"ru","text":"следующий шаг по цели английский","expect":{"kind":"goal.next","slots":{"query":"английский"}},"split":"test","tags":[]}
+{"id":"g0464","lang":"ru","text":"с какого шага начать по марафону","expect":{"kind":"goal.next","slots":{"query":"марафону"}},"split":"train","tags":[]}
+{"id":"g0465","lang":"ru","text":"как у меня с целью марафон","expect":{"kind":"goal.progress","slots":{"query":"марафон"}},"split":"train","tags":[]}
+{"id":"g0466","lang":"ru","text":"как дела с целью английский","expect":{"kind":"goal.progress","slots":{"query":"английский"}},"split":"train","tags":[]}
+{"id":"g0467","lang":"ru","text":"прогресс по цели марафон","expect":{"kind":"goal.progress","slots":{"query":"марафон"}},"split":"train","tags":[]}
+{"id":"g0468","lang":"ru","text":"успею ли я к дедлайну по английскому","expect":{"kind":"goal.pace","slots":{"query":"английскому"}},"split":"train","tags":[]}
+{"id":"g0469","lang":"ru","text":"хватит ли времени на цель марафон","expect":{"kind":"goal.pace","slots":{"query":"марафон"}},"split":"train","tags":[]}
+{"id":"g0470","lang":"ru","text":"какой темп по цели английский","expect":{"kind":"goal.pace","slots":{"query":"английский"}},"split":"train","tags":[]}
+{"id":"g0471","lang":"ru","text":"перенеси дедлайн цели марафон на первое января","expect":{"kind":"goal.deadline","slots":{"query":"марафон","day":"2027-01-01"}},"split":"train","tags":[]}
+{"id":"g0472","lang":"ru","text":"измени срок по цели английский на пятнадцатое июня","expect":{"kind":"goal.deadline","slots":{"query":"английский","day":"2027-06-15"}},"split":"train","tags":[]}
+{"id":"g0473","lang":"ru","text":"закрой цель марафон","expect":{"kind":"goal.complete","slots":{"query":"марафон"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0474","lang":"ru","text":"цель марафон выполнена","expect":{"kind":"goal.complete","slots":{"query":"марафон"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0475","lang":"ru","text":"заверши цель английский","expect":{"kind":"goal.complete","slots":{"query":"английский"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0476","lang":"ru","text":"переименуй цель марафон в полумарафон","expect":{"kind":"goal.rename","slots":{"query":"марафон","to":"полумарафон"}},"split":"test","tags":[]}
+{"id":"g0477","lang":"ru","text":"переименуй цель английский в испанский","expect":{"kind":"goal.rename","slots":{"query":"английский","to":"испанский"}},"split":"train","tags":[]}
+{"id":"g0478","lang":"ru","text":"переименуй шаг слова в лексику","expect":{"kind":"goal.step.rename","slots":{"query":"слова","to":"лексику"}},"split":"train","tags":[]}
+{"id":"g0479","lang":"ru","text":"переименуй шаг грамматика в правила","expect":{"kind":"goal.step.rename","slots":{"query":"грамматика","to":"правила"}},"split":"test","tags":[]}
+{"id":"g0480","lang":"ru","text":"удали шаг слова","expect":{"kind":"goal.step.delete","slots":{"query":"слова"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0481","lang":"ru","text":"убери шаг найти план","expect":{"kind":"goal.step.delete","slots":{"query":"найти план"},"action":"confirm"},"split":"test","tags":[]}
+{"id":"g0482","lang":"ru","text":"привяжи цель марафон к зарядке","expect":{"kind":"goal.link","slots":{"query":"марафон","habit":"зарядке"}},"split":"train","tags":[]}
+{"id":"g0483","lang":"ru","text":"привяжи цель английский к чтению","expect":{"kind":"goal.link","slots":{"query":"английский","habit":"чтению"}},"split":"test","tags":[]}
+{"id":"g0484","lang":"ru","text":"привяжи цель к тренировке","expect":{"kind":"goal.link","slots":{"habit":"тренировке"}},"split":"test","tags":[]}
+{"id":"g0485","lang":"ru","text":"запиши в дневник цели английский сегодня выучил десять слов","expect":{"kind":"goal.diary.add","slots":{"query":"английский","text":"выучил десять слов"}},"split":"test","tags":[]}
+{"id":"g0486","lang":"ru","text":"добавь в дневник цели марафон тяжело но справился","expect":{"kind":"goal.diary.add","slots":{"query":"марафон"}},"split":"train","tags":[]}
+{"id":"g0487","lang":"ru","text":"прочитай дневник цели за вчера","expect":{"kind":"goal.diary.read","slots":{"day":"2026-10-27"}},"split":"train","tags":[]}
+{"id":"g0488","lang":"ru","text":"что я писал в дневнике цели марафон","expect":{"kind":"goal.diary.read","slots":{"query":"марафон"}},"split":"train","tags":[]}
+{"id":"g0489","lang":"ru","text":"прочитай дневник цели марафон","expect":{"kind":"goal.diary.read","slots":{"query":"марафон"}},"split":"train","tags":[]}
+{"id":"g0490","lang":"ru","text":"разбей цель марафон на шаги: купить кроссовки, найти план, первая пробежка","expect":{"kind":"goal.split","slots":{"query":"марафон","steps":["купить кроссовки","найти план","первая пробежка"]}},"split":"train","tags":[]}
+{"id":"g0491","lang":"ru","text":"разбей цель на шаги: слова, грамматика, разговорный клуб","expect":{"kind":"goal.split","slots":{"steps":["слова","грамматика","разговорный клуб"]}},"split":"train","tags":[]}
+{"id":"g0492","lang":"ru","text":"раздели цель английский на шаги: слова и грамматика","expect":{"kind":"goal.split","slots":{"query":"английский","steps":["слова","грамматика"]}},"split":"train","tags":[]}
+{"id":"g0493","lang":"ru","text":"что у меня горит по целям","expect":{"kind":"goal.hot","slots":{}},"split":"train","tags":[]}
+{"id":"g0494","lang":"ru","text":"что горит","expect":{"kind":"goal.hot","slots":{}},"split":"train","tags":[]}
+{"id":"g0495","lang":"ru","text":"какие цели горят","expect":{"kind":"goal.hot","slots":{}},"split":"test","tags":[]}
+{"id":"g0496","lang":"ru","text":"в цель марафон добавь растяжка","expect":{"kind":"goal.step.add","slots":{"goal":"марафон","text":"растяжка"}},"split":"train","tags":[]}
+{"id":"g0497","lang":"ru","text":"добавь шаг ледяная ванна в цель марафон","expect":{"kind":"goal.step.add","slots":{"goal":"марафон","text":"ледяная ванна"}},"split":"train","tags":[]}
+{"id":"g0498","lang":"ru","text":"в цель английский добавь шаг подкасты","expect":{"kind":"goal.step.add","slots":{"goal":"английский","text":"подкасты"}},"split":"train","tags":[]}
+{"id":"g0499","lang":"ru","text":"цель выучить английский до июня: слова, грамматика, разговорный клуб","expect":{"kind":"goal.addFull","slots":{"title":"выучить английский","day":"2027-06-30","steps":["слова","грамматика","разговорный клуб"]}},"split":"train","tags":[]}
+{"id":"g0500","lang":"ru","text":"создай цель сдать экзамен до декабря: билеты, практика, пробный тест","expect":{"kind":"goal.addFull","slots":{"title":"сдать экзамен","steps":["билеты","практика","пробный тест"]}},"split":"test","tags":[]}
+{"id":"g0501","lang":"ru","text":"поставь цель написать книгу: план, главы, правки","expect":{"kind":"goal.addFull","slots":{"title":"написать книгу","steps":["план","главы","правки"]}},"split":"test","tags":[]}
+{"id":"g0502","lang":"ru","text":"хочу бегать три раза в неделю","expect":{"kind":"goal.suggestHabit","slots":{"title":"бегать","times":3}},"split":"train","tags":[]}
+{"id":"g0503","lang":"ru","text":"хочу плавать два раза в неделю","expect":{"kind":"goal.suggestHabit","slots":{"title":"плавать","times":2}},"split":"train","tags":[]}
+{"id":"g0504","lang":"ru","text":"хочу читать каждый день","expect":{"kind":"goal.suggestHabit","slots":{"title":"читать","times":7}},"split":"train","tags":[]}
+{"id":"g0505","lang":"ru","text":"сколько шагов осталось в цели","expect":{"kind":"goal.stepsLeft","slots":{}},"split":"train","tags":[]}
+{"id":"g0506","lang":"ru","text":"сколько шагов осталось по цели марафон","expect":{"kind":"goal.stepsLeft","slots":{"query":"марафон"}},"split":"test","tags":[]}
+{"id":"g0507","lang":"ru","text":"сколько шагов осталось в цели английский","expect":{"kind":"goal.stepsLeft","slots":{"query":"английский"}},"split":"train","tags":[]}
+{"id":"g0508","lang":"ru","text":"отметь все шаги цели","expect":{"kind":"goal.markAll","slots":{}},"split":"train","tags":[]}
+{"id":"g0509","lang":"ru","text":"отметь все шаги цели марафон","expect":{"kind":"goal.markAll","slots":{"query":"марафон"}},"split":"train","tags":[]}
+{"id":"g0510","lang":"ru","text":"отметь все шаги","expect":{"kind":"goal.markAll","slots":{}},"split":"test","tags":[]}
+{"id":"g0511","lang":"ru","text":"какая цель ближе всего к завершению","expect":{"kind":"goal.closest","slots":{}},"split":"test","tags":[]}
+{"id":"g0512","lang":"ru","text":"какая цель почти готова","expect":{"kind":"goal.closest","slots":{}},"split":"train","tags":[]}
+{"id":"g0513","lang":"ru","text":"какая цель стоит без движения","expect":{"kind":"goal.stalled","slots":{}},"split":"train","tags":[]}
+{"id":"g0514","lang":"ru","text":"какие цели стоят","expect":{"kind":"goal.stalled","slots":{}},"split":"test","tags":[]}
+{"id":"g0515","lang":"ru","text":"какие цели без движения","expect":{"kind":"goal.stalled","slots":{}},"split":"train","tags":[]}
+{"id":"g0516","lang":"ru","text":"сколько мне до цели при текущем темпе","expect":{"kind":"goal.pace","slots":{}},"split":"train","tags":[]}
+{"id":"g0517","lang":"ru","text":"успею ли я к дедлайну","expect":{"kind":"goal.pace","slots":{}},"split":"train","tags":[]}
+{"id":"g0518","lang":"ru","text":"приоритет цели марафон высокий","expect":{"kind":"goal.priority","slots":{"query":"марафон","level":"high"}},"split":"train","tags":[]}
+{"id":"g0519","lang":"ru","text":"приоритет цели английский обычный","expect":{"kind":"goal.priority","slots":{"query":"английский","level":"normal"}},"split":"train","tags":[]}
+{"id":"g0520","lang":"ru","text":"сделай цель марафон приоритетной","expect":{"kind":"goal.priority","slots":{"query":"марафон","level":"high"}},"split":"train","tags":[]}
+{"id":"g0521","lang":"ru","text":"дай челлендж на неделю","expect":{"kind":"goal.challenge","slots":{}},"split":"train","tags":[]}
+{"id":"g0522","lang":"ru","text":"предложи челлендж","expect":{"kind":"goal.challenge","slots":{}},"split":"train","tags":[]}
+{"id":"g0523","lang":"ru","text":"хочу челлендж на неделю","expect":{"kind":"goal.challenge","slots":{}},"split":"train","tags":[]}
+{"id":"g0524","lang":"en","text":"how is my goal marathon","expect":{"kind":"goal.progress","slots":{"query":"marathon"}},"split":"train","tags":[]}
+{"id":"g0525","lang":"en","text":"rename the goal marathon to half marathon","expect":{"kind":"goal.rename","slots":{"query":"marathon","to":"half marathon"}},"split":"train","tags":[]}
+{"id":"g0526","lang":"en","text":"delete the step words","expect":{"kind":"goal.step.delete","slots":{"query":"words"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0527","lang":"en","text":"which goals are urgent","expect":{"kind":"goal.hot","slots":{}},"split":"train","tags":[]}
+{"id":"g0528","lang":"en","text":"how many steps are left in the goal marathon","expect":{"kind":"goal.stepsLeft","slots":{"query":"marathon"}},"split":"train","tags":[]}
+{"id":"g0529","lang":"en","text":"give me a challenge for the week","expect":{"kind":"goal.challenge","slots":{}},"split":"test","tags":[]}
+{"id":"g0530","lang":"en","text":"which goal is closest to done","expect":{"kind":"goal.closest","slots":{}},"split":"test","tags":[]}

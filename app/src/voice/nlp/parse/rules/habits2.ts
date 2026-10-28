@@ -19,7 +19,7 @@ add(
   { kind: 'habit.markPast', over: ['habit.done'], re: rx('^(?:отметь|засчитай|зачти|поставь галочку на|поставь отметку на) (.+)$'), slots: (m, c) => (c.when.date && c.when.date < c.env.now.toISOString().slice(0, 10) ? { ...withEntity(c, 'habit', m[1]), day: c.when.date } : null) },
   { kind: 'habit.rename', over: ['task.move'], re: rx('^(?:переименуй|поменяй название|измени название|назови)(?: привычку| привычки)? (.+?) (?:в|на|как) (.+)$'), slots: (m, c) => ({ ...withEntity(c, 'habit', m[1]), to: tidy(m[2]) }) },
   { kind: 'habit.schedule', full: true, re: rx(`^(.+?) (?:теперь |только )?(?:по |в |во |каждый |каждую )?(${DAYLIST})$`), slots: (m, c) => {
-    if (PAST.test(tidy(m[1]).split(' ')[0])) return null;
+    if (PAST.test(tidy(m[1]).split(' ')[0]) || /^хочу/.test(m[1])) return null;
     const mask = daysMask(m[2]);
     return mask ? { ...withEntity(c, 'habit', m[1]), days: mask } : null;
   } },

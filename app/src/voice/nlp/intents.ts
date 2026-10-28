@@ -46,7 +46,7 @@ export const INTENTS: IntentSpec[] = [
   S('goal.add', 'R2', ['title']), S('goal.addFull', 'R2', ['title'], [177]), S('goal.step.add', 'R2', ['text']),
   S('goal.split', 'R2', ['steps'], [38]), S('goal.next', 'R0', [], [29]), S('goal.progress', 'R0', [], [30]), S('goal.pace', 'R0', [], [31, 183]),
   S('goal.deadline', 'R2', ['day'], [32]), S('goal.complete', 'R3', ['query'], [33]), S('goal.rename', 'R2', ['query', 'to']),
-  S('goal.step.rename', 'R2', ['query', 'to'], [34]), S('goal.step.delete', 'R3', ['query']), S('goal.link', 'R2', ['query'], [35]),
+  S('goal.step.rename', 'R2', ['query', 'to'], [34]), S('goal.step.delete', 'R3', ['query']), S('goal.link', 'R2', [], [35]),
   S('goal.diary.add', 'R2', ['text'], [36]), S('goal.diary.read', 'R0', [], [37]), S('goal.hot', 'R0', [], [39]),
   S('goal.closest', 'R0', [], [181]), S('goal.stalled', 'R0', [], [182]), S('goal.stepsLeft', 'R0', [], [179]),
   S('goal.markAll', 'R2', [], [180]), S('goal.suggestHabit', 'R2', [], [178]), S('goal.priority', 'R1', ['level'], [184]),

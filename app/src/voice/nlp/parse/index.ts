@@ -4,6 +4,7 @@ import { decide } from '../decide';
 import { SCORE } from '../params';
 import { buildCtx, knownWord, runRules, vocabStems, vocabWords, type Ctx } from './engine';
 import { segments } from './segment';
+import { has, QUESTION } from './rules/util';
 import { askText, clarifyText, examples, previewText } from './texts';
 import './rules/habits';
 import './rules/planner';
@@ -12,6 +13,7 @@ import './rules/en';
 import './rules/habits2';
 import './rules/mood2';
 import './rules/quits';
+import './rules/goals';
 import type { Decision, Parsed, ParseEnv } from '../types';
 
 /*
@@ -44,6 +46,7 @@ export function repairs(c: string): string[] {
   return [...out].slice(0, 200);
 }
 
+const LISTY = new Set(['goal.split', 'goal.addFull', 'task.addMany', 'task.doneMany', 'ritual.create', 'prefs.macro.add', 'template.save', 'weekplan']);
 export type AnalyzeOpts = { asr?: number | null };
 
 /** candidates of one segment, best first */
@@ -59,7 +62,7 @@ export function candidates(text: string, env: ParseEnv, opts: AnalyzeOpts = {}, 
   // still nothing: speech recognisers swap neighbours, drop prepositions and glue words — try those repairs
   let repaired = false;
   if (!hits.some((h) => h.confidence >= 0.8 || (!h.rule.bare && h.confidence >= 0.6))) {
-    const found = repairs(ctx.c).flatMap((v) => runRules(buildCtx(v, env, lexOf(env), 'all')).filter((h) => !h.rule.bare));
+    const found = repairs(ctx.c).flatMap((v) => runRules(buildCtx(v, env, lexOf(env), 'all')).filter((h) => !h.rule.bare && !(h.risk !== 'R0' && has(QUESTION, ctx.c))));
     if (found.length) { hits = [...hits.filter((h) => h.confidence >= 0.8 || !h.rule.bare), ...found.map((h) => ({ ...h, confidence: h.confidence * 0.99 }))]; repaired = true; }
   }
   void repaired;
@@ -74,7 +77,7 @@ export function candidates(text: string, env: ParseEnv, opts: AnalyzeOpts = {}, 
     void _r;
     let conf = p.confidence * (0.97 + 0.03 * pOf(DOMAIN_OF(p.kind)));
     // an explicit command is not overruled by «not for this app» unless the classifier is nearly sure
-    if (oos > (p.confidence >= 0.88 ? 0.95 : SCORE.oosClassifier)) conf *= 1 - 0.7 * Math.min(1, (oos - SCORE.oosClassifier) / (1 - SCORE.oosClassifier));
+    if (oos > (p.confidence >= 0.88 ? 0.99 : SCORE.oosClassifier)) conf *= 1 - 0.7 * Math.min(1, (oos - SCORE.oosClassifier) / (1 - SCORE.oosClassifier));
     if (opts.asr != null) conf *= SCORE.asrBase + SCORE.asrWeight * opts.asr;
     p.confidence = Math.round(conf * 1000) / 1000;
     const prev = best.get(p.kind);
@@ -89,6 +92,9 @@ export function analyzeText(raw: string, env: ParseEnv, opts: AnalyzeOpts = {}):
   const whole = one(raw);
   const parts = segments(raw);
   if (parts.length < 2) return [whole];
+  // a command that takes a list (steps, tasks, a ritual) owns the commas of its phrase
+  const kind = whole.action === 'clarify' ? whole.options[0]?.kind : whole.action === 'reject' ? '' : whole.parsed.kind;
+  if (kind && LISTY.has(kind)) return [whole];
   let carry: string | undefined;
   const split: Decision[] = [];
   for (const p of parts) {

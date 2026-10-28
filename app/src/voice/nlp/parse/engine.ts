@@ -54,7 +54,7 @@ export type Rule = {
   /** a template without a verb («завтра в 10 стоматолог»): loses to any other rule and is never used for repaired text */
   bare?: boolean;
   /** match the normalised text with the numbers still in words (free text: notes, oaths) */
-  src?: 'n';
+  src?: 'n' | 'raw';
 };
 
 /** a rule source with ‹ and › as word edges (Cyrillic has no \b) */
@@ -103,7 +103,7 @@ function fixWords(tokens: string[], extra: Set<string>, level: Fix): string[] {
     // two halves of one word: «заряд ку» → «зарядку»
     const nx = tokens[i + 1];
     if (nx && !known(nx) && known(t + nx)) { out.push(t + nx); i++; continue; }
-    if (t.length < 5 || !/^[а-я]+$/.test(t)) { out.push(t); continue; }
+    if (t.length < 4 || !/^[а-я]+$/.test(t)) { out.push(t); continue; }
     let best: string | null = null, bd = t.length >= 8 ? 2 : 1;
     const key = phoneticKey(t);
     for (const w of pool) {
@@ -112,18 +112,11 @@ function fixWords(tokens: string[], extra: Set<string>, level: Fix): string[] {
       // a slip sounds the same, or is one letter in a long word; short words that differ by a letter are other words («курить»/«купить»)
       // a deleted or swapped letter is a slip even in a short word; otherwise one letter in a long word
       const slip = !same && w[0] === t[0] && (isDeletion(t, w) || isSwap(t, w));
+      if (t.length === 4 && !slip) continue;
       if (!same && !slip && (w[0] !== t[0] || t.length < 8)) continue;
       if (stem(w) === stem(t)) continue; // another case of the same word, not a slip
       const d = same ? 0 : slip ? 1 : levenshtein(t, w);
       if (d < bd || (d <= bd && best === null)) { best = w; bd = same ? 0 : Math.min(bd, 1); }
-    }
-    // a word with a known stem and a slip in it: «нстроение» → «настроение»
-    if (best === null && level === 'all') for (const st of stems) {
-      for (const k of [st.length - 1, st.length, st.length + 1]) {
-        if (k < 4 || k > t.length) continue;
-        if (levenshtein(t.slice(0, k), st) <= 1) { best = st + t.slice(k); break; }
-      }
-      if (best) break;
     }
     out.push(best ?? t);
   }
@@ -188,7 +181,7 @@ export function runRules(ctx: Ctx): Hit[] {
   let out: Hit[] = [];
   for (const rule of RULES) {
     if ((rule.lang ?? 'ru') !== ctx.lang) continue;
-    const text = rule.src === 'n' ? ctx.n : rule.full ? ctx.c : ctx.body;
+    const text = rule.src === 'raw' ? ctx.raw.toLowerCase().replace(/ё/g, 'е').trim() : rule.src === 'n' ? ctx.n : rule.full ? ctx.c : ctx.body;
     for (const re of Array.isArray(rule.re) ? rule.re : [rule.re]) {
       const m = text.match(re);
       if (!m) continue;
