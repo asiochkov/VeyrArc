@@ -7,6 +7,8 @@ import { AddSheet } from './AddSheet';
 import s from './AppShell.module.css';
 import { BottomBar } from './BottomBar';
 import { AssistantPanel } from '../voice/AssistantPanel';
+import { useAssistant, openAssistant } from '../voice/shell';
+import { startVoice, stopVoice, useVoice } from '../voice/voice';
 import { CommandPalette } from './CommandPalette';
 import { TourOverlay } from '../ui/Tour';
 import { DEFAULT_TILE, NAV, navIdFor, useAdd } from './nav';
@@ -86,6 +88,12 @@ function useShortcuts(on: boolean, toggleSidebar: () => void) {
     const onKey = (e: KeyboardEvent) => {
       const st = useAdd.getState();
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (st.paletteOpen) st.closePalette(); else st.openPalette(); return; }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.code === 'Space') {
+        e.preventDefault();
+        const a = useAssistant.getState();
+        if (a.open) { if (useVoice.getState().state === 'listening') stopVoice(); else startVoice(); } else openAssistant('hotkey');
+        return;
+      }
       if (e.metaKey || e.ctrlKey || e.altKey || typing(e.target) || st.open || st.paletteOpen) return;
       const k = e.key.toLowerCase();
       if (Date.now() - g < 900) {

@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import { useLangStore } from '../i18n';
 import { normalize, similarity, understand } from './nlu';
 import { hints, runAll, type Choice, type Reply } from './run';
+import { createSession, errKey, RETRYABLE } from './audio/session';
+import { createWebSpeech, speechCtor } from './stt/webSpeech';
+import { attachEndpointing } from './stt/endpointing';
+import { buildLexicon, rescore } from './nlp/lexicon';
+import type { ParseEnv } from './nlp/types';
+import type { Hypothesis, SttErrorCode } from './stt/types';
+import { translate, type TKey } from '../i18n';
 import { hooks, useAssistant, closeAssistant, openAssistant } from './shell';
 
 export { useAssistant, closeAssistant, openAssistant };
@@ -17,19 +24,25 @@ type Store = {
   list: string[]; suggest: string[]; choices: Choice[]; canUndo: boolean;
   /** speech can't be used here (no permission, no service): the panel switches to typing */
   blocked: boolean;
+  /** the error on screen can be retried with a tap («Повторить») */
+  retry: boolean;
 };
-export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false, blocked: false }));
+export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false, blocked: false, retry: false }));
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Rec = any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const SR = (): (new () => Rec) | null => (typeof window === 'undefined' ? null : (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition || null);
-export const voiceSupported = () => !!SR();
+const engine = createWebSpeech();
+const session = createSession({ engine, cancelSpeech: () => window.speechSynthesis?.cancel() });
+export const voiceSupported = () => !!speechCtor() && !session.voiceBroken();
+/** the person's own words for rescoring; set once the data layer can supply them (WP3.2) */
+type LexSource = Pick<ParseEnv, 'habits' | 'tasks' | 'goals' | 'quits' | 'aliases' | 'assistantName'>;
+let lexSource: (() => LexSource) | null = null;
+export const setLexiconSource = (f: (() => LexSource) | null) => { lexSource = f; };
+const lexicon = () => buildLexicon(lexSource?.() ?? { habits: [], tasks: [], goals: [], quits: [] });
+export const retryVoice = () => { session.resetHealth(); set({ blocked: false }); startVoice(); };
+export { session as audioSession };
 
-let rec: Rec | null = null;
 let resetTimer: ReturnType<typeof setTimeout> | undefined;
-let silence: ReturnType<typeof setTimeout> | undefined;
 const set = (p: Partial<Store>) => useVoice.setState(p);
+const t = (key: string) => translate(useLangStore.getState().lang as 'ru' | 'en', key as TKey);
 const lang = () => useLangStore.getState().lang as 'ru' | 'en';
 
 function fail(msg: string) {
@@ -115,60 +128,54 @@ export function handle(text: string) {
 /** a tapped choice button */
 export function choose(c: Choice) { set({ state: 'processing', heard: c.label }); try { show(c.run()); } catch { fail(lang() === 'ru' ? 'Не получилось' : 'Could not do that'); } }
 
+let detach: (() => void) | null = null;
+let heardAlts: Hypothesis[] = [];
+
+/** call synchronously from a tap / key handler: nothing async before the engine starts */
 export function startVoice() {
-  const Ctor = SR();
-  const ru = lang() === 'ru';
   clearTimeout(resetTimer);
-  window.speechSynthesis?.cancel();
-  if (!Ctor) { fail(ru ? 'Голосовой ввод не поддерживается в этом браузере. Откройте в Safari или Chrome.' : 'Voice input is not supported in this browser.'); return; }
-  if (rec) { stopVoice(); return; }
-  const r: Rec = new Ctor();
-  rec = r;
-  r.lang = ru ? 'ru-RU' : 'en-US';
-  r.interimResults = true;
-  r.maxAlternatives = 1;
-  r.continuous = false;
-  let final = '';
+  if (!speechCtor()) { fail(t('voice.err.unsupported')); set({ blocked: true }); return; }
+  if (session.state === 'live' || session.state === 'requesting') { stopVoice(); return; }
   const asking = useVoice.getState().choices.length > 0;
   const fresh = !useVoice.getState().reply; // just opened: the context hints stay on screen while listening
+  set({ retry: false });
+  detach?.();
+  detach = attachEndpointing(engine, {});
+  heardAlts = [];
+  const lex = lexicon();
+  const phrases = lex.terms.slice(0, 100);
+  if (!session.startFromGesture({ lang: lang(), phrases })) return;
   set({ state: 'listening', heard: '', ok: true, ...(asking || fresh ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
   navigator.vibrate?.(12);
-  // nothing heard for 7 s → stop without doing anything; a pause after words ends the phrase
-  silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, 7000);
-  r.onresult = (e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => {
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const res = e.results[i];
-      if (res.isFinal) final += res[0].transcript; else interim += res[0].transcript;
-    }
-    set({ heard: (final + interim).trim() });
-    clearTimeout(silence);
-    silence = setTimeout(() => { if (rec === r) r.stop(); }, final && !interim ? 900 : 2200);
-  };
-  r.onerror = (e: { error: string }) => {
-    rec = null; clearTimeout(silence);
-    if (e.error === 'no-speech' || e.error === 'aborted') { set({ state: 'idle' }); return; }
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-      set({ blocked: true });
-      fail(ru ? 'Нет доступа к микрофону. Разрешите его в настройках браузера — а пока напишите команду ниже.' : 'No microphone access. Allow it in browser settings — or type below.');
-      return;
-    }
-    if (e.error === 'network' || e.error === 'language-not-supported') set({ blocked: true });
-    fail(ru ? (e.error === 'network' ? 'Распознавание речи сейчас недоступно — напишите команду ниже' : 'Не расслышал. Нажмите на шар и повторите') : 'Could not recognise speech');
-  };
-  r.onend = () => {
-    if (rec === r) rec = null;
-    clearTimeout(silence);
-    const text = final.trim() || useVoice.getState().heard.trim();
-    if (useVoice.getState().state !== 'listening') return;
-    if (text) handle(text); else set({ state: 'idle' });
-  };
-  try { r.start(); } catch { rec = null; fail(ru ? 'Микрофон занят' : 'Microphone is busy'); }
 }
 
+const showError = (code: SttErrorCode, final = false) => {
+  if (code === 'aborted') { set({ state: 'idle' }); return; }
+  if (code === 'denied' || code === 'service-blocked' || code === 'unsupported') set({ blocked: true });
+  const key = code === 'network' && final ? 'networkFinal' : errKey(code);
+  fail(t(`voice.err.${key}`));
+  set({ retry: RETRYABLE.includes(code) });
+  if (code === 'network') set({ blocked: true });
+};
+
+session.on((e) => {
+  if (e.type === 'interim') set({ heard: e.text.trim() });
+  else if (e.type === 'final') { heardAlts = e.alts; set({ heard: (e.alts[0]?.text ?? '').trim() }); }
+  else if (e.type === 'retrying') set({ reply: t('voice.err.network'), ok: true });
+  else if (e.type === 'error') showError(e.code, true);
+  else if (e.type === 'end') {
+    detach?.(); detach = null;
+    if (useVoice.getState().state !== 'listening') return;
+    if (e.reason === 'no-speech' && !useVoice.getState().heard.trim()) { showError('no-speech'); return; }
+    const alts = heardAlts.length ? heardAlts : [{ text: useVoice.getState().heard.trim(), confidence: null }];
+    const text = alts[0].text ? rescore(alts, lexicon())?.text ?? alts[0].text : '';
+    if (text.trim()) handle(text); else set({ state: 'idle' });
+  }
+});
+
 /** release / second tap: finish listening and run what was heard */
-export function stopVoice() { try { rec?.stop(); } catch { /* already stopped */ } }
-export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; clearTimeout(silence); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
+export function stopVoice() { session.stop(); }
+export function cancelVoice() { session.abort(); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
 
 /* the assistant panel: open/close state lives in shell.ts; what happens on open and close is registered here */
 hooks.open = () => {
