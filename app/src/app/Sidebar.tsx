@@ -8,7 +8,7 @@ import { userEmail, useAuth } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
 import { useSystem } from '../state/system';
 import { AssistantMark } from '../voice/AssistantMark';
-import { openAssistant } from '../voice/voice';
+import { openAssistant } from '../voice/shell';
 import { Icon } from '../ui/Icon';
 import { Avatar } from '../ui/primitives';
 import { roman } from './AppHeader';
@@ -67,7 +67,7 @@ export function Sidebar({ collapsed, onToggle, drawer = false }: { collapsed: bo
         <Icon name="search" size={15} />
         {!mini && <><span className={s.searchText}>{t('nav.search')}</span><kbd className={s.kbd}>⌘K</kbd></>}
       </button>
-      <button type="button" className={`${s.search} ${s.assistant}`} onClick={openAssistant} aria-label={t('voice.open')}>
+      <button type="button" className={`${s.search} ${s.assistant}`} onClick={() => openAssistant('sidebar')} aria-label={t('voice.open')}>
         <AssistantMark size={18} />
         {!mini && <span className={s.searchText}>{t('voice.open')}</span>}
       </button>

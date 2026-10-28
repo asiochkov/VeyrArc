@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { useLangStore } from '../i18n';
 import { normalize, similarity, understand } from './nlu';
 import { hints, runAll, type Choice, type Reply } from './run';
+import { hooks, useAssistant, closeAssistant, openAssistant } from './shell';
+
+export { useAssistant, closeAssistant, openAssistant };
 
 /*
  * Voice assistant state machine (ТЗ модуль 2.2): idle → listening → processing → speaking → idle,
@@ -167,16 +170,12 @@ export function startVoice() {
 export function stopVoice() { try { rec?.stop(); } catch { /* already stopped */ } }
 export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; clearTimeout(silence); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
 
-/* the assistant panel (opened by the bubble next to the dock) */
-type Panel = { open: boolean };
-export const useAssistant = create<Panel>(() => ({ open: false }));
-export function openAssistant() {
-  if (useAssistant.getState().open) return;
-  useAssistant.setState({ open: true });
+/* the assistant panel: open/close state lives in shell.ts; what happens on open and close is registered here */
+hooks.open = () => {
   // phrases that fit this screen and this moment, ready to tap
   set({ heard: '', reply: '', list: [], suggest: hints(location.pathname, lang()), choices: [], canUndo: false, ok: true, state: 'idle' });
   navigator.vibrate?.(10);
   // after the dock has merged; without speech recognition the panel opens on the text field
   if (voiceSupported()) setTimeout(() => { if (useAssistant.getState().open) startVoice(); }, 420);
-}
-export function closeAssistant() { clearTimeout(closeAfter); cancelVoice(); set({ choices: [] }); useAssistant.setState({ open: false }); }
+};
+hooks.close = () => { clearTimeout(closeAfter); cancelVoice(); set({ choices: [] }); };

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useT } from '../i18n';
 import { Icon } from '../ui/Icon';
 import { bindNavigate } from './run';
-import { choose, closeAssistant, handle, startVoice, stopVoice, useAssistant, useVoice, voiceSupported } from './voice';
+import { choose, handle, startVoice, stopVoice, useVoice, voiceSupported } from './voice';
+import { closeAssistant, useAssistant } from './shell';
 import s from './assistant.module.css';
 
 /*

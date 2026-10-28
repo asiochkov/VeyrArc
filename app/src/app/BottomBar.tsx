@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useT } from '../i18n';
 import { Icon } from '../ui/Icon';
 import { AssistantMark } from '../voice/AssistantMark';
-import { closeAssistant, openAssistant, useAssistant, useVoice } from '../voice/voice';
+import { closeAssistant, openAssistant, useAssistant } from '../voice/shell';
+import { useVoice } from '../voice/voice';
 import s from './BottomBar.module.css';
 import { NAV, navIdFor } from './nav';
 
@@ -39,7 +40,7 @@ export function BottomBar() {
         <span className={s.live} data-state={vstate} aria-hidden="true"><i /><i /><i /></span>
       </nav>
       <span className={s.neck} aria-hidden="true" />
-      <button type="button" className={`${s.drop} ${s.glass}`} onClick={open ? closeAssistant : openAssistant}
+      <button type="button" className={`${s.drop} ${s.glass}`} onClick={() => (open ? closeAssistant() : openAssistant('mark'))}
         aria-label={open ? t('common.close') : t('voice.open')} aria-expanded={open}>
         <AssistantMark size={28} />
       </button>
