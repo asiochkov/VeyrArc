@@ -9,7 +9,7 @@ const dir = dirname(fileURLToPath(import.meta.url));
 const files = readdirSync(dir).filter((f) => f.endsWith('.test.ts')).sort();
 let failed = 0;
 for (const f of files) {
-  const r = spawnSync('npx', ['tsx', join(dir, f)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const r = spawnSync('npx', ['tsx', '--import', join(dir, 'css-register.mjs'), join(dir, f)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   const last = (r.stdout || '').trim().split('\n').pop() || (r.stderr || '').trim().split('\n').pop();
   console.log(`${r.status === 0 ? '✓' : '✗'} ${f} — ${last}`);
   if (r.status !== 0) { failed++; console.log((r.stdout || '') + (r.stderr || '')); }
