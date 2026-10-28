@@ -36,7 +36,7 @@ add(
   { kind: 'goal.diary.read', re: rx('^(?:прочитай|покажи|что я писал в) (?:дневник цели|дневнике цели|дневник)(?: (.+?))?$'), slots: (m, c) => ({ ...(m[1] ? withEntity(c, 'goal', m[1]) : {}), day: c.when.date }) },
   { kind: 'goal.diary.read', over: ['goal.diary.read'], re: rx('^прочитай дневник цели(?: (.+?))?$'), slots: (m, c) => ({ ...(m[1] ? withEntity(c, 'goal', m[1]) : {}), day: c.when.date }) },
   { kind: 'goal.split', src: 'raw', re: rx('^(?:разбей|раздели) цель(?: (.+?))? на шаги[: ]*(.+)$'), slots: (m, c) => ({ ...(m[1] ? withEntity(c, 'goal', m[1]) : {}), steps: listAfter(m[2], /^/) }) },
-  { kind: 'goal.hot', re: rx('‹что (?:у меня )?горит(?: по целям)?›|‹какие цели горят›') },
+  { kind: 'goal.hot', over: ['plan.day'], re: rx('‹что (?:у меня )?горит(?: по целям)?›|‹какие цели горят›') },
   { kind: 'goal.step.add', over: ['task.add'], re: [rx('^(?:в цель|к цели|в цели) (.+?) (?:добавь|добавить) (?:шаг )?(.+)$'), rx('^(?:добавь|добавить) шаг (.+?) (?:в цель|к цели|в цели) (.+)$')], slots: (m, c) => (/^добавь|^добавить/.test(c.body) ? { goal: tidy(m[2]), text: tidy(m[1]) } : { goal: tidy(m[1]), text: tidy(m[2]) }) },
   { kind: 'goal.addFull', over: ['goal.add', 'task.add'], src: 'raw', re: rx('^(?:(?:создай|добавь|поставь) )?цель (.+?)(?: (?:до|к) (\\p{L}+))?\\s*:\\s*(.+)$'), slots: (m, c) => {
     const items = listAfter(m[3], /^/);

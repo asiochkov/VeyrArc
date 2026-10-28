@@ -585,3 +585,48 @@
 {"id":"g0585","lang":"ru","text":"список дел на выходные: убрать, поехать на дачу, встретиться с Димой","expect":{"kind":"task.addMany","slots":{"day":"2026-10-31"}},"split":"test","tags":[]}
 {"id":"g0586","lang":"ru","text":"дела на выходные: гулять, читать","expect":{"kind":"task.addMany","slots":{"day":"2026-10-31"}},"split":"test","tags":[]}
 {"id":"g0587","lang":"ru","text":"вычеркни звонок маме и отчёт","expect":{"kind":"task.doneMany","slots":{}},"split":"train","tags":[]}
+{"id":"g0588","lang":"ru","text":"что у меня в пятницу вечером","expect":{"kind":"plan.day","slots":{"day":"2026-10-30","part":"evening"}},"split":"train","tags":[]}
+{"id":"g0589","lang":"ru","text":"есть ли что-то в пятницу вечером","expect":{"kind":"plan.day","slots":{"day":"2026-10-30","part":"evening"}},"split":"train","tags":[]}
+{"id":"g0590","lang":"ru","text":"что у меня завтра утром","expect":{"kind":"plan.day","slots":{"day":"2026-10-29","part":"morning"}},"split":"train","tags":[]}
+{"id":"g0591","lang":"ru","text":"что у меня на этой неделе","expect":{"kind":"plan.week","slots":{}},"split":"test","tags":[]}
+{"id":"g0592","lang":"ru","text":"покажи неделю","expect":{"kind":"plan.week","slots":{}},"split":"train","tags":[]}
+{"id":"g0593","lang":"ru","text":"сводка по неделе","expect":{"kind":"plan.week","slots":{}},"split":"train","tags":[]}
+{"id":"g0594","lang":"ru","text":"сколько созвонов на этой неделе","expect":{"kind":"plan.count","slots":{"query":"созвонов"}},"split":"test","tags":[]}
+{"id":"g0595","lang":"ru","text":"сколько у меня тренировок на этой неделе","expect":{"kind":"plan.count","slots":{"query":"тренировок"}},"split":"test","tags":[]}
+{"id":"g0596","lang":"ru","text":"найди окно на час","expect":{"kind":"plan.freeSlots","slots":{"minutes":60,"scan":true}},"split":"train","tags":[]}
+{"id":"g0597","lang":"ru","text":"найди день для встречи на два часа","expect":{"kind":"plan.freeSlots","slots":{"minutes":120,"scan":true}},"split":"train","tags":[]}
+{"id":"g0598","lang":"ru","text":"найди время на 45 минут","expect":{"kind":"plan.freeSlots","slots":{"minutes":45,"scan":true}},"split":"train","tags":[]}
+{"id":"g0599","lang":"ru","text":"когда я свободен на этой неделе","expect":{"kind":"plan.freeSlots","slots":{}},"split":"train","tags":[]}
+{"id":"g0600","lang":"ru","text":"какой день на неделе самый свободный","expect":{"kind":"plan.freest","slots":{}},"split":"test","tags":[]}
+{"id":"g0601","lang":"ru","text":"в какой день я свободнее всего","expect":{"kind":"plan.freest","slots":{}},"split":"train","tags":[]}
+{"id":"g0602","lang":"ru","text":"самый свободный день","expect":{"kind":"plan.freest","slots":{}},"split":"train","tags":[]}
+{"id":"g0603","lang":"ru","text":"сколько часов запланировано на завтра","expect":{"kind":"plan.hours","slots":{"day":"2026-10-29"}},"split":"train","tags":[]}
+{"id":"g0604","lang":"ru","text":"сколько часов у меня занято сегодня","expect":{"kind":"plan.hours","slots":{"day":"2026-10-28"}},"split":"train","tags":[]}
+{"id":"g0605","lang":"ru","text":"сколько часов запланировано на пятницу","expect":{"kind":"plan.hours","slots":{"day":"2026-10-30"}},"split":"test","tags":[]}
+{"id":"g0606","lang":"ru","text":"есть ли конфликты в расписании","expect":{"kind":"plan.conflicts","slots":{}},"split":"train","tags":[]}
+{"id":"g0607","lang":"ru","text":"что у меня просрочено","expect":{"kind":"plan.overdue","slots":{}},"split":"train","tags":[]}
+{"id":"g0608","lang":"ru","text":"какие у меня хвосты","expect":{"kind":"plan.overdue","slots":{}},"split":"train","tags":[]}
+{"id":"g0609","lang":"ru","text":"что я не закрыл","expect":{"kind":"plan.overdue","slots":{}},"split":"test","tags":[]}
+{"id":"g0610","lang":"ru","text":"что самое важное сегодня","expect":{"kind":"plan.top","slots":{}},"split":"train","tags":[]}
+{"id":"g0611","lang":"ru","text":"какие у меня главные дела","expect":{"kind":"plan.top","slots":{}},"split":"train","tags":[]}
+{"id":"g0612","lang":"ru","text":"что можно убрать из плана на завтра","expect":{"kind":"plan.trim","slots":{}},"split":"train","tags":[]}
+{"id":"g0613","lang":"ru","text":"что можно убрать из плана","expect":{"kind":"plan.trim","slots":{}},"split":"test","tags":[]}
+{"id":"g0614","lang":"ru","text":"какие покупки остались","expect":{"kind":"list.remaining","slots":{"query":"купить"}},"split":"test","tags":[]}
+{"id":"g0615","lang":"ru","text":"прочитай список покупок","expect":{"kind":"list.remaining","slots":{"query":"купить"}},"split":"train","tags":[]}
+{"id":"g0616","lang":"ru","text":"сколько дней до пятницы","expect":{"kind":"date.diff","slots":{"to":"2026-10-30"}},"split":"train","tags":[]}
+{"id":"g0617","lang":"ru","text":"сколько до пятого ноября","expect":{"kind":"date.diff","slots":{"to":"2026-11-05"}},"split":"test","tags":[]}
+{"id":"g0618","lang":"ru","text":"сколько дней до первого января","expect":{"kind":"date.diff","slots":{"to":"2027-01-01"}},"split":"train","tags":[]}
+{"id":"g0619","lang":"ru","text":"через сколько будет выходной","expect":{"kind":"date.diff","slots":{"to":"2026-10-31"}},"split":"train","tags":[]}
+{"id":"g0620","lang":"ru","text":"сколько осталось до конца сезона","expect":{"kind":"date.diff","slots":{"to":"season"}},"split":"train","tags":[]}
+{"id":"g0621","lang":"ru","text":"сколько до конца сезона","expect":{"kind":"date.diff","slots":{"to":"season"}},"split":"test","tags":[]}
+{"id":"g0622","lang":"ru","text":"какой день недели первого января","expect":{"kind":"date.weekday","slots":{"date":"2027-01-01"}},"split":"test","tags":[]}
+{"id":"g0623","lang":"ru","text":"какой день недели пятого ноября","expect":{"kind":"date.weekday","slots":{"date":"2026-11-05"}},"split":"train","tags":[]}
+{"id":"g0624","lang":"ru","text":"какой день недели двадцать пятого декабря","expect":{"kind":"date.weekday","slots":{"date":"2026-12-25"}},"split":"test","tags":[]}
+{"id":"g0625","lang":"ru","text":"когда ближайший праздник","expect":{"kind":"holiday.next","slots":{}},"split":"train","tags":[]}
+{"id":"g0626","lang":"ru","text":"какой следующий праздник","expect":{"kind":"holiday.next","slots":{}},"split":"train","tags":[]}
+{"id":"g0627","lang":"ru","text":"ближайший праздник","expect":{"kind":"holiday.next","slots":{}},"split":"test","tags":[]}
+{"id":"g0628","lang":"en","text":"what is on this week","expect":{"kind":"plan.week","slots":{}},"split":"train","tags":[]}
+{"id":"g0629","lang":"en","text":"which day is the freest","expect":{"kind":"plan.freest","slots":{}},"split":"test","tags":[]}
+{"id":"g0630","lang":"en","text":"how many hours are planned tomorrow","expect":{"kind":"plan.hours","slots":{"day":"2026-10-29"}},"split":"train","tags":[]}
+{"id":"g0631","lang":"en","text":"how many days until friday","expect":{"kind":"date.diff","slots":{"to":"2026-10-30"}},"split":"train","tags":[]}
+{"id":"g0632","lang":"en","text":"what is next holiday","expect":{"kind":"holiday.next","slots":{}},"split":"train","tags":[]}

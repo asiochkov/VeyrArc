@@ -1,156 +1,156 @@
-{"id":"n0588","lang":"ru","text":"поставь будильник на семь","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0589","lang":"ru","text":"включи музыку","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0590","lang":"ru","text":"позвони маме","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0591","lang":"ru","text":"сколько будет двадцать на пять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0592","lang":"ru","text":"расскажи как мотивировать себя","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0593","lang":"ru","text":"что мне делать если я устал","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0594","lang":"ru","text":"у меня болит голова","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0595","lang":"ru","text":"я хочу пойти спать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0596","lang":"ru","text":"нужно ли мне сегодня тренироваться","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0597","lang":"ru","text":"как лучше спланировать неделю","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0598","lang":"ru","text":"надо бы чаще гулять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0599","lang":"ru","text":"я не хочу сегодня ничего делать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0600","lang":"ru","text":"мне нужно подумать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0601","lang":"ru","text":"отмени всё","expect":{"kind":"oos","noWrite":true,"action":"clarify|reject"},"split":"train","tags":["negative"]}
-{"id":"n0602","lang":"ru","text":"удали всё","expect":{"kind":"oos","noWrite":true,"action":"clarify|reject"},"split":"train","tags":["negative"]}
-{"id":"n0603","lang":"ru","text":"не надо","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0604","lang":"ru","text":"нет не то","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0605","lang":"ru","text":"ага","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0606","lang":"ru","text":"стоп","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0607","lang":"ru","text":"спасибо тебе большое ты очень помог","expect":{"kind":"oos","noWrite":true,"action":"execute|reject"},"split":"test","tags":["negative","chat"]}
-{"id":"n0608","lang":"ru","text":"включи свет в комнате","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0609","lang":"ru","text":"открой youtube","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0610","lang":"ru","text":"сделай фото","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0611","lang":"ru","text":"какая завтра погода","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0612","lang":"ru","text":"построй маршрут до работы","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0613","lang":"ru","text":"найди в интернете рецепт борща","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0614","lang":"ru","text":"отправь сообщение Диме","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0615","lang":"ru","text":"сделай громче","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0616","lang":"ru","text":"выключи телефон","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0617","lang":"ru","text":"включи фонарик","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0618","lang":"ru","text":"поставь будильник на шесть тридцать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0619","lang":"ru","text":"включи что-нибудь весёлое","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0620","lang":"ru","text":"сколько стоит доллар","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0621","lang":"ru","text":"закажи пиццу","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0622","lang":"ru","text":"вызови такси","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0623","lang":"ru","text":"открой почту","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0624","lang":"ru","text":"позвони Диме","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0625","lang":"ru","text":"запусти секундомер на машине","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0626","lang":"ru","text":"включи wifi","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0627","lang":"ru","text":"сделай скриншот","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0628","lang":"ru","text":"сколько градусов в круге","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0629","lang":"ru","text":"кто президент","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0630","lang":"ru","text":"столица франции","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0631","lang":"ru","text":"расскажи анекдот","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0632","lang":"ru","text":"спой песню","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0633","lang":"ru","text":"сколько будет сто разделить на четыре","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0634","lang":"ru","text":"какой сегодня курс евро","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0635","lang":"ru","text":"что такое блокчейн","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0636","lang":"ru","text":"расскажи про космос","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0637","lang":"ru","text":"как приготовить борщ","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0638","lang":"ru","text":"посоветуй что мне сегодня сделать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0639","lang":"ru","text":"какое лекарство пить от простуды","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0640","lang":"ru","text":"я думаю у меня температура","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0641","lang":"ru","text":"как похудеть быстро","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0642","lang":"ru","text":"что съесть на ужин","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0643","lang":"ru","text":"сколько спать взрослому человеку","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0644","lang":"ru","text":"мне грустно что делать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0645","lang":"ru","text":"как справиться со стрессом","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0646","lang":"ru","text":"дай совет по тренировкам","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0647","lang":"ru","text":"стоит ли мне менять работу","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0648","lang":"ru","text":"как мне стать богатым","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0649","lang":"ru","text":"что лучше бег или плавание","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0650","lang":"ru","text":"ну","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0651","lang":"ru","text":"э-э","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0652","lang":"ru","text":"так","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0653","lang":"ru","text":"хорошо","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0654","lang":"ru","text":"ладно","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0655","lang":"ru","text":"угу","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0656","lang":"ru","text":"сейчас","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0657","lang":"ru","text":"вот","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0658","lang":"ru","text":"это","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0659","lang":"ru","text":"сегодня","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0660","lang":"ru","text":"раз два три","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0661","lang":"ru","text":"проверка проверка","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0662","lang":"ru","text":"алло","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0663","lang":"ru","text":"слышишь меня","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0664","lang":"ru","text":"тест","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0665","lang":"ru","text":"пять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0666","lang":"ru","text":"двадцать пять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0667","lang":"ru","text":"завтра","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0668","lang":"ru","text":"в десять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0669","lang":"ru","text":"я пришёл домой","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0670","lang":"ru","text":"ужинать пора","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0671","lang":"ru","text":"пойду погуляю с собакой","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0672","lang":"ru","text":"мама звонит","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0673","lang":"ru","text":"на улице дождь","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0674","lang":"ru","text":"я в магазине","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0675","lang":"ru","text":"вчера был хороший день","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0676","lang":"ru","text":"в понедельник было плохо","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0677","lang":"ru","text":"мне надо подумать над предложением","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0678","lang":"ru","text":"не знаю","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0679","lang":"ru","text":"потом","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0680","lang":"ru","text":"ничего","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0681","lang":"ru","text":"никак","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0682","lang":"ru","text":"нормально","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0683","lang":"ru","text":"как дела у тебя","expect":{"kind":"oos","noWrite":true,"action":"execute|reject"},"split":"train","tags":["negative","chat"]}
-{"id":"n0684","lang":"ru","text":"ты где","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0685","lang":"ru","text":"удали","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0686","lang":"ru","text":"перенеси","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0687","lang":"ru","text":"сотри","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0688","lang":"ru","text":"отметь","expect":{"kind":"oos","noWrite":true,"action":"clarify|ask-slot|reject"},"split":"test","tags":["negative"]}
-{"id":"n0689","lang":"ru","text":"добавь","expect":{"kind":"oos","noWrite":true,"action":"clarify|ask-slot|reject"},"split":"test","tags":["negative"]}
-{"id":"n0690","lang":"ru","text":"заверши","expect":{"kind":"oos","noWrite":true,"action":"clarify|ask-slot|reject"},"split":"test","tags":["negative"]}
-{"id":"n0691","lang":"ru","text":"удали всё что есть","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0692","lang":"ru","text":"очисти всё","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0693","lang":"ru","text":"обнули всё","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0694","lang":"ru","text":"начни с нуля","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0695","lang":"ru","text":"сбрось серию","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0696","lang":"ru","text":"удали все привычки","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0697","lang":"ru","text":"удали все цели","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0698","lang":"ru","text":"забудь всё","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0699","lang":"en","text":"set an alarm for seven","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0700","lang":"en","text":"play some music","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0701","lang":"en","text":"call mom","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0702","lang":"en","text":"what is twenty times five","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0703","lang":"en","text":"tell me a joke","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0704","lang":"en","text":"i have a headache","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0705","lang":"en","text":"what should i eat","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0706","lang":"en","text":"how do i lose weight","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0707","lang":"en","text":"what is the weather","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0708","lang":"en","text":"open youtube","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0709","lang":"en","text":"delete everything","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0710","lang":"en","text":"cancel all","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0711","lang":"en","text":"okay","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0712","lang":"en","text":"hmm","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0713","lang":"en","text":"stop","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0714","lang":"en","text":"no","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0715","lang":"en","text":"who is the president","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0716","lang":"en","text":"send a text to john","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0717","lang":"en","text":"give me advice","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0718","lang":"en","text":"order a pizza","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0719","lang":"en","text":"call a taxi","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0720","lang":"en","text":"what is the capital of france","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0721","lang":"en","text":"sing a song","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0722","lang":"en","text":"turn up the volume","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0723","lang":"en","text":"set a timer for the oven on my phone","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0724","lang":"en","text":"how do i cook pasta","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0725","lang":"en","text":"should i quit my job","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0726","lang":"en","text":"what is the best workout","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0727","lang":"en","text":"i need to think","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0728","lang":"en","text":"maybe later","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0729","lang":"en","text":"one two three","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0730","lang":"en","text":"tomorrow","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0731","lang":"en","text":"at five","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0732","lang":"en","text":"it is raining","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0733","lang":"en","text":"i am at the store","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0734","lang":"en","text":"yesterday was a good day","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0735","lang":"en","text":"remove","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0736","lang":"en","text":"add","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0737","lang":"en","text":"delete all my habits","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0738","lang":"en","text":"what time is it in tokyo","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0739","lang":"en","text":"text mom","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0740","lang":"en","text":"play my workout playlist","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0741","lang":"en","text":"is it going to rain tomorrow","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0742","lang":"en","text":"forget everything","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
-{"id":"n0743","lang":"en","text":"wipe everything","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0633","lang":"ru","text":"поставь будильник на семь","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0634","lang":"ru","text":"включи музыку","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0635","lang":"ru","text":"позвони маме","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0636","lang":"ru","text":"сколько будет двадцать на пять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0637","lang":"ru","text":"расскажи как мотивировать себя","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0638","lang":"ru","text":"что мне делать если я устал","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0639","lang":"ru","text":"у меня болит голова","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0640","lang":"ru","text":"я хочу пойти спать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0641","lang":"ru","text":"нужно ли мне сегодня тренироваться","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0642","lang":"ru","text":"как лучше спланировать неделю","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0643","lang":"ru","text":"надо бы чаще гулять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0644","lang":"ru","text":"я не хочу сегодня ничего делать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0645","lang":"ru","text":"мне нужно подумать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0646","lang":"ru","text":"отмени всё","expect":{"kind":"oos","noWrite":true,"action":"clarify|reject"},"split":"train","tags":["negative"]}
+{"id":"n0647","lang":"ru","text":"удали всё","expect":{"kind":"oos","noWrite":true,"action":"clarify|reject"},"split":"train","tags":["negative"]}
+{"id":"n0648","lang":"ru","text":"не надо","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0649","lang":"ru","text":"нет не то","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0650","lang":"ru","text":"ага","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0651","lang":"ru","text":"стоп","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0652","lang":"ru","text":"спасибо тебе большое ты очень помог","expect":{"kind":"oos","noWrite":true,"action":"execute|reject"},"split":"test","tags":["negative","chat"]}
+{"id":"n0653","lang":"ru","text":"включи свет в комнате","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0654","lang":"ru","text":"открой youtube","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0655","lang":"ru","text":"сделай фото","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0656","lang":"ru","text":"какая завтра погода","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0657","lang":"ru","text":"построй маршрут до работы","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0658","lang":"ru","text":"найди в интернете рецепт борща","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0659","lang":"ru","text":"отправь сообщение Диме","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0660","lang":"ru","text":"сделай громче","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0661","lang":"ru","text":"выключи телефон","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0662","lang":"ru","text":"включи фонарик","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0663","lang":"ru","text":"поставь будильник на шесть тридцать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0664","lang":"ru","text":"включи что-нибудь весёлое","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0665","lang":"ru","text":"сколько стоит доллар","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0666","lang":"ru","text":"закажи пиццу","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0667","lang":"ru","text":"вызови такси","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0668","lang":"ru","text":"открой почту","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0669","lang":"ru","text":"позвони Диме","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0670","lang":"ru","text":"запусти секундомер на машине","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0671","lang":"ru","text":"включи wifi","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0672","lang":"ru","text":"сделай скриншот","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0673","lang":"ru","text":"сколько градусов в круге","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0674","lang":"ru","text":"кто президент","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0675","lang":"ru","text":"столица франции","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0676","lang":"ru","text":"расскажи анекдот","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0677","lang":"ru","text":"спой песню","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0678","lang":"ru","text":"сколько будет сто разделить на четыре","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0679","lang":"ru","text":"какой сегодня курс евро","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0680","lang":"ru","text":"что такое блокчейн","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0681","lang":"ru","text":"расскажи про космос","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0682","lang":"ru","text":"как приготовить борщ","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0683","lang":"ru","text":"посоветуй что мне сегодня сделать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0684","lang":"ru","text":"какое лекарство пить от простуды","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0685","lang":"ru","text":"я думаю у меня температура","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0686","lang":"ru","text":"как похудеть быстро","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0687","lang":"ru","text":"что съесть на ужин","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0688","lang":"ru","text":"сколько спать взрослому человеку","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0689","lang":"ru","text":"мне грустно что делать","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0690","lang":"ru","text":"как справиться со стрессом","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0691","lang":"ru","text":"дай совет по тренировкам","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0692","lang":"ru","text":"стоит ли мне менять работу","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0693","lang":"ru","text":"как мне стать богатым","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0694","lang":"ru","text":"что лучше бег или плавание","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0695","lang":"ru","text":"ну","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0696","lang":"ru","text":"э-э","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0697","lang":"ru","text":"так","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0698","lang":"ru","text":"хорошо","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0699","lang":"ru","text":"ладно","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0700","lang":"ru","text":"угу","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0701","lang":"ru","text":"сейчас","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0702","lang":"ru","text":"вот","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0703","lang":"ru","text":"это","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0704","lang":"ru","text":"сегодня","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0705","lang":"ru","text":"раз два три","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0706","lang":"ru","text":"проверка проверка","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0707","lang":"ru","text":"алло","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0708","lang":"ru","text":"слышишь меня","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0709","lang":"ru","text":"тест","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0710","lang":"ru","text":"пять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0711","lang":"ru","text":"двадцать пять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0712","lang":"ru","text":"завтра","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0713","lang":"ru","text":"в десять","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0714","lang":"ru","text":"я пришёл домой","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0715","lang":"ru","text":"ужинать пора","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0716","lang":"ru","text":"пойду погуляю с собакой","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0717","lang":"ru","text":"мама звонит","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0718","lang":"ru","text":"на улице дождь","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0719","lang":"ru","text":"я в магазине","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0720","lang":"ru","text":"вчера был хороший день","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0721","lang":"ru","text":"в понедельник было плохо","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0722","lang":"ru","text":"мне надо подумать над предложением","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0723","lang":"ru","text":"не знаю","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0724","lang":"ru","text":"потом","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0725","lang":"ru","text":"ничего","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0726","lang":"ru","text":"никак","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0727","lang":"ru","text":"нормально","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0728","lang":"ru","text":"как дела у тебя","expect":{"kind":"oos","noWrite":true,"action":"execute|reject"},"split":"train","tags":["negative","chat"]}
+{"id":"n0729","lang":"ru","text":"ты где","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0730","lang":"ru","text":"удали","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0731","lang":"ru","text":"перенеси","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0732","lang":"ru","text":"сотри","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0733","lang":"ru","text":"отметь","expect":{"kind":"oos","noWrite":true,"action":"clarify|ask-slot|reject"},"split":"test","tags":["negative"]}
+{"id":"n0734","lang":"ru","text":"добавь","expect":{"kind":"oos","noWrite":true,"action":"clarify|ask-slot|reject"},"split":"test","tags":["negative"]}
+{"id":"n0735","lang":"ru","text":"заверши","expect":{"kind":"oos","noWrite":true,"action":"clarify|ask-slot|reject"},"split":"test","tags":["negative"]}
+{"id":"n0736","lang":"ru","text":"удали всё что есть","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0737","lang":"ru","text":"очисти всё","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0738","lang":"ru","text":"обнули всё","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0739","lang":"ru","text":"начни с нуля","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0740","lang":"ru","text":"сбрось серию","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0741","lang":"ru","text":"удали все привычки","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0742","lang":"ru","text":"удали все цели","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0743","lang":"ru","text":"забудь всё","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0744","lang":"en","text":"set an alarm for seven","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0745","lang":"en","text":"play some music","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0746","lang":"en","text":"call mom","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0747","lang":"en","text":"what is twenty times five","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0748","lang":"en","text":"tell me a joke","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0749","lang":"en","text":"i have a headache","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0750","lang":"en","text":"what should i eat","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0751","lang":"en","text":"how do i lose weight","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0752","lang":"en","text":"what is the weather","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0753","lang":"en","text":"open youtube","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0754","lang":"en","text":"delete everything","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0755","lang":"en","text":"cancel all","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0756","lang":"en","text":"okay","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0757","lang":"en","text":"hmm","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0758","lang":"en","text":"stop","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0759","lang":"en","text":"no","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0760","lang":"en","text":"who is the president","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0761","lang":"en","text":"send a text to john","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0762","lang":"en","text":"give me advice","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0763","lang":"en","text":"order a pizza","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0764","lang":"en","text":"call a taxi","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0765","lang":"en","text":"what is the capital of france","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0766","lang":"en","text":"sing a song","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0767","lang":"en","text":"turn up the volume","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0768","lang":"en","text":"set a timer for the oven on my phone","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0769","lang":"en","text":"how do i cook pasta","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0770","lang":"en","text":"should i quit my job","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0771","lang":"en","text":"what is the best workout","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0772","lang":"en","text":"i need to think","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0773","lang":"en","text":"maybe later","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0774","lang":"en","text":"one two three","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0775","lang":"en","text":"tomorrow","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0776","lang":"en","text":"at five","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0777","lang":"en","text":"it is raining","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0778","lang":"en","text":"i am at the store","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0779","lang":"en","text":"yesterday was a good day","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0780","lang":"en","text":"remove","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0781","lang":"en","text":"add","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0782","lang":"en","text":"delete all my habits","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0783","lang":"en","text":"what time is it in tokyo","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0784","lang":"en","text":"text mom","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0785","lang":"en","text":"play my workout playlist","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0786","lang":"en","text":"is it going to rain tomorrow","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0787","lang":"en","text":"forget everything","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
+{"id":"n0788","lang":"en","text":"wipe everything","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}

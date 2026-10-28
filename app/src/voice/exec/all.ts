@@ -4,3 +4,4 @@ import './mood';
 import './quits';
 import './goals';
 import './planner';
+import './planRead';
