@@ -16,9 +16,9 @@ const swapNeighbours = (w: string[], h: number) => { if (w.length < 3) return w;
 const dropPrep = (w: string[]) => { const i = w.findIndex((x) => PREPS.has(x)); return i < 0 ? w : w.filter((_, j) => j !== i); };
 const insertFill = (w: string[], h: number) => { const i = 1 + (h % Math.max(1, w.length - 1)); const o = [...w]; o.splice(i, 0, FILL[h % FILL.length]); return o; };
 const confuse = (w: string[]) => w.map((x) => CONFUSION[x] ?? x);
-const typo = (w: string[], h: number) => { const i = h % w.length; const x = w[i]; if (x.length < 5) return w; const k = 1 + (h >> 3) % (x.length - 2); const o = [...w]; o[i] = x.slice(0, k) + x.slice(k + 1); return o; };
+const typo = (w: string[], h: number) => { const i = h % w.length; const x = w[i]; if (x.length < 5 || /\d/.test(x)) return w; const k = 1 + (h >> 3) % (x.length - 2); const o = [...w]; o[i] = x.slice(0, k) + x.slice(k + 1); return o; };
 const yo = (w: string[]) => w.map((x) => x.replace(/е/g, 'ё').replace(/ё/g, (m, o) => (o % 2 ? 'е' : m)));
-const glue = (w: string[], h: number) => { if (w.length < 3) return w; const i = h % (w.length - 1); const o = [...w]; o.splice(i, 2, o[i] + o[i + 1]); return o; };
+const glue = (w: string[], h: number) => { if (w.length < 3) return w; const i = h % (w.length - 1); if (/\d/.test(w[i] + w[i + 1])) return w; const o = [...w]; o.splice(i, 2, o[i] + o[i + 1]); return o; };
 const caseErr = (w: string[]) => w.map((x) => x.replace(/ку$/, 'ка').replace(/у$/, 'а'));
 
 export type Damage = 'confuse' | 'dropPrep' | 'fill' | 'swap' | 'glue' | 'case' | 'typo' | 'yo';

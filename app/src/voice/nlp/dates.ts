@@ -40,6 +40,7 @@ export function hour24(h: number, pod: Pod): number {
 const hhmm = (h: number, m: number) => `${pad(h)}:${pad(m)}`;
 const POD = '(утра|утром|дня|днем|вечера|вечером|ночи|ночью)';
 const NUM = '(\\d{1,2})(?:-го)?';
+const HRS = '(?: час(?:а|ов)?)?';
 export const PART_OF_DAY: Record<string, string> = { morning: '09:00', day: '14:00', evening: '19:00', night: '22:00' };
 
 export type TimeHit = { time: string; end?: string; date?: string; rel?: boolean; rest: string };
@@ -67,7 +68,7 @@ export function takeTime(s: string, now: Date): TimeHit | null {
     }
   }
   if ((m = s.match(re('^B(?:в )?полночь^E')))) return { time: '00:00', rest: cut(s, m) };
-  if ((m = s.match(re('^B(?:в )?(?:полдень|обед)^E')))) return { time: '12:00', rest: cut(s, m) };
+  if ((m = s.match(re('^B(?:в полдень|полдень|в обед)^E')))) return { time: '12:00', rest: cut(s, m) };
   // «в половине пятого» = 4:30, «в четверть пятого» = 4:15, «без четверти восемь» = 7:45, «без десяти семь» = 6:50
   if ((m = s.match(re(`^B(?:в )?(половине|четверть|без четверти|без (\\d{1,2})) ${NUM}(?: ${POD})?^E`)))) {
     const kind = m[1], hh = Number(m[3]), pod = podOf(m[4]);
@@ -91,7 +92,7 @@ export function takeTime(s: string, now: Date): TimeHit | null {
     if (valid(hh, mm)) return { time: hhmm(norm24(hh < 13 && podOf(m[3]) ? hour24(hh, podOf(m[3])) : hh), mm), rest: cut(s, m) };
   }
   // «в 15», «в 9 утра»
-  if ((m = s.match(re(`^Bв ${NUM}(?: ${POD})?(?! (?:минут|час|дн|недел|месяц|раз))^E`)))) {
+  if ((m = s.match(re(`^Bв ${NUM}${HRS}(?: ${POD})?(?! (?:минут|дн|недел|месяц|раз))^E`)))) {
     const hh = Number(m[1]);
     if (hh >= 0 && hh <= 24) return { time: hhmm(norm24(hour24(hh, podOf(m[2]))), 0), rest: cut(s, m) };
   }
@@ -135,6 +136,10 @@ export function takeDate(s: string, now: Date): DateHit | null {
   const today = at0(now);
   const hit = (d: Date, m: RegExpMatchArray): DateHit => ({ date: isoDay(d), rest: cut(s, m) });
   let m: RegExpMatchArray | null;
+  if ((m = s.match(re('^Bпозавчера^E')))) return hit(addDays(today, -2), m);
+  if ((m = s.match(re('^Bвчера(?:шн\\p{L}+)?^E')))) return hit(addDays(today, -1), m);
+  if ((m = s.match(re('^Bзавтрашн\\p{L}+^E')))) return hit(addDays(today, 1), m);
+  if ((m = s.match(re('^Bсегодняшн\\p{L}+^E')))) return hit(today, m);
   if ((m = s.match(re('^Bпослезавтра^E')))) return hit(addDays(today, 2), m);
   if ((m = s.match(re('^Bзавтра^E')))) return hit(addDays(today, 1), m);
   if ((m = s.match(re('^Bсегодня^E')))) return hit(today, m);
@@ -145,13 +150,13 @@ export function takeDate(s: string, now: Date): DateHit | null {
   }
   if ((m = s.match(re('^Bна следующей неделе^E')))) return hit(addDays(today, 7 - mon0(today)), m);
   if ((m = s.match(re('^Bна выходных?^E')))) return hit(addDays(today, mon0(today) === 6 ? 0 : 5 - mon0(today)), m);
-  if ((m = s.match(re('^Bв конце недели^E')))) return hit(addDays(today, mon0(today) <= 4 ? 4 - mon0(today) : 11 - mon0(today)), m);
-  if ((m = s.match(re('^Bв начале месяца^E')))) return hit(new Date(today.getFullYear(), today.getMonth() + 1, 1), m);
-  if ((m = s.match(re('^Bв конце месяца^E')))) {
+  if ((m = s.match(re('^B(?:в|на|до) конц\\p{L}+ недели^E')))) return hit(addDays(today, mon0(today) <= 4 ? 4 - mon0(today) : 11 - mon0(today)), m);
+  if ((m = s.match(re('^B(?:в|на|до) начал\\p{L}+ месяца^E')))) return hit(new Date(today.getFullYear(), today.getMonth() + 1, 1), m);
+  if ((m = s.match(re('^B(?:в|на|до) конц\\p{L}+ месяца^E')))) {
     const last = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     return hit(last > today ? last : new Date(today.getFullYear(), today.getMonth() + 2, 0), m);
   }
-  if ((m = s.match(re('^Bв середине месяца^E')))) {
+  if ((m = s.match(re('^B(?:в|на|до) середин\\p{L}+ месяца^E')))) {
     const mid = new Date(today.getFullYear(), today.getMonth(), 15);
     return hit(mid > today ? mid : new Date(today.getFullYear(), today.getMonth() + 1, 15), m);
   }

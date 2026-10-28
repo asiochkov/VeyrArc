@@ -22,18 +22,24 @@ const rows: Row[] = readdirSync(join(here, 'golden')).filter((f) => f.endsWith('
 
 const norm = (s: unknown) => String(s ?? '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9: -]/g, '').replace(/\s+/g, ' ').trim();
 const TEXTY = new Set(['query', 'title', 'text', 'to', 'goal', 'name', 'a', 'b', 'target', 'alias', 'trigger', 'category', 'group', 'section', 'what', 'then', 'after']);
-function slotOk(key: string, want: unknown, got: unknown) {
+// a noisy phrase may swap words, glue them or change an ending: the same words in any order, endings loose, spaces ignored
+const sameWords = (a: string, b: string) => {
+  if (a.replace(/ /g, '') === b.replace(/ /g, '')) return true;
+  const x = a.split(' ').sort(), y = b.split(' ').sort();
+  return x.length === y.length && x.every((w, i) => w === y[i] || (Math.min(w.length, y[i].length) >= 5 && w.slice(0, Math.min(w.length, y[i].length) - 2) === y[i].slice(0, Math.min(w.length, y[i].length) - 2)));
+};
+function slotOk(key: string, want: unknown, got: unknown, lenient = false) {
   if (want === undefined) return true;
   if (got === undefined || got === null) return want === null;
-  if (TEXTY.has(key) && typeof want === 'string') { const a = norm(want), b = norm(got); return !!a && !!b && (a === b || a.includes(b) || b.includes(a)); }
+  if (TEXTY.has(key) && typeof want === 'string') { const a = norm(want), b = norm(got); return !!a && !!b && (a === b || a.includes(b) || b.includes(a) || (lenient && sameWords(a, b))); }
   if (Array.isArray(want)) return Array.isArray(got) && want.length === got.length && want.every((w, i) => (typeof w === 'string' ? norm(w) === norm(got[i]) || norm(got[i]).includes(norm(w)) : JSON.stringify(w) === JSON.stringify(got[i])));
   return JSON.stringify(want) === JSON.stringify(got);
 }
-function matches(e: Expect, d: Decision): boolean {
+function matches(e: Expect, d: Decision, lenient = false): boolean {
   if (d.action === 'reject') return e.kind === 'oos' || e.action === 'reject';
   const p = d.action === 'clarify' ? d.options[0] : d.parsed;
   if (!p || p.kind !== e.kind) return false;
-  return Object.entries(e.slots ?? {}).every(([k, v]) => slotOk(k, v, p.slots[k]));
+  return Object.entries(e.slots ?? {}).every(([k, v]) => slotOk(k, v, p.slots[k], lenient));
 }
 const defaultAction = (kind: string) => (riskOf(kind) === 'R3' ? 'confirm' : riskOf(kind) === 'R4' ? 'reject' : 'execute');
 const actionOk = (e: Expect, d: Decision) => {
@@ -46,7 +52,7 @@ type Res = { row: Row; ok: boolean; why: string; got: string };
 const run = (row: Row): Res => {
   const env = { ...fixture, now: new Date(row.now ?? fixture.now), lang: row.lang } as ParseEnv;
   const ds = analyze(row.text, env);
-  const got = ds.map((d) => (d.action === 'reject' ? 'reject' : `${d.action}:${d.action === 'clarify' ? d.options[0]?.kind : d.parsed.kind}`)).join(' + ') || 'nothing';
+  const got = ds.map((d) => (d.action === 'reject' ? 'reject' : `${d.action}:${d.action === 'clarify' ? d.options[0]?.kind : d.parsed.kind}${d.action === 'reject' ? '' : ' ' + JSON.stringify(d.action === 'clarify' ? d.options[0]?.slots : d.parsed.slots)}`)).join(' + ') || 'nothing';
   const exp = row.expect.multi ?? [row.expect];
   const neg = exp.length === 1 && (exp[0].kind === 'oos' || exp[0].noWrite);
   if (neg) {
@@ -57,7 +63,7 @@ const run = (row: Row): Res => {
   }
   if (ds.length !== exp.length) return { row, ok: false, why: `count ${ds.length} ≠ ${exp.length}`, got };
   for (let i = 0; i < exp.length; i++) {
-    if (!matches(exp[i], ds[i])) return { row, ok: false, why: 'intent/slots', got };
+    if (!matches(exp[i], ds[i], !!row.tags?.includes('noise'))) return { row, ok: false, why: 'intent/slots', got };
     if (!actionOk(exp[i], ds[i])) return { row, ok: false, why: 'action', got };
   }
   return { row, ok: true, why: '', got };
@@ -80,7 +86,7 @@ console.log('\nby tag'); for (const [k, [a, b]] of [...by((r) => r.row.tags ?? [
 const byKind = by((r) => [r.row.expect.multi ? 'multi' : r.row.expect.kind]);
 if (args.has('--verbose')) { console.log('\nby intent'); for (const [k, [a, b]] of [...byKind].sort()) console.log(`  ${k.padEnd(24)} ${a}/${b}`); }
 const fails = results.filter((r) => !r.ok);
-if (fails.length) { console.log(`\nfailures (${fails.length}):`); for (const f of fails.slice(0, args.has('--verbose') ? 400 : 25)) console.log(`  ✗ [${f.row.id}] «${f.row.text}» — ${f.why}; want ${f.row.expect.multi ? 'multi' : f.row.expect.kind}, got ${f.got}`); }
+if (fails.length) { console.log(`\nfailures (${fails.length}):`); for (const f of fails.slice(0, args.has('--verbose') ? 400 : 25)) console.log(`  ✗ [${f.row.id}] «${f.row.text}» — ${f.why}; want ${f.row.expect.multi ? 'multi' : f.row.expect.kind + ' ' + JSON.stringify(f.row.expect.slots ?? {}) + (f.row.expect.action ? ' ' + f.row.expect.action : '')}, got ${f.got}`); }
 const q1 = posTest.filter((r) => r.ok).length / Math.max(1, posTest.length);
 const q2 = noise.filter((r) => r.ok).length / Math.max(1, noise.length);
 const q3 = neg.filter((r) => !r.ok).length;

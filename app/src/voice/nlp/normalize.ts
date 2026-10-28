@@ -2,7 +2,7 @@
  * Text cleaning before parsing (ТЗ 6.5): lower case, ё→е, punctuation out (digits keep their ":" "." "-"), filler words and the
  * assistant's own name removed. Pure: no store, no clock.
  */
-const FILLERS = ['как бы', 'ну', 'э', 'эм', 'ээ', 'короче', 'значит', 'типа', 'слушай', 'пожалуйста', 'вот', 'please', 'um', 'uh', 'like'];
+const FILLERS = ['это самое', 'в общем', 'так сказать', 'ну вот', 'как бы', 'ну', 'э', 'эм', 'ээ', 'короче', 'значит', 'типа', 'слушай', 'пожалуйста', 'вот', 'please', 'um', 'uh', 'like'];
 const B = '(?<![\\p{L}\\d])';
 const E = '(?![\\p{L}\\d])';
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

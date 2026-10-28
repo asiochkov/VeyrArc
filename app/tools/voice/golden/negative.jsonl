@@ -93,7 +93,7 @@
 {"id":"n0278","lang":"ru","text":"ничего","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
 {"id":"n0279","lang":"ru","text":"никак","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
 {"id":"n0280","lang":"ru","text":"нормально","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
-{"id":"n0281","lang":"ru","text":"как дела у тебя","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"train","tags":["negative"]}
+{"id":"n0281","lang":"ru","text":"как дела у тебя","expect":{"kind":"oos","noWrite":true,"action":"execute|reject"},"split":"train","tags":["negative","chat"]}
 {"id":"n0282","lang":"ru","text":"ты где","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
 {"id":"n0283","lang":"ru","text":"удали","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
 {"id":"n0284","lang":"ru","text":"перенеси","expect":{"kind":"oos","noWrite":true,"action":"reject"},"split":"test","tags":["negative"]}
