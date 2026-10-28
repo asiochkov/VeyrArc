@@ -187,6 +187,7 @@ en(
   // flows
   { kind: 'flow.start', re: rx('^(?:walk me through my habits|go through my habits|lets go through my habits)$'), slots: () => ({ id: 'walk' }) },
   { kind: 'flow.start', re: rx('^(?:good morning|morning briefing|start my morning|morning)$'), slots: () => ({ id: 'morning' }) },
+  { kind: 'flow.start', re: rx('^(?:week review|review my week|sum up my week|wrap up my week)$'), slots: () => ({ id: 'week' }) },
   { kind: 'flow.start', re: rx('^(?:wrap up my (?:day|evening)|evening review|sum up my (?:day|evening)|review my day)$'), slots: () => ({ id: 'evening' }) },
   { kind: 'flow.start', re: rx('^(?:i am having a hard day|im having a hard day|its hard today|today is hard|i am struggling today|im struggling)$'), slots: () => ({ id: 'tough' }) },
   { kind: 'flow.start', re: rx('‹i have (\\d+) minutes?(?: what can i (?:do|fit)| to spare)?›'), slots: (m) => ({ id: 'fit', minutes: num(m[1]) }) },

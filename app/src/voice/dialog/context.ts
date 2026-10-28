@@ -1,5 +1,6 @@
 import { DIALOG } from '../nlp/params';
 import type { Parsed } from '../nlp/types';
+import type { FlowState } from '../flows/engine';
 
 /*
  * What the assistant remembers between phrases (ТЗ 6.8): the last things touched (for «её», «это», «вторую»), the last list
@@ -15,7 +16,7 @@ export type DialogContext = {
   confirm?: { expiresAt: number };
   /** the last change, for corrections */
   action?: { at: number; parsed: Parsed; journalId?: string };
-  flow?: { id: string; step: string; data: Record<string, unknown>; startedAt: number; lastAt: number };
+  flow?: FlowState;
   /** phrases in a row that were not understood */
   misses: number;
 };

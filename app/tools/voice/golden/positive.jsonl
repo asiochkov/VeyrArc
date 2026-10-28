@@ -289,3 +289,11 @@
 {"id":"g0289","lang":"en","text":"i am having a hard day","expect":{"kind":"flow.start","slots":{"id":"tough"}},"split":"train","tags":[]}
 {"id":"g0290","lang":"en","text":"i have 30 minutes what can i do","expect":{"kind":"flow.start","slots":{"id":"fit","minutes":30}},"split":"train","tags":[]}
 {"id":"g0291","lang":"en","text":"start my morning","expect":{"kind":"flow.start","slots":{"id":"morning"}},"split":"train","tags":[]}
+{"id":"g0292","lang":"ru","text":"подведи неделю","expect":{"kind":"flow.start","slots":{"id":"week"}},"split":"train","tags":[]}
+{"id":"g0293","lang":"ru","text":"итоги недели","expect":{"kind":"flow.start","slots":{"id":"week"}},"split":"train","tags":[]}
+{"id":"g0294","lang":"ru","text":"доброе утро","expect":{"kind":"flow.start","slots":{"id":"morning"}},"split":"train","tags":[]}
+{"id":"g0295","lang":"ru","text":"вечерний итог","expect":{"kind":"flow.start","slots":{"id":"evening"}},"split":"train","tags":[]}
+{"id":"g0296","lang":"ru","text":"мне трудно","expect":{"kind":"flow.start","slots":{"id":"tough"}},"split":"train","tags":[]}
+{"id":"g0297","lang":"ru","text":"у меня 15 минут","expect":{"kind":"flow.start","slots":{"id":"fit","minutes":15}},"split":"test","tags":[]}
+{"id":"g0298","lang":"en","text":"week review","expect":{"kind":"flow.start","slots":{"id":"week"}},"split":"train","tags":[]}
+{"id":"g0299","lang":"en","text":"review my day","expect":{"kind":"flow.start","slots":{"id":"evening"}},"split":"train","tags":[]}

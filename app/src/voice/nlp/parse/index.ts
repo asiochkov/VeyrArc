@@ -47,9 +47,9 @@ export function candidates(text: string, env: ParseEnv, opts: AnalyzeOpts = {}, 
   }
   // still nothing: speech recognisers swap neighbours, drop prepositions and glue words — try those repairs
   let repaired = false;
-  if (!hits.some((h) => h.confidence >= 0.6)) {
+  if (!hits.some((h) => h.confidence >= 0.8 || (!h.rule.bare && h.confidence >= 0.6))) {
     const found = repairs(ctx.c).flatMap((v) => runRules(buildCtx(v, env, lexOf(env), 'all')).filter((h) => !h.rule.bare));
-    if (found.length) { hits = [...hits, ...found.map((h) => ({ ...h, confidence: h.confidence * 0.99 }))]; repaired = true; }
+    if (found.length) { hits = [...hits.filter((h) => h.confidence >= 0.8 || !h.rule.bare), ...found.map((h) => ({ ...h, confidence: h.confidence * 0.99 }))]; repaired = true; }
   }
   void repaired;
   if (ctxOut) ctxOut.ctx = ctx;

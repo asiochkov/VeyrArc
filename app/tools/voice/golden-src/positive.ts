@@ -319,4 +319,12 @@ export const POSITIVE: R[] = [
   ['en', 'i am having a hard day', 'flow.start', { id: 'tough' }],
   ['en', 'i have 30 minutes what can i do', 'flow.start', { id: 'fit', minutes: 30 }],
   ['en', 'start my morning', 'flow.start', { id: 'morning' }],
+  ['ru', 'подведи неделю', 'flow.start', { id: 'week' }],
+  ['ru', 'итоги недели', 'flow.start', { id: 'week' }],
+  ['ru', 'доброе утро', 'flow.start', { id: 'morning' }],
+  ['ru', 'вечерний итог', 'flow.start', { id: 'evening' }],
+  ['ru', 'мне трудно', 'flow.start', { id: 'tough' }],
+  ['ru', 'у меня 15 минут', 'flow.start', { id: 'fit', minutes: 15 }],
+  ['en', 'week review', 'flow.start', { id: 'week' }],
+  ['en', 'review my day', 'flow.start', { id: 'evening' }],
 ];

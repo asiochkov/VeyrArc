@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { useLangStore } from '../i18n';
 import { similarity } from './nlu';
 import { hints } from './run';
-import { handlePhrase } from './dialog/manager';
+import { handlePhrase, handleSilence } from './dialog/manager';
 import { yesno, ordinal } from './dialog/grammars';
 import { normalize } from './nlp/normalize';
 import { prefs } from './prefs';
@@ -182,7 +182,11 @@ session.on((e) => {
   else if (e.type === 'end') {
     detach?.(); detach = null;
     if (useVoice.getState().state !== 'listening') return;
-    if (e.reason === 'no-speech' && !useVoice.getState().heard.trim()) { showError('no-speech'); return; }
+    if (e.reason === 'no-speech' && !useVoice.getState().heard.trim()) {
+      const again = handleSilence();
+      if (again) { void show(again); return; }
+      showError('no-speech'); return;
+    }
     const alts = heardAlts.length ? heardAlts : [{ text: useVoice.getState().heard.trim(), confidence: null }];
     const text = alts[0].text ? rescore(alts, lexicon())?.text ?? alts[0].text : '';
     if (text.trim()) handle(text); else set({ state: 'idle' });

@@ -23,6 +23,14 @@ export function reviewWeek(now = new Date()) {
   const today = isoDay(now);
   return now.getDay() === 1 && now.getHours() < 14 ? addDays(weekStart(today), -7) : weekStart(today);
 }
+/** keep the line the person chose to carry into the week (the screen and the assistant both write it here) */
+export function saveWeekFocus(text: string, now = new Date()) {
+  const from = reviewWeek(now);
+  const target = now.getDay() === 0 ? addDays(from, 7) : weekStart(isoDay(now));
+  const v = text.trim().slice(0, 120);
+  if (v) put(FOCUS(target), v);
+  return v;
+}
 /** the focus the person chose for the current week (from the last review) */
 export const weekFocus = (now = new Date()) => get(FOCUS(weekStart(isoDay(now))));
 /** time to offer the review on its own: Sunday after 17:00 or Monday before 14:00, once */
@@ -34,7 +42,7 @@ export function reviewDue(sys: SystemRaw | undefined, now = new Date()) {
   return due && !get(SHOWN(w)) && !!arc && arc.started_on <= addDays(w, 3);
 }
 
-function stats(sys: SystemRaw, from: string) {
+export function stats(sys: SystemRaw, from: string) {
   const today = isoDay();
   const days = Array.from({ length: 7 }, (_, i) => addDays(from, i)).filter((d) => d <= today);
   const idx = { habits: sys.habits.filter((h) => !h.archived_at), logs: sys.logs, days: sys.days };

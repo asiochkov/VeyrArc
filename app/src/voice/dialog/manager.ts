@@ -8,6 +8,8 @@ import { envFromSystem } from '../exec/env';
 import { ctxOf, execute, executeMany, type ExecCtx } from '../exec';
 import { journal } from '../journal';
 import { R } from '../reply';
+import '../flows/defs';
+import { flowTimeout, flowTurn } from '../flows/engine';
 import { dialog } from './context';
 import { cancels, number, ordinal, yesno } from './grammars';
 import { previewOf } from './texts';
@@ -166,6 +168,9 @@ function answer(text: string, env: ParseEnv, c: ExecCtx, src: Source): Reply | n
 export function handlePhrase(text: string, src: Source = 'voice', asr: number | null = null, envIn?: ParseEnv): Reply {
   const env = envIn ?? envFromSystem();
   const c = ctxOf(env);
+  // a running flow hears the phrase first: an answer to its step wins over a new command
+  const ft = flowTurn(text, c);
+  if (ft) return ft;
   const ans = answer(text, env, c, src);
   if (ans) return ans;
   const corr = correction(text, env, c, src);
@@ -175,3 +180,6 @@ export function handlePhrase(text: string, src: Source = 'voice', asr: number | 
   dialog.get().pending = undefined;
   return reply(analyze(resolveRefs(text, c), env, { asr }), env, c, src);
 }
+
+/** nothing was heard while a flow waited for an answer: ask again once, then pause; null when no flow runs */
+export const handleSilence = (): Reply | null => flowTimeout(ctxOf(envFromSystem()));
