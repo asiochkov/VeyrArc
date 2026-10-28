@@ -1,5 +1,7 @@
 import type { Lang } from './stt/types';
-import type { Reply } from './exec/types';
+import type { Chip, Reply } from './exec/types';
+import type { Prefs } from './prefs';
+import { speechText } from './tts/speechText';
 
 /*
  * Words the assistant says (ТЗ 6.13.6): short, calm, no reproach, no «надо / должен». The screen text and the spoken
@@ -32,4 +34,35 @@ export function lowReply(lang: Lang, examples: string[]): Reply {
   const ru = lang === 'ru';
   const screen = ru ? 'Не понял. Можно так:' : 'I didn’t catch that. You can say:';
   return { ok: false, kind: 'ask', screen, speech: ru ? 'Не понял. Можно сказать иначе.' : 'I didn’t catch that. Try another way.', chips: examples.slice(0, 3).map((x) => ({ label: x, say: x })) };
+}
+
+/* ───────── building replies (ТЗ 5.3, 6.11.4, 6.13.6): the screen text and the spoken text are two things ───────── */
+type Opts = Partial<Pick<Reply, 'list' | 'chips' | 'choices' | 'undo' | 'nav' | 'close' | 'expect' | 'flow'>> & { speech?: string | null };
+const build = (kind: Reply['kind'], ok: boolean, screen: string, o: Opts = {}): Reply => {
+  const { speech, ...rest } = o;
+  return { ok, kind, screen, speech: speech === undefined ? screen : speech, ...rest };
+};
+export const R = {
+  done: (screen: string, o?: Opts) => build('done', true, screen, o),
+  answer: (screen: string, o?: Opts) => build('answer', true, screen, o),
+  ask: (screen: string, o?: Opts) => build('ask', true, screen, o),
+  confirm: (screen: string, o?: Opts) => build('confirm', true, screen, o),
+  info: (screen: string, o?: Opts) => build('info', true, screen, o),
+  error: (screen: string, o?: Opts) => build('error', false, screen, o),
+};
+export type { Chip };
+
+/** a short soft closing line for reminders when the person chose the soft tone; nothing for the others */
+export const toneTail = (lang: Lang, tone: Prefs['tone']) => (tone === 'soft' ? (lang === 'ru' ? ' Всё в своём темпе.' : ' At your own pace.') : '');
+
+/**
+ * Turns a reply into what is said aloud, by the person's settings: «brief» says only the first sentence, «detailed» adds the
+ * list; lists are not read unless asked; muted says nothing. The screen text never changes.
+ */
+export function speechOf(r: Reply, lang: Lang, p: Pick<Prefs, 'style' | 'speakLists' | 'muted'>): string | null {
+  if (p.muted || r.speech === null) return null;
+  let t = r.speech;
+  if (p.style === 'brief') t = t.split(/(?<=[.!?])\s+/)[0] ?? t;
+  if (p.style === 'detailed' && p.speakLists && r.list?.length) t = `${t} ${r.list.slice(0, 5).join(', ')}.`;
+  return speechText(t, lang);
 }
