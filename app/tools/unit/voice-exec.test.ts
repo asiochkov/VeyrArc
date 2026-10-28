@@ -26,7 +26,7 @@ const snap = () => {
 let fail = 0, n = 0;
 const ok = (c: boolean, m: string) => { n++; if (!c) { fail++; console.log('✗', m); } };
 
-export type Case = { say: string | string[]; expect?: RegExp; writes?: boolean; lang?: 'ru' | 'en'; answer?: number };
+export type Case = { say: string | string[]; expect?: RegExp; writes?: boolean; lang?: 'ru' | 'en'; answer?: number; /** the phrases cancel each other out in the end (add, then archive): only check that undo restores */ net?: boolean };
 const say = (t: string, lang: 'ru' | 'en') => handlePhrase(t, 'text', null, envFromSystem(lang, NOW));
 /** the first button of a question is pressed (the confirmation) */
 const press = (r: Reply, i = 0): Reply => (r.choices?.[i] ? (r.choices[i].run() as Reply) : r);
@@ -43,7 +43,7 @@ function run(cs: Case[]) {
     if (c.expect) ok(c.expect.test(r.screen + ' ' + (r.list ?? []).join(' ')), `«${label}» → «${r.screen}» does not match ${c.expect}`);
     if (c.writes) {
       const during = snap();
-      ok(during !== before, `«${label}»: nothing changed (${r.screen})`);
+      if (!c.net) ok(during !== before, `«${label}»: nothing changed (${r.screen})`);
       const added = journal.list().length - jBefore;
       ok(added >= 1 || !!r.undoable, `«${label}»: no journal entry`);
       journal.undo(Math.max(1, added));

@@ -431,3 +431,31 @@
 {"id":"g0431","lang":"en","text":"what improves my mood","expect":{"kind":"mood.drivers","slots":{}},"split":"train","tags":[]}
 {"id":"g0432","lang":"en","text":"reset pushups","expect":{"kind":"counter.set","slots":{"query":"pushups","amount":0}},"split":"test","tags":[]}
 {"id":"g0433","lang":"en","text":"i slept 8 hours","expect":{"kind":"sleep.log","slots":{"hours":8}},"split":"train","tags":[]}
+{"id":"g0434","lang":"ru","text":"брошу курить","expect":{"kind":"quit.add","slots":{"title":"курить"}},"split":"train","tags":[]}
+{"id":"g0435","lang":"ru","text":"бросаю кофе","expect":{"kind":"quit.add","slots":{"title":"кофе"}},"split":"train","tags":[]}
+{"id":"g0436","lang":"ru","text":"добавь отказ от соцсетей","expect":{"kind":"quit.add","slots":{"title":"соцсетей"}},"split":"test","tags":[]}
+{"id":"g0437","lang":"ru","text":"не курю с понедельника","expect":{"kind":"quit.add","slots":{"title":"курю","since":"2026-10-26"}},"split":"test","tags":[]}
+{"id":"g0438","lang":"ru","text":"не пью с вторника","expect":{"kind":"quit.add","slots":{"title":"пью","since":"2026-10-27"}},"split":"train","tags":[]}
+{"id":"g0439","lang":"ru","text":"не ем сладкое с пятницы","expect":{"kind":"quit.add","slots":{"title":"сладкое","since":"2026-10-23"}},"split":"test","tags":[]}
+{"id":"g0440","lang":"ru","text":"сколько дней без сладкого","expect":{"kind":"quit.days","slots":{"query":"сладкого"}},"split":"train","tags":[]}
+{"id":"g0441","lang":"ru","text":"сколько я уже не курю","expect":{"kind":"quit.days","slots":{}},"split":"train","tags":[]}
+{"id":"g0442","lang":"ru","text":"сколько сигарет я не выкурил","expect":{"kind":"quit.avoided","slots":{}},"split":"train","tags":[]}
+{"id":"g0443","lang":"ru","text":"сколько я сэкономил","expect":{"kind":"quit.avoided","slots":{}},"split":"test","tags":[]}
+{"id":"g0444","lang":"ru","text":"сколько бокалов я не выпил","expect":{"kind":"quit.avoided","slots":{}},"split":"train","tags":[]}
+{"id":"g0445","lang":"ru","text":"поставь цель по отказу от курения тридцать дней","expect":{"kind":"quit.goal","slots":{"days":30}},"split":"train","tags":[]}
+{"id":"g0446","lang":"ru","text":"цель по отказу 60 дней","expect":{"kind":"quit.goal","slots":{"days":60}},"split":"train","tags":[]}
+{"id":"g0447","lang":"ru","text":"установи цель по отказу сладкое 14 дней","expect":{"kind":"quit.goal","slots":{"query":"сладкое","days":14}},"split":"test","tags":[]}
+{"id":"g0448","lang":"ru","text":"сорвался","expect":{"kind":"quit.relapse","slots":{},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0449","lang":"ru","text":"закурил потому что был стресс","expect":{"kind":"quit.relapse","slots":{"note":"был стресс"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0450","lang":"ru","text":"снова закурила","expect":{"kind":"quit.relapse","slots":{},"action":"confirm"},"split":"test","tags":[]}
+{"id":"g0451","lang":"ru","text":"архивируй отказ от сладкого","expect":{"kind":"quit.archive","slots":{"query":"сладкого"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0452","lang":"ru","text":"убери отказ от кофе","expect":{"kind":"quit.archive","slots":{"query":"кофе"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0453","lang":"ru","text":"перенеси в архив отказ от курения","expect":{"kind":"quit.archive","slots":{"query":"курения"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0454","lang":"ru","text":"когда я чаще всего срываюсь","expect":{"kind":"quit.when","slots":{}},"split":"test","tags":[]}
+{"id":"g0455","lang":"ru","text":"когда я срываюсь","expect":{"kind":"quit.when","slots":{}},"split":"test","tags":[]}
+{"id":"g0456","lang":"ru","text":"когда у меня срывы","expect":{"kind":"quit.when","slots":{}},"split":"test","tags":[]}
+{"id":"g0457","lang":"en","text":"i want to stop smoking","expect":{"kind":"quit.add","slots":{"title":"smoking"}},"split":"train","tags":[]}
+{"id":"g0458","lang":"en","text":"how many days without sweets","expect":{"kind":"quit.days","slots":{"query":"sweets"}},"split":"train","tags":[]}
+{"id":"g0459","lang":"en","text":"set the quit goal for smoking to 30 days","expect":{"kind":"quit.goal","slots":{"query":"smoking","days":30}},"split":"test","tags":[]}
+{"id":"g0460","lang":"en","text":"archive the quit from coffee","expect":{"kind":"quit.archive","slots":{"query":"coffee"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0461","lang":"en","text":"when do i usually slip","expect":{"kind":"quit.when","slots":{}},"split":"test","tags":[]}
