@@ -79,14 +79,18 @@ function baseVocab() {
   return ruleWords;
 }
 
-const TEMPORAL = 'вечер утро день утра дня вечера ночи сегодня завтра послезавтра вчера понедельник вторник среда среду четверг пятница пятницу суббота субботу воскресенье января февраля марта апреля июня июля августа сентября октября ноября декабря утром вечером днем ночью неделю недели месяц месяца'.split(' ');
+const TEMPORAL = 'неделе неделя недели месяце месяц месяца вечер утро день утра дня вечера ночи сегодня завтра послезавтра вчера понедельник вторник среда среду четверг пятница пятницу суббота субботу воскресенье января февраля марта апреля июня июля августа сентября октября ноября декабря утром вечером днем ночью неделю недели месяц месяца'.split(' ');
 function fixTemporal(t: string): string {
   if (t.length < 5 || TEMPORAL.includes(t)) return t;
   for (const w of TEMPORAL) if (Math.abs(w.length - t.length) <= 1 && w[0] === t[0] && levenshtein(t, w) <= 1) return w;
   return t;
 }
 
+const isDeletion = (t: string, w: string) => { if (w.length !== t.length + 1) return false; for (let i = 0; i < w.length; i++) if (w.slice(0, i) + w.slice(i + 1) === t) return true; return false; };
+const isSwap = (t: string, w: string) => { if (t.length !== w.length) return false; for (let i = 0; i + 1 < t.length; i++) if (t.slice(0, i) + t[i + 1] + t[i] + t.slice(i + 2) === w) return true; return false; };
 export const vocabWords = (): Set<string> => baseVocab().words;
+export const knownWord = (w: string): boolean => { const v = baseVocab(); return v.words.has(w) || v.stems.some((s) => w.startsWith(s)); };
+export const vocabStems = (): string[] => baseVocab().stems;
 
 function fixWords(tokens: string[], extra: Set<string>, level: Fix): string[] {
   const { words, stems } = baseVocab();
@@ -106,9 +110,11 @@ function fixWords(tokens: string[], extra: Set<string>, level: Fix): string[] {
       if (Math.abs(w.length - t.length) > bd) continue;
       const same = phoneticKey(w) === key;
       // a slip sounds the same, or is one letter in a long word; short words that differ by a letter are other words («курить»/«купить»)
-      if (!same && (w[0] !== t[0] || t.length < 8)) continue;
+      // a deleted or swapped letter is a slip even in a short word; otherwise one letter in a long word
+      const slip = !same && w[0] === t[0] && (isDeletion(t, w) || isSwap(t, w));
+      if (!same && !slip && (w[0] !== t[0] || t.length < 8)) continue;
       if (stem(w) === stem(t)) continue; // another case of the same word, not a slip
-      const d = same ? 0 : levenshtein(t, w);
+      const d = same ? 0 : slip ? 1 : levenshtein(t, w);
       if (d < bd || (d <= bd && best === null)) { best = w; bd = same ? 0 : Math.min(bd, 1); }
     }
     // a word with a known stem and a slip in it: «нстроение» → «настроение»
@@ -127,21 +133,25 @@ function fixWords(tokens: string[], extra: Set<string>, level: Fix): string[] {
 /* ---------- entities ---------- */
 const UNIT_WORDS = new Set('мин минут минуты минуту час часа часов раз стаканов стакан км шагов штук страниц'.split(' '));
 const meaningful = (s: string) => s.toLowerCase().replace(/ё/g, 'е').split(/[^a-zа-я0-9]+/).filter((w) => w && !/^\d+$/.test(w) && !UNIT_WORDS.has(w) && !STOP.has(w));
-export function matchEntity(query: string, list: { id: string; name: string }[], floor = 0.6): Ent | null {
+export function rankEntities<T>(query: string, list: T[], id: (t: T) => string, name: (t: T) => string, floor = 0.6): { item: T; id: string; sim: number }[] {
   const q = meaningful(query);
-  if (!q.length) return null;
-  let best: Ent | null = null;
-  for (const e of list) {
-    const nameWords = meaningful(e.name);
+  if (!q.length) return [];
+  const out: { item: T; id: string; sim: number }[] = [];
+  for (const item of list) {
+    const nameWords = meaningful(name(item));
     if (!nameWords.length) continue;
     const per = q.map((w) => Math.max(...nameWords.map((n) => wordSim(w, n))));
     if (!per.some((x) => x >= 0.75)) continue;
     const mean = per.reduce((a, b) => a + b, 0) / per.length;
     const covered = nameWords.filter((n) => q.some((w) => wordSim(w, n) >= 0.75)).length / nameWords.length;
     const sim = Math.max(...per) * 0.5 + mean * 0.35 + covered * 0.15;
-    if (sim >= floor && (!best || sim > best.sim)) best = { id: e.id, name: e.name, sim };
+    if (sim >= floor) out.push({ item, id: id(item), sim });
   }
-  return best;
+  return out.sort((a, b) => b.sim - a.sim);
+}
+export function matchEntity(query: string, list: { id: string; name: string }[], floor = 0.6): Ent | null {
+  const top = rankEntities(query, list, (e) => e.id, (e) => e.name, floor)[0];
+  return top ? { id: top.id, name: top.item.name, sim: top.sim } : null;
 }
 
 /* ---------- context ---------- */
@@ -153,7 +163,7 @@ export function buildCtx(raw: string, env: ParseEnv, lex: Lexicon, level: Fix = 
   for (const name of [env.assistantName, 'вейр', 'veyr']) if (name) n = normalize(n, { assistantName: name });
   const en = env.lang === 'en';
   const d = en ? wordsToDigitsEn(n) : wordsToDigits(n);
-  const extra = new Set(lex.words.flatMap((w) => forms(w.word)));
+  const extra = new Set(lex.words.filter((w) => !lex.domain.has(w.word)).flatMap((w) => forms(w.word)));
   const c = fixWords(d.split(' ').filter(Boolean), extra, level).join(' ');
   let body = c;
   const when: When = {};
@@ -193,7 +203,7 @@ export function runRules(ctx: Ctx): Hit[] {
     }
   }
   if (out.some((h) => !h.rule.bare && h.confidence >= 0.5)) out = out.filter((h) => !h.rule.bare);
-  const beaten = new Set(out.flatMap((h) => h.rule.over ?? []));
-  out = out.filter((h) => !beaten.has(h.kind));
+  // a more specific rule removes the hits of the kinds it names — also those of other rules of its own kind
+  out = out.filter((h) => !out.some((g) => g.rule !== h.rule && g.rule.over?.includes(h.kind)));
   return out;
 }

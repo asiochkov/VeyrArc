@@ -1,11 +1,13 @@
 import { add, rx } from '../engine';
+import { levenshtein } from '../../phonetic';
 import { has, tidy, today, addDay, QUESTION, IMPERATIVE, PRON, withEntity } from './util';
 
 /* the planner: adding, moving and deleting tasks; questions about the plan (catalog 40–53, 138–149, 195–208) */
 
 const EVENTISH = rx('^(?:встреч\\p{L}*|созвон\\p{L}*|врач\\p{L}*|стоматолог\\p{L}*|ужин\\p{L}*|обед\\p{L}*|интервью|собеседовани\\p{L}*|консультаци\\p{L}*|свидани\\p{L}*)(?![\\p{L}\\d])');
-const INFINITIVE = /^\p{L}{3,}(?:ть|ться|ти|чь)$/u;
+const INFINITIVE = /^(?:\p{L}{3,}(?:ть|ться|чь)|нести|идти|найти|прийти|пойти|зайти|выйти|уйти|везти|вести)$/u;
 const LEAD = /^(?:мне |что |про |о |об |насчет |задачу |задача |событие |встречу |в планер |в календарь |на |в )+/u;
+const NOUNS = ['привычку', 'привычки', 'цель', 'отказ', 'заметку', 'обещание'];
 const DEADWORDS = /‹(?:пора|надо|нужно|хочу|можно|лучше|бы|ли)›/u;
 
 /** the title: leading glue words out; it keeps the person's wording */
@@ -21,6 +23,7 @@ add(
   ], slots: (m, c) => {
     const first = c.body.split(' ')[0];
     // «добавь привычку…», «поставь будильник…», «запиши обещание…» are not tasks
+    if (NOUNS.some((n) => levenshtein(n, tidy(m[1]).split(' ')[0].slice(0, n.length + 1)) <= 2) && first !== 'напомни') return null;
     if (/^(?:к настроени|в настроени|к заметк|привычк|цель|цели|отказ|заметк|обещани|будильник|таймер|фокус|напоминани|тему|тёмн|темн)/u.test(tidy(m[1])) && first !== 'напомни') return null;
     if (/^(?:поставь|запиши|добавь)$/u.test(first) && /^(?:настроени|вод|галочк|отметк|дедлайн|тему|таймер)/u.test(tidy(m[1]))) return null;
     let t = titleOf(m[1]);
@@ -30,6 +33,8 @@ add(
     const out: Record<string, unknown> = { title: t, day: c.when.date, time: c.when.time, end: c.when.end ?? (c.when.duration && c.when.time ? plus(c.when.time, c.when.duration) : undefined) };
     if (c.when.rel && !out.day) out.day = today(c);
     if (c.when.time == null && c.when.date && EVENTISH.test(t) && !INFINITIVE.test(t.split(' ')[0])) out._ask = 'time';
+    // «поставь …» is also «поставь паузу», «поставь первой»: a task only when it says when, or the words are not a habit
+    if (first === 'поставь' && !c.when.date && !c.when.time) out._score = 0.7;
     return out;
   } },
   // a bare phrase: an infinitive («купить хлеб») or something with a time or a date («завтра в 10 стоматолог»)

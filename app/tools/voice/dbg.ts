@@ -1,0 +1,11 @@
+import { QueryClient } from '@tanstack/react-query';
+import { bindSystem, getSystem } from '../../src/state/system';
+(globalThis as any).localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+bindSystem(new QueryClient());
+const s = getSystem()!;
+console.log('day', s.day);
+console.log('habits', s.habits.map((h) => `${h.name}|${h.type}|${h.target}|${h.minutes}|core=${h.core}|days=${h.days}|${h.category}|arch=${!!h.archived_at}`));
+console.log('goals', s.goals.map((g) => `${g.title}|${g.status}|${(g as any).deadline}`), 'tasks', s.tasks.map((t) => `${t.goal_id}:${t.text}`).slice(0, 8));
+console.log('quits', s.quits.map((q) => `${q.name}|${q.clean_since}|${q.per_day}|${q.unit}|${q.goal_days}`));
+console.log('plan', s.plan.filter((p) => p.day >= s.day).slice(0, 12).map((p) => `${p.day} ${p.starts_at} ${p.title} focus=${p.focus}`));
+console.log('arcs', s.arcs.map((a) => `${a.number}|${a.started_on}|${a.length_days}|${a.ended_on}|${a.oath}`), 'logs', s.logs.length, 'days', s.days.length, 'focus', s.focus.length);

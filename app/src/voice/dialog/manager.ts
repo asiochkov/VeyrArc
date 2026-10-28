@@ -9,6 +9,7 @@ import { ctxOf, execute, executeMany, type ExecCtx } from '../exec';
 import { journal } from '../journal';
 import { R } from '../reply';
 import '../flows/defs';
+import '../exec/all';
 import { flowTimeout, flowTurn } from '../flows/engine';
 import { dialog } from './context';
 import { cancels, number, ordinal, yesno } from './grammars';

@@ -109,5 +109,4 @@ add(
   // statistics
   { kind: 'habit.streak', re: rx('‹серия(?: по (.+))?›'), slots: (m, c) => (m[1] ? withEntity(c, 'habit', m[1]) : {}) },
   { kind: 'habit.weakest', re: rx('^(?=.*привычк)(?=.*(?:слаб|пропуска|проседа|хуже всего)).*$') },
-  { kind: 'habit.count', re: rx('‹сколько раз я (?:делал\\p{L}*|выполнял\\p{L}*) (.+)›'), slots: (m, c) => withEntity(c, 'habit', m[1]) },
 );

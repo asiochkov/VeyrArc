@@ -18,5 +18,5 @@ export function withEntity(c: Ctx, kind: 'habit' | 'task' | 'goal' | 'quit', que
   const e = c[kind](query);
   // a bare past-tense verb («позанимался») names no habit yet: the executor asks which one
   const verb = !e && kind === 'habit' && /^(?:по|вы|про|с)?\p{L}+(?:лся|лась|ла|л)$/u.test(tidy(query));
-  return { query: tidy(query), id: e?.id, _score: e ? Math.min(0.97, base * (0.75 + 0.25 * e.sim)) : verb ? 0.86 : 0.3 };
+  return { query: tidy(query), id: e?.id, _score: e ? Math.min(0.97, base * (0.85 + 0.15 * e.sim)) : verb ? 0.86 : 0.3 };
 }

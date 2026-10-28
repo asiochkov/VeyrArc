@@ -88,7 +88,6 @@ en(
   { kind: 'habit.pause', re: rx('^(?:pause|put on hold) (?:the |my )?(?:habit )?(.+)$'), slots: (m, c) => withEntity(c, 'habit', m[1]) },
   { kind: 'habit.streak', re: rx('‹(?:whats|what is) my (?:(.+) )?streak(?: for (.+))?›'), slots: (m, c) => { const q = m[1] ?? m[2]; return q ? withEntity(c, 'habit', q) : {}; } },
   { kind: 'habit.weakest', re: rx('^(?=.*habit)(?=.*(?:weakest|skip the most|miss the most|worst)).*$') },
-  { kind: 'habit.count', re: rx('‹how many times (?:did i|have i) (?:do |done )?(.+)›'), slots: (m, c) => withEntity(c, 'habit', m[1].replace(/ (?:this|last) (?:week|month)$/, '')) },
 
   // tasks
   { kind: 'task.add', re: [

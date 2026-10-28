@@ -2,13 +2,14 @@ import { buildLexicon, type Lexicon } from '../lexicon';
 import { classify, DOMAIN_OF } from '../classifier';
 import { decide } from '../decide';
 import { SCORE } from '../params';
-import { buildCtx, runRules, vocabWords, type Ctx } from './engine';
+import { buildCtx, knownWord, runRules, vocabStems, vocabWords, type Ctx } from './engine';
 import { segments } from './segment';
 import { askText, clarifyText, examples, previewText } from './texts';
 import './rules/habits';
 import './rules/planner';
 import './rules/misc';
 import './rules/en';
+import './rules/habits2';
 import type { Decision, Parsed, ParseEnv } from '../types';
 
 /*
@@ -18,6 +19,7 @@ import type { Decision, Parsed, ParseEnv } from '../types';
 const lexCache = new WeakMap<object, Lexicon>();
 const lexOf = (env: ParseEnv) => { let l = lexCache.get(env); if (!l) { l = buildLexicon(env); lexCache.set(env, l); } return l; };
 
+const SHORT = new Set('я у в на по с к и мне меня мой моя мои где что как не это а за из от до для про ты мы он она вы'.split(' '));
 const PREPS = ['на', 'в', 'по', 'с', 'к'];
 const GLUE = /^(\p{L}{4,})(на|по|за|от|до|из|для|про|при)$/u;
 /** variants of a phrase with one slip undone: two neighbours swapped, a preposition put back, a glued word split */
@@ -29,6 +31,13 @@ export function repairs(c: string): string[] {
   for (let i = 0; i < t.length; i++) { const g = t[i].match(GLUE); if (g) out.add([...t.slice(0, i), g[1], g[2], ...t.slice(i + 1)].join(' ')); }
   for (let i = 0; i < t.length; i++) if (t[i].length >= 9) for (const p of ['на', 'в', 'по']) if (t[i].startsWith(p === 'в' ? 'в' : p) && t[i].length > 9) out.add([...t.slice(0, i), p, t[i].slice(p.length), ...t.slice(i + 1)].join(' '));
   for (let i = 0; i < t.length; i++) for (const w of vocabWords()) if (w.length >= 4 && t[i].length >= w.length + 2 && t[i].startsWith(w)) out.add([...t.slice(0, i), w, t[i].slice(w.length), ...t.slice(i + 1)].join(' '));
+  // a glued pair whose second half is a known word or stem: «моилучшие» → «мои лучшие»
+  for (let i = 0; i < t.length; i++) for (const w of [...vocabWords(), ...vocabStems()]) if (w.length >= 5 && t[i].length >= w.length + 2 && t[i].endsWith(w)) out.add([...t.slice(0, i), t[i].slice(0, t[i].length - w.length), w, ...t.slice(i + 1)].join(' '));
+  // two short words glued together («гдея», «уменя»)
+  for (let i = 0; i < t.length; i++) if (t[i].length >= 3 && t[i].length <= 14) for (let k = 1; k < t[i].length; k++) {
+    const l = t[i].slice(0, k), r = t[i].slice(k);
+    if ((SHORT.has(l) && (SHORT.has(r) || knownWord(r))) || (knownWord(l) && SHORT.has(r))) out.add([...t.slice(0, i), l, r, ...t.slice(i + 1)].join(' '));
+  }
   out.delete(c);
   return [...out].slice(0, 200);
 }
@@ -61,7 +70,7 @@ export function candidates(text: string, env: ParseEnv, opts: AnalyzeOpts = {}, 
   for (const h of hits) {
     const { rule: _r, ...p } = h;
     void _r;
-    let conf = p.confidence * (0.96 + 0.04 * pOf(DOMAIN_OF(p.kind)));
+    let conf = p.confidence * (0.97 + 0.03 * pOf(DOMAIN_OF(p.kind)));
     // an explicit command is not overruled by «not for this app» unless the classifier is nearly sure
     if (oos > (p.confidence >= 0.88 ? 0.95 : SCORE.oosClassifier)) conf *= 1 - 0.7 * Math.min(1, (oos - SCORE.oosClassifier) / (1 - SCORE.oosClassifier));
     if (opts.asr != null) conf *= SCORE.asrBase + SCORE.asrWeight * opts.asr;

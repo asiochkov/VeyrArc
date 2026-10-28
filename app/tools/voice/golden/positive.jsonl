@@ -297,3 +297,90 @@
 {"id":"g0297","lang":"ru","text":"у меня 15 минут","expect":{"kind":"flow.start","slots":{"id":"fit","minutes":15}},"split":"test","tags":[]}
 {"id":"g0298","lang":"en","text":"week review","expect":{"kind":"flow.start","slots":{"id":"week"}},"split":"train","tags":[]}
 {"id":"g0299","lang":"en","text":"review my day","expect":{"kind":"flow.start","slots":{"id":"evening"}},"split":"train","tags":[]}
+{"id":"g0300","lang":"ru","text":"поменяй название привычки чтение на книги","expect":{"kind":"habit.rename","slots":{"query":"чтение","to":"книги"}},"split":"train","tags":[]}
+{"id":"g0301","lang":"ru","text":"измени название привычки медитация на тишина","expect":{"kind":"habit.rename","slots":{"query":"медитация","to":"тишина"}},"split":"train","tags":[]}
+{"id":"g0302","lang":"ru","text":"читать по вторникам и пятницам","expect":{"kind":"habit.schedule","slots":{"query":"читать","days":18}},"split":"train","tags":[]}
+{"id":"g0303","lang":"ru","text":"тренировка по понедельникам средам и пятницам","expect":{"kind":"habit.schedule","slots":{"query":"тренировка","days":21}},"split":"train","tags":[]}
+{"id":"g0304","lang":"ru","text":"бег только по выходным","expect":{"kind":"habit.schedule","slots":{"query":"бег","days":96}},"split":"train","tags":[]}
+{"id":"g0305","lang":"ru","text":"медитация каждый день","expect":{"kind":"habit.schedule","slots":{"query":"медитация","days":127}},"split":"train","tags":[]}
+{"id":"g0306","lang":"ru","text":"воды теперь десять стаканов","expect":{"kind":"habit.target","slots":{"query":"воды","target":10}},"split":"test","tags":[]}
+{"id":"g0307","lang":"ru","text":"медитация пятнадцать минут","expect":{"kind":"habit.target","slots":{"query":"медитация","minutes":15}},"split":"test","tags":[]}
+{"id":"g0308","lang":"ru","text":"отжимания теперь по сто раз","expect":{"kind":"habit.target","slots":{"query":"отжимания","target":100}},"split":"train","tags":[]}
+{"id":"g0309","lang":"ru","text":"убери бег из главных","expect":{"kind":"habit.core","slots":{"query":"бег","core":false}},"split":"train","tags":[]}
+{"id":"g0310","lang":"ru","text":"верни бег в главные","expect":{"kind":"habit.core","slots":{"query":"бег","core":true}},"split":"train","tags":[]}
+{"id":"g0311","lang":"ru","text":"сделай английский основной привычкой","expect":{"kind":"habit.core","slots":{"query":"английский","core":true}},"split":"train","tags":[]}
+{"id":"g0312","lang":"ru","text":"приостанови привычку бег","expect":{"kind":"habit.pause","slots":{"query":"бег"}},"split":"train","tags":[]}
+{"id":"g0313","lang":"ru","text":"поставь паузу на отжимания","expect":{"kind":"habit.pause","slots":{"query":"отжимания"}},"split":"test","tags":[]}
+{"id":"g0314","lang":"ru","text":"верни привычку чтение","expect":{"kind":"habit.restore","slots":{"query":"чтение"}},"split":"train","tags":[]}
+{"id":"g0315","lang":"ru","text":"восстанови привычку шаги","expect":{"kind":"habit.restore","slots":{"query":"шаги"}},"split":"train","tags":[]}
+{"id":"g0316","lang":"ru","text":"убери привычку шаги","expect":{"kind":"habit.remove","slots":{"query":"шаги"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0317","lang":"ru","text":"сотри привычку сон","expect":{"kind":"habit.remove","slots":{"query":"сон"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0318","lang":"ru","text":"добавь привычку из библиотеки растяжка","expect":{"kind":"habit.addFromLibrary","slots":{"query":"растяжка"}},"split":"test","tags":[]}
+{"id":"g0319","lang":"ru","text":"создай привычку из библиотеки чтение","expect":{"kind":"habit.addFromLibrary","slots":{"query":"чтение"}},"split":"train","tags":[]}
+{"id":"g0320","lang":"ru","text":"подними зарядку наверх","expect":{"kind":"habit.reorder","slots":{"query":"зарядку","to":"top"}},"split":"train","tags":[]}
+{"id":"g0321","lang":"ru","text":"поставь медитацию первой","expect":{"kind":"habit.reorder","slots":{"query":"медитацию","to":"top"}},"split":"train","tags":[]}
+{"id":"g0322","lang":"ru","text":"опусти бег вниз","expect":{"kind":"habit.reorder","slots":{"query":"бег","to":"bottom"}},"split":"train","tags":[]}
+{"id":"g0323","lang":"ru","text":"серия по зарядке","expect":{"kind":"habit.streak","slots":{"query":"зарядке"}},"split":"train","tags":[]}
+{"id":"g0324","lang":"ru","text":"лучшая серия по чтению","expect":{"kind":"habit.streak","slots":{"query":"чтению","best":true}},"split":"test","tags":[]}
+{"id":"g0325","lang":"ru","text":"сколько раз я читал на этой неделе","expect":{"kind":"habit.count","slots":{"query":"читал","period":"week"}},"split":"train","tags":[]}
+{"id":"g0326","lang":"ru","text":"сколько раз я делал зарядку в этом месяце","expect":{"kind":"habit.count","slots":{"query":"зарядку","period":"month"}},"split":"train","tags":[]}
+{"id":"g0327","lang":"ru","text":"сколько раз я медитировал за месяц","expect":{"kind":"habit.count","slots":{"query":"медитировал","period":"month"}},"split":"train","tags":[]}
+{"id":"g0328","lang":"ru","text":"какая привычка слабее всего","expect":{"kind":"habit.weakest","slots":{}},"split":"train","tags":[]}
+{"id":"g0329","lang":"ru","text":"сравни бег и тренировку","expect":{"kind":"habit.compare","slots":{"a":"бег","b":"тренировку"}},"split":"train","tags":[]}
+{"id":"g0330","lang":"ru","text":"сравни медитацию и чтение","expect":{"kind":"habit.compare","slots":{"a":"медитацию","b":"чтение"}},"split":"test","tags":[]}
+{"id":"g0331","lang":"ru","text":"считай воду по стакану","expect":{"kind":"water.step","slots":{}},"split":"test","tags":[]}
+{"id":"g0332","lang":"ru","text":"режим воды по стакану","expect":{"kind":"water.step","slots":{}},"split":"train","tags":[]}
+{"id":"g0333","lang":"ru","text":"отметь все привычки из раздела тело","expect":{"kind":"habit.markGroup","slots":{"group":"тело"}},"split":"train","tags":[]}
+{"id":"g0334","lang":"ru","text":"отметь все привычки раздела ум","expect":{"kind":"habit.markGroup","slots":{"group":"ум"}},"split":"train","tags":[]}
+{"id":"g0335","lang":"ru","text":"отметь медитацию за вчера","expect":{"kind":"habit.markPast","slots":{"query":"медитацию","day":"2026-10-27"}},"split":"train","tags":[]}
+{"id":"g0336","lang":"ru","text":"засчитай зарядку за позавчера","expect":{"kind":"habit.markPast","slots":{"query":"зарядку","day":"2026-10-26"}},"split":"train","tags":[]}
+{"id":"g0337","lang":"ru","text":"сколько я пробежал за неделю","expect":{"kind":"habit.count","slots":{"period":"week","sum":true}},"split":"train","tags":[]}
+{"id":"g0338","lang":"ru","text":"сколько я пробежал в этом месяце","expect":{"kind":"habit.count","slots":{"period":"month","sum":true}},"split":"train","tags":[]}
+{"id":"g0339","lang":"ru","text":"сколько я выпил за неделю","expect":{"kind":"habit.count","slots":{"period":"week","sum":true}},"split":"train","tags":[]}
+{"id":"g0340","lang":"ru","text":"топ 3 привычки","expect":{"kind":"habit.top","slots":{"n":3}},"split":"train","tags":[]}
+{"id":"g0341","lang":"ru","text":"мои лучшие привычки","expect":{"kind":"habit.top","slots":{"n":3}},"split":"train","tags":[]}
+{"id":"g0342","lang":"ru","text":"худшие три привычки","expect":{"kind":"habit.top","slots":{"n":3,"worst":true}},"split":"train","tags":[]}
+{"id":"g0343","lang":"ru","text":"слабые привычки","expect":{"kind":"habit.top","slots":{"worst":true}},"split":"train","tags":[]}
+{"id":"g0344","lang":"ru","text":"где я просел за месяц","expect":{"kind":"habit.trend","slots":{}},"split":"train","tags":[]}
+{"id":"g0345","lang":"ru","text":"что у меня просело","expect":{"kind":"habit.trend","slots":{}},"split":"train","tags":[]}
+{"id":"g0346","lang":"ru","text":"где я просел","expect":{"kind":"habit.trend","slots":{}},"split":"train","tags":[]}
+{"id":"g0347","lang":"ru","text":"предложи привычку","expect":{"kind":"habit.suggest","slots":{}},"split":"train","tags":[]}
+{"id":"g0348","lang":"ru","text":"посоветуй мне новую привычку","expect":{"kind":"habit.suggest","slots":{}},"split":"test","tags":[]}
+{"id":"g0349","lang":"ru","text":"какую привычку мне добавить","expect":{"kind":"habit.suggest","slots":{}},"split":"train","tags":[]}
+{"id":"g0350","lang":"ru","text":"упрости привычку чтение","expect":{"kind":"habit.simplify","slots":{"query":"чтение"}},"split":"train","tags":[]}
+{"id":"g0351","lang":"ru","text":"облегчи медитацию","expect":{"kind":"habit.simplify","slots":{"query":"медитацию"}},"split":"train","tags":[]}
+{"id":"g0352","lang":"ru","text":"сделай проще бег","expect":{"kind":"habit.simplify","slots":{"query":"бег"}},"split":"train","tags":[]}
+{"id":"g0353","lang":"ru","text":"усложни привычку","expect":{"kind":"habit.harden","slots":{}},"split":"train","tags":[]}
+{"id":"g0354","lang":"ru","text":"усложни чтение","expect":{"kind":"habit.harden","slots":{"query":"чтение"}},"split":"train","tags":[]}
+{"id":"g0355","lang":"ru","text":"подними норму бега","expect":{"kind":"habit.harden","slots":{"query":"бега"}},"split":"train","tags":[]}
+{"id":"g0356","lang":"ru","text":"почему я пропускаю зарядку","expect":{"kind":"habit.why","slots":{"query":"зарядку"}},"split":"train","tags":[]}
+{"id":"g0357","lang":"ru","text":"почему я не делаю медитацию","expect":{"kind":"habit.why","slots":{"query":"медитацию"}},"split":"train","tags":[]}
+{"id":"g0358","lang":"ru","text":"почему я забываю тренировку","expect":{"kind":"habit.why","slots":{"query":"тренировку"}},"split":"test","tags":[]}
+{"id":"g0359","lang":"ru","text":"сколько привычек мне нужно для начала","expect":{"kind":"habit.howMany","slots":{}},"split":"train","tags":[]}
+{"id":"g0360","lang":"ru","text":"сколько привычек достаточно","expect":{"kind":"habit.howMany","slots":{}},"split":"train","tags":[]}
+{"id":"g0361","lang":"ru","text":"сколько привычек надо","expect":{"kind":"habit.howMany","slots":{}},"split":"train","tags":[]}
+{"id":"g0362","lang":"ru","text":"вчера пропустил сегодня сделаю","expect":{"kind":"habit.promise","slots":{}},"split":"train","tags":[]}
+{"id":"g0363","lang":"ru","text":"пропустил вчера сегодня сделаю","expect":{"kind":"habit.promise","slots":{}},"split":"train","tags":[]}
+{"id":"g0364","lang":"ru","text":"вчера пропустила сегодня сделаю","expect":{"kind":"habit.promise","slots":{}},"split":"train","tags":[]}
+{"id":"g0365","lang":"ru","text":"есть ли у меня слишком много привычек","expect":{"kind":"habit.overload","slots":{}},"split":"train","tags":[]}
+{"id":"g0366","lang":"ru","text":"слишком много привычек","expect":{"kind":"habit.overload","slots":{}},"split":"train","tags":[]}
+{"id":"g0367","lang":"ru","text":"не перегружен ли я","expect":{"kind":"habit.overload","slots":{}},"split":"train","tags":[]}
+{"id":"g0368","lang":"ru","text":"что убрать чтобы стало легче","expect":{"kind":"habit.trim","slots":{}},"split":"train","tags":[]}
+{"id":"g0369","lang":"ru","text":"что убрать","expect":{"kind":"habit.trim","slots":{}},"split":"train","tags":[]}
+{"id":"g0370","lang":"ru","text":"подбери время для привычки чтение","expect":{"kind":"habit.time","slots":{"query":"чтение"}},"split":"train","tags":[]}
+{"id":"g0371","lang":"ru","text":"подбери время для зарядки","expect":{"kind":"habit.time","slots":{"query":"зарядки"}},"split":"test","tags":[]}
+{"id":"g0372","lang":"ru","text":"подбери время для медитации","expect":{"kind":"habit.time","slots":{"query":"медитации"}},"split":"train","tags":[]}
+{"id":"g0373","lang":"en","text":"rename stretching to warm up","expect":{"kind":"habit.rename","slots":{"query":"stretching","to":"warm up"}},"split":"test","tags":[]}
+{"id":"g0374","lang":"en","text":"reading on tuesdays and fridays","expect":{"kind":"habit.schedule","slots":{"query":"reading","days":18}},"split":"test","tags":[]}
+{"id":"g0375","lang":"en","text":"the target for water is now ten","expect":{"kind":"habit.target","slots":{"query":"water","target":10}},"split":"train","tags":[]}
+{"id":"g0376","lang":"en","text":"remove running from the core habits","expect":{"kind":"habit.core","slots":{"query":"running","core":false}},"split":"train","tags":[]}
+{"id":"g0377","lang":"en","text":"restore the habit reading","expect":{"kind":"habit.restore","slots":{"query":"reading"}},"split":"test","tags":[]}
+{"id":"g0378","lang":"en","text":"move meditation to the top","expect":{"kind":"habit.reorder","slots":{"query":"meditation","to":"top"}},"split":"train","tags":[]}
+{"id":"g0379","lang":"en","text":"how many times did i meditate this week","expect":{"kind":"habit.count","slots":{"period":"week"}},"split":"train","tags":[]}
+{"id":"g0380","lang":"en","text":"compare workout and running","expect":{"kind":"habit.compare","slots":{"a":"workout","b":"running"}},"split":"train","tags":[]}
+{"id":"g0381","lang":"en","text":"top three habits","expect":{"kind":"habit.top","slots":{"n":3}},"split":"train","tags":[]}
+{"id":"g0382","lang":"en","text":"where did i slip this month","expect":{"kind":"habit.trend","slots":{}},"split":"test","tags":[]}
+{"id":"g0383","lang":"en","text":"suggest a new habit","expect":{"kind":"habit.suggest","slots":{}},"split":"test","tags":[]}
+{"id":"g0384","lang":"en","text":"simplify the habit reading","expect":{"kind":"habit.simplify","slots":{"query":"reading"}},"split":"train","tags":[]}
+{"id":"g0385","lang":"en","text":"why do i skip workout","expect":{"kind":"habit.why","slots":{"query":"workout"}},"split":"train","tags":[]}
+{"id":"g0386","lang":"en","text":"do i have too many habits","expect":{"kind":"habit.overload","slots":{}},"split":"train","tags":[]}
