@@ -10,9 +10,11 @@ import { classify } from '../../src/voice/nlp/classifier';
 import type { ParseEnv } from '../../src/voice/nlp/types';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fixture = JSON.parse(readFileSync(join(here, 'golden/fixture.json'), 'utf8'));
+const fixtures = { ru: JSON.parse(readFileSync(join(here, 'golden/fixture.json'), 'utf8')), en: JSON.parse(readFileSync(join(here, 'golden/fixture-en.json'), 'utf8')) };
 for (const text of process.argv.slice(2)) {
-  const env = { ...fixture, now: new Date(fixture.now) } as ParseEnv;
+  const lang = /[a-z]/i.test(text) && !/[а-я]/i.test(text) ? 'en' : 'ru';
+  const fixture = fixtures[lang];
+  const env = { ...fixture, now: new Date(fixture.now), lang } as ParseEnv;
   const ctx = buildCtx(text, env, buildLexicon(env));
   console.log(`\n«${text}»\n  c:    ${ctx.c}\n  body: ${ctx.body}\n  when: ${JSON.stringify(ctx.when)}`);
   console.log('  classifier:', classify(ctx.c).slice(0, 3).map((x) => `${x.domain} ${x.p.toFixed(2)}`).join(', '));

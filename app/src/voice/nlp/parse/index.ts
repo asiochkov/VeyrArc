@@ -8,6 +8,7 @@ import { askText, clarifyText, examples, previewText } from './texts';
 import './rules/habits';
 import './rules/planner';
 import './rules/misc';
+import './rules/en';
 import type { Decision, Parsed, ParseEnv } from '../types';
 
 /*

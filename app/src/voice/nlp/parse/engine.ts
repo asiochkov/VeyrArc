@@ -1,5 +1,7 @@
 import { normalize } from '../normalize';
 import { wordsToDigits } from '../itn';
+import { wordsToDigitsEn } from '../itnEn';
+import { takeDateEn, takeDurationEn, takeTimeEn } from '../datesEn';
 import { takeDate, takeDuration, takeTime } from '../dates';
 import { DOMAIN_WORDS, STOP, type Lexicon } from '../lexicon';
 import { levenshtein, phoneticKey } from '../phonetic';
@@ -143,20 +145,21 @@ export function matchEntity(query: string, list: { id: string; name: string }[],
 }
 
 /* ---------- context ---------- */
-const DANGLING = /\s+(?:на|в|во|к|до|по|за|с|со|от|у)(?=\s*$)/;
+const DANGLING = /\s+(?:на|в|во|к|до|по|за|с|со|от|у|to|at|on|for|by|in|from|until|till|as|of|the|a|an)(?=\s*$)/;
 /** 'lex': only the person's own words are fixed; 'all': also the app's command words (second pass, when nothing matched) */
 export type Fix = 'lex' | 'all';
 export function buildCtx(raw: string, env: ParseEnv, lex: Lexicon, level: Fix = 'lex'): Ctx {
   let n = normalize(raw);
   for (const name of [env.assistantName, 'вейр', 'veyr']) if (name) n = normalize(n, { assistantName: name });
-  const d = wordsToDigits(n);
+  const en = env.lang === 'en';
+  const d = en ? wordsToDigitsEn(n) : wordsToDigits(n);
   const extra = new Set(lex.words.flatMap((w) => forms(w.word)));
   const c = fixWords(d.split(' ').filter(Boolean), extra, level).join(' ');
   let body = c;
   const when: When = {};
-  const dur = takeDuration(body); if (dur) { when.duration = dur.minutes; body = dur.rest; }
-  const t = takeTime(body, env.now); if (t) { when.time = t.time; when.end = t.end; if (t.date) when.date = t.date; if (t.rel) when.rel = true; body = t.rest; }
-  const dt = takeDate(body, env.now); if (dt) { when.date = dt.date; body = dt.rest; }
+  const dur = (en ? takeDurationEn : takeDuration)(body); if (dur) { when.duration = dur.minutes; body = dur.rest; }
+  const t = (en ? takeTimeEn : takeTime)(body, env.now); if (t) { when.time = t.time; when.end = t.end; if (t.date) when.date = t.date; if (t.rel) when.rel = true; body = t.rest; }
+  const dt = (en ? takeDateEn : takeDate)(body, env.now); if (dt) { when.date = dt.date; body = dt.rest; }
   body = body.replace(DANGLING, '').replace(/\s+/g, ' ').trim();
   return {
     raw, n, c, body, when, env, lex, lang: env.lang,
@@ -164,8 +167,8 @@ export function buildCtx(raw: string, env: ParseEnv, lex: Lexicon, level: Fix = 
     task: (q) => matchEntity(q, env.tasks.map((x) => ({ id: x.id, name: x.title }))),
     goal: (q) => matchEntity(q, env.goals.map((g) => ({ id: g.id, name: g.title }))),
     quit: (q) => matchEntity(q, env.quits.map((x) => ({ id: x.id, name: x.name }))),
-    time: (s) => takeTime(`в ${s}`, env.now)?.time ?? null,
-    date: (s) => takeDate(s, env.now)?.date ?? null,
+    time: (s) => (en ? takeTimeEn(`at ${s}`, env.now) : takeTime(`в ${s}`, env.now))?.time ?? null,
+    date: (s) => (en ? takeDateEn : takeDate)(s, env.now)?.date ?? null,
   };
 }
 
@@ -174,7 +177,7 @@ export type Hit = Parsed & { rule: Rule };
 export function runRules(ctx: Ctx): Hit[] {
   let out: Hit[] = [];
   for (const rule of RULES) {
-    if (rule.lang && rule.lang !== ctx.lang) continue;
+    if ((rule.lang ?? 'ru') !== ctx.lang) continue;
     const text = rule.src === 'n' ? ctx.n : rule.full ? ctx.c : ctx.body;
     for (const re of Array.isArray(rule.re) ? rule.re : [rule.re]) {
       const m = text.match(re);

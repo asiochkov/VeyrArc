@@ -9,7 +9,7 @@ const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const fillerRe = new RegExp(`${B}(?:${FILLERS.map(esc).join('|')})${E}`, 'gu');
 
 export function normalize(raw: string, o: { assistantName?: string | null } = {}): string {
-  let s = raw.toLowerCase().replace(/ё/g, 'е');
+  let s = raw.toLowerCase().replace(/ё/g, 'е').replace(/(\p{L})['’](\p{L})/gu, '$1$2');
   // keep a separator that sits between digits (15:30, 05.11, 15-16); everything else that is not a letter or digit is a space
   s = s.replace(/(\d):(?=\d)/g, '$1\u0001').replace(/(\d)\.(?=\d)/g, '$1\u0002').replace(/(\d)-(?=[\d\p{L}])/gu, '$1\u0003');
   s = s.replace(/[^\p{L}\d\u0001\u0002\u0003]+/gu, ' ');

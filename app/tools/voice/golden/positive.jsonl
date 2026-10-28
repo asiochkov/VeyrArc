@@ -183,3 +183,109 @@
 {"id":"g0183","lang":"ru","text":"у меня полчаса что успеть","expect":{"kind":"flow.start","slots":{"id":"fit","minutes":30}},"split":"train","tags":[]}
 {"id":"g0184","lang":"en","text":"good morning","expect":{"kind":"flow.start","slots":{"id":"morning"}},"split":"train","tags":[]}
 {"id":"g0185","lang":"en","text":"walk me through my habits","expect":{"kind":"flow.start","slots":{"id":"walk"}},"split":"train","tags":[]}
+{"id":"g0186","lang":"en","text":"my mood is great","expect":{"kind":"mood.set","slots":{"level":5}},"split":"train","tags":[]}
+{"id":"g0187","lang":"en","text":"mood is bad today","expect":{"kind":"mood.set","slots":{"level":2}},"split":"train","tags":[]}
+{"id":"g0188","lang":"en","text":"i am feeling exhausted","expect":{"kind":"mood.set","slots":{"level":2}},"split":"test","tags":[]}
+{"id":"g0189","lang":"en","text":"i feel good","expect":{"kind":"mood.set","slots":{"level":4}},"split":"train","tags":[]}
+{"id":"g0190","lang":"en","text":"mood three because of work","expect":{"kind":"mood.set","slots":{"level":3}},"split":"test","tags":[]}
+{"id":"g0191","lang":"en","text":"i feel burnt out","expect":{"kind":"mood.set","slots":{"level":1}},"split":"train","tags":[]}
+{"id":"g0192","lang":"en","text":"add a note to my mood tired after work","expect":{"kind":"mood.note","slots":{"text":"tired after work"}},"split":"test","tags":[]}
+{"id":"g0193","lang":"en","text":"when is my mood usually the worst","expect":{"kind":"mood.worstDays","slots":{}},"split":"test","tags":[]}
+{"id":"g0194","lang":"en","text":"had a glass of water","expect":{"kind":"water.add","slots":{"amount":1}},"split":"train","tags":[]}
+{"id":"g0195","lang":"en","text":"another glass of water","expect":{"kind":"water.add","slots":{"amount":1}},"split":"train","tags":[]}
+{"id":"g0196","lang":"en","text":"i drank three glasses of water","expect":{"kind":"water.add","slots":{"amount":3}},"split":"train","tags":[]}
+{"id":"g0197","lang":"en","text":"how much water have i had today","expect":{"kind":"water.ask","slots":{}},"split":"train","tags":[]}
+{"id":"g0198","lang":"en","text":"mark all my habits as done","expect":{"kind":"habit.doneAll","slots":{}},"split":"test","tags":[]}
+{"id":"g0199","lang":"en","text":"mark all morning habits as done","expect":{"kind":"habit.markGroup","slots":{"group":"morning"}},"split":"test","tags":[]}
+{"id":"g0200","lang":"en","text":"check off meditation","expect":{"kind":"habit.done","slots":{"query":"meditation"}},"split":"train","tags":[]}
+{"id":"g0201","lang":"en","text":"mark stretching as done","expect":{"kind":"habit.done","slots":{"query":"stretching"}},"split":"train","tags":[]}
+{"id":"g0202","lang":"en","text":"i finished my reading","expect":{"kind":"habit.done","slots":{"query":"reading"}},"split":"train","tags":[]}
+{"id":"g0203","lang":"en","text":"done with spanish","expect":{"kind":"habit.done","slots":{"query":"spanish"}},"split":"test","tags":[]}
+{"id":"g0204","lang":"en","text":"i worked out","expect":{"kind":"habit.done","slots":{}},"split":"train","tags":[]}
+{"id":"g0205","lang":"en","text":"i read for thirty minutes","expect":{"kind":"habit.done","slots":{"minutes":30}},"split":"test","tags":[]}
+{"id":"g0206","lang":"en","text":"uncheck workout","expect":{"kind":"habit.undone","slots":{"query":"workout"}},"split":"train","tags":[]}
+{"id":"g0207","lang":"en","text":"i did not do my stretching","expect":{"kind":"habit.undone","slots":{"query":"stretching"}},"split":"train","tags":[]}
+{"id":"g0208","lang":"en","text":"another fifteen pushups","expect":{"kind":"counter.add","slots":{"amount":15,"query":"pushups"}},"split":"train","tags":[]}
+{"id":"g0209","lang":"en","text":"i walked eight thousand steps","expect":{"kind":"counter.steps","slots":{"amount":8000}},"split":"test","tags":[]}
+{"id":"g0210","lang":"en","text":"i ran five kilometers","expect":{"kind":"counter.add","slots":{"amount":5,"query":"kilometers"}},"split":"test","tags":[]}
+{"id":"g0211","lang":"en","text":"how much is left for water today","expect":{"kind":"counter.remaining","slots":{}},"split":"test","tags":[]}
+{"id":"g0212","lang":"en","text":"i slept seven hours","expect":{"kind":"sleep.log","slots":{"hours":7}},"split":"train","tags":[]}
+{"id":"g0213","lang":"en","text":"went to bed at 11 and woke up at 7","expect":{"kind":"sleep.log","slots":{"hours":8}},"split":"test","tags":[]}
+{"id":"g0214","lang":"en","text":"remind me tomorrow to buy milk","expect":{"kind":"task.add","slots":{"title":"buy milk","day":"2026-10-29"}},"split":"train","tags":[]}
+{"id":"g0215","lang":"en","text":"remind me to call the bank in half an hour","expect":{"kind":"task.add","slots":{"title":"call the bank","time":"15:30"}},"split":"train","tags":[]}
+{"id":"g0216","lang":"en","text":"add task dentist on friday at 10 am","expect":{"kind":"task.add","slots":{"title":"dentist","day":"2026-10-30","time":"10:00"}},"split":"train","tags":[]}
+{"id":"g0217","lang":"en","text":"schedule a team call tomorrow at 3 pm","expect":{"kind":"task.add","slots":{"title":"team call","day":"2026-10-29","time":"15:00"}},"split":"train","tags":[]}
+{"id":"g0218","lang":"en","text":"create a task pay the internet bill by the end of the week","expect":{"kind":"task.add","slots":{"title":"pay the internet bill","day":"2026-10-30"}},"split":"train","tags":[]}
+{"id":"g0219","lang":"en","text":"add an event dinner with anna on saturday at 7 pm","expect":{"kind":"task.add","slots":{"title":"dinner with anna","day":"2026-10-31","time":"19:00"}},"split":"test","tags":[]}
+{"id":"g0220","lang":"en","text":"remind me in two hours to take pills","expect":{"kind":"task.add","slots":{"title":"take pills","time":"17:00"}},"split":"train","tags":[]}
+{"id":"g0221","lang":"en","text":"add a task report next week","expect":{"kind":"task.add","slots":{"title":"report","day":"2026-11-02"}},"split":"train","tags":[]}
+{"id":"g0222","lang":"en","text":"add a meeting on friday","expect":{"kind":"task.add","slots":{"title":"meeting","day":"2026-10-30"},"action":"ask-slot"},"split":"test","tags":["time"]}
+{"id":"g0223","lang":"en","text":"remind me to pay rent on november 5th","expect":{"kind":"task.add","slots":{"title":"pay rent","day":"2026-11-05"}},"split":"test","tags":[]}
+{"id":"g0224","lang":"en","text":"add task gym tomorrow from 6 to 7 pm","expect":{"kind":"task.add","slots":{"title":"gym","day":"2026-10-29","time":"18:00","end":"19:00"}},"split":"test","tags":[]}
+{"id":"g0225","lang":"en","text":"move the team call to friday","expect":{"kind":"task.move","slots":{"query":"team call","day":"2026-10-30"}},"split":"test","tags":[]}
+{"id":"g0226","lang":"en","text":"reschedule the dentist appointment to tomorrow at 4 pm","expect":{"kind":"task.move","slots":{"query":"dentist","day":"2026-10-29","time":"16:00"}},"split":"test","tags":[]}
+{"id":"g0227","lang":"en","text":"push everything to the day after tomorrow","expect":{"kind":"task.moveBulk","slots":{"day":"2026-10-30"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0228","lang":"en","text":"delete the standup","expect":{"kind":"task.delete","slots":{"query":"standup"}},"split":"test","tags":[]}
+{"id":"g0229","lang":"en","text":"cancel the team call","expect":{"kind":"task.delete","slots":{"query":"team call"}},"split":"train","tags":[]}
+{"id":"g0230","lang":"en","text":"remove all tasks","expect":{"kind":"task.delete","slots":{"query":"all"},"action":"confirm"},"split":"test","tags":[]}
+{"id":"g0231","lang":"en","text":"extend the team call by half an hour","expect":{"kind":"task.duration","slots":{"query":"team call","minutes":30}},"split":"train","tags":[]}
+{"id":"g0232","lang":"en","text":"close all tasks for today","expect":{"kind":"task.doneAll","slots":{}},"split":"train","tags":[]}
+{"id":"g0233","lang":"en","text":"cross off buy milk and buy bread","expect":{"kind":"task.doneMany","slots":{}},"split":"test","tags":[]}
+{"id":"g0234","lang":"en","text":"what do i have tomorrow","expect":{"kind":"plan.day","slots":{"day":"2026-10-29"}},"split":"test","tags":[]}
+{"id":"g0235","lang":"en","text":"show my schedule for friday","expect":{"kind":"plan.day","slots":{"day":"2026-10-30"}},"split":"test","tags":[]}
+{"id":"g0236","lang":"en","text":"what is planned for saturday","expect":{"kind":"plan.day","slots":{"day":"2026-10-31"}},"split":"train","tags":[]}
+{"id":"g0237","lang":"en","text":"how many tasks are left","expect":{"kind":"list.remaining","slots":{}},"split":"train","tags":[]}
+{"id":"g0238","lang":"en","text":"when is my next meeting","expect":{"kind":"plan.next","slots":{}},"split":"train","tags":[]}
+{"id":"g0239","lang":"en","text":"what time is the dentist appointment","expect":{"kind":"plan.next","slots":{"query":"dentist"}},"split":"train","tags":[]}
+{"id":"g0240","lang":"en","text":"what did i miss yesterday","expect":{"kind":"plan.overdue","slots":{}},"split":"test","tags":[]}
+{"id":"g0241","lang":"en","text":"how many meetings do i have this week","expect":{"kind":"plan.count","slots":{}},"split":"train","tags":[]}
+{"id":"g0242","lang":"en","text":"when am i free tomorrow","expect":{"kind":"plan.freeSlots","slots":{"day":"2026-10-29"}},"split":"train","tags":[]}
+{"id":"g0243","lang":"en","text":"are there any conflicts this week","expect":{"kind":"plan.conflicts","slots":{}},"split":"test","tags":[]}
+{"id":"g0244","lang":"en","text":"what is my running streak","expect":{"kind":"habit.streak","slots":{"query":"running"}},"split":"test","tags":[]}
+{"id":"g0245","lang":"en","text":"what is my longest streak","expect":{"kind":"stats.longestStreak","slots":{}},"split":"train","tags":[]}
+{"id":"g0246","lang":"en","text":"why did my streak break","expect":{"kind":"stats.whyDropped","slots":{}},"split":"train","tags":[]}
+{"id":"g0247","lang":"en","text":"which habit is my weakest","expect":{"kind":"habit.weakest","slots":{}},"split":"test","tags":[]}
+{"id":"g0248","lang":"en","text":"how am i doing this week","expect":{"kind":"stats.week","slots":{}},"split":"train","tags":[]}
+{"id":"g0249","lang":"en","text":"what is my index","expect":{"kind":"stats.index","slots":{}},"split":"train","tags":[]}
+{"id":"g0250","lang":"en","text":"set a timer for ten minutes","expect":{"kind":"timer.simple","slots":{"seconds":600}},"split":"test","tags":[]}
+{"id":"g0251","lang":"en","text":"start focus 25 minutes","expect":{"kind":"focus.start","slots":{"minutes":25}},"split":"train","tags":[]}
+{"id":"g0252","lang":"en","text":"focus 45","expect":{"kind":"focus.start","slots":{"minutes":45}},"split":"train","tags":[]}
+{"id":"g0253","lang":"en","text":"stop the timer","expect":{"kind":"focus.stop","slots":{}},"split":"test","tags":[]}
+{"id":"g0254","lang":"en","text":"pause the focus","expect":{"kind":"focus.pause","slots":{}},"split":"train","tags":[]}
+{"id":"g0255","lang":"en","text":"resume the focus","expect":{"kind":"focus.resume","slots":{}},"split":"train","tags":[]}
+{"id":"g0256","lang":"en","text":"extend the focus by 5 minutes","expect":{"kind":"focus.extend","slots":{"minutes":5}},"split":"train","tags":[]}
+{"id":"g0257","lang":"en","text":"how much time is left in the focus","expect":{"kind":"focus.remaining","slots":{}},"split":"train","tags":[]}
+{"id":"g0258","lang":"en","text":"how long did i work today","expect":{"kind":"focus.sum","slots":{}},"split":"train","tags":[]}
+{"id":"g0259","lang":"en","text":"create a habit drink water 8 glasses","expect":{"kind":"habit.add","slots":{"title":"drink water","target":8}},"split":"test","tags":[]}
+{"id":"g0260","lang":"en","text":"add a habit from the library meditation","expect":{"kind":"habit.addFromLibrary","slots":{"query":"meditation"}},"split":"train","tags":[]}
+{"id":"g0261","lang":"en","text":"delete the habit reading","expect":{"kind":"habit.remove","slots":{"query":"reading"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0262","lang":"en","text":"rename the habit stretching to warm up","expect":{"kind":"habit.rename","slots":{"query":"stretching","to":"warm up"}},"split":"train","tags":[]}
+{"id":"g0263","lang":"en","text":"stretching only on weekdays","expect":{"kind":"habit.schedule","slots":{"query":"stretching","days":31}},"split":"test","tags":[]}
+{"id":"g0264","lang":"en","text":"make reading a core habit","expect":{"kind":"habit.core","slots":{"query":"reading","core":true}},"split":"test","tags":[]}
+{"id":"g0265","lang":"en","text":"pause the habit reading","expect":{"kind":"habit.pause","slots":{"query":"reading"}},"split":"train","tags":[]}
+{"id":"g0266","lang":"en","text":"complete the goal marathon","expect":{"kind":"goal.complete","slots":{"query":"marathon"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0267","lang":"en","text":"set a deadline for the marathon on december 1st","expect":{"kind":"goal.deadline","slots":{"query":"marathon","day":"2026-12-01"}},"split":"test","tags":[]}
+{"id":"g0268","lang":"en","text":"what is the next step for the marathon","expect":{"kind":"goal.next","slots":{"query":"marathon"}},"split":"train","tags":[]}
+{"id":"g0269","lang":"en","text":"add a quit from sweets","expect":{"kind":"quit.add","slots":{"title":"sweets"}},"split":"test","tags":[]}
+{"id":"g0270","lang":"en","text":"i want to quit coffee","expect":{"kind":"quit.add","slots":{"title":"coffee"}},"split":"train","tags":[]}
+{"id":"g0271","lang":"en","text":"i relapsed but it was just one cigarette","expect":{"kind":"quit.relapse","slots":{"note":"it was just one cigarette"},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0272","lang":"en","text":"turn on dark mode","expect":{"kind":"settings.theme","slots":{"value":"dark"}},"split":"train","tags":[]}
+{"id":"g0273","lang":"en","text":"set a reminder at 9 pm every day","expect":{"kind":"settings.reminder","slots":{"time":"21:00"}},"split":"train","tags":[]}
+{"id":"g0274","lang":"en","text":"do not disturb me from 11 pm to 7","expect":{"kind":"settings.quiet","slots":{"from":"23:00","to":"07:00"}},"split":"train","tags":[]}
+{"id":"g0275","lang":"en","text":"export my data","expect":{"kind":"export.data","slots":{},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0276","lang":"en","text":"delete my account","expect":{"kind":"account.delete","slots":{},"action":"reject"},"split":"test","tags":[]}
+{"id":"g0277","lang":"en","text":"show planner","expect":{"kind":"nav.page","slots":{"page":"planner"}},"split":"train","tags":[]}
+{"id":"g0278","lang":"en","text":"go to settings","expect":{"kind":"nav.page","slots":{"page":"settings"}},"split":"test","tags":[]}
+{"id":"g0279","lang":"en","text":"open analytics","expect":{"kind":"nav.page","slots":{"page":"analytics"}},"split":"train","tags":[]}
+{"id":"g0280","lang":"en","text":"go back","expect":{"kind":"nav.back","slots":{}},"split":"train","tags":[]}
+{"id":"g0281","lang":"en","text":"undo","expect":{"kind":"undo","slots":{}},"split":"test","tags":[]}
+{"id":"g0282","lang":"en","text":"undo that","expect":{"kind":"undo","slots":{}},"split":"test","tags":[]}
+{"id":"g0283","lang":"en","text":"what can you do","expect":{"kind":"help","slots":{}},"split":"train","tags":[]}
+{"id":"g0284","lang":"en","text":"hello","expect":{"kind":"chat.hello","slots":{}},"split":"test","tags":[]}
+{"id":"g0285","lang":"en","text":"thank you","expect":{"kind":"chat.thanks","slots":{}},"split":"test","tags":[]}
+{"id":"g0286","lang":"en","text":"who are you","expect":{"kind":"chat.who","slots":{}},"split":"train","tags":[]}
+{"id":"g0287","lang":"en","text":"what is pomodoro","expect":{"kind":"howto","slots":{"query":"pomodoro"}},"split":"test","tags":[]}
+{"id":"g0288","lang":"en","text":"wrap up my evening","expect":{"kind":"flow.start","slots":{"id":"evening"}},"split":"train","tags":[]}
+{"id":"g0289","lang":"en","text":"i am having a hard day","expect":{"kind":"flow.start","slots":{"id":"tough"}},"split":"train","tags":[]}
+{"id":"g0290","lang":"en","text":"i have 30 minutes what can i do","expect":{"kind":"flow.start","slots":{"id":"fit","minutes":30}},"split":"train","tags":[]}
+{"id":"g0291","lang":"en","text":"start my morning","expect":{"kind":"flow.start","slots":{"id":"morning"}},"split":"train","tags":[]}

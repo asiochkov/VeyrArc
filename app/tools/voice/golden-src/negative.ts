@@ -35,4 +35,8 @@ export const NEGATIVE: Neg[] = [
   ['en', 'set an alarm for seven'], ['en', 'play some music'], ['en', 'call mom'], ['en', 'what is twenty times five'], ['en', 'tell me a joke'], ['en', 'i have a headache'],
   ['en', 'what should i eat'], ['en', 'how do i lose weight'], ['en', 'what is the weather'], ['en', 'open youtube'], ['en', 'delete everything'], ['en', 'cancel all'],
   ['en', 'okay'], ['en', 'hmm'], ['en', 'stop'], ['en', 'no'], ['en', 'who is the president'], ['en', 'send a text to john'], ['en', 'give me advice'],
+  ['en', 'order a pizza'], ['en', 'call a taxi'], ['en', 'what is the capital of france'], ['en', 'sing a song'], ['en', 'turn up the volume'], ['en', 'set a timer for the oven on my phone'],
+  ['en', 'how do i cook pasta'], ['en', 'should i quit my job'], ['en', 'what is the best workout'], ['en', 'i need to think'], ['en', 'maybe later'], ['en', 'one two three'],
+  ['en', 'tomorrow'], ['en', 'at five'], ['en', 'it is raining'], ['en', 'i am at the store'], ['en', 'yesterday was a good day'], ['en', 'remove'], ['en', 'add'], ['en', 'delete all my habits'],
+  ['en', 'what time is it in tokyo'], ['en', 'text mom'], ['en', 'play my workout playlist'], ['en', 'is it going to rain tomorrow'], ['en', 'forget everything'], ['en', 'wipe everything'],
 ];

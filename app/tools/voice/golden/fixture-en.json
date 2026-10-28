@@ -1,0 +1,35 @@
+{
+  "now": "2026-10-28T15:00",
+  "lang": "en",
+  "habits": [
+    { "id": "h1", "name": "Stretching", "core": true, "type": "binary", "days": 127, "category": "body" },
+    { "id": "h2", "name": "Meditation", "core": true, "type": "duration", "minutes": 10, "days": 127, "category": "mind" },
+    { "id": "h3", "name": "Reading 20 min", "core": false, "type": "duration", "minutes": 20, "days": 127, "category": "mind" },
+    { "id": "h4", "name": "Water 8 glasses", "core": false, "type": "counter", "target": 8, "unit": "glasses", "days": 127, "category": "body" },
+    { "id": "h5", "name": "Workout", "core": true, "type": "binary", "days": 21, "category": "body" },
+    { "id": "h6", "name": "Spanish", "core": false, "type": "binary", "days": 127, "category": "mind" },
+    { "id": "h7", "name": "Running", "core": false, "type": "counter", "target": 5, "unit": "km", "days": 127, "category": "body" },
+    { "id": "h8", "name": "Pushups", "core": false, "type": "counter", "target": 50, "unit": "reps", "days": 127, "category": "body" },
+    { "id": "h9", "name": "Sleep", "core": false, "type": "counter", "target": 8, "unit": "hours", "days": 127, "category": "body" },
+    { "id": "h10", "name": "Steps", "core": false, "type": "counter", "target": 8000, "unit": "steps", "days": 127, "category": "body" }
+  ],
+  "tasks": [
+    { "id": "t1", "title": "Team call", "day": "2026-10-28", "time": "16:00", "end": "17:00" },
+    { "id": "t2", "title": "Buy milk", "day": "2026-10-28" },
+    { "id": "t3", "title": "Buy bread", "day": "2026-10-28" },
+    { "id": "t4", "title": "Standup", "day": "2026-10-29", "time": "10:00" },
+    { "id": "t5", "title": "Dentist appointment", "day": "2026-10-30", "time": "10:00" },
+    { "id": "t6", "title": "Report", "day": "2026-10-27" },
+    { "id": "t7", "title": "Call mom", "day": "2026-10-28", "time": "18:00" }
+  ],
+  "goals": [
+    { "id": "g1", "title": "Marathon", "deadline": "2026-12-01", "steps": ["Buy running shoes", "Find a plan", "First run"] },
+    { "id": "g2", "title": "Spanish", "deadline": "2027-06-01", "steps": ["Words", "Grammar", "Speaking club"] },
+    { "id": "g3", "title": "Save for a car", "deadline": null, "steps": [] }
+  ],
+  "quits": [
+    { "id": "q1", "name": "Smoking" },
+    { "id": "q2", "name": "Sweets" },
+    { "id": "q3", "name": "Coffee" }
+  ]
+}

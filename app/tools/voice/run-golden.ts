@@ -16,7 +16,7 @@ const reportOnly = args.has('--report-only') || !cfg.enforce;
 type Expect = { kind: string; slots?: Record<string, unknown>; action?: string; noWrite?: boolean };
 type Row = { id: string; lang: 'ru' | 'en'; text: string; expect: Expect & { multi?: Expect[] }; split: 'train' | 'test'; tags?: string[]; now?: string };
 
-const fixture = JSON.parse(readFileSync(join(here, 'golden/fixture.json'), 'utf8'));
+const fixtures = { ru: JSON.parse(readFileSync(join(here, 'golden/fixture.json'), 'utf8')), en: JSON.parse(readFileSync(join(here, 'golden/fixture-en.json'), 'utf8')) };
 const rows: Row[] = readdirSync(join(here, 'golden')).filter((f) => f.endsWith('.jsonl')).sort()
   .flatMap((f) => readFileSync(join(here, 'golden', f), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l) as Row));
 
@@ -50,6 +50,7 @@ const isWrite = (d: Decision) => d.action === 'execute' && riskOf(d.parsed.kind)
 
 type Res = { row: Row; ok: boolean; why: string; got: string };
 const run = (row: Row): Res => {
+  const fixture = fixtures[row.lang];
   const env = { ...fixture, now: new Date(row.now ?? fixture.now), lang: row.lang } as ParseEnv;
   const ds = analyze(row.text, env);
   const got = ds.map((d) => (d.action === 'reject' ? 'reject' : `${d.action}:${d.action === 'clarify' ? d.options[0]?.kind : d.parsed.kind}${d.action === 'reject' ? '' : ' ' + JSON.stringify(d.action === 'clarify' ? d.options[0]?.slots : d.parsed.slots)}`)).join(' + ') || 'nothing';

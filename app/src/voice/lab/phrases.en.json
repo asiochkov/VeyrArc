@@ -126,6 +126,56 @@
   }
  },
  {
+  "id": "g0214",
+  "group": "tasks-time-date",
+  "text": "remind me tomorrow to buy milk",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "buy milk",
+    "day": "2026-10-29"
+   }
+  }
+ },
+ {
+  "id": "g0215",
+  "group": "tasks-time-date",
+  "text": "remind me to call the bank in half an hour",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "call the bank",
+    "time": "15:30"
+   }
+  }
+ },
+ {
+  "id": "g0216",
+  "group": "tasks-time-date",
+  "text": "add task dentist on friday at 10 am",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "dentist",
+    "day": "2026-10-30",
+    "time": "10:00"
+   }
+  }
+ },
+ {
+  "id": "g0217",
+  "group": "tasks-time-date",
+  "text": "schedule a team call tomorrow at 3 pm",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "team call",
+    "day": "2026-10-29",
+    "time": "15:00"
+   }
+  }
+ },
+ {
   "id": "g0101",
   "group": "move-delete",
   "text": "move the standup to tomorrow at 11",
@@ -146,6 +196,18 @@
    "kind": "task.delete",
    "slots": {
     "query": "dentist"
+   }
+  }
+ },
+ {
+  "id": "g0225",
+  "group": "move-delete",
+  "text": "move the team call to friday",
+  "expect": {
+   "kind": "task.move",
+   "slots": {
+    "query": "team call",
+    "day": "2026-10-30"
    }
   }
  },
@@ -199,6 +261,17 @@
   }
  },
  {
+  "id": "g0250",
+  "group": "focus-timers",
+  "text": "set a timer for ten minutes",
+  "expect": {
+   "kind": "timer.simple",
+   "slots": {
+    "seconds": 600
+   }
+  }
+ },
+ {
   "id": "g0164",
   "group": "goals-steps",
   "text": "create a goal save for a car",
@@ -206,6 +279,39 @@
    "kind": "goal.add",
    "slots": {
     "title": "save for a car"
+   }
+  }
+ },
+ {
+  "id": "g0266",
+  "group": "goals-steps",
+  "text": "complete the goal marathon",
+  "expect": {
+   "kind": "goal.complete",
+   "slots": {
+    "query": "marathon"
+   }
+  }
+ },
+ {
+  "id": "g0269",
+  "group": "quits",
+  "text": "add a quit from sweets",
+  "expect": {
+   "kind": "quit.add",
+   "slots": {
+    "title": "sweets"
+   }
+  }
+ },
+ {
+  "id": "g0270",
+  "group": "quits",
+  "text": "i want to quit coffee",
+  "expect": {
+   "kind": "quit.add",
+   "slots": {
+    "title": "coffee"
    }
   }
  },
@@ -221,7 +327,36 @@
   }
  },
  {
-  "id": "n0297",
+  "id": "g0272",
+  "group": "settings",
+  "text": "turn on dark mode",
+  "expect": {
+   "kind": "settings.theme",
+   "slots": {
+    "value": "dark"
+   }
+  }
+ },
+ {
+  "id": "g0284",
+  "group": "talk-noise",
+  "text": "hello",
+  "expect": {
+   "kind": "chat.hello",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0285",
+  "group": "talk-noise",
+  "text": "thank you",
+  "expect": {
+   "kind": "chat.thanks",
+   "slots": {}
+  }
+ },
+ {
+  "id": "n0403",
   "group": "talk-noise",
   "text": "set an alarm for seven",
   "expect": {
@@ -229,7 +364,7 @@
   }
  },
  {
-  "id": "n0298",
+  "id": "n0404",
   "group": "talk-noise",
   "text": "play some music",
   "expect": {
@@ -237,7 +372,7 @@
   }
  },
  {
-  "id": "n0299",
+  "id": "n0405",
   "group": "talk-noise",
   "text": "call mom",
   "expect": {
@@ -245,7 +380,7 @@
   }
  },
  {
-  "id": "n0300",
+  "id": "n0406",
   "group": "talk-noise",
   "text": "what is twenty times five",
   "expect": {
