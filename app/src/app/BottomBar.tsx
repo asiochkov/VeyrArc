@@ -4,7 +4,6 @@ import { useT } from '../i18n';
 import { Icon } from '../ui/Icon';
 import { AssistantMark } from '../voice/AssistantMark';
 import { closeAssistant, openAssistant, useAssistant } from '../voice/shell';
-import { useVoice } from '../voice/voice';
 import s from './BottomBar.module.css';
 import { NAV, navIdFor } from './nav';
 
@@ -20,7 +19,7 @@ export function BottomBar() {
   const { pathname } = useLocation();
   const active = navIdFor(pathname);
   const open = useAssistant((a) => a.open);
-  const vstate = useVoice((v) => v.state);
+  const vstate = useAssistant((a) => a.phase);
   const bar = useRef<HTMLElement>(null);
   const [puck, setPuck] = useState<number | null>(null);
   useLayoutEffect(() => {

@@ -665,6 +665,7 @@ export const en: Dict = {
     saved: 'Saved',
   },
   palette: {
+    askAssistant: 'Ask the assistant: “{x}”',
     tour: "Show this screen's tips",
     title: 'Commands',
     placeholder: 'Find or do: “water 2”, “focus 25”, “meeting 15:00”…',

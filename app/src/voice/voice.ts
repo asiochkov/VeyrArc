@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { useLangStore } from '../i18n';
-import { normalize, similarity, understand } from './nlu';
-import { hints, runAll, type Choice, type Reply } from './run';
+import { normalize, similarity } from './nlu';
+import { hints, type Choice, type Reply } from './run';
+import { runPhrase } from './exec/bridge';
 import { createSession, errKey, RETRYABLE } from './audio/session';
 import { createWebSpeech, speechCtor } from './stt/webSpeech';
 import { attachEndpointing } from './stt/endpointing';
@@ -119,11 +120,15 @@ export function handle(text: string) {
       if (r) { show(r); return; }
       set({ choices: [] }); // not an answer: a new command
     }
-    show(runAll(understand(said), lang()));
+    show(runPhrase(said, lang()));
   } catch (e) {
     console.error('[voice]', e);
     fail(lang() === 'ru' ? 'Не получилось выполнить команду' : 'Could not do that');
   }
+}
+/** a phrase typed elsewhere (the command palette): open the panel and run it there, with the answer and «Отменить» */
+export function runInAssistant(text: string) {
+  setTimeout(() => handle(text), 60);
 }
 /** a tapped choice button */
 export function choose(c: Choice) { set({ state: 'processing', heard: c.label }); try { show(c.run()); } catch { fail(lang() === 'ru' ? 'Не получилось' : 'Could not do that'); } }
@@ -178,11 +183,14 @@ export function stopVoice() { session.stop(); }
 export function cancelVoice() { session.abort(); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
 
 /* the assistant panel: open/close state lives in shell.ts; what happens on open and close is registered here */
-hooks.open = () => {
+hooks.open = (_src, gesture) => {
   // phrases that fit this screen and this moment, ready to tap
   set({ heard: '', reply: '', list: [], suggest: hints(location.pathname, lang()), choices: [], canUndo: false, ok: true, state: 'idle' });
   navigator.vibrate?.(10);
-  // after the dock has merged; without speech recognition the panel opens on the text field
-  if (voiceSupported()) setTimeout(() => { if (useAssistant.getState().open) startVoice(); }, 420);
+  // listening starts in the very tap that opened the panel (iOS drops the permission prompt otherwise); without a gesture
+  // (a link, a late-loaded chunk) the orb says «tap the orb», and without speech recognition the panel opens on the text field
+  if (gesture && voiceSupported() && !session.voiceBroken()) startVoice();
 };
+hooks.toggle = () => { if (session.state === 'live' || session.state === 'requesting') stopVoice(); else startVoice(); };
+useVoice.subscribe((s) => { if (useAssistant.getState().phase !== s.state) useAssistant.setState({ phase: s.state }); });
 hooks.close = () => { clearTimeout(closeAfter); cancelVoice(); set({ choices: [] }); };

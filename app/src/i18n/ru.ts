@@ -682,6 +682,7 @@ export const ru = {
     newArc: 'Начать новую Arc',
     createEvent: 'Событие «{x}» в {t}',
     startFocus: 'Фокус {m} мин',
+    askAssistant: 'Сказать ассистенту: «{x}»',
     logMood: 'Настроение {n} из 5',
     moodSaved: 'Настроение отмечено',
     logCounter: '{x}: +{n}',

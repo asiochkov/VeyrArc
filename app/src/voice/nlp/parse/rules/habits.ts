@@ -62,6 +62,14 @@ add(
     return { ...base, minutes: minutes ? Number(minutes) : undefined, amount: undefined };
   } },
 
+  // only the name of a habit: «душ» — worth a question, never a silent mark
+  { kind: 'habit.done', score: 0.62, bare: true, re: rx('^(.{3,40})$'), slots: (m, c) => {
+    const q = tidy(m[1]);
+    if (q.split(' ').length > 3) return null;
+    const e = c.habit(q);
+    return e && e.sim >= 0.8 ? { query: q, id: e.id, _score: 0.62 } : null;
+  } },
+
   // counters and sleep
   { kind: 'counter.add', re: [rx('^подход (\\d+)$'), rx('^(?:ещ[её] )?(\\d+) (\\p{L}+)$')], slots: (m, c) => {
     if (m[2] && !c.habit(m[2])) return null;

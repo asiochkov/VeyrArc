@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLangStore } from '../i18n';
 import { useIsDesktop } from '../lib/useIsDesktop';
@@ -6,9 +6,15 @@ import { PomodoroSheet, DockedPomodoro } from '../ui/PomodoroViews';
 import { AddSheet } from './AddSheet';
 import s from './AppShell.module.css';
 import { BottomBar } from './BottomBar';
-import { AssistantPanel } from '../voice/AssistantPanel';
-import { useAssistant, openAssistant } from '../voice/shell';
-import { startVoice, stopVoice, useVoice } from '../voice/voice';
+import { hooks, openAssistant, preloadAssistant, useAssistant } from '../voice/shell';
+
+// the assistant is its own chunk: parser, classifier, executors and speech stay out of the main bundle
+const Panel = lazy(() => import('../voice/AssistantPanel').then((m) => ({ default: m.AssistantPanel })));
+function AssistantPanel() {
+  const open = useAssistant((a) => a.open);
+  useEffect(() => { preloadAssistant(); }, []);
+  return open ? <Suspense fallback={null}><Panel /></Suspense> : null;
+}
 import { CommandPalette } from './CommandPalette';
 import { TourOverlay } from '../ui/Tour';
 import { DEFAULT_TILE, NAV, navIdFor, useAdd } from './nav';
@@ -91,7 +97,7 @@ function useShortcuts(on: boolean, toggleSidebar: () => void) {
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.code === 'Space') {
         e.preventDefault();
         const a = useAssistant.getState();
-        if (a.open) { if (useVoice.getState().state === 'listening') stopVoice(); else startVoice(); } else openAssistant('hotkey');
+        if (a.open) hooks.toggle?.(); else openAssistant('hotkey');
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey || typing(e.target) || st.open || st.paletteOpen) return;

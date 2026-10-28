@@ -8,3 +8,4 @@
 | WP3.1 | 2026-10-28 | normalize / itn / dates: every row of tables 6.5.1–6.5.3 is a unit check (now = 28.10.2026 15:00) | unit: voice-dates 90 checks |
 | WP3.2 | 2026-10-28 | rule engine + candidate parser (entities, morphology, spelling repairs, segmentation, classifier mix), rules for the current golden intents | golden: RU positives 100% · noisy 97.8% · negative violations 0; EN comes in WP3.3 |
 | WP3.3 | 2026-10-28 | English parity: itnEn, datesEn (54 unit checks), EN rules for every current command, EN fixture, 130 EN golden positives + 26 EN negatives, classifier retrained (53 KB gz) | golden: Q1 100% · Q2 100% · Q3 0 violations |
+| WP3.4–3.5 | 2026-10-28 | app now runs on the new parser (bridge to the executor, slot questions remembered); assistant moved to lazy chunks (initial JS 271 014 → 249 931 B gz); palette sends phrases to the assistant; golden thresholds enforced (config.json) | Q1 100% · Q2 95.7% · Q3 0 · e2e-voice green |

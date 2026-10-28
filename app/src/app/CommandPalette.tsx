@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useT, type T } from '../i18n';
 import { isoDay } from '../lib/day';
-import { addDays, scheduled } from '../data/model';
-import { logHabit, logMood, saveEvent } from '../state/actions';
+import { scheduled } from '../data/model';
+import { logHabit } from '../state/actions';
 import { pomo } from '../state/pomodoro';
 import { useSystem, type SystemRaw } from '../state/system';
 import { Icon, type IconName } from '../ui/Icon';
+import { runPhraseInAssistant } from '../voice/shell';
 import { toast } from '../ui/toast';
 import { useTour, type TourId } from '../ui/Tour';
 import s from './CommandPalette.module.css';
@@ -36,31 +37,10 @@ function commands(q: string, r: SystemRaw | undefined, t: T, close: () => void):
   const raw = q.trim();
   const low = norm(raw);
   const day = isoDay();
-  // time → event
-  const tm = raw.match(/(^|\s)([01]?\d|2[0-3])[:.]([0-5]\d)(\s|$)/);
-  if (tm) {
-    const time = `${tm[2].padStart(2, '0')}:${tm[3]}`;
-    const tomorrow = /(^|\s)(завтра|tomorrow)(\s|$)/i.test(raw);
-    const title = raw.replace(tm[0], ' ').replace(/(^|\s)(завтра|tomorrow|сегодня|today)(\s|$)/gi, ' ').replace(/\s+/g, ' ').trim() || t('calendar.newTaskDefault');
-    const d = tomorrow ? addDays(day, 1) : day;
-    out.push({
-      id: 'cmd-event', icon: 'cal', title: t('palette.createEvent', { x: title, t: time }), sub: tomorrow ? t('add.tomorrow') : t('common.today'), kbd: 'E',
-      run: () => {
-        const [h, m] = time.split(':').map(Number);
-        saveEvent({ id: crypto.randomUUID(), title, day: d, starts_at: time, ends_at: `${String(Math.min(23, h + 1)).padStart(2, '0')}:${String(m).padStart(2, '0')}`, note: null, done: false, category_id: null }, true);
-        toast.success(t('add.eventCreated')); close();
-      },
-    });
+  // a phrase for the assistant («фокус 50», «завтра в 9 бег», «настроение 4»): the same parser as the voice, in its own chunk
+  if (raw.length >= 3 && (/\s/.test(raw) || /\d/.test(raw))) {
+    out.push({ id: 'cmd-say', icon: 'spark', title: t('palette.askAssistant', { x: raw }), kbd: '↵', run: () => { close(); runPhraseInAssistant(raw); } });
   }
-  // focus N
-  const fm = low.match(/^(фокус|focus)\s*(\d{1,3})?/);
-  if (fm) {
-    const m = fm[2] ? Math.max(5, Math.min(180, Number(fm[2]))) : null;
-    out.push({ id: 'cmd-focus', icon: 'bolt', title: t('palette.startFocus', { m: m ?? '' }).trim(), kbd: 'F', run: () => { if (m) pomo.setLength(0, m); pomo.setTab(0); pomo.start(); close(); } });
-  }
-  // mood N
-  const mm = low.match(/^(настроение|mood)\s*([1-5])$/);
-  if (mm) out.push({ id: 'cmd-mood', icon: 'spark', title: t('palette.logMood', { n: mm[2] }), run: () => { logMood(Number(mm[2]) - 1); toast.success(t('palette.moodSaved')); close(); } });
   // habit [+N]
   if (r && low) {
     const num = raw.match(/(?:^|\s)\+?(\d{1,3})$/);
