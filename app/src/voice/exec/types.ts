@@ -40,4 +40,8 @@ export type Reply = {
   close?: boolean;
   expect?: { slot?: string; windowMs: number; grammar?: string }; // keep listening for a follow-up
   flow?: { id: string; step: string };
+  /** the reply came from an executor that keeps its own way of undoing: the «Отменить» button still shows */
+  undoable?: boolean;
+  /** open the text field (after repeated misunderstandings) */
+  typing?: boolean;
 };

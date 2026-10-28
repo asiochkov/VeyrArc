@@ -37,8 +37,10 @@ export type Reply = {
 };
 
 type Ctx = { ru: boolean; sys: SystemRaw | undefined; day: string; now: Date };
-const history: { label: string; undo: () => void }[] = [];
-const remember = (label: string, undo?: () => void) => { if (undo) { history.push({ label, undo }); if (history.length > 20) history.shift(); } };
+const history: { label: string; undo: () => void; at: number }[] = [];
+const remember = (label: string, undo?: () => void) => { if (undo) { history.push({ label, undo, at: Date.now() }); if (history.length > 20) history.shift(); } };
+/** the executors that have not moved to exec/* yet keep closures here; the journal holds the rest — «отмени» takes the newer */
+export const legacyHistory = { peek: () => history[history.length - 1] ?? null, pop: () => history.pop() ?? null };
 
 /* ---------------- words ---------------- */
 const MOOD_RU = ['ужасное', 'плохое', 'нормальное', 'хорошее', 'отличное'];
@@ -277,6 +279,8 @@ let navigate: ((to: string) => void) | null = null;
 /** the panel passes the router's navigate in (avoids importing the router here) */
 export const bindNavigate = (fn: ((to: string) => void) | null) => { navigate = fn; };
 const go = (to: string) => { navigate?.(to); };
+/** for the executors in exec/*: open a page through the router the panel passed in */
+export const navigateTo = go;
 const PAGE_RU: Record<NavTo, string> = { '/': 'Сегодня', '/disciplines': 'Дисциплины', '/planner': 'Планер', '/goals': 'Цели', '/analytics': 'Аналитика', '/settings': 'Настройки', '/settings/account': 'Аккаунт' };
 
 /** phrases to offer when the panel opens: what fits this screen, this hour and what is left today */

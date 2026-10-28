@@ -1,8 +1,13 @@
 import { create } from 'zustand';
 import { useLangStore } from '../i18n';
-import { normalize, similarity } from './nlu';
-import { hints, type Choice, type Reply } from './run';
-import { runPhrase } from './exec/bridge';
+import { similarity } from './nlu';
+import { hints } from './run';
+import { handlePhrase } from './dialog/manager';
+import { yesno, ordinal } from './dialog/grammars';
+import { normalize } from './nlp/normalize';
+import { prefs } from './prefs';
+import { speechOf } from './reply';
+import type { Reply } from './exec/types';
 import { createSession, errKey, RETRYABLE } from './audio/session';
 import { createWebSpeech, speechCtor } from './stt/webSpeech';
 import { attachEndpointing } from './stt/endpointing';
@@ -20,15 +25,18 @@ export { useAssistant, closeAssistant, openAssistant };
  * (Web Speech API, free); the transcript never leaves the device except through the browser.
  */
 export type VoiceState = 'idle' | 'listening' | 'processing' | 'speaking' | 'error';
+export type Choice = NonNullable<Reply['choices']>[number];
 type Store = {
   state: VoiceState; heard: string; reply: string; ok: boolean;
   list: string[]; suggest: string[]; choices: Choice[]; canUndo: boolean;
+  /** the reply wants the text field open (repeated misunderstandings) */
+  typing: boolean;
   /** speech can't be used here (no permission, no service): the panel switches to typing */
   blocked: boolean;
   /** the error on screen can be retried with a tap («Повторить») */
   retry: boolean;
 };
-export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false, blocked: false, retry: false }));
+export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false, blocked: false, retry: false, typing: false }));
 
 const engine = createWebSpeech();
 const session = createSession({ engine, cancelSpeech: () => window.speechSynthesis?.cancel() });
@@ -84,43 +92,46 @@ function speak(text: string, then?: () => void) {
 }
 
 let closeAfter: ReturnType<typeof setTimeout> | undefined;
-function show(r: Reply) {
-  set({ state: 'speaking', reply: r.say, ok: r.ok, list: r.list ?? [], suggest: r.suggest ?? [], choices: r.choices ?? [], canUndo: !!r.undo });
-  navigator.vibrate?.(r.ok ? 15 : [20, 40, 20]);
+async function show(r: Reply | Promise<Reply>) {
+  const rep = await r;
+  set({ state: 'speaking', reply: rep.screen, ok: rep.ok, list: rep.list ?? [], suggest: (rep.chips ?? []).map((c) => c.say ?? c.label), choices: rep.choices ?? [], canUndo: !!(rep.undo?.length || rep.undoable), typing: !!rep.typing });
+  navigator.vibrate?.(rep.ok ? 15 : [20, 40, 20]);
+  if (rep.nav) navigateTo(rep.nav);
   // a question: listen for the answer right after it is asked
-  speak(r.say, r.choices?.length && voiceSupported() ? () => startVoice() : undefined);
-  if (r.close) { clearTimeout(closeAfter); closeAfter = setTimeout(() => closeAssistant(), 900); }
+  const say = speechOf(rep, lang(), prefs());
+  speak(say ?? '', (rep.choices?.length || rep.expect) && voiceSupported() ? () => startVoice() : undefined);
+  if (rep.close) { clearTimeout(closeAfter); closeAfter = setTimeout(() => closeAssistant(), 900); }
 }
+const navigateTo = (to: string) => { void import('./run').then((m) => m.navigateTo(to)); };
 
-const YES = /^(?:да|ага|угу|давай|конечно|ок|окей|верно|точно|правильно|подтверждаю|yes|yeah|yep|sure|ok)(?:\s|$)/;
-const NO = /^(?:нет|не надо|не нужно|отмена|отмени|не|no|nope|cancel)(?:\s|$)/;
-const ORD: [RegExp, number][] = [[/^(?:перв|1|один|one|first)/, 0], [/^(?:втор|2|два|two|second)/, 1], [/^(?:трет|3|три|three|third)/, 2]];
 /** an answer to the assistant's question: yes / no / «второе» / the option's name */
-function answerChoice(text: string, choices: Choice[]): Reply | null | 'cancel' {
+function answerChoice(text: string, choices: Choice[]): Reply | Promise<Reply> | null | 'cancel' {
   const t = normalize(text);
   const yesOpt = choices.find((c) => c.yes) ?? (choices.length <= 2 ? choices[0] : undefined);
-  if (YES.test(t) && yesOpt) return yesOpt.run();
-  if (NO.test(t)) { const no = choices.find((c) => c.yes === false); return no ? no.run() : 'cancel'; }
-  for (const [re, i] of ORD) if (re.test(t) && choices[i]) return choices[i].run();
+  const yn = yesno(text);
+  if (yn === 'yes' && yesOpt) return yesOpt.run();
+  if (yn === 'no') { const no = choices.find((c) => c.yes === false); return no ? no.run() : 'cancel'; }
+  const o = ordinal(text, choices.length);
+  if (o !== null && choices[o]) return choices[o].run();
   const best = choices.map((c) => ({ c, s: similarity(t, c.label) })).sort((a, b) => b.s - a.s)[0];
   if (best && best.s >= 0.5) return best.c.run();
   return null;
 }
 
 /** run a phrase (spoken, typed or a tapped suggestion) */
-export function handle(text: string) {
+export function handle(text: string, asr: number | null = null) {
   const said = text.trim();
   if (!said) return;
-  set({ state: 'processing', heard: said });
+  set({ state: 'processing', heard: said, typing: false });
   try {
     const pending = useVoice.getState().choices;
     if (pending.length) {
       const r = answerChoice(said, pending);
-      if (r === 'cancel') { show({ ok: true, say: lang() === 'ru' ? 'Хорошо, отменил' : 'Okay, cancelled' }); return; }
-      if (r) { show(r); return; }
+      if (r === 'cancel') { void show({ ok: true, kind: 'info', screen: lang() === 'ru' ? 'Хорошо, отменил' : 'Okay, cancelled', speech: lang() === 'ru' ? 'Хорошо, отменил' : 'Okay, cancelled' }); return; }
+      if (r) { void show(r); return; }
       set({ choices: [] }); // not an answer: a new command
     }
-    show(runPhrase(said, lang()));
+    void show(handlePhrase(said, 'voice', asr));
   } catch (e) {
     console.error('[voice]', e);
     fail(lang() === 'ru' ? 'Не получилось выполнить команду' : 'Could not do that');
@@ -131,7 +142,7 @@ export function runInAssistant(text: string) {
   setTimeout(() => handle(text), 60);
 }
 /** a tapped choice button */
-export function choose(c: Choice) { set({ state: 'processing', heard: c.label }); try { show(c.run()); } catch { fail(lang() === 'ru' ? 'Не получилось' : 'Could not do that'); } }
+export function choose(c: Choice) { set({ state: 'processing', heard: c.label }); try { void show(c.run()); } catch { fail(lang() === 'ru' ? 'Не получилось' : 'Could not do that'); } }
 
 let detach: (() => void) | null = null;
 let heardAlts: Hypothesis[] = [];
