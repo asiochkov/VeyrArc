@@ -117,7 +117,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
         ['Сервис', 'VeyrArc — веб-приложение для привычек, отказов от вредного, целей и планирования. Пользуясь им, вы соглашаетесь с этими условиями.'],
         ['Аккаунт', 'Можно начать без регистрации: данные хранятся в гостевом аккаунте. Чтобы не потерять прогресс, привяжите email. Вы отвечаете за сохранность пароля.'],
         config.beta
-          ? ['Бета-версия', 'Сейчас VeyrArc работает в бета-версии: все функции доступны бесплатно и без ограничений. Никаких платежей и списаний нет. Перед появлением платных возможностей мы заранее сообщим об этом в приложении.']
+          ? ['Бесплатно', 'VeyrArc бесплатен: все функции доступны без ограничений, никаких платежей и списаний нет. Если когда-нибудь появятся платные возможности, мы заранее сообщим об этом в приложении, и то, что вы уже используете, не станет платным без вашего согласия.']
           : ['Подписка Pro', `Базовые функции бесплатны. Pro оформляется на месяц (${config.pricing.ru.monthly} ₽) или на год (${config.pricing.ru.yearly} ₽); один раз доступен бесплатный пробный период ${config.pricing.trialDays} дней без карты. Оплата проходит через ЮKassa (карта, СБП, SberPay); данные карты мы не получаем и не храним.`],
         ...(config.beta ? [] : [
           ['Автопродление', 'Оформляя подписку, вы соглашаетесь, что по окончании оплаченного периода стоимость того же тарифа списывается автоматически тем же способом оплаты. Отключить автопродление можно в любой момент: Настройки → План → «Отключить автопродление»; доступ к Pro сохранится до конца оплаченного периода, способ оплаты отвязывается.'] as [string, string],
@@ -136,7 +136,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
         ['The service', 'VeyrArc is a web app for habits, quitting bad habits, goals and planning. By using it you agree to these terms.'],
         ['Account', 'You can start without signing up: your data lives in a guest account. Link an email to keep your progress. You are responsible for your password.'],
         config.beta
-          ? ['Beta', 'VeyrArc is in beta: every feature is free and unlimited. There are no payments or charges. We will tell you in the app well before any paid features appear.']
+          ? ['Free', 'VeyrArc is free: every feature is available without limits and nothing is charged. If paid features ever appear, we will tell you in the app first, and what you already use will not become paid without your consent.']
           : ['Pro subscription', `The basics are free. Pro is monthly or yearly; a ${config.pricing.trialDays}-day free trial without a card is available once. Payments go through YooKassa (card, SBP, SberPay); we never receive or store card details.`],
         ...(config.beta ? [] : [
           ['Auto-renewal', 'By subscribing you agree that at the end of each paid period the same plan is charged automatically with the same payment method. Turn auto-renewal off any time in Settings → Plan; Pro stays until the end of the paid period and the payment method is removed.'] as [string, string],
