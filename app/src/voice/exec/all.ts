@@ -7,3 +7,4 @@ import './planner';
 import './planRead';
 import './focus';
 import './rituals';
+import './analytics';

@@ -720,3 +720,73 @@
 {"id":"g0720","lang":"ru","text":"покажи мои ритуалы и шаблоны","expect":{"kind":"ritual.list","slots":{}},"split":"train","tags":[]}
 {"id":"g0721","lang":"ru","text":"покажи мои ритуалы","expect":{"kind":"ritual.list","slots":{}},"split":"train","tags":[]}
 {"id":"g0722","lang":"en","text":"show my rituals and templates","expect":{"kind":"ritual.list","slots":{}},"split":"train","tags":[]}
+{"id":"g0723","lang":"ru","text":"расскажи про прошлую неделю","expect":{"kind":"stats.week","slots":{"last":true}},"split":"train","tags":[]}
+{"id":"g0724","lang":"ru","text":"как прошла прошлая неделя","expect":{"kind":"stats.week","slots":{"last":true}},"split":"train","tags":[]}
+{"id":"g0725","lang":"en","text":"recap last week","expect":{"kind":"stats.week","slots":{"last":true}},"split":"train","tags":[]}
+{"id":"g0726","lang":"ru","text":"итоги месяца","expect":{"kind":"stats.month","slots":{}},"split":"train","tags":[]}
+{"id":"g0727","lang":"en","text":"how was my month","expect":{"kind":"stats.month","slots":{}},"split":"train","tags":[]}
+{"id":"g0728","lang":"ru","text":"какой был мой лучший день за месяц","expect":{"kind":"stats.bestDay","slots":{}},"split":"test","tags":[]}
+{"id":"g0729","lang":"ru","text":"мой лучший день","expect":{"kind":"stats.bestDay","slots":{}},"split":"test","tags":[]}
+{"id":"g0730","lang":"en","text":"what was my best day this month","expect":{"kind":"stats.bestDay","slots":{}},"split":"train","tags":[]}
+{"id":"g0731","lang":"ru","text":"моя самая длинная серия","expect":{"kind":"stats.longestStreak","slots":{}},"split":"train","tags":[]}
+{"id":"g0732","lang":"ru","text":"рекорд серии","expect":{"kind":"stats.longestStreak","slots":{}},"split":"train","tags":[]}
+{"id":"g0733","lang":"ru","text":"сколько всего отметок за сезон","expect":{"kind":"stats.totalChecks","slots":{}},"split":"train","tags":[]}
+{"id":"g0734","lang":"ru","text":"сколько отметок за сезон","expect":{"kind":"stats.totalChecks","slots":{}},"split":"train","tags":[]}
+{"id":"g0735","lang":"en","text":"how many checks this season","expect":{"kind":"stats.totalChecks","slots":{}},"split":"train","tags":[]}
+{"id":"g0736","lang":"ru","text":"почему упала моя серия","expect":{"kind":"stats.whyDropped","slots":{}},"split":"train","tags":[]}
+{"id":"g0737","lang":"ru","text":"почему прервалась серия","expect":{"kind":"stats.whyDropped","slots":{}},"split":"train","tags":[]}
+{"id":"g0738","lang":"ru","text":"что у меня лучше всего получается","expect":{"kind":"stats.strongest","slots":{}},"split":"test","tags":[]}
+{"id":"g0739","lang":"ru","text":"какие привычки самые стабильные","expect":{"kind":"stats.strongest","slots":{}},"split":"test","tags":[]}
+{"id":"g0740","lang":"en","text":"what am i best at","expect":{"kind":"stats.strongest","slots":{}},"split":"test","tags":[]}
+{"id":"g0741","lang":"ru","text":"как я справляюсь по понедельникам","expect":{"kind":"stats.weekdayPattern","slots":{"weekday":0}},"split":"train","tags":[]}
+{"id":"g0742","lang":"ru","text":"как я справляюсь по пятницам","expect":{"kind":"stats.weekdayPattern","slots":{"weekday":4}},"split":"train","tags":[]}
+{"id":"g0743","lang":"en","text":"how do i do on mondays","expect":{"kind":"stats.weekdayPattern","slots":{"weekday":0}},"split":"train","tags":[]}
+{"id":"g0744","lang":"ru","text":"сравни эту неделю с прошлой","expect":{"kind":"stats.compareWeeks","slots":{}},"split":"train","tags":[]}
+{"id":"g0745","lang":"ru","text":"сравни неделю с прошлой","expect":{"kind":"stats.compareWeeks","slots":{}},"split":"train","tags":[]}
+{"id":"g0746","lang":"en","text":"compare this week to last","expect":{"kind":"stats.compareWeeks","slots":{}},"split":"train","tags":[]}
+{"id":"g0747","lang":"ru","text":"дай инсайты","expect":{"kind":"stats.insights","slots":{}},"split":"train","tags":[]}
+{"id":"g0748","lang":"ru","text":"что ты заметил","expect":{"kind":"stats.insights","slots":{}},"split":"train","tags":[]}
+{"id":"g0749","lang":"en","text":"give me the insights","expect":{"kind":"stats.insights","slots":{}},"split":"test","tags":[]}
+{"id":"g0750","lang":"ru","text":"какие у меня достижения","expect":{"kind":"stats.achievements","slots":{}},"split":"test","tags":[]}
+{"id":"g0751","lang":"ru","text":"что осталось до следующего достижения","expect":{"kind":"stats.achievements","slots":{}},"split":"test","tags":[]}
+{"id":"g0752","lang":"en","text":"what are my achievements","expect":{"kind":"stats.achievements","slots":{}},"split":"train","tags":[]}
+{"id":"g0753","lang":"ru","text":"что значит индекс дисциплины","expect":{"kind":"stats.indexExplain","slots":{}},"split":"train","tags":[]}
+{"id":"g0754","lang":"ru","text":"как считается индекс","expect":{"kind":"stats.indexExplain","slots":{}},"split":"train","tags":[]}
+{"id":"g0755","lang":"en","text":"what does the index mean","expect":{"kind":"stats.indexExplain","slots":{}},"split":"train","tags":[]}
+{"id":"g0756","lang":"ru","text":"когда у меня будет серия тридцать дней","expect":{"kind":"stats.forecastStreak","slots":{"n":30}},"split":"train","tags":[]}
+{"id":"g0757","lang":"ru","text":"когда у меня будет серия 14 дней","expect":{"kind":"stats.forecastStreak","slots":{"n":14}},"split":"train","tags":[]}
+{"id":"g0758","lang":"en","text":"when will i reach a 30 day streak","expect":{"kind":"stats.forecastStreak","slots":{"n":30}},"split":"train","tags":[]}
+{"id":"g0759","lang":"ru","text":"сколько процентов привычек я выполняю за тридцать дней","expect":{"kind":"stats.percent30","slots":{}},"split":"train","tags":[]}
+{"id":"g0760","lang":"ru","text":"сколько процентов привычек я выполняю","expect":{"kind":"stats.percent30","slots":{}},"split":"train","tags":[]}
+{"id":"g0761","lang":"en","text":"what percent of habits do i complete","expect":{"kind":"stats.percent30","slots":{}},"split":"test","tags":[]}
+{"id":"g0762","lang":"ru","text":"покажи карту недели","expect":{"kind":"stats.weekMap","slots":{}},"split":"train","tags":[]}
+{"id":"g0763","lang":"ru","text":"карта недели","expect":{"kind":"stats.weekMap","slots":{}},"split":"train","tags":[]}
+{"id":"g0764","lang":"en","text":"show me the week map","expect":{"kind":"stats.weekMap","slots":{}},"split":"train","tags":[]}
+{"id":"g0765","lang":"ru","text":"сколько часов фокуса по каждой цели","expect":{"kind":"focus.byGoal","slots":{}},"split":"train","tags":[]}
+{"id":"g0766","lang":"ru","text":"фокус по целям","expect":{"kind":"focus.byGoal","slots":{}},"split":"train","tags":[]}
+{"id":"g0767","lang":"en","text":"how many hours of focus per goal","expect":{"kind":"focus.byGoal","slots":{}},"split":"train","tags":[]}
+{"id":"g0768","lang":"ru","text":"куда уходит моё время","expect":{"kind":"focus.byCategory","slots":{}},"split":"test","tags":[]}
+{"id":"g0769","lang":"ru","text":"фокус по категориям","expect":{"kind":"focus.byCategory","slots":{}},"split":"test","tags":[]}
+{"id":"g0770","lang":"en","text":"where does my time go","expect":{"kind":"focus.byCategory","slots":{}},"split":"test","tags":[]}
+{"id":"g0771","lang":"ru","text":"в какое время суток я лучше всего работаю","expect":{"kind":"focus.bestHour","slots":{}},"split":"train","tags":[]}
+{"id":"g0772","lang":"ru","text":"когда я лучше всего работаю","expect":{"kind":"focus.bestHour","slots":{}},"split":"train","tags":[]}
+{"id":"g0773","lang":"en","text":"what time of day do i work best","expect":{"kind":"focus.bestHour","slots":{}},"split":"test","tags":[]}
+{"id":"g0774","lang":"ru","text":"какая у меня средняя фокус-сессия","expect":{"kind":"focus.avg","slots":{}},"split":"test","tags":[]}
+{"id":"g0775","lang":"ru","text":"какая средняя сессия","expect":{"kind":"focus.avg","slots":{}},"split":"test","tags":[]}
+{"id":"g0776","lang":"en","text":"what is my average focus session","expect":{"kind":"focus.avg","slots":{}},"split":"train","tags":[]}
+{"id":"g0777","lang":"ru","text":"какое у меня обещание","expect":{"kind":"arc.oath.get","slots":{}},"split":"train","tags":[]}
+{"id":"g0778","lang":"ru","text":"прочитай моё обещание","expect":{"kind":"arc.oath.get","slots":{}},"split":"train","tags":[]}
+{"id":"g0779","lang":"en","text":"what is my promise","expect":{"kind":"arc.oath.get","slots":{}},"split":"train","tags":[]}
+{"id":"g0780","lang":"ru","text":"сколько мне осталось в сезоне","expect":{"kind":"arc.day","slots":{}},"split":"train","tags":[]}
+{"id":"g0781","lang":"ru","text":"покажи итоги сезона","expect":{"kind":"arc.recap","slots":{}},"split":"train","tags":[]}
+{"id":"g0782","lang":"ru","text":"открой отчёт","expect":{"kind":"arc.recap","slots":{}},"split":"train","tags":[]}
+{"id":"g0783","lang":"en","text":"show the season recap","expect":{"kind":"arc.recap","slots":{}},"split":"train","tags":[]}
+{"id":"g0784","lang":"ru","text":"поделись итогами недели","expect":{"kind":"share.week","slots":{}},"split":"train","tags":[]}
+{"id":"g0785","lang":"en","text":"share my week","expect":{"kind":"share.week","slots":{}},"split":"test","tags":[]}
+{"id":"g0786","lang":"ru","text":"поделиться неделей","expect":{"kind":"share.week","slots":{}},"split":"train","tags":[]}
+{"id":"g0787","lang":"ru","text":"пришли отчёт за месяц","expect":{"kind":"report.month","slots":{}},"split":"train","tags":[]}
+{"id":"g0788","lang":"en","text":"send me a monthly report","expect":{"kind":"report.month","slots":{}},"split":"train","tags":[]}
+{"id":"g0789","lang":"ru","text":"сделай отчёт за месяц","expect":{"kind":"report.month","slots":{}},"split":"train","tags":[]}
+{"id":"g0790","lang":"ru","text":"начни новый сезон","expect":{"kind":"arc.new","slots":{},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0791","lang":"en","text":"start a new season","expect":{"kind":"arc.new","slots":{},"action":"confirm"},"split":"train","tags":[]}
+{"id":"g0792","lang":"ru","text":"запиши обещание: до конца сезона бегаю три раза в неделю","expect":{"kind":"arc.oath.set","slots":{"text":"бегаю три раза в неделю"}},"split":"train","tags":[]}
