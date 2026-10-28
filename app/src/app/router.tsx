@@ -1,4 +1,5 @@
 import { config } from '../config';
+import { flags } from '../voice/flags';
 import { createBrowserRouter, createMemoryRouter, type RouteObject } from 'react-router-dom';
 import { Login, Reset, Signup, Verify, Welcome } from '../pages/auth/screens';
 import { Account, DayOne, Onboarding } from '../pages/auth/screens2';
@@ -40,6 +41,8 @@ const Pro = later(() => import('../pages/pro/Pro'), 'Pro');
 const Settings = later(() => import('../pages/settings/Settings'), 'Settings');
 const PreviewLayout = later(() => import('../preview/PreviewScreens'), 'PreviewLayout');
 const PreviewScreens = later(() => import('../preview/PreviewScreens'), 'PreviewScreens');
+
+const VoiceLab = later(() => import('../voice/lab/VoiceLab'), 'VoiceLab');
 
 const routes: RouteObject[] = [
   {
@@ -86,6 +89,8 @@ const routes: RouteObject[] = [
       { path: '/contacts', element: <Legal doc="contacts" /> },
       { path: '/pricing', element: config.beta ? <Navigate to="/" replace /> : <Legal doc="pricing" /> },
       { path: '/settings/account', element: <RequireAuth><Account /></RequireAuth> },
+      // developer page, only with the flag (?flags=lab): measures speech recognition on the owner's phone
+      ...(flags.lab ? [{ path: '/dev/voice-lab', element: <VoiceLab /> }] : []),
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },

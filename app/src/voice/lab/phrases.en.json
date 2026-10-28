@@ -1,0 +1,255 @@
+[
+ {
+  "id": "g0026",
+  "group": "marks",
+  "text": "i drank two glasses of water",
+  "expect": {
+   "kind": "water.add",
+   "slots": {
+    "amount": 2
+   }
+  }
+ },
+ {
+  "id": "g0045",
+  "group": "marks",
+  "text": "mark workout as done",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "workout"
+   }
+  }
+ },
+ {
+  "id": "g0046",
+  "group": "marks",
+  "text": "i did my workout",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "workout"
+   }
+  }
+ },
+ {
+  "id": "g0047",
+  "group": "marks",
+  "text": "i meditated for twenty minutes",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "minutes": 20
+   }
+  }
+ },
+ {
+  "id": "g0048",
+  "group": "marks",
+  "text": "undo the meditation check",
+  "expect": {
+   "kind": "habit.undone",
+   "slots": {
+    "query": "meditation"
+   }
+  }
+ },
+ {
+  "id": "g0017",
+  "group": "mood",
+  "text": "i feel terrible",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 1
+   }
+  }
+ },
+ {
+  "id": "g0018",
+  "group": "mood",
+  "text": "i feel great",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 5
+   }
+  }
+ },
+ {
+  "id": "g0019",
+  "group": "mood",
+  "text": "mood four",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 4
+   }
+  }
+ },
+ {
+  "id": "g0083",
+  "group": "tasks-time-date",
+  "text": "add task call dad tomorrow at 6 pm",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "call dad",
+    "day": "2026-10-29",
+    "time": "18:00"
+   }
+  }
+ },
+ {
+  "id": "g0084",
+  "group": "tasks-time-date",
+  "text": "remind me to drink water at 5",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "drink water",
+    "time": "17:00"
+   }
+  }
+ },
+ {
+  "id": "g0085",
+  "group": "tasks-time-date",
+  "text": "add a meeting on friday at noon",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "meeting",
+    "day": "2026-10-30",
+    "time": "12:00"
+   }
+  }
+ },
+ {
+  "id": "g0101",
+  "group": "move-delete",
+  "text": "move the standup to tomorrow at 11",
+  "expect": {
+   "kind": "task.move",
+   "slots": {
+    "query": "standup",
+    "day": "2026-10-29",
+    "time": "11:00"
+   }
+  }
+ },
+ {
+  "id": "g0102",
+  "group": "move-delete",
+  "text": "delete the dentist appointment",
+  "expect": {
+   "kind": "task.delete",
+   "slots": {
+    "query": "dentist"
+   }
+  }
+ },
+ {
+  "id": "g0124",
+  "group": "questions",
+  "text": "what do i have today",
+  "expect": {
+   "kind": "plan.day",
+   "slots": {
+    "day": "2026-10-28"
+   }
+  }
+ },
+ {
+  "id": "g0125",
+  "group": "questions",
+  "text": "how is my week going",
+  "expect": {
+   "kind": "stats.week",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0126",
+  "group": "questions",
+  "text": "what's next",
+  "expect": {
+   "kind": "plan.next",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0127",
+  "group": "questions",
+  "text": "how many days since i smoked",
+  "expect": {
+   "kind": "quit.days",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0137",
+  "group": "focus-timers",
+  "text": "start a 25 minute focus",
+  "expect": {
+   "kind": "focus.start",
+   "slots": {
+    "minutes": 25
+   }
+  }
+ },
+ {
+  "id": "g0164",
+  "group": "goals-steps",
+  "text": "create a goal save for a car",
+  "expect": {
+   "kind": "goal.add",
+   "slots": {
+    "title": "save for a car"
+   }
+  }
+ },
+ {
+  "id": "g0165",
+  "group": "settings",
+  "text": "switch to the light theme",
+  "expect": {
+   "kind": "settings.theme",
+   "slots": {
+    "value": "light"
+   }
+  }
+ },
+ {
+  "id": "n0297",
+  "group": "talk-noise",
+  "text": "set an alarm for seven",
+  "expect": {
+   "kind": "oos"
+  }
+ },
+ {
+  "id": "n0298",
+  "group": "talk-noise",
+  "text": "play some music",
+  "expect": {
+   "kind": "oos"
+  }
+ },
+ {
+  "id": "n0299",
+  "group": "talk-noise",
+  "text": "call mom",
+  "expect": {
+   "kind": "oos"
+  }
+ },
+ {
+  "id": "n0300",
+  "group": "talk-noise",
+  "text": "what is twenty times five",
+  "expect": {
+   "kind": "oos"
+  }
+ }
+]

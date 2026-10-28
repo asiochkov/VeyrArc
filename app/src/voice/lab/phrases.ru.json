@@ -1,0 +1,1003 @@
+[
+ {
+  "id": "g0020",
+  "group": "marks",
+  "text": "выпил три стакана воды",
+  "expect": {
+   "kind": "water.add",
+   "slots": {
+    "amount": 3
+   }
+  }
+ },
+ {
+  "id": "g0021",
+  "group": "marks",
+  "text": "выпил стакан воды",
+  "expect": {
+   "kind": "water.add",
+   "slots": {
+    "amount": 1
+   }
+  }
+ },
+ {
+  "id": "g0022",
+  "group": "marks",
+  "text": "ещё стакан воды",
+  "expect": {
+   "kind": "water.add",
+   "slots": {
+    "amount": 1
+   }
+  }
+ },
+ {
+  "id": "g0023",
+  "group": "marks",
+  "text": "выпил 2 стакан воды",
+  "expect": {
+   "kind": "water.add",
+   "slots": {
+    "amount": 2
+   }
+  }
+ },
+ {
+  "id": "g0024",
+  "group": "marks",
+  "text": "сколько воды я выпил сегодня",
+  "expect": {
+   "kind": "water.ask",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0025",
+  "group": "marks",
+  "text": "отмечай воду по стакану",
+  "expect": {
+   "kind": "water.step",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0027",
+  "group": "marks",
+  "text": "отметь тренировку",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "тренировку"
+   }
+  }
+ },
+ {
+  "id": "g0028",
+  "group": "marks",
+  "text": "сделал зарядку",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "зарядку"
+   }
+  }
+ },
+ {
+  "id": "g0029",
+  "group": "marks",
+  "text": "тренировка выполнена",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "тренировка"
+   }
+  }
+ },
+ {
+  "id": "g0030",
+  "group": "marks",
+  "text": "я сегодня уже позанимался английским",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "английским"
+   }
+  }
+ },
+ {
+  "id": "g0031",
+  "group": "marks",
+  "text": "поставь галочку на чтении",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "чтении"
+   }
+  }
+ },
+ {
+  "id": "g0032",
+  "group": "marks",
+  "text": "медитировал двадцать минут",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "медитировал",
+    "minutes": 20
+   }
+  }
+ },
+ {
+  "id": "g0033",
+  "group": "marks",
+  "text": "помедитировал десять минут",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "minutes": 10
+   }
+  }
+ },
+ {
+  "id": "g0034",
+  "group": "marks",
+  "text": "сделал заряд ку",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "зарядку"
+   }
+  }
+ },
+ {
+  "id": "g0035",
+  "group": "marks",
+  "text": "отметь мидитацию",
+  "expect": {
+   "kind": "habit.done",
+   "slots": {
+    "query": "медитацию"
+   }
+  }
+ },
+ {
+  "id": "g0001",
+  "group": "mood",
+  "text": "настроение пять",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 5
+   }
+  }
+ },
+ {
+  "id": "g0002",
+  "group": "mood",
+  "text": "настроение три",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 3
+   }
+  }
+ },
+ {
+  "id": "g0003",
+  "group": "mood",
+  "text": "сегодня настроение просто супер",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 5
+   }
+  }
+ },
+ {
+  "id": "g0004",
+  "group": "mood",
+  "text": "что-то мне сегодня тревожно",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 2
+   }
+  }
+ },
+ {
+  "id": "g0005",
+  "group": "mood",
+  "text": "день был не очень",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 2
+   }
+  }
+ },
+ {
+  "id": "g0006",
+  "group": "mood",
+  "text": "чувствую себя отлично",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 5
+   }
+  }
+ },
+ {
+  "id": "g0007",
+  "group": "mood",
+  "text": "мне сегодня паршиво",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 1
+   }
+  }
+ },
+ {
+  "id": "g0008",
+  "group": "mood",
+  "text": "настроение хорошее",
+  "expect": {
+   "kind": "mood.set",
+   "slots": {
+    "level": 4
+   }
+  }
+ },
+ {
+  "id": "g0057",
+  "group": "tasks-time-date",
+  "text": "напомни завтра купить молоко",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "купить молоко",
+    "day": "2026-10-29"
+   }
+  }
+ },
+ {
+  "id": "g0058",
+  "group": "tasks-time-date",
+  "text": "в четверг в семь вечера встреча с Димой",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "встреча с Димой",
+    "day": "2026-10-29",
+    "time": "19:00"
+   }
+  }
+ },
+ {
+  "id": "g0059",
+  "group": "tasks-time-date",
+  "text": "запланируй стоматолога на следующий вторник в десять утра",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "стоматолога",
+    "day": "2026-11-03",
+    "time": "10:00"
+   }
+  }
+ },
+ {
+  "id": "g0060",
+  "group": "tasks-time-date",
+  "text": "добавь в планер оплатить интернет до конца недели",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "оплатить интернет",
+    "day": "2026-10-30"
+   }
+  }
+ },
+ {
+  "id": "g0061",
+  "group": "tasks-time-date",
+  "text": "через полчаса позвонить в банк",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "позвонить в банк",
+    "day": "2026-10-28",
+    "time": "15:30"
+   }
+  }
+ },
+ {
+  "id": "g0062",
+  "group": "tasks-time-date",
+  "text": "завтра утром сходить в магазин",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "сходить в магазин",
+    "day": "2026-10-29",
+    "time": "09:00"
+   }
+  }
+ },
+ {
+  "id": "g0063",
+  "group": "tasks-time-date",
+  "text": "записаться к врачу на пятое ноября",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "записаться к врачу",
+    "day": "2026-11-05"
+   }
+  }
+ },
+ {
+  "id": "g0064",
+  "group": "tasks-time-date",
+  "text": "напомни мне в субботу в два часа дня про день рождения",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "день рождения",
+    "day": "2026-10-31",
+    "time": "14:00"
+   }
+  }
+ },
+ {
+  "id": "g0065",
+  "group": "tasks-time-date",
+  "text": "купить хлеб",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "купить хлеб"
+   }
+  }
+ },
+ {
+  "id": "g0066",
+  "group": "tasks-time-date",
+  "text": "двадцать девятого в 12:30 обед с партнёрами",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "обед с партнёрами",
+    "day": "2026-10-29",
+    "time": "12:30"
+   }
+  }
+ },
+ {
+  "id": "g0067",
+  "group": "tasks-time-date",
+  "text": "в половине пятого встреча",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "встреча",
+    "time": "16:30"
+   }
+  }
+ },
+ {
+  "id": "g0068",
+  "group": "tasks-time-date",
+  "text": "без пятнадцати шесть созвон",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "созвон",
+    "time": "17:45"
+   }
+  }
+ },
+ {
+  "id": "g0069",
+  "group": "tasks-time-date",
+  "text": "завтра в восемь тридцать зал",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "зал",
+    "day": "2026-10-29",
+    "time": "08:30"
+   }
+  }
+ },
+ {
+  "id": "g0070",
+  "group": "tasks-time-date",
+  "text": "завтра в 10 стоматолог",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "стоматолог",
+    "day": "2026-10-29",
+    "time": "10:00"
+   }
+  }
+ },
+ {
+  "id": "g0071",
+  "group": "tasks-time-date",
+  "text": "в пятницу созвон с командой с 15 до 16",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "созвон с командой",
+    "day": "2026-10-30",
+    "time": "15:00",
+    "end": "16:00"
+   }
+  }
+ },
+ {
+  "id": "g0072",
+  "group": "tasks-time-date",
+  "text": "завтра в 9 утра стамотолог",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "стоматолог",
+    "day": "2026-10-29",
+    "time": "09:00"
+   }
+  }
+ },
+ {
+  "id": "g0073",
+  "group": "tasks-time-date",
+  "text": "запиши мне на субботу поездку на дачу",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "поездку на дачу",
+    "day": "2026-10-31"
+   }
+  }
+ },
+ {
+  "id": "g0074",
+  "group": "tasks-time-date",
+  "text": "напомни мне через два часа выпить таблетки",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "выпить таблетки",
+    "time": "17:00"
+   }
+  }
+ },
+ {
+  "id": "g0075",
+  "group": "tasks-time-date",
+  "text": "хочу чтобы ты напомнил про тренировку",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "тренировку"
+   }
+  }
+ },
+ {
+  "id": "g0076",
+  "group": "tasks-time-date",
+  "text": "завтра в 0:30 встреча",
+  "expect": {
+   "kind": "task.add",
+   "slots": {
+    "title": "встреча",
+    "day": "2026-10-29",
+    "time": "00:30"
+   }
+  }
+ },
+ {
+  "id": "g0091",
+  "group": "move-delete",
+  "text": "перенеси созвон на завтра на 11",
+  "expect": {
+   "kind": "task.move",
+   "slots": {
+    "query": "созвон",
+    "day": "2026-10-29",
+    "time": "11:00"
+   }
+  }
+ },
+ {
+  "id": "g0092",
+  "group": "move-delete",
+  "text": "отложи всё на послезавтра",
+  "expect": {
+   "kind": "task.moveBulk",
+   "slots": {
+    "day": "2026-10-30"
+   }
+  }
+ },
+ {
+  "id": "g0093",
+  "group": "move-delete",
+  "text": "перенеси встречу с Димой на пятницу",
+  "expect": {
+   "kind": "task.move",
+   "slots": {
+    "query": "встречу с Димой",
+    "day": "2026-10-30"
+   }
+  }
+ },
+ {
+  "id": "g0094",
+  "group": "move-delete",
+  "text": "удали встречу с Димой",
+  "expect": {
+   "kind": "task.delete",
+   "slots": {
+    "query": "встречу с Димой"
+   }
+  }
+ },
+ {
+  "id": "g0095",
+  "group": "move-delete",
+  "text": "отмени завтрашнюю встречу",
+  "expect": {
+   "kind": "task.delete",
+   "slots": {
+    "query": "встречу"
+   }
+  }
+ },
+ {
+  "id": "g0096",
+  "group": "move-delete",
+  "text": "сотри все задачи",
+  "expect": {
+   "kind": "task.delete",
+   "slots": {
+    "query": "все"
+   }
+  }
+ },
+ {
+  "id": "g0097",
+  "group": "move-delete",
+  "text": "продли созвон на полчаса",
+  "expect": {
+   "kind": "task.duration",
+   "slots": {
+    "query": "созвон"
+   }
+  }
+ },
+ {
+  "id": "g0098",
+  "group": "move-delete",
+  "text": "закрой все задачи на сегодня",
+  "expect": {
+   "kind": "task.doneAll",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0103",
+  "group": "questions",
+  "text": "что у меня на завтра",
+  "expect": {
+   "kind": "plan.day",
+   "slots": {
+    "day": "2026-10-29"
+   }
+  }
+ },
+ {
+  "id": "g0104",
+  "group": "questions",
+  "text": "а что у меня сегодня по плану",
+  "expect": {
+   "kind": "plan.day",
+   "slots": {
+    "day": "2026-10-28"
+   }
+  }
+ },
+ {
+  "id": "g0105",
+  "group": "questions",
+  "text": "так, ну давай посмотрим что у меня сегодня по плану",
+  "expect": {
+   "kind": "plan.day",
+   "slots": {
+    "day": "2026-10-28"
+   }
+  }
+ },
+ {
+  "id": "g0106",
+  "group": "questions",
+  "text": "что у меня в субботу",
+  "expect": {
+   "kind": "plan.day",
+   "slots": {
+    "day": "2026-10-31"
+   }
+  }
+ },
+ {
+  "id": "g0107",
+  "group": "questions",
+  "text": "сколько у меня осталось дел",
+  "expect": {
+   "kind": "list.remaining",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0108",
+  "group": "questions",
+  "text": "какая у меня серия по бегу",
+  "expect": {
+   "kind": "habit.streak",
+   "slots": {
+    "query": "бегу"
+   }
+  }
+ },
+ {
+  "id": "g0109",
+  "group": "questions",
+  "text": "какая у меня самая длинная серия",
+  "expect": {
+   "kind": "stats.longestStreak",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0110",
+  "group": "questions",
+  "text": "сколько я сегодня работал",
+  "expect": {
+   "kind": "focus.sum",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0111",
+  "group": "questions",
+  "text": "сколько я работал на этой неделе",
+  "expect": {
+   "kind": "focus.sum",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0112",
+  "group": "questions",
+  "text": "как у меня дела на этой неделе",
+  "expect": {
+   "kind": "stats.week",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0113",
+  "group": "questions",
+  "text": "когда у меня следующая встреча",
+  "expect": {
+   "kind": "plan.next",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0114",
+  "group": "questions",
+  "text": "сколько дней я не курю",
+  "expect": {
+   "kind": "quit.days",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0128",
+  "group": "focus-timers",
+  "text": "включи таймер на двадцать пять минут",
+  "expect": {
+   "kind": "timer.simple",
+   "slots": {
+    "seconds": 1500
+   }
+  }
+ },
+ {
+  "id": "g0129",
+  "group": "focus-timers",
+  "text": "поставь таймер на десять минут",
+  "expect": {
+   "kind": "timer.simple",
+   "slots": {
+    "seconds": 600
+   }
+  }
+ },
+ {
+  "id": "g0130",
+  "group": "focus-timers",
+  "text": "фокус двадцать пять минут",
+  "expect": {
+   "kind": "focus.start",
+   "slots": {
+    "minutes": 25
+   }
+  }
+ },
+ {
+  "id": "g0131",
+  "group": "focus-timers",
+  "text": "начни фокус на час",
+  "expect": {
+   "kind": "focus.start",
+   "slots": {
+    "minutes": 60
+   }
+  }
+ },
+ {
+  "id": "g0132",
+  "group": "focus-timers",
+  "text": "фокус 25",
+  "expect": {
+   "kind": "focus.start",
+   "slots": {
+    "minutes": 25
+   }
+  }
+ },
+ {
+  "id": "g0133",
+  "group": "focus-timers",
+  "text": "останови таймер",
+  "expect": {
+   "kind": "focus.stop",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0147",
+  "group": "goals-steps",
+  "text": "заверши цель марафон",
+  "expect": {
+   "kind": "goal.complete",
+   "slots": {
+    "query": "марафон"
+   }
+  }
+ },
+ {
+  "id": "g0148",
+  "group": "goals-steps",
+  "text": "создай цель накопить на машину",
+  "expect": {
+   "kind": "goal.add",
+   "slots": {
+    "title": "накопить на машину"
+   }
+  }
+ },
+ {
+  "id": "g0149",
+  "group": "goals-steps",
+  "text": "поставь дедлайн по марафону на первое декабря",
+  "expect": {
+   "kind": "goal.deadline",
+   "slots": {
+    "day": "2026-12-01",
+    "query": "марафону"
+   }
+  }
+ },
+ {
+  "id": "g0150",
+  "group": "goals-steps",
+  "text": "какой следующий шаг по марафону",
+  "expect": {
+   "kind": "goal.next",
+   "slots": {
+    "query": "марафону"
+   }
+  }
+ },
+ {
+  "id": "g0151",
+  "group": "quits",
+  "text": "добавь отказ от сладкого",
+  "expect": {
+   "kind": "quit.add",
+   "slots": {
+    "title": "сладкого"
+   }
+  }
+ },
+ {
+  "id": "g0152",
+  "group": "quits",
+  "text": "хочу бросить курить",
+  "expect": {
+   "kind": "quit.add",
+   "slots": {
+    "title": "курить"
+   }
+  }
+ },
+ {
+  "id": "g0153",
+  "group": "quits",
+  "text": "сорвался но это была одна сигарета",
+  "expect": {
+   "kind": "quit.relapse",
+   "slots": {
+    "note": "это была одна сигарета"
+   }
+  }
+ },
+ {
+  "id": "g0154",
+  "group": "settings",
+  "text": "смени тему на светлую",
+  "expect": {
+   "kind": "settings.theme",
+   "slots": {
+    "value": "light"
+   }
+  }
+ },
+ {
+  "id": "g0155",
+  "group": "settings",
+  "text": "включи тёмную тему",
+  "expect": {
+   "kind": "settings.theme",
+   "slots": {
+    "value": "dark"
+   }
+  }
+ },
+ {
+  "id": "g0156",
+  "group": "settings",
+  "text": "напоминай в девять вечера",
+  "expect": {
+   "kind": "settings.reminder",
+   "slots": {
+    "time": "21:00"
+   }
+  }
+ },
+ {
+  "id": "g0157",
+  "group": "settings",
+  "text": "не беспокой с одиннадцати до семи",
+  "expect": {
+   "kind": "settings.quiet",
+   "slots": {
+    "from": "23:00",
+    "to": "07:00"
+   }
+  }
+ },
+ {
+  "id": "g0086",
+  "group": "batch",
+  "text": "слушай ну я сегодня утром сходил в зал потом выпил воды и ещё почитал немного",
+  "expect": {
+   "kind": "multi"
+  }
+ },
+ {
+  "id": "g0087",
+  "group": "batch",
+  "text": "сделал зарядку, выпил воды и почитал",
+  "expect": {
+   "kind": "multi"
+  }
+ },
+ {
+  "id": "g0088",
+  "group": "batch",
+  "text": "настроение 4. задача позвонить маме",
+  "expect": {
+   "kind": "multi"
+  }
+ },
+ {
+  "id": "g0089",
+  "group": "batch",
+  "text": "отметь что я сегодня позанимался и поставь настроение хорошее",
+  "expect": {
+   "kind": "multi"
+  }
+ },
+ {
+  "id": "g0173",
+  "group": "talk-noise",
+  "text": "привет",
+  "expect": {
+   "kind": "chat.hello",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0174",
+  "group": "talk-noise",
+  "text": "спасибо",
+  "expect": {
+   "kind": "chat.thanks",
+   "slots": {}
+  }
+ },
+ {
+  "id": "g0176",
+  "group": "talk-noise",
+  "text": "кто ты",
+  "expect": {
+   "kind": "chat.who",
+   "slots": {}
+  }
+ },
+ {
+  "id": "n0186",
+  "group": "talk-noise",
+  "text": "поставь будильник на семь",
+  "expect": {
+   "kind": "oos"
+  }
+ },
+ {
+  "id": "n0187",
+  "group": "talk-noise",
+  "text": "включи музыку",
+  "expect": {
+   "kind": "oos"
+  }
+ },
+ {
+  "id": "n0188",
+  "group": "talk-noise",
+  "text": "позвони маме",
+  "expect": {
+   "kind": "oos"
+  }
+ },
+ {
+  "id": "n0189",
+  "group": "talk-noise",
+  "text": "сколько будет двадцать на пять",
+  "expect": {
+   "kind": "oos"
+  }
+ },
+ {
+  "id": "n0190",
+  "group": "talk-noise",
+  "text": "расскажи как мотивировать себя",
+  "expect": {
+   "kind": "oos"
+  }
+ },
+ {
+  "id": "n0191",
+  "group": "talk-noise",
+  "text": "что мне делать если я устал",
+  "expect": {
+   "kind": "oos"
+  }
+ }
+]
