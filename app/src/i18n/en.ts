@@ -731,6 +731,18 @@ export const en: Dict = {
   },
   voice: {
     settingsTitle: 'Voice assistant',
+    err: {
+      denied: 'No microphone access. Allow it in browser settings, or type your command',
+      'service-blocked': 'Speech recognition is turned off on this device. Type your command instead',
+      'no-speech': 'I didn’t hear anything. Tap the orb and try again',
+      'audio-capture': 'The microphone is unavailable or busy',
+      network: 'Speech recognition needs a connection. Retrying…',
+      networkFinal: 'Speech recognition is unavailable right now. Type your command',
+      unsupported: 'Voice input isn’t supported in this browser. You can type commands',
+      busy: 'The microphone is already in use. Try again',
+      unknown: 'Something went wrong. Tap the orb and try again',
+      retry: 'Try again', tryVoice: 'Try voice again',
+    },
     set: { shareText: 'Help improve the assistant', shareTextD: 'Send the text of phrases (never audio) so we can see what it missed. Off by default.' },
     asking: 'Asking', typeHint: 'Type what to do', hintType: 'E.g. “done workout” or “what’s on today”',
     type: 'Type instead', typePh: 'Say or type…', send: 'Send', undo: 'Undo', undoPhrase: 'undo',
