@@ -21,6 +21,7 @@ import { Icon, type IconName } from '../../ui/Icon';
 import { ConfirmDialog, PhotoImg, Segmented } from '../../ui/primitives';
 import { cancelAutoRenew } from '../../lib/billing';
 import { InviteCard } from './InviteCard';
+import { VoiceSettings } from '../../voice/ui/VoiceSettings';
 import { useTheme } from '../../lib/theme';
 import { OathSheet } from '../../ui/OathSheet';
 import { roman } from '../../app/AppHeader';
@@ -34,7 +35,7 @@ const ARCS = [
   { id: 'arc2', n: 2, dates: { ru: '9 сент. – 7 дек.', en: 'Sep 9 – Dec 7' }, pct: '16%', current: true },
 ];
 /* Master Changeset RS-7: seven groups, Notion-like */
-type Group = 'account' | 'appearance' | 'notif' | 'arc' | 'plan' | 'data' | 'about';
+type Group = 'account' | 'appearance' | 'notif' | 'voice' | 'arc' | 'plan' | 'data' | 'about';
 
 export function Settings() {
   const t = useT();
@@ -101,7 +102,7 @@ export function Settings() {
 
   const groups: [Group, string][] = [
     ['account', t('settings.account')], ['appearance', t('settings.appearance')], ['notif', t('settings.notifications')],
-    ['arc', t('settings.arc')], ['plan', t('settings.plan')], ['data', t('settings.dataPrivacy')], ['about', t('settings.about')],
+    ['voice', t('voice.settingsTitle')], ['arc', t('settings.arc')], ['plan', t('settings.plan')], ['data', t('settings.dataPrivacy')], ['about', t('settings.about')],
   ].filter(([g]) => !(config.beta && g === 'plan')) as [Group, string][];
   const show = (g: Group) => !isDesktop || group === g;
 
@@ -211,6 +212,7 @@ export function Settings() {
           </div>
         </div>
       )}
+      {show('voice') && <VoiceSettings />}
       {show('arc') && (
         <div>
           <div className={s.groupTitle}>{t('settings.arc')}</div>

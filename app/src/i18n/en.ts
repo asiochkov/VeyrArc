@@ -730,6 +730,8 @@ export const en: Dict = {
     unlocked: 'Achievement', tier: { bronze: 'bronze', silver: 'silver', gold: 'gold' }, collection: '{a} of {b}',
   },
   voice: {
+    settingsTitle: 'Voice assistant',
+    set: { shareText: 'Help improve the assistant', shareTextD: 'Send the text of phrases (never audio) so we can see what it missed. Off by default.' },
     asking: 'Asking', typeHint: 'Type what to do', hintType: 'E.g. “done workout” or “what’s on today”',
     type: 'Type instead', typePh: 'Say or type…', send: 'Send', undo: 'Undo', undoPhrase: 'undo',
     open: 'VeyrArc assistant', again: 'Speak again', noVoice: 'Voice input is not available in this browser',

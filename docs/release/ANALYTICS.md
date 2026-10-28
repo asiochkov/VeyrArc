@@ -65,3 +65,18 @@ from s group by d0 order by d0 desc;
 select props->>'k' as push, count(*) as opens, count(distinct user_id) as people
 from app_events where name = 'push_open' and at > now() - interval '30 days' group by 1 order by 2 desc;
 ```
+
+## События голосового ассистента
+
+Включаются вместе с остальной аналитикой. Тексты фраз в события не попадают, пока человек не включил в настройках «Помогать улучшать ассистента»; тогда добавляется свойство `t` (до 120 символов). Звук не отправляется никогда.
+
+| Событие | Свойства |
+|---|---|
+| `voice_open` | `src` — mark / sidebar / hotkey / link / push / hold |
+| `voice_stt` | `engine`, `lang`, `alts`, `conf` (округлено до 0,1 или -1), `ms`, `early` (досрочное завершение) |
+| `voice_intent` | `kind`, `conf` (0,1), `risk`, `source` — voice / text / chip / link / flow / palette |
+| `voice_outcome` | `kind`, `result` — ok / confirm / clarify / reject / error, `ms` |
+| `voice_undo` | `kind` |
+| `voice_error` | `code` |
+| `voice_flow` | `id`, `step`, `result` — done / quit / timeout |
+| `voice_wrong` | `kind` (без текста) |
