@@ -40,5 +40,13 @@ export const journal = {
     commit(useJournal.getState().entries.map((x) => (x.id === id ? { ...x, undone: true } : x)));
     return e;
   },
+  /** several entries made by one phrase (a macro) become one: «отмени» takes all of them back */
+  groupSince(count: number, label: string) {
+    const all = useJournal.getState().entries;
+    const mine = all.slice(count).filter((e) => !e.undone && e.ops.length);
+    if (mine.length < 2) return;
+    const rest = all.slice(0, count);
+    commit([...rest, { id: mine[0].id, at: mine[0].at, kind: 'macro', label, ops: mine.flatMap((e) => e.ops) }]);
+  },
   clear() { commit([]); },
 };

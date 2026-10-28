@@ -8,6 +8,7 @@ export type Prefs = {
   muted: boolean; // no speech (signals stay)
   voiceURI: string | null;
   rate: number; // 0.8 … 1.4
+  volume: number; // 0.2 … 1
   style: 'brief' | 'normal' | 'detailed';
   tone: 'soft' | 'neutral' | 'strict';
   name: string | null; // what the person calls the assistant
@@ -35,7 +36,7 @@ export type Prefs = {
   goalPriority: Record<string, 'high' | 'normal'>;
 };
 export const DEFAULT_PREFS: Prefs = {
-  v: 1, sound: true, muted: false, voiceURI: null, rate: 1, style: 'normal', tone: 'neutral', name: null, speakLists: false, praise: true, dictator: false, autoLang: false,
+  v: 1, sound: true, muted: false, voiceURI: null, rate: 1, volume: 1, style: 'normal', tone: 'neutral', name: null, speakLists: false, praise: true, dictator: false, autoLang: false,
   aliases: [], macros: [], rituals: [], templates: [], chains: [], rules: [], shareText: false, care: true, allowLinks: false, alwaysLinks: false, localAsr: false,
   quiet: null, focusNorm: null, dailyLimit: null, careShownAt: null, goalPriority: {},
 };

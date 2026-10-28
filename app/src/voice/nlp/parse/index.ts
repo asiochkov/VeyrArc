@@ -20,6 +20,7 @@ import './rules/focus';
 import './rules/flows';
 import './rules/analytics';
 import './rules/settings';
+import './rules/assistant';
 import type { Decision, Parsed, ParseEnv } from '../types';
 
 /*

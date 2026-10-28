@@ -70,7 +70,7 @@ function pickVoice(code: string) {
 }
 let muted = false;
 export const setMuted = (v: boolean) => { muted = v; if (v) window.speechSynthesis?.cancel(); };
-function speak(text: string, then?: () => void) {
+function speak(text: string, then?: () => void, rate = 1) {
   const synth = typeof window !== 'undefined' ? window.speechSynthesis : undefined;
   const done = () => {
     clearTimeout(resetTimer);
@@ -84,7 +84,8 @@ function speak(text: string, then?: () => void) {
   u.lang = lang() === 'ru' ? 'ru-RU' : 'en-US';
   const v = pickVoice(lang());
   if (v) u.voice = v;
-  u.rate = 1.04;
+  u.rate = 1.04 * prefs().rate * rate;
+  u.volume = prefs().volume;
   u.onstart = () => set({ state: 'speaking' });
   u.onend = done; u.onerror = done;
   synth.speak(u);
@@ -110,7 +111,7 @@ async function show(r: Reply | Promise<Reply>) {
   if (rep.nav) navigateTo(rep.nav);
   // a question: listen for the answer right after it is asked
   const say = speechOf(rep, lang(), prefs());
-  speak(say ?? '', (rep.choices?.length || rep.expect) && voiceSupported() ? () => startVoice() : undefined);
+  speak(say ?? '', (rep.choices?.length || rep.expect) && voiceSupported() ? () => startVoice() : undefined, rep.rate);
   if (rep.close) { clearTimeout(closeAfter); closeAfter = setTimeout(() => closeAssistant(), 900); }
 }
 const navigateTo = (to: string) => { void import('./run').then((m) => m.navigateTo(to)); };

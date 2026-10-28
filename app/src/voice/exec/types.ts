@@ -45,6 +45,8 @@ export type Reply = {
   flow?: { id: string; step: string };
   /** the reply came from an executor that keeps its own way of undoing: the «Отменить» button still shows */
   undoable?: boolean;
+  /** speak this answer at this rate (1 = the person's usual rate) */
+  rate?: number;
   /** open the text field (after repeated misunderstandings) */
   typing?: boolean;
 };

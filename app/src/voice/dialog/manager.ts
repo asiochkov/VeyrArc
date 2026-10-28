@@ -6,7 +6,9 @@ import { normalize } from '../nlp/normalize';
 import { missingSlots } from '../nlp/risk';
 import { envFromSystem } from '../exec/env';
 import { ctxOf, execute, executeMany, type ExecCtx } from '../exec';
+import { markUsed } from '../help';
 import { journal } from '../journal';
+import { usePrefs } from '../prefs';
 import { R } from '../reply';
 import '../flows/defs';
 import '../flows/practices';
@@ -43,6 +45,7 @@ function finish(parsed: Parsed[], env: ParseEnv, c: ExecCtx, src: Source): Reply
   const r0 = parsed.length === 1 ? execute(parsed[0], c) : executeMany(parsed, c);
   const ctx = dialog.get();
   ctx.thisKind = parsed[0].kind;
+  markUsed(parsed[0].kind);
   ctx.misses = r0.ok ? 0 : ctx.misses;
   const p = parsed[0];
   const r = record(r0, p);
@@ -192,8 +195,37 @@ function mode(text: string, env: ParseEnv, c: ExecCtx): Reply | null {
   return null;
 }
 
-export function handlePhrase(text: string, src: Source = 'voice', asr: number | null = null, envIn?: ParseEnv): Reply {
-  const r = handleInner(text, src, asr, envIn);
+/** the person's own words: «качалка» means «тренировка» */
+function expandAliases(text: string): string {
+  const list = usePrefs.getState().aliases;
+  if (!list.length) return text;
+  let out = text, hit = false;
+  for (const a of list) {
+    const re = new RegExp(`(?<![\\p{L}\\d])${a.alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\d])`, 'giu');
+    if (re.test(out)) { out = out.replace(re, a.target); hit = true; }
+  }
+  return hit ? out : text;
+}
+/** a short command of the person's own: one word runs several phrases and is undone together */
+function runMacro(text: string, src: Source, asr: number | null, envIn?: ParseEnv): Reply | null {
+  const t = normalize(text);
+  const m = usePrefs.getState().macros.find((x) => normalize(x.trigger) === t);
+  if (!m) return null;
+  const before = journal.list().length;
+  const parts: Reply[] = [];
+  for (const ph of m.phrases) {
+    const r = handleInner(ph, src, asr, envIn);
+    parts.push(r);
+    if (r.choices?.length || !r.ok) break;
+  }
+  journal.groupSince(before, m.trigger);
+  const last = parts[parts.length - 1];
+  return { ...last, screen: parts.map((r) => r.screen).filter(Boolean).join('. '), speech: parts.map((r) => r.speech).filter(Boolean).join('. '), list: parts.flatMap((r) => r.list ?? []), undoable: parts.some((r) => r.undoable || r.undo?.length), undo: undefined };
+}
+
+export function handlePhrase(text0: string, src: Source = 'voice', asr: number | null = null, envIn?: ParseEnv): Reply {
+  const text = expandAliases(text0);
+  const r = runMacro(text, src, asr, envIn) ?? handleInner(text, src, asr, envIn);
   const ctx = dialog.get();
   // the support commands talk about the previous exchange, so they do not replace it
   if (!/^(?:support|feedback)\./.test(ctx.thisKind ?? '')) ctx.exchange = { text, kind: ctx.thisKind, slots: ctx.action?.parsed.slots, screen: r.screen, at: Date.now() };

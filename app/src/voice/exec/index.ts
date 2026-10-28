@@ -24,7 +24,12 @@ export const ctxOf = (env: ParseEnv): ExecCtx => ({ env, lang: env.lang, ru: env
 
 const notWired = (c: ExecCtx): Reply => R.error(c.ru ? 'Это я пойму, но пока не умею делать голосом. Скоро добавим.' : 'I understand that, but I can’t do it by voice yet.');
 
-register('undo', (_p, c) => {
+register('undo', (p, c) => {
+  const n = Math.max(1, Math.min(10, Math.round(Number(p.slots.n) || 1)));
+  if (n > 1) {
+    const done = journal.undo(n);
+    return done.length ? R.done(c.ru ? `Отменил действий: ${done.length}` : `Undone: ${done.length}`, { list: done.map((e) => e.label) }) : R.info(c.ru ? 'Отменять нечего' : 'Nothing to undo');
+  }
   // «отмени» takes the newer of the two: a change made by an executor that still keeps closures, or a journal entry
   const old = legacyHistory.peek();
   const j = journal.undoable()[0];
