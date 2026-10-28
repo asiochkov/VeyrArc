@@ -151,6 +151,7 @@ en(
 
   // goals and quits
   { kind: 'goal.complete', re: rx('^(?:complete|finish|close) (?:the )?goal (.+)$'), slots: (m, c) => withEntity(c, 'goal', m[1]) },
+  { kind: 'goal.add', score: 0.88, re: rx('^i want to ((?:learn|master|save|lose|write|read|run|earn|improve|get)(?: .+)?)$'), slots: (m) => ({ title: tidy(m[1]) }) },
   { kind: 'goal.add', re: rx('^(?:create|add|new|set) (?:a |new )?goal (?:to |called |named )?(.+)$'), slots: (m) => ({ title: tidy(m[1]) }) },
   { kind: 'goal.deadline', re: rx('^(?:set|put) (?:a |the )?(?:deadline|due date) (?:for|of|on) (.+)$'), slots: (m, c) => (c.when.date ? { ...withEntity(c, 'goal', strip(m[1])), day: c.when.date } : null) },
   { kind: 'goal.next', re: rx('‹what(?:s| is) the next step(?: (?:for|on|of) (.+))?›'), slots: (m, c) => (m[1] ? withEntity(c, 'goal', m[1]) : {}) },

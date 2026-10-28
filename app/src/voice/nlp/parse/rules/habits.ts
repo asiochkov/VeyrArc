@@ -93,9 +93,10 @@ add(
   { kind: 'habit.add', re: rx('^(?:добавь|создай|заведи|добавить|создать|новая) привычку (.+)$'), slots: (m) => {
     let t = tidy(m[1]);
     let target: number | undefined, minutes: number | undefined;
-    const mn = t.match(/ ?по (\d+) мин\p{L}*/u); if (mn) { minutes = Number(mn[1]); t = t.replace(mn[0], ''); }
+    const mn = t.match(/ ?(?:по )?(\d+) мин\p{L}*/u); if (mn) { minutes = Number(mn[1]); t = t.replace(mn[0], ''); }
     const tg = t.match(/ ?(\d+) (?:стакан\p{L}*|раз\p{L}*|штук\p{L}*|страниц\p{L}*)/u); if (tg) { target = Number(tg[1]); t = t.replace(tg[0], ''); }
-    return { title: tidy(t), target, minutes };
+    const title = tidy(t);
+    return { title: title.charAt(0).toUpperCase() + title.slice(1), target, minutes };
   } },
   { kind: 'habit.remove', over: ['task.delete'], re: rx('^(?:удали|удалить|убери|сотри|выброси) привычку (.+)$'), slots: (m, c) => withEntity(c, 'habit', m[1]) },
   { kind: 'habit.rename', over: ['task.move'], re: rx('^переименуй (?:привычку )?(.+?) в (.+)$'), slots: (m, c) => ({ ...withEntity(c, 'habit', m[1]), to: tidy(m[2]) }) },

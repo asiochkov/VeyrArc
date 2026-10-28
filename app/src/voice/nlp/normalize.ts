@@ -21,7 +21,8 @@ export function normalize(raw: string, o: { assistantName?: string | null } = {}
     if (n) s = s.replace(new RegExp(`${B}${esc(n)}${E}`, 'gu'), ' ');
   }
   s = s.replace(shortlyRe, ' ').replace(fillerRe, ' ');
-  return s.replace(/\s+/g, ' ').trim();
+  // a polite opening is not part of the command: «а можно завтра в девять поставить встречу»
+  return s.replace(/\s+/g, ' ').trim().replace(/^(?:а )?(?:можно|будь добр[а]?|ты не мог(?:ла)? бы|не мог(?:ла)? бы ты|ты мог(?:ла)? бы|мог(?:ла)? бы ты)(?! ли )(?= \S)\s*/u, '');
 }
 
 /** letters only, for comparing a phrase with names (similarity) */

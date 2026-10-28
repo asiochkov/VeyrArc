@@ -5,3 +5,4 @@ import './quits';
 import './goals';
 import './planner';
 import './planRead';
+import './focus';

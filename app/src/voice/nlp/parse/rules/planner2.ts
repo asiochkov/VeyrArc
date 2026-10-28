@@ -59,6 +59,7 @@ add(
   { kind: 'task.addMany', over: ['task.add'], src: 'raw', re: rx('^(?:добавь|запиши|поставь)(?: мне)? (?:в |на )?(завтра|сегодня|послезавтра)[: ]+(.+)$'), slots: (m, c) => { const it = items(c.raw, m[2], c); return it.length >= 2 ? { day: m[1] === 'завтра' ? addDay(c.env.now, 1) : m[1] === 'послезавтра' ? addDay(c.env.now, 2) : addDay(c.env.now, 0), items: it } : null; } },
   { kind: 'task.addMany', over: ['task.add'], src: 'raw', re: rx('^список дел на выходные[: ]+(.+)$|^дела на выходные[: ]+(.+)$'), slots: (m, c) => ({ day: weekendDay(c.env.now), items: items(c.raw, m[1] ?? m[2], c) }) },
   { kind: 'task.doneMany', over: ['task.delete', 'habit.done', 'habit.undone'], re: rx('^вычеркни (.+ и .+)$'), slots: (m) => { const list = m[1].split(/ и /).map(tidy).filter(Boolean); return { items: list, _score: list.length >= 2 ? 0.9 : 0.4 }; } },
+  { kind: 'task.doneMany', over: ['task.delete', 'habit.done', 'habit.undone'], re: rx('^(?:вычеркни|вычеркнуть) (?:задачу |дело )?(.+)$'), slots: (m, c) => (c.task(tidy(m[1])) ? { items: [tidy(m[1])], _score: 0.9 } : null) },
 );
 
 function weekendDay(now: Date): string {

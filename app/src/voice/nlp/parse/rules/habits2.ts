@@ -26,7 +26,7 @@ add(
   { kind: 'habit.schedule', full: true, re: rx(`^(?:поставь|сделай|измени)(?: расписание)? (?:привычк\\p{L}* )?(.+?) (?:на |по |в )(${DAYLIST})$`), slots: (m, c) => { const mask = daysMask(m[2]); return mask ? { ...withEntity(c, 'habit', m[1]), days: mask } : null; } },
   { kind: 'habit.target', score: 0.9, re: rx('^(.+?) (?:(?:теперь|норма|цель) )?(?:по )?(\\d+) (стакан\\p{L}*|раз\\p{L}*|минут\\p{L}*|шаг\\p{L}*|тысяч\\p{L}*|штук\\p{L}*|страниц\\p{L}*|км|километр\\p{L}*)$'), slots: (m, c) => {
     const first = tidy(m[1]).split(' ')[0];
-    if (PAST.test(first) || /^(?:ещ[её]|плюс|добавь|подход|прошел|пробежал)/.test(first)) return null;
+    if (tidy(m[1]).split(' ').some((w) => PAST.test(w)) || first === 'я' || /^(?:ещ[её]|плюс|добавь|подход|прошел|пробежал)/.test(first)) return null;
     const e = c.habit(m[1]);
     if (!e || e.sim < 0.8) return null;
     return /минут/.test(m[3]) ? { ...withEntity(c, 'habit', m[1]), minutes: num(m[2]) } : { ...withEntity(c, 'habit', m[1]), target: num(m[2]) };

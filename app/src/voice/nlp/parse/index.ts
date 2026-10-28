@@ -16,6 +16,7 @@ import './rules/quits';
 import './rules/goals';
 import './rules/planner2';
 import './rules/planRead';
+import './rules/focus';
 import type { Decision, Parsed, ParseEnv } from '../types';
 
 /*
@@ -92,6 +93,18 @@ export function analyzeText(raw: string, env: ParseEnv, opts: AnalyzeOpts = {}):
   const dopts = (text: string) => ({ lang: env.lang, preview: previewText(env.lang), ask: askText(env.lang), clarifyQuestion: clarifyText(env.lang), examples: examples(env.lang), text });
   const one = (text: string): Decision => decide(candidates(text, env, opts), dopts(text));
   const whole = one(raw);
+  // «сделал душ и прогулку»: one verb, a list of habits — each name is checked on its own
+  const cx: { ctx?: Ctx } = {};
+  const lead = candidates(raw, env, opts, cx)[0];
+  const q = lead?.kind === 'habit.done' ? String(lead.slots.query ?? '') : '';
+  if (/ и |, /.test(q)) {
+    const at = cx.ctx ? cx.ctx.c.indexOf(q) : -1;
+    const names = q.split(/ и |, /).map((x) => x.trim()).filter(Boolean);
+    if (cx.ctx && at > 0 && names.length >= 2 && names.every((n) => cx.ctx!.habit(n))) {
+      const lead0 = cx.ctx.c.slice(0, at).trim();
+      return names.map((n) => one(`${lead0} ${n}`));
+    }
+  }
   const parts = segments(raw);
   if (parts.length < 2) return [whole];
   // a command that takes a list (steps, tasks, a ritual) owns the commas of its phrase

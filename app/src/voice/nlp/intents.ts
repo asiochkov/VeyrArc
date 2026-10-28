@@ -99,7 +99,8 @@ export const INTENTS: IntentSpec[] = [
   S('template.save', 'R2', ['name'], [131]), S('template.apply', 'R2', ['name'], [132]), S('template.delete', 'R3', ['name'], [135]), S('template.list', 'R0'),
   S('rule.ifthen', 'R1', [], [137]),
   // guided flows: flow.start{id}
-  S('flow.start', 'R1', ['id'], [62, 63, 64, 65, 66, 67, 68, 69, 114, 115, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 185, 187, 188, 193, 197, 202]),
+  S('habit.timer', 'R1', ['query'], [118, 119]), S('habit.timerStop', 'R1', [], [120]),
+  S('flow.start', 'R1', ['id'], [62, 63, 64, 65, 66, 67, 68, 69, 114, 115, 121, 122, 123, 124, 125, 126, 127, 185, 187, 188, 193, 197, 202]),
   // small talk and refusals
   S('chat.hello', 'R0'), S('chat.thanks', 'R0'), S('chat.praise', 'R0'), S('chat.bye', 'R0'), S('chat.howAreYou', 'R0'), S('chat.who', 'R0', [], [106]),
   S('chat.motivate', 'R0', [], [104]), S('oos', 'R0', [], [107]),
