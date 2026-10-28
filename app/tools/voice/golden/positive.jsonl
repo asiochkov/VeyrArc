@@ -790,3 +790,37 @@
 {"id":"g0790","lang":"ru","text":"начни новый сезон","expect":{"kind":"arc.new","slots":{},"action":"confirm"},"split":"train","tags":[]}
 {"id":"g0791","lang":"en","text":"start a new season","expect":{"kind":"arc.new","slots":{},"action":"confirm"},"split":"train","tags":[]}
 {"id":"g0792","lang":"ru","text":"запиши обещание: до конца сезона бегаю три раза в неделю","expect":{"kind":"arc.oath.set","slots":{"text":"бегаю три раза в неделю"}},"split":"train","tags":[]}
+{"id":"g0793","lang":"ru","text":"сделай интерфейс компактнее","expect":{"kind":"settings.density","slots":{"value":"compact"}},"split":"train","tags":[]}
+{"id":"g0794","lang":"ru","text":"сделай интерфейс просторнее","expect":{"kind":"settings.density","slots":{"value":"comfortable"}},"split":"test","tags":[]}
+{"id":"g0795","lang":"en","text":"make the interface compact","expect":{"kind":"settings.density","slots":{"value":"compact"}},"split":"test","tags":[]}
+{"id":"g0796","lang":"ru","text":"включи тему как в системе","expect":{"kind":"settings.theme","slots":{"value":"system"}},"split":"train","tags":[]}
+{"id":"g0797","lang":"en","text":"use the system theme","expect":{"kind":"settings.theme","slots":{"value":"system"}},"split":"train","tags":[]}
+{"id":"g0798","lang":"ru","text":"переключи на английский","expect":{"kind":"settings.lang","slots":{"value":"en"}},"split":"test","tags":[]}
+{"id":"g0799","lang":"ru","text":"включи русский язык","expect":{"kind":"settings.lang","slots":{"value":"ru"}},"split":"test","tags":[]}
+{"id":"g0800","lang":"en","text":"switch to russian","expect":{"kind":"settings.lang","slots":{"value":"ru"}},"split":"train","tags":[]}
+{"id":"g0801","lang":"ru","text":"выключи уведомления","expect":{"kind":"settings.notifyOff","slots":{}},"split":"train","tags":[]}
+{"id":"g0802","lang":"ru","text":"отключи уведомления","expect":{"kind":"settings.notifyOff","slots":{}},"split":"train","tags":[]}
+{"id":"g0803","lang":"en","text":"turn off notifications","expect":{"kind":"settings.notifyOff","slots":{}},"split":"test","tags":[]}
+{"id":"g0804","lang":"ru","text":"скинь мою ссылку приглашение","expect":{"kind":"referral.share","slots":{}},"split":"test","tags":[]}
+{"id":"g0805","lang":"ru","text":"пригласить друга","expect":{"kind":"referral.share","slots":{}},"split":"train","tags":[]}
+{"id":"g0806","lang":"en","text":"send me my invite link","expect":{"kind":"referral.share","slots":{}},"split":"train","tags":[]}
+{"id":"g0807","lang":"ru","text":"называй меня сеня","expect":{"kind":"profile.name","slots":{"name":"сеня"}},"split":"test","tags":[]}
+{"id":"g0808","lang":"ru","text":"зови меня оля","expect":{"kind":"profile.name","slots":{"name":"оля"}},"split":"train","tags":[]}
+{"id":"g0809","lang":"en","text":"call me sam","expect":{"kind":"profile.name","slots":{"name":"sam"}},"split":"train","tags":[]}
+{"id":"g0810","lang":"ru","text":"какой у меня сейчас тариф","expect":{"kind":"info.plan","slots":{"what":"plan"}},"split":"train","tags":[]}
+{"id":"g0811","lang":"ru","text":"сколько осталось пробного","expect":{"kind":"info.plan","slots":{"what":"plan"}},"split":"train","tags":[]}
+{"id":"g0812","lang":"en","text":"what is my plan","expect":{"kind":"info.plan","slots":{"what":"plan"}},"split":"train","tags":[]}
+{"id":"g0813","lang":"ru","text":"что даёт про","expect":{"kind":"info.plan","slots":{"what":"pro"}},"split":"test","tags":[]}
+{"id":"g0814","lang":"en","text":"what does pro give","expect":{"kind":"info.plan","slots":{"what":"pro"}},"split":"test","tags":[]}
+{"id":"g0815","lang":"ru","text":"сколько привычек можно бесплатно","expect":{"kind":"info.plan","slots":{"what":"limits"}},"split":"test","tags":[]}
+{"id":"g0816","lang":"en","text":"what are the limits","expect":{"kind":"info.plan","slots":{"what":"limits"}},"split":"test","tags":[]}
+{"id":"g0817","lang":"ru","text":"покажи мой профиль","expect":{"kind":"nav.page","slots":{"page":"account"}},"split":"train","tags":[]}
+{"id":"g0818","lang":"ru","text":"сообщить об ошибке","expect":{"kind":"support.report","slots":{}},"split":"train","tags":[]}
+{"id":"g0819","lang":"ru","text":"написать в поддержку","expect":{"kind":"support.report","slots":{}},"split":"train","tags":[]}
+{"id":"g0820","lang":"en","text":"report a bug","expect":{"kind":"support.report","slots":{}},"split":"test","tags":[]}
+{"id":"g0821","lang":"ru","text":"предложить идею","expect":{"kind":"support.idea","slots":{}},"split":"train","tags":[]}
+{"id":"g0822","lang":"ru","text":"у меня есть идея","expect":{"kind":"support.idea","slots":{}},"split":"train","tags":[]}
+{"id":"g0823","lang":"en","text":"suggest an idea","expect":{"kind":"support.idea","slots":{}},"split":"train","tags":[]}
+{"id":"g0824","lang":"ru","text":"это ошибка","expect":{"kind":"feedback.wrong","slots":{}},"split":"test","tags":[]}
+{"id":"g0825","lang":"ru","text":"ты не так понял","expect":{"kind":"feedback.wrong","slots":{}},"split":"test","tags":[]}
+{"id":"g0826","lang":"en","text":"that is wrong","expect":{"kind":"feedback.wrong","slots":{}},"split":"train","tags":[]}

@@ -19,6 +19,7 @@ import './rules/planRead';
 import './rules/focus';
 import './rules/flows';
 import './rules/analytics';
+import './rules/settings';
 import type { Decision, Parsed, ParseEnv } from '../types';
 
 /*

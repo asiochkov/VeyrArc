@@ -17,6 +17,10 @@ export type DialogContext = {
   /** the last change, for corrections */
   action?: { at: number; parsed: Parsed; journalId?: string };
   flow?: FlowState;
+  /** the previous exchange (what was said, how it was taken, what was answered): for «это ошибка» and the support letter */
+  exchange?: { text: string; kind?: string; slots?: Record<string, unknown>; screen: string; at: number };
+  /** the kind the current phrase ran as (set by the manager, read once) */
+  thisKind?: string;
   /** phrases in a row that were not understood */
   misses: number;
   /** a mode that lasts until the panel closes: «water» = every «ещё стакан» is plus one */

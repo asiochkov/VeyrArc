@@ -26,6 +26,8 @@ export type Prefs = {
   allowLinks: boolean; // run harmless commands from ?say= links
   alwaysLinks: boolean;
   localAsr: boolean; // on-device recognition (only where supported)
+  /** no local reminders between these times («22:00»–«07:00») */
+  quiet: { from: string; to: string } | null;
   focusNorm: number | null; // daily focus norm, minutes
   dailyLimit: number | null; // «no more than N tasks a day»
   careShownAt: string | null;
@@ -35,7 +37,7 @@ export type Prefs = {
 export const DEFAULT_PREFS: Prefs = {
   v: 1, sound: true, muted: false, voiceURI: null, rate: 1, style: 'normal', tone: 'neutral', name: null, speakLists: false, praise: true, dictator: false, autoLang: false,
   aliases: [], macros: [], rituals: [], templates: [], chains: [], rules: [], shareText: false, care: true, allowLinks: false, alwaysLinks: false, localAsr: false,
-  focusNorm: null, dailyLimit: null, careShownAt: null, goalPriority: {},
+  quiet: null, focusNorm: null, dailyLimit: null, careShownAt: null, goalPriority: {},
 };
 const KEY = 'prefs.v1';
 const load = (): Prefs => ({ ...DEFAULT_PREFS, ...store.get<Partial<Prefs>>(KEY, {}), v: 1 });

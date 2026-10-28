@@ -9,6 +9,8 @@ import type { Reply } from '../../src/voice/exec/types';
 // run: npx tsx --import ./tools/unit/css-register.mjs tools/unit/voice-exec.test.ts
 // Every executor on the seeded demo data: the answer says the right thing and, for a change, do → undo gives back the same state (Q6).
 (globalThis as any).localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+(globalThis as any).document = { documentElement: { dataset: {}, setAttribute: () => {} }, querySelector: () => null };
+(globalThis as any).matchMedia = () => ({ matches: false, addEventListener: () => {} });
 bindSystem(new QueryClient());
 const NOW = new Date(2026, 9, 28, 15, 0);
 const sys = () => getSystem()!;

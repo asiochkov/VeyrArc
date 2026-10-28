@@ -42,6 +42,7 @@ function record(r: Reply, p: Parsed): Reply {
 function finish(parsed: Parsed[], env: ParseEnv, c: ExecCtx, src: Source): Reply {
   const r0 = parsed.length === 1 ? execute(parsed[0], c) : executeMany(parsed, c);
   const ctx = dialog.get();
+  ctx.thisKind = parsed[0].kind;
   ctx.misses = r0.ok ? 0 : ctx.misses;
   const p = parsed[0];
   const r = record(r0, p);
@@ -192,6 +193,14 @@ function mode(text: string, env: ParseEnv, c: ExecCtx): Reply | null {
 }
 
 export function handlePhrase(text: string, src: Source = 'voice', asr: number | null = null, envIn?: ParseEnv): Reply {
+  const r = handleInner(text, src, asr, envIn);
+  const ctx = dialog.get();
+  // the support commands talk about the previous exchange, so they do not replace it
+  if (!/^(?:support|feedback)\./.test(ctx.thisKind ?? '')) ctx.exchange = { text, kind: ctx.thisKind, slots: ctx.action?.parsed.slots, screen: r.screen, at: Date.now() };
+  ctx.thisKind = undefined;
+  return r;
+}
+function handleInner(text: string, src: Source = 'voice', asr: number | null = null, envIn?: ParseEnv): Reply {
   const env = envIn ?? envFromSystem();
   const c = ctxOf(env);
   // a running flow hears the phrase first: an answer to its step wins over a new command

@@ -32,8 +32,18 @@ export async function askPermission() {
   return ok;
 }
 
+/** the person's quiet hours (set by voice, kept on this device): «22:00»–«07:00» may wrap over midnight */
+export function inQuietHours(now = new Date()): boolean {
+  try {
+    const q = JSON.parse(localStorage.getItem('veyrarc.voice.prefs.v1') ?? 'null')?.quiet as { from: string; to: string } | null | undefined;
+    if (!q?.from || !q.to) return false;
+    const hm = now.toTimeString().slice(0, 5);
+    return q.from <= q.to ? hm >= q.from && hm < q.to : hm >= q.from || hm < q.to;
+  } catch { return false; }
+}
+
 async function show(title: string, body: string, tag: string) {
-  if (!notificationsSupported() || Notification.permission !== 'granted') return;
+  if (!notificationsSupported() || Notification.permission !== 'granted' || inQuietHours()) return;
   const reg = await navigator.serviceWorker?.getRegistration().catch(() => undefined);
   if (reg) await reg.showNotification(title, { body, tag, icon: '/icon-192.png', badge: '/icon-192.png' });
   else new Notification(title, { body, tag, icon: '/icon-192.png' });
@@ -55,7 +65,7 @@ export function startReminders(qc: QueryClient) {
     const today = isoDay(now);
     let last: string | null = null;
     try { last = localStorage.getItem(KEY); } catch { /* storage off */ }
-    if (hm < p.reminder_time.slice(0, 5) || last === today) return;
+    if (hm < p.reminder_time.slice(0, 5) || last === today || inQuietHours(now)) return;
     const sys = await qc.fetchQuery({ queryKey: SYSTEM_KEY, queryFn: fetchSystem, staleTime: 60_000 });
     const left = buildToday(todayRawOf(sys), { initials: '', freezesAllowed: 1 }).habits.filter((h) =>
       h.type === 'counter' ? h.count < h.goal : h.type === 'duration' ? h.left > 0 : !h.checked).length;

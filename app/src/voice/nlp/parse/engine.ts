@@ -111,12 +111,19 @@ function fixWords(tokens: string[], extra: Set<string>, level: Fix): string[] {
       const same = phoneticKey(w) === key;
       // a slip sounds the same, or is one letter in a long word; short words that differ by a letter are other words («курить»/«купить»)
       // a deleted or swapped letter is a slip even in a short word; otherwise one letter in a long word
-      const slip = !same && w[0] === t[0] && (isDeletion(t, w) || isSwap(t, w));
+      const slip = !same && (w[0] === t[0] || (w.length >= 5 && w.slice(1) === t)) && (isDeletion(t, w) || isSwap(t, w));
       if (t.length === 4 && !slip) continue;
       if (!same && !slip && (w[0] !== t[0] || t.length < 8)) continue;
       if (stem(w) === stem(t)) continue; // another case of the same word, not a slip
       const d = same ? 0 : slip ? 1 : levenshtein(t, w);
       if (d < bd || (d <= bd && best === null)) { best = w; bd = same ? 0 : Math.min(bd, 1); }
+    }
+    // a stem of a word family («ссылк…»): the slip sits in its first letters
+    if (best === null && level === 'all') {
+      for (const st of stems) {
+        if (st.length < 5 || t.length < st.length) continue;
+        if (isDeletion(t.slice(0, st.length - 1), st) || (t.length >= st.length && isSwap(t.slice(0, st.length), st))) { best = st + t.slice(isDeletion(t.slice(0, st.length - 1), st) ? st.length - 1 : st.length); break; }
+      }
     }
     out.push(best ?? t);
   }

@@ -8,3 +8,4 @@ import './planRead';
 import './focus';
 import './rituals';
 import './analytics';
+import './settings';
