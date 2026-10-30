@@ -30,6 +30,17 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [ ] WP1.4 — `reply.ts`, tone (§6.13.6)
 - [x] **WP1.5** — `app/src/voice/journal.ts`: persisted, readable log of voice exchanges (`said`/`reply`/`ok`/timestamp), capped at 50 entries × 200 chars, stored via `store.ts`. Wired into `engine.ts`'s `show()` so every reply gets journaled. **Important scope note:** this is a *readable history* fix for half of C-02 ("no journal of what I did"), not an undo-after-reload fix — `run.ts`'s undo mechanism is `() => void` closures, which cannot survive a page reload (functions aren't serializable). True cross-reload undo needs the richer `UndoOp` data model from the master prompt (§5.3), which is a WP5 exec-rewrite concern, not something to retrofit here. No UI reads the journal yet — that's `JournalSheet.tsx` in WP6.13.2.
 
+## WP2 — Audio and speech recognition
+
+- [x] **WP2.1/2.2** — Fixed audio findings A-01 and A-02 in `engine.ts`'s `startVoice()`:
+  - **A-01**: `no-speech` used to share a branch with `aborted` and silently reset to idle with zero feedback — the "didn't catch that, tap to retry" message already existed in the file but was dead code, unreachable. Split the branches: `aborted` (user-cancelled) stays silent, `no-speech` now shows that message. Also gave `audio-capture` its own distinct message instead of falling into the generic catch-all.
+  - **A-02**: `maxAlternatives` was `1` — only the top ASR guess was ever usable. Bumped to `5` and added `pickBestAlt()`: on the final result, try each n-best transcript through `understand()` and use the first one that parses into a real intent (not `guess`/`unknown`) instead of blindly trusting hypothesis #0. No phonetic lexicon yet (that's WP2.4/WP3's `nlp/rescore.ts` — a real scored blend of ASR confidence + lexicon similarity); this is the simpler free win available right now.
+  - A-03 (hardcoded silence timers) intentionally **not** touched — a real fix needs adaptive endpointing wired to parse confidence, which doesn't exist yet. Renaming the magic numbers to a constants object would be cosmetic, not a fix, so left for WP2.3 when there's something real to tune.
+  - `typecheck`, `build`, `test:voice` (59/59) clean.
+- [ ] WP2.3 — adaptive endpointing (needs parse-confidence integration)
+- [ ] WP2.4 — phonetic lexicon / rescore
+- [ ] WP2.5 — mic permission lifecycle, health check
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

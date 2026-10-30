@@ -7,8 +7,8 @@ Findings are re-checked incrementally, in the WP that touches that area — this
 
 | ID | Sev | Status | Note |
 |---|---|---|---|
-| A-01 | S1 | **Confirmed** | `onerror`: `no-speech`/`aborted` → `set({ state: 'idle' })` with no distinguishing UX, silently drops the attempt. |
-| A-02 | S1 | **Confirmed** | `r.maxAlternatives = 1` — only the top ASR hypothesis is ever used, no n-best rescoring possible yet. |
+| A-01 | S1 | **Fixed (WP2.1)** | `no-speech` now shows feedback ("не расслышал, нажмите и повторите") instead of silently sharing the `aborted` (user-cancelled) branch. |
+| A-02 | S1 | **Fixed (WP2.2)** | `r.maxAlternatives` raised `1→5`; `pickBestAlt()` tries each n-best transcript through `understand()` and uses the first one that parses, instead of blindly trusting hypothesis #0. (Still no phonetic-lexicon rescoring — that's WP2.4/WP3's `nlp/rescore.ts`.) |
 | A-03 | S2 | **Confirmed** | Silence timers are hardcoded: `final && !interim ? 900 : 2200` (ms), plus the 7000ms no-speech timeout. No adaptive endpointing. |
 | A-04 | S1 | Carried forward | Cross-browser STT gaps (Firefox, iOS PWA) — needs device testing in WP2/WP7, not verifiable from source alone. |
 | A-05 | S2 | **Confirmed** | `setTimeout(() => { ... startVoice(); }, 420)` in `openAssistant()` — fixed delay before auto-starting mic after panel opens. |

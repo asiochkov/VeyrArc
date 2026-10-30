@@ -121,6 +121,20 @@ function confirmReply(intents: Intent[], said: string, ru2: 'ru' | 'en'): Reply 
 /** a tapped choice button */
 export function choose(c: Choice) { set({ state: 'processing', heard: c.label }); try { show(c.run()); } catch { fail(lang() === 'ru' ? 'Не получилось' : 'Could not do that'); } }
 
+/**
+ * A-02: pick the first n-best ASR alternative that actually parses into a real intent, instead of
+ * always trusting hypothesis #0. No phonetic lexicon yet (that's WP2.4/WP3) — this is the free win:
+ * if the top guess reads as noise but alt #2 is a real command, use alt #2.
+ */
+function pickBestAlt(alts: string[]): string {
+  if (alts.length <= 1) return alts[0]?.trim() ?? '';
+  for (const a of alts) {
+    const t = a.trim();
+    if (t && understand(t)[0]?.kind !== 'guess' && understand(t)[0]?.kind !== 'unknown') return t;
+  }
+  return alts[0]?.trim() ?? '';
+}
+
 export function startVoice() {
   const Ctor = SR();
   const ru = lang() === 'ru';
@@ -132,20 +146,24 @@ export function startVoice() {
   rec = r;
   r.lang = ru ? 'ru-RU' : 'en-US';
   r.interimResults = true;
-  r.maxAlternatives = 1;
+  r.maxAlternatives = 5; // A-02: was 1 — only the top ASR guess was ever usable, no n-best to fall back on
   r.continuous = false;
   let final = '';
+  let finalAlts: string[] = []; // the final result's n-best transcripts, in ASR-confidence order
   const asking = useVoice.getState().choices.length > 0;
   const fresh = !useVoice.getState().reply; // just opened: the context hints stay on screen while listening
   set({ state: 'listening', heard: '', ok: true, ...(asking || fresh ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
   navigator.vibrate?.(12);
   // nothing heard for 7 s → stop without doing anything; a pause after words ends the phrase
   silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, 7000);
-  r.onresult = (e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => {
+  r.onresult = (e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; length: number; [i: number]: { transcript: string } }> }) => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const res = e.results[i];
-      if (res.isFinal) final += res[0].transcript; else interim += res[0].transcript;
+      if (res.isFinal) {
+        final += res[0].transcript;
+        finalAlts = Array.from({ length: res.length }, (_, j) => res[j].transcript);
+      } else interim += res[0].transcript;
     }
     set({ heard: (final + interim).trim() });
     clearTimeout(silence);
@@ -153,19 +171,24 @@ export function startVoice() {
   };
   r.onerror = (e: { error: string }) => {
     rec = null; clearTimeout(silence);
-    if (e.error === 'no-speech' || e.error === 'aborted') { set({ state: 'idle' }); return; }
+    if (e.error === 'aborted') { set({ state: 'idle' }); return; } // the person cancelled — no message needed
+    if (e.error === 'no-speech') { // A-01: used to fall into the same silent branch as 'aborted' — no feedback at all
+      fail(ru ? 'Не расслышал. Нажмите на шар и повторите' : "Didn't catch that. Tap the orb and try again.");
+      return;
+    }
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
       set({ blocked: true });
       fail(ru ? 'Нет доступа к микрофону. Разрешите его в настройках браузера — а пока напишите команду ниже.' : 'No microphone access. Allow it in browser settings — or type below.');
       return;
     }
+    if (e.error === 'audio-capture') { fail(ru ? 'Микрофон недоступен или занят' : 'The microphone is unavailable or busy'); return; }
     if (e.error === 'network' || e.error === 'language-not-supported') set({ blocked: true });
-    fail(ru ? (e.error === 'network' ? 'Распознавание речи сейчас недоступно — напишите команду ниже' : 'Не расслышал. Нажмите на шар и повторите') : 'Could not recognise speech');
+    fail(ru ? (e.error === 'network' ? 'Распознавание речи сейчас недоступно — напишите команду ниже' : 'Что-то пошло не так. Нажмите на шар и повторите') : 'Something went wrong. Tap the orb and try again.');
   };
   r.onend = () => {
     if (rec === r) rec = null;
     clearTimeout(silence);
-    const text = final.trim() || useVoice.getState().heard.trim();
+    const text = pickBestAlt(finalAlts) || final.trim() || useVoice.getState().heard.trim();
     if (useVoice.getState().state !== 'listening') return;
     if (text) handle(text); else set({ state: 'idle' });
   };
