@@ -39,7 +39,8 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - `typecheck`, `build`, `test:voice` (59/59) clean.
 - [ ] WP2.3 — adaptive endpointing (needs parse-confidence integration)
 - [ ] WP2.4 — phonetic lexicon / rescore
-- [ ] WP2.5 — mic permission lifecycle, health check
+- [x] **WP2.5 (partial)** — `visibilitychange`/`pagehide` cleanup in `engine.ts`: the mic used to keep recording indefinitely in a backgrounded tab (nothing ever stopped it — a real privacy/battery issue, related to finding A-06). Now `cancelVoice()` fires when the tab hides or unloads mid-listen. Registered once at module scope since `engine.ts` only loads after the assistant has opened.
+  - Not done: `navigator.permissions.query` pre-check and mic-health-check (`healthCheck()`, §6.1.6) — both exist to feed UI that doesn't exist yet (`FirstRun.tsx`, WP6.4), so building them now would have no consumer. Deferred to WP6.
 
 ## Notes / deviations from master prompt
 

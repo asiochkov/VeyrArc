@@ -19,6 +19,13 @@ const SR = (): (new () => Rec) | null => (typeof window === 'undefined' ? null :
 let rec: Rec | null = null;
 let resetTimer: ReturnType<typeof setTimeout> | undefined;
 let silence: ReturnType<typeof setTimeout> | undefined;
+
+// A-06/§6.1.5: the mic kept recording in a backgrounded tab — nothing ever stopped it.
+// This chunk only loads once the assistant has opened, so registering once at module scope is enough.
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => { if (document.hidden && rec) cancelVoice(); });
+  window.addEventListener('pagehide', () => { if (rec) cancelVoice(); });
+}
 const set = (p: Partial<ReturnType<typeof useVoice.getState>>) => useVoice.setState(p);
 const lang = () => useLangStore.getState().lang as 'ru' | 'en';
 
