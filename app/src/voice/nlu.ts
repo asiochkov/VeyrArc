@@ -96,8 +96,12 @@ export function takeDay(text: string, now: Date): { day: string | null; rest: st
     || hit(w('(?:на )?сегодня|today|сейчас же'), () => {})
     || hit(w('через (\\d+) (?:дн(?:я|ей)|день|сутки|суток)'), (m) => d.setDate(d.getDate() + Number(m[1])))
     || hit(w('через (?:1 )?неделю|in a week'), () => d.setDate(d.getDate() + 7))
+    // B-05: «через две недели» — wordsToDigits already turned «две» into 2 by the time this runs
+    || hit(w('через (\\d+) недел[а-я]*|in (\\d+) weeks?'), (m) => d.setDate(d.getDate() + Number(m[1] ?? m[2]) * 7))
     || hit(w('(?:на )?следующей неделе|next week'), () => d.setDate(d.getDate() + (((8 - d.getDay()) % 7) || 7)))
     || hit(w('(?:на |в )?выходн(?:ые|ых)|weekend'), () => d.setDate(d.getDate() + (((6 - d.getDay()) + 7) % 7 || 7)))
+    // B-05: «в конце месяца» — last day of the current month (day 0 of next month)
+    || hit(w('в конце месяца|at the end of the month'), () => d.setMonth(d.getMonth() + 1, 0))
     || hit(new RegExp(L + '(?:на |к )?(\\d{1,2})(?:-?(?:е|го|ое))? (' + MONTHS.join('|') + ')[а-я]*' + R), (m) => {
       const mon = MONTHS.findIndex((x) => new RegExp('^' + x).test(m[2]));
       d.setMonth(mon, Number(m[1]));
@@ -146,6 +150,23 @@ export function takeTime(text: string, now: Date): { time: string | null; end: s
     const m1 = Number(m[2] ?? m[3] ?? 0), m2 = Number(m[6] ?? m[7] ?? 0);
     if (h1 > 23 || h2 > 23 || m1 > 59 || m2 > 59) return false;
     time = hhmm(h1, m1); end = hhmm(h2 < h1 && h2 + 12 <= 23 ? h2 + 12 : h2, m2);
+  })
+  // B-05: «в половине пятого» → 04:30 (wordsToDigits already turned «пятого» into 5)
+  || take(new RegExp(L + 'в\\s+половине\\s+(\\d{1,2})' + R), (m) => {
+    const h = Number(m[1]);
+    if (h < 1 || h > 12) return false;
+    time = hhmm(h === 1 ? 0 : h - 1, 30);
+  })
+  // B-05: «без пятнадцати шесть» / «без четверти шесть» → 05:45. Genitive minute-words
+  // («пятнадцати», «двадцати пяти») aren't in NUM (only the nominative forms are), so they're
+  // matched here directly rather than relying on wordsToDigits to have already converted them.
+  || take(new RegExp(L + 'без\\s+(четверти|пятнадцати|двадцати\\s+пяти|двадцати|десяти|пяти|\\d{1,2})\\s+(\\d{1,2})' + R), (m) => {
+    const MIN: Record<string, number> = { четверти: 15, пятнадцати: 15, 'двадцати пяти': 25, двадцати: 20, десяти: 10, пяти: 5 };
+    const minsBefore = MIN[m[1]] ?? Number(m[1]);
+    const h = Number(m[2]);
+    if (h < 1 || h > 23 || minsBefore >= 60) return false;
+    const total = ((h * 60 - minsBefore) % (24 * 60) + 24 * 60) % (24 * 60);
+    time = hhmm(Math.floor(total / 60), total % 60);
   })
   || take(new RegExp(L + '(?:в|к|на|at|около|часов в)\\s+' + T + PART + R), (m) => {
     const h = fixPart(Number(m[1]), m[4]), mi = Number(m[2] ?? m[3] ?? 0);

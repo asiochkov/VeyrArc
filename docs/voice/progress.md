@@ -42,6 +42,16 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] **WP2.5 (partial)** — `visibilitychange`/`pagehide` cleanup in `engine.ts`: the mic used to keep recording indefinitely in a backgrounded tab (nothing ever stopped it — a real privacy/battery issue, related to finding A-06). Now `cancelVoice()` fires when the tab hides or unloads mid-listen. Registered once at module scope since `engine.ts` only loads after the assistant has opened.
   - Not done: `navigator.permissions.query` pre-check and mic-health-check (`healthCheck()`, §6.1.6) — both exist to feed UI that doesn't exist yet (`FirstRun.tsx`, WP6.4), so building them now would have no consumer. Deferred to WP6.
 
+## WP3 — Understanding (NLU)
+
+- [x] **WP3.1 (partial)** — Fixed 4 of B-05's named gaps in `nlu.ts`'s `takeTime`/`takeDay`:
+  - «в половине пятого» → 04:30 (`takeTime`)
+  - «без пятнадцати шесть» / «без четверти шесть» / «без двадцати пяти шесть» → 05:45 / 05:45 / 05:35 (`takeTime`) — genitive minute-words (`пятнадцати`, `двадцати пяти`, …) aren't in the `NUM` table (only nominative forms are), so they're matched as literal words rather than relying on `wordsToDigits`.
+  - «через две недели» → +14 days (`takeDay`, was only wired for "через неделю"/"через 1 неделю")
+  - «в конце месяца» → last day of the current month (`takeDay`)
+  - 5 new regression cases added to `tools/unit/voice-intents.test.ts` (64/64 passing total).
+  - **Not done** (still open, carried forward): "пятого ноября" after a verb with no day-trigger word, and "купить хлеб" becoming a task with no trigger verb at all — both need real intent-detection design work (risk of over-matching), not a quick regex patch. Left for a dedicated WP3.2 pass.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
