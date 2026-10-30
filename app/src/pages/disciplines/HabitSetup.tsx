@@ -17,7 +17,7 @@ import d from './disciplines.module.css';
  */
 const PRESETS = [{ id: 127, key: 'daily' }, { id: 31, key: 'weekdays' }, { id: 96, key: 'weekends' }] as const;
 
-export function HabitSetup({ habit, onClose, coreLimit, coreN, onLimit }: { habit: HabitRowDb | null; onClose: () => void; coreLimit: number; coreN: number; onLimit: () => void }) {
+export function HabitSetup({ habit, onClose }: { habit: HabitRowDb | null; onClose: () => void }) {
   const t = useT();
   const [h, setH] = useState<HabitRowDb | null>(habit);
   useEffect(() => { setH(habit); }, [habit]);
@@ -28,7 +28,6 @@ export function HabitSetup({ habit, onClose, coreLimit, coreN, onLimit }: { habi
     if (!habit) return;
     const name = h.name.trim().slice(0, 80);
     if (!name) return;
-    if (h.core && !habit.core && coreN >= coreLimit) { onLimit(); return; }
     updateHabit(habit.id, {
       name, type: h.type, target: h.type === 'counter' ? Math.max(1, h.target ?? 1) : null, unit: h.type === 'counter' ? (h.unit ?? '').trim() || null : null,
       minutes: h.type === 'duration' ? Math.max(1, h.minutes ?? 20) : null, days: h.days || 127, category: h.category, core: h.core, icon: h.icon, hue: h.hue,

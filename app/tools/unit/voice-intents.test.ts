@@ -1,4 +1,4 @@
-import { similarity, understand } from '../../src/voice/nlu';
+import { similarity, understand } from '../../src/voice/nlu.ts';
 
 // run: npx tsx tools/unit/voice-intents.test.ts
 const now = new Date(2026, 9, 14, 10, 0); // среда, 14 октября 2026, 10:00

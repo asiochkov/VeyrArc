@@ -1,4 +1,3 @@
-import { config } from '../config';
 import type { Session } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { useLangStore } from '../i18n';
@@ -15,14 +14,11 @@ export type Profile = {
   reminder_time: string | null; notify_habits: boolean; notify_summary: boolean; notify_focus: boolean; notify_arc: boolean;
   onboarded_at: string | null; avatar_url?: string | null; pomodoro?: { lengths?: [number, number, number]; endsAt?: number | null; label?: string | null; tab?: number } | null; tour_done?: Record<string, boolean>; density?: 'comfortable' | 'compact'; quiet_from?: string | null; quiet_to?: string | null;
 };
-export type Plan = { plan: 'free' | 'pro'; period: 'monthly' | 'yearly' | null; status: string; renews_at: string | null; trial_used_at?: string | null; auto_renew?: boolean; card?: string | null };
-
 type AuthState = {
   ready: boolean;
   session: Session | null;
   profile: Profile | null;
-  plan: Plan | null;
-  bonusFreezes: number;
+  profileError: boolean;
   loadProfile: () => Promise<void>;
 };
 
@@ -30,21 +26,22 @@ export const useAuth = create<AuthState>((set, get) => ({
   ready: !hasBackend,
   session: null,
   profile: null,
-  plan: null,
-  bonusFreezes: 0,
+  profileError: false,
   loadProfile: async () => {
     const uid = get().session?.user.id;
-    if (!uid) { set({ profile: null, plan: null }); return; }
-    const [p, s, b] = await Promise.all([
-      db().from('profiles').select('*').eq('id', uid).maybeSingle(),
-      db().from('subscriptions').select('plan, period, status, renews_at, trial_used_at, auto_renew, card').eq('user_id', uid).maybeSingle(),
-      db().from('referral_bonus').select('freezes').eq('user_id', uid).maybeSingle(),
-    ]);
-    const profile = (p.data as Profile | null) ?? null;
-    set({ profile, plan: (s.data as Plan | null) ?? null, bonusFreezes: (b.data as { freezes: number } | null)?.freezes ?? 0 });
-    void import('./referral').then((m) => m.claimStored()).catch(() => {});
+    if (!uid) { set({ profile: null, profileError: false }); return; }
+    try {
+      const p = await db().from('profiles').select('*').eq('id', uid).maybeSingle();
+      if (get().session?.user.id !== uid) return;
+      if (p.error || !p.data) throw p.error ?? new Error('Profile is missing');
+      const profile = p.data as Profile;
+      set({ profile, profileError: false });
+      if (profile.lang !== useLangStore.getState().lang) useLangStore.getState().setLang(profile.lang);
+    } catch {
+      if (get().session?.user.id === uid) set({ profileError: true });
+      return;
+    }
     void import('./analytics').then((m) => { m.trackOnce('open', 'app_open'); m.flushPushOpen(); }).catch(() => {});
-    if (profile?.lang && profile.lang !== useLangStore.getState().lang) useLangStore.getState().setLang(profile.lang);
   },
 }));
 
@@ -55,17 +52,20 @@ let started = false;
 export function initAuth() {
   if (!supabase || started) return;
   started = true;
-  supabase.auth.getSession().then(async ({ data }) => {
-    useAuth.setState({ session: data.session });
+  let authRevision = 0;
+  supabase.auth.getSession().then(async ({ data, error }) => {
+    if (authRevision) return;
+    useAuth.setState({ session: data.session, profileError: !!error });
     await useAuth.getState().loadProfile();
     useAuth.setState({ ready: true });
-  });
+  }).catch(() => useAuth.setState({ ready: true, profileError: true }));
   supabase.auth.onAuthStateChange((event, session) => {
+    authRevision++;
     const prev = useAuth.getState().session;
-    useAuth.setState({ session });
-    if (event === 'SIGNED_OUT') useAuth.setState({ profile: null, plan: null });
-    else if (session && (session.user.id !== prev?.user.id || event === 'USER_UPDATED')) {
-      // defer: calling supabase inside the callback can deadlock the auth lock
+    const changed = session?.user.id !== prev?.user.id;
+    useAuth.setState({ session, ...(changed ? { profile: null, profileError: false } : {}), ready: true });
+    if (session && (changed || event === 'USER_UPDATED' || event === 'INITIAL_SESSION')) {
+      // Never call Supabase inside its auth callback (the auth lock is held).
       setTimeout(() => { void useAuth.getState().loadProfile(); }, 0);
     }
   });
@@ -141,22 +141,9 @@ export async function google() {
   if (error) throw error;
 }
 
-export async function sendReset(email: string) {
-  const { error } = await db().auth.resetPasswordForEmail(email, { redirectTo: redirectTo() });
-  if (error) throw error;
-}
-export async function verifyReset(email: string, code: string) {
-  const { error } = await db().auth.verifyOtp({ email, token: code, type: 'recovery' });
-  if (error) throw error;
-}
-export async function setNewPassword(pw: string) {
-  const { error } = await db().auth.updateUser({ password: pw });
-  if (error) throw error;
-  await db().auth.signOut(); // the design sends the user to sign in with the new password
-}
-
 export async function signOut() {
-  await db().auth.signOut();
+  const { error } = await db().auth.signOut();
+  if (error) throw error;
 }
 
 export async function deleteAccount() {
@@ -168,15 +155,4 @@ export async function deleteAccount() {
 /** Where to go after signing in: onboarding until it has been completed once. */
 export function nextPath() {
   return useAuth.getState().profile?.onboarded_at ? '/' : '/onboarding';
-}
-
-/** Active Pro (paid or the 7-day trial) — mirrors public.is_pro() in the database. */
-export const isProPlan = (p: Plan | null) => config.beta || (!!p && p.plan === 'pro' && p.status === 'active' && (!p.renews_at || new Date(p.renews_at) > new Date()));
-export const trialUsed = (p: Plan | null) => !!(p as (Plan & { trial_used_at?: string | null }) | null)?.trial_used_at;
-
-export async function startTrial() {
-  const { error } = await db().rpc('start_trial');
-  if (error) throw error;
-  void import('./analytics').then((m) => m.track('trial_start')).catch(() => {});
-  await useAuth.getState().loadProfile();
 }

@@ -1,14 +1,6 @@
-import { useAuth } from './auth';
-import { db, hasBackend } from './supabase';
 
-/*
- * Product analytics, free and in our own hands. Events go into our Supabase table `app_events`
- * (no third party, no cookies) and — only if VITE_METRIKA_ID is set — into Yandex Metrika as goals.
- * Names (see docs/release/ANALYTICS.md): onboarding_step, onboarding_done, signup, first_check, day_kept,
- * streak_lost, push_enabled, push_open, trial_start, paywall_view, comeback_shown, comeback_choice,
- * referral_joined, app_open.
- * Never throws and never blocks the UI; events fired before the account exists are dropped.
- */
+/* Optional product analytics through VITE_METRIKA_ID. No database writes and no
+ * dependency on an app_events table. Never blocks the app. */
 const METRIKA = import.meta.env.VITE_METRIKA_ID as string | undefined;
 type Props = Record<string, string | number | boolean | null>;
 const once = new Set<string>();
@@ -16,8 +8,6 @@ const once = new Set<string>();
 export function track(name: string, props: Props = {}) {
   try {
     if (METRIKA && typeof window !== 'undefined') (window as unknown as { ym?: (...a: unknown[]) => void }).ym?.(Number(METRIKA), 'reachGoal', name, props);
-    if (!hasBackend || !useAuth.getState().session) return;
-    void db().from('app_events').insert({ name, props }).then(() => {}, () => {});
   } catch { /* analytics must never break the app */ }
 }
 

@@ -1,4 +1,4 @@
-import { mutate, type Op } from '../data/sync';
+import { mutate, useSyncState, type Op } from '../data/sync';
 import { isoDay } from '../lib/day';
 import { db, hasBackend } from '../lib/supabase';
 import { cadenceOf, type FocusRow, type HabitRowDb, type PlanRow, type QuitRow } from '../data/model';
@@ -13,20 +13,17 @@ import { getSystem, patchSystem, SYSTEM_KEY, systemClient, type GoalDb, type Sys
  * session on an event → the event done; an event linked to a goal done → the matching goal step.
  */
 
-let inFlight = 0;
 let lastWrite = 0;
 /** This device is writing or has just written: realtime echoes of its own changes are ignored. */
-export const ownWriteRecent = () => inFlight > 0 || Date.now() - lastWrite < 3000;
+export const ownWriteRecent = () => useSyncState.getState().pending > 0 || Date.now() - lastWrite < 3000;
 /** Writes made outside `write()` (onboarding, import, arc rollover) count as this device's own too. */
 export const markOwnWrite = (ms = 0) => { lastWrite = Date.now() + ms; };
-function write(run: (() => Promise<unknown>) | Op) {
+function write(run: Op | Op[]) {
   if (!hasBackend) return;
-  inFlight++;
   lastWrite = Date.now();
   const settle = () => {
-    inFlight = Math.max(0, inFlight - 1);
     lastWrite = Date.now();
-    if (inFlight === 0) {
+    if (useSyncState.getState().pending === 0) {
       const qc = systemClient();
       void qc?.invalidateQueries({ queryKey: SYSTEM_KEY });
       void qc?.invalidateQueries({ queryKey: ['calendar'] });
@@ -36,7 +33,6 @@ function write(run: (() => Promise<unknown>) | Op) {
   };
   mutate(run, { done: settle, rollback: settle });
 }
-const ok = <T extends { error: unknown }>(r: T) => { if (r.error) throw r.error; return r; };
 
 /* ---- habits ---- */
 export function logHabit(habitId: string, value: number, done: boolean, day = isoDay()) {
@@ -121,7 +117,7 @@ export function setEventDone(id: string, done: boolean) {
 /* ---- goal steps ---- */
 export function reorderGoalSteps(ids: string[]) {
   patchSystem((r) => ({ ...r, tasks: r.tasks.map((x) => (ids.includes(x.id) ? { ...x, sort: ids.indexOf(x.id) } : x)).sort((a, b) => a.sort - b.sort) }));
-  write(async () => { for (const [i, id] of ids.entries()) ok(await db().from('goal_tasks').update({ sort: i }).eq('id', id)); });
+  write(ids.map((id, sort) => ({ t: 'goal_tasks', a: 'update' as const, v: { sort }, eq: { id } })));
 }
 const entryOf = (r: SystemRaw | undefined, goalId: string, day: string) => r?.entries.find((e) => e.goal_id === goalId && e.day === day);
 function setGoalTasks(goalId: string, ids: string[], day: string) {
@@ -156,29 +152,27 @@ export function createHabit(h: NewHabit) {
   const sys = getSystem();
   const row: HabitRowDb = { ...h, sort: h.sort ?? (sys?.habits.length ?? 0), created_at: new Date().toISOString(), archived_at: null };
   patchSystem((r) => ({ ...r, habits: [...r.habits, row] }));
-  write(async () => {
-    ok(await db().from('habits').insert({
+  write({ t: 'habits', a: 'insert', v: {
       id: row.id, name: row.name, icon: row.icon, hue: row.hue, type: row.type, target: row.target, unit: row.unit, minutes: row.minutes,
       days: row.days, cadence: cadenceOf(row.days), category: row.category, core: row.core, sort: row.sort,
-    }));
-  });
+  } });
   return row;
 }
 export function updateHabit(id: string, patch: Partial<Omit<HabitRowDb, 'id' | 'created_at'>>) {
   patchSystem((r) => ({ ...r, habits: r.habits.map((h) => (h.id === id ? { ...h, ...patch } : h)) }));
   const dbPatch: Record<string, unknown> = { ...patch };
   if (patch.days != null) dbPatch.cadence = cadenceOf(patch.days);
-  write(async () => { ok(await db().from('habits').update(dbPatch).eq('id', id)); });
+  write({ t: 'habits', a: 'update', v: dbPatch, eq: { id } });
 }
 export const archiveHabit = (id: string) => updateHabit(id, { archived_at: new Date().toISOString() });
 export const restoreHabit = (id: string) => updateHabit(id, { archived_at: null });
 export function deleteHabit(id: string) {
   patchSystem((r) => ({ ...r, habits: r.habits.filter((h) => h.id !== id), logs: r.logs.filter((l) => l.habit_id !== id) }));
-  write(async () => { ok(await db().from('habits').delete().eq('id', id)); });
+  write({ t: 'habits', a: 'delete', eq: { id } });
 }
 export function reorderHabits(ids: string[]) {
   patchSystem((r) => ({ ...r, habits: r.habits.map((h) => (ids.includes(h.id) ? { ...h, sort: ids.indexOf(h.id) } : h)) }));
-  write(async () => { for (const [i, id] of ids.entries()) ok(await db().from('habits').update({ sort: i }).eq('id', id)); });
+  write(ids.map((id, sort) => ({ t: 'habits', a: 'update' as const, v: { sort }, eq: { id } })));
 }
 
 /* ---- goal steps ---- */
@@ -187,7 +181,7 @@ export function addGoalStep(goalId: string, text: string) {
   const id = crypto.randomUUID();
   const sort = sys?.tasks.filter((t) => t.goal_id === goalId).length ?? 0;
   patchSystem((r) => ({ ...r, tasks: [...r.tasks, { id, goal_id: goalId, text, detail: null, sort }] }));
-  write(async () => { ok(await db().from('goal_tasks').insert({ id, goal_id: goalId, text, sort })); });
+  write({ t: 'goal_tasks', a: 'insert', v: { id, goal_id: goalId, text, sort } });
   return id;
 }
 
@@ -195,22 +189,22 @@ export function addGoalStep(goalId: string, text: string) {
 export function addQuit(q: Pick<QuitRow, 'id' | 'name' | 'hue' | 'icon' | 'unit' | 'per_day' | 'clean_since'>) {
   const row: QuitRow = { ...q, best_days: 0, goal_days: null, created_at: new Date().toISOString() };
   patchSystem((r) => ({ ...r, quits: [...r.quits, row] }));
-  write(async () => { ok(await db().from('quits').insert({ id: q.id, name: q.name, hue: q.hue, icon: q.icon, unit: q.unit, per_day: q.per_day, clean_since: q.clean_since })); });
+  write({ t: 'quits', a: 'insert', v: { id: q.id, name: q.name, hue: q.hue, icon: q.icon, unit: q.unit, per_day: q.per_day, clean_since: q.clean_since } });
 }
 export function updateQuit(id: string, patch: Partial<Pick<QuitRow, 'clean_since' | 'goal_days' | 'name'>>) {
   patchSystem((r) => ({ ...r, quits: r.quits.map((q) => (q.id === id ? { ...q, ...patch } : q)) }));
-  write(async () => { ok(await db().from('quits').update(patch).eq('id', id)); });
+  write({ t: 'quits', a: 'update', v: patch, eq: { id: id } });
 }
 export function archiveQuit(id: string, archived: boolean) {
   const sys = getSystem();
   const q = sys?.quits.find((x) => x.id === id);
   if (archived) patchSystem((r) => ({ ...r, quits: r.quits.filter((x) => x.id !== id) }));
-  write(async () => { ok(await db().from('quits').update({ archived_at: archived ? new Date().toISOString() : null }).eq('id', id)); });
+  write({ t: 'quits', a: 'update', v: { archived_at: archived ? new Date().toISOString() : null }, eq: { id: id } });
   return q;
 }
 export function restoreQuit(q: QuitRow) {
   patchSystem((r) => ({ ...r, quits: [...r.quits.filter((x) => x.id !== q.id), q] }));
-  write(async () => { ok(await db().from('quits').update({ archived_at: null }).eq('id', q.id)); });
+  write({ t: 'quits', a: 'update', v: { archived_at: null }, eq: { id: q.id } });
 }
 /** A slip: the timer restarts, the best run is kept; returns a function that undoes it. */
 export function logRelapse(id: string, note: string) {
@@ -224,12 +218,16 @@ export function logRelapse(id: string, note: string) {
     quits: r.quits.map((x) => (x.id === id ? { ...x, clean_since: new Date().toISOString(), best_days: Math.max(x.best_days, days) } : x)),
     relapses: [...r.relapses, { id: tempId, quit_id: id, at: new Date().toISOString() }],
   }));
-  let gotId: (v: string) => void = () => {};
-  const rid = new Promise<string>((res) => { gotId = res; });
-  write(async () => { const r = ok(await db().rpc('log_relapse', { p_quit: id, p_note: note || null })); gotId((r.data as { id: string }).id); });
+  write([
+    { t: 'quit_relapses', a: 'insert', v: { id: tempId, quit_id: id, at: new Date().toISOString(), note: note || null, prev_clean_since: q.clean_since, prev_best: q.best_days } },
+    { t: 'quits', a: 'update', v: { clean_since: new Date().toISOString(), best_days: Math.max(q.best_days, days) }, eq: { id } },
+  ]);
   return () => {
     patchSystem((r) => ({ ...r, quits: r.quits.map((x) => (x.id === id ? q : x)), relapses: r.relapses.filter((x) => x.id !== tempId) }));
-    write(async () => { const real = await rid; ok(await db().rpc('undo_relapse', { p_relapse: real })); });
+    write([
+      { t: 'quit_relapses', a: 'delete', eq: { id: tempId } },
+      { t: 'quits', a: 'update', v: { clean_since: q.clean_since, best_days: q.best_days }, eq: { id } },
+    ]);
   };
 }
 
@@ -243,34 +241,34 @@ export function createGoal(g: { id: string; title: string; hue: string; deadline
   };
   const tasks = g.steps.map((text, i) => ({ id: crypto.randomUUID(), goal_id: g.id, text, detail: null, sort: i }));
   patchSystem((r) => ({ ...r, goals: [...r.goals, row], tasks: [...r.tasks, ...tasks] }));
-  write(async () => {
-    ok(await db().from('goals').insert({ id: g.id, title: g.title, hue: g.hue, type: 'process', deadline: g.deadline, linked_core_habit_id: g.linkedCoreHabitId, arc_id: arcId }));
-    if (tasks.length) ok(await db().from('goal_tasks').insert(tasks.map(({ id, goal_id, text, sort }) => ({ id, goal_id, text, sort }))));
-  });
+  write([
+    { t: 'goals', a: 'insert', v: { id: g.id, title: g.title, hue: g.hue, type: 'process', deadline: g.deadline, linked_core_habit_id: g.linkedCoreHabitId, arc_id: arcId } },
+    ...tasks.map(({ id, goal_id, text, sort }) => ({ t: 'goal_tasks', a: 'insert' as const, v: { id, goal_id, text, sort } })),
+  ]);
 }
 export function updateGoal(id: string, patch: Partial<Pick<GoalDb, 'title' | 'deadline' | 'linked_core_habit_id' | 'status' | 'best_streak' | 'completed_at'>>) {
   patchSystem((r) => ({ ...r, goals: r.goals.map((g) => (g.id === id ? { ...g, ...patch } : g)) }));
   const dbPatch: Record<string, unknown> = { ...patch };
   if (patch.status === 'completed') dbPatch.completed_at = new Date().toISOString();
-  write(async () => { ok(await db().from('goals').update(dbPatch).eq('id', id)); });
+  write({ t: 'goals', a: 'update', v: dbPatch, eq: { id: id } });
 }
 export function deleteGoal(id: string) {
   patchSystem((r) => ({ ...r, goals: r.goals.filter((g) => g.id !== id), tasks: r.tasks.filter((t) => t.goal_id !== id), entries: r.entries.filter((e) => e.goal_id !== id) }));
-  write(async () => { ok(await db().from('goals').delete().eq('id', id)); });
+  write({ t: 'goals', a: 'delete', eq: { id } });
 }
 export function renameGoalStep(id: string, text: string) {
   patchSystem((r) => ({ ...r, tasks: r.tasks.map((t) => (t.id === id ? { ...t, text } : t)) }));
-  write(async () => { ok(await db().from('goal_tasks').update({ text }).eq('id', id)); });
+  write({ t: 'goal_tasks', a: 'update', v: { text }, eq: { id: id } });
 }
 export function deleteGoalStep(id: string) {
   const t = getSystem()?.tasks.find((x) => x.id === id);
   patchSystem((r) => ({ ...r, tasks: r.tasks.filter((x) => x.id !== id) }));
-  write(async () => { ok(await db().from('goal_tasks').delete().eq('id', id)); });
+  write({ t: 'goal_tasks', a: 'delete', eq: { id } });
   return t;
 }
 export function restoreGoalStep(t: { id: string; goal_id: string; text: string; sort: number }) {
   patchSystem((r) => ({ ...r, tasks: [...r.tasks, { ...t, detail: null }].sort((a, b) => a.sort - b.sort) }));
-  write(async () => { ok(await db().from('goal_tasks').insert({ id: t.id, goal_id: t.goal_id, text: t.text, sort: t.sort })); });
+  write({ t: 'goal_tasks', a: 'insert', v: { id: t.id, goal_id: t.goal_id, text: t.text, sort: t.sort } });
 }
 /** Diary text for a goal and day; the caller debounces. Resolves when saved (for «Сохранено»). */
 export function saveDiary(goalId: string, day: string, diary: string, onSaved: () => void, onFailed: () => void) {
@@ -280,10 +278,9 @@ export function saveDiary(goalId: string, day: string, diary: string, onSaved: (
     return { ...r, entries: cur ? r.entries.map((e) => (e === cur ? next : e)) : [...r.entries, next] };
   });
   if (!hasBackend) { onSaved(); return; }
-  inFlight++;
-  mutate(async () => { ok(await db().from('goal_entries').upsert({ goal_id: goalId, day, diary }, { onConflict: 'goal_id,day' })); }, {
-    done: () => { inFlight = Math.max(0, inFlight - 1); onSaved(); },
-    rollback: () => { inFlight = Math.max(0, inFlight - 1); onFailed(); },
+  mutate({ t: 'goal_entries', a: 'upsert', v: { goal_id: goalId, day, diary }, oc: 'goal_id,day' }, {
+    done: () => { onSaved(); },
+    rollback: () => { onFailed(); },
   });
 }
 
@@ -293,5 +290,5 @@ export function saveDiary(goalId: string, day: string, diary: string, onSaved: (
 export function saveOath(arcId: string, text: string) {
   const oath = text.trim().slice(0, 280);
   patchSystem((r) => ({ ...r, arcs: r.arcs.map((a) => (a.id === arcId ? { ...a, oath } : a)) }));
-  write(async () => { ok(await db().from('arcs').update({ oath }).eq('id', arcId)); });
+  write({ t: 'arcs', a: 'update', v: { oath }, eq: { id: arcId } });
 }

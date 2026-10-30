@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useT } from '../../i18n';
 import { isoDay } from '../../lib/day';
-import { db, hasBackend } from '../../lib/supabase';
+import { hasBackend } from '../../lib/supabase';
 import { addDays } from '../../data/model';
 import { mutate } from '../../data/sync';
 import { logMood, saveEvent } from '../../state/actions';
@@ -39,7 +39,7 @@ export function EveningReview({ open, onClose }: { open: boolean; onClose: () =>
     const text = note.trim().slice(0, 500);
     if (text) {
       patchSystem((r) => ({ ...r, days: r.days.some((x) => x.day === day) ? r.days.map((x) => (x.day === day ? { ...x, note: text } : x)) : [...r.days, { day, mood: null, water: 0, frozen: false, note: text }] }));
-      if (hasBackend) mutate(async () => { const r = await db().from('day_entries').upsert({ day, note: text }, { onConflict: 'user_id,day' }); if (r.error) throw r.error; });
+      if (hasBackend) mutate({ t: 'day_entries', a: 'upsert', v: { day, note: text }, oc: 'user_id,day' });
     }
     const tomorrow = addDays(day, 1);
     const planned = slots.filter((s) => s.title.trim());

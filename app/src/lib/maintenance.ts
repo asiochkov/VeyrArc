@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import { daysBetween } from '../data/model';
 import { arcSummary } from '../state/compute';
 import { markOwnWrite } from '../state/actions';
-import { activeArc, fetchSystem, SYSTEM_KEY } from '../state/system';
+import { activeArc, fetchSystem, systemKey, SYSTEM_KEY } from '../state/system';
 import { isoDay } from './day';
 import { db } from './supabase';
 
@@ -13,7 +13,7 @@ import { db } from './supabase';
  */
 export async function runMaintenance(qc: QueryClient) {
   const today = isoDay();
-  const sys = await qc.fetchQuery({ queryKey: SYSTEM_KEY, queryFn: fetchSystem });
+  const sys = await qc.fetchQuery({ queryKey: systemKey(), queryFn: fetchSystem });
   const arc = activeArc(sys);
   if (arc && daysBetween(arc.started_on, today) >= arc.length_days) {
     const summary = arcSummary(sys, { ...arc, ended_on: null }, today);

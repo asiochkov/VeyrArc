@@ -7,9 +7,7 @@ import { useHeader } from '../../data/header';
 import { EVENT_ICON, eventText, eventWhen, useEvents } from '../../data/events';
 import { addDays, daysBetween, indexLogs, isLogged } from '../../data/model';
 import { useT, type T } from '../../i18n';
-import { isProPlan, useAuth } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
-import { hasBackend } from '../../lib/supabase';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { HEAT_COLORS } from '../../mock/profile';
 import { computeIndex, INDEX_WEIGHTS } from '../../state/compute';
@@ -18,14 +16,13 @@ import { activeArc, profileRawOf, useSystem, type SystemRaw } from '../../state/
 import { Icon, type IconName } from '../../ui/Icon';
 import { PageState } from '../../ui/PageState';
 import { InfoDialog, Segmented } from '../../ui/primitives';
-import { ProModule } from '../../ui/ProModule';
 import { useAutoTour } from '../../ui/Tour';
 import a from './analytics.module.css';
 import { computeAchievements } from '../../data/achievements';
 
 /*
  * Analytics (Master Changeset section 8, was Profile): the index, the arc, domain cards on one
- * 12-column grid for every screen size, insights, Pro modules folded instead of blurred.
+ * 12-column grid for every screen size, insights and full history.
  */
 type Period = 'week' | 'month' | 'arc' | 'year';
 type Range = '3m' | '6m' | '1y';
@@ -33,9 +30,7 @@ type Range = '3m' | '6m' | '1y';
 export function Analytics() {
   const t = useT();
   const q = useSystem((r) => r);
-  const plan = useAuth((x) => x.plan);
   const hd = useHeader();
-  const pro = !hasBackend || isProPlan(plan);
   const [period, setPeriod] = useState<Period>('month');
   const [compare, setCompare] = useState(false);
   const [range, setRange] = useState<Range>('6m');
@@ -46,13 +41,13 @@ export function Analytics() {
     const sys = q.data;
     if (!sys) return null;
     const raw = profileRawOf(sys);
-    const p = buildProfile(raw, { pro, initials: hd.initials });
+    const p = buildProfile(raw, { initials: hd.initials });
     const arc = activeArc(sys);
     const today = isoDay();
     const from = period === 'week' ? addDays(today, -6) : period === 'month' ? addDays(today, -29) : period === 'arc' ? (arc?.started_on ?? addDays(today, -29)) : addDays(today, -364);
     const idx = computeIndex(raw, from, today);
     return { sys, p, arc, idx, insights: computeInsights(sys), ach: computeAchievements(sys, today) };
-  }, [q.data, pro, hd.initials, period]);
+  }, [q.data, hd.initials, period]);
   if (!data) return <PageState variant="grid" error={q.isError && !q.data} onRetry={() => { void q.refetch(); }} />;
   const { sys, p, arc, idx, insights, ach } = data;
   const cur = p.PERIOD_DATA[period];
@@ -89,13 +84,12 @@ export function Analytics() {
           <Card className={`${a.span12} ${a.insightHero}`} title={t('analytics.insights')} icon="spark">
             {insights.length === 0 ? <div className={a.meta}>{t('analytics.noInsights')}</div> : (
               <div className={a.insights}>
-                {(pro ? insights : insights.slice(0, 1)).map((x) => (
+                {insights.map((x) => (
                   <div key={x.id} className={a.insight}>
                     <span>{t(x.text.key as never, x.text.vars)}</span>
                     {x.action && <Link to={x.action.to} className={a.insightAct}>{t(x.action.key as never)}</Link>}
                   </div>
                 ))}
-                {!pro && insights.length > 1 && <div className={a.meta}>{t('analytics.moreInPro', { n: insights.length - 1 })}</div>}
               </div>
             )}
           </Card>
@@ -150,22 +144,12 @@ export function Analytics() {
             </div>
           </Card>
 
-          {pro ? (
             <Card className={a.span6} title={t('profile.correlationWeek')} icon="pulse">
               <div className={a.corr}>{correlationText(t, insights) ?? t('analytics.corrWait')}</div>
             </Card>
-          ) : (
-            <ProModule className={a.span6} title={t('profile.correlationWeek')} line={t('analytics.corrLine')}
-              demo={<div className={a.corr}>{t('analytics.corrExample')}</div>} />
-          )}
-          {pro ? (
             <Card className={a.span6} title={t('profile.arcCompare')} icon="archive">
               <CompareBars t={t} p={p} />
             </Card>
-          ) : (
-            <ProModule className={a.span6} title={t('profile.arcCompare')} line={t('analytics.arcLine')}
-              demo={<CompareBars t={t} p={{ ...p, arcCompare: { current: 742, previous: 690, delta: 52, currentPct: 74, previousPct: 69, currentN: 2, previousN: 1 } }} />} />
-          )}
 
           <Card className={a.span12} title={t('profile.history')} icon="pulse"
             right={<Segmented variant="rangeSm" value={range} onChange={setRange} options={(['3m', '6m', '1y'] as Range[]).map((id) => ({ id, label: t(`profile.ranges.${id}`) }))} />}>

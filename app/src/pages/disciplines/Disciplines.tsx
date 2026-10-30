@@ -1,14 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppHeader } from '../../app/AppHeader';
-import { config } from '../../config';
 import { buildTracker } from '../../data/tracker';
 import { HABIT_DOMAINS } from '../../data/domains';
 import { habitBest, indexLogs } from '../../data/model';
 import { useT, type T } from '../../i18n';
-import { isProPlan, useAuth } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
-import { hasBackend } from '../../lib/supabase';
 import { HABIT_PALETTE, type TrackerHabit } from '../../mock/tracker';
 import { addQuit, archiveHabit, archiveQuit, createHabit, deleteHabit, logRelapse, reorderHabits, restoreHabit, restoreQuit, updateHabit, updateQuit } from '../../state/actions';
 import { trackerRawOf, useSystem, type SystemRaw } from '../../state/system';
@@ -39,8 +36,6 @@ export function Disciplines() {
   const tab = (params.get('tab') as Tab) || 'active';
   const setTab = (v: Tab) => setParams((p) => { const n = new URLSearchParams(p); if (v === 'active') n.delete('tab'); else n.set('tab', v); return n; }, { replace: true });
   const q = useSystem((r) => r);
-  const plan = useAuth((x) => x.plan);
-  const coreLimit = hasBackend && !isProPlan(plan) ? config.limits.free.core : Infinity;
   const sys = q.data;
   const data = useMemo(() => (sys ? { ...buildTracker(trackerRawOf(sys)), raw: sys } : null), [sys]);
   useAutoTour('disciplines', !!data && tab === 'active');
@@ -51,13 +46,13 @@ export function Disciplines() {
   return (
     <div className={d.scroll} data-scroll>
       <div className="pg">
-        <AppHeader title={t('nav.disciplines')} sub={<span className={d.headSub}>{coreLimit === Infinity ? `Core · ${coreN}` : t('disc.coreSlots', { n: coreN, m: coreLimit })}</span>} />
+        <AppHeader title={t('nav.disciplines')} sub={<span className={d.headSub}>{`Core · ${coreN}`}</span>} />
         <div className="tabs" role="tablist">
           {([['active', t('disc.tabs.active'), data.habits.length], ['quits', t('disc.tabs.quits'), quitsN], ['archive', t('disc.tabs.archive'), archN]] as [Tab, string, number][]).map(([id, label, n]) => (
             <button key={id} type="button" role="tab" className="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}<sup>{n}</sup></button>
           ))}
         </div>
-        {tab === 'active' && <ActiveTab t={t} habits={data.habits} sys={data.raw} coreLimit={coreLimit} />}
+        {tab === 'active' && <ActiveTab t={t} habits={data.habits} sys={data.raw} />}
         {tab === 'quits' && <QuitsTab t={t} data={data} />}
         {tab === 'archive' && <ArchiveTab t={t} sys={data.raw} />}
       </div>
@@ -67,24 +62,22 @@ export function Disciplines() {
 
 /* ---------------- active habits: Core + Extra ---------------- */
 
-function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]; sys: SystemRaw; coreLimit: number }) {
+function ActiveTab({ t, habits, sys }: { t: T; habits: TrackerHabit[]; sys: SystemRaw }) {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const open = params.get('open');
   const setupId = params.get('setup');
   const setParam = (k: string, v: string | null) => setParams((p) => { const n = new URLSearchParams(p); if (v) n.set(k, v); else n.delete(k); return n; }, { replace: true });
-  const [limit, setLimit] = useState(false);
   const [picking, setPicking] = useState(false);
   const rowsDb = sys.habits.filter((h) => !h.archived_at);
   const isCore = (id: string) => !!rowsDb.find((h) => h.id === id)?.core;
   const core = habits.filter((h) => isCore(h.id));
   const extra = habits.filter((h) => !isCore(h.id));
-  const slots = Math.max(0, Math.min(5, coreLimit) - core.length);
+  const slots = Math.max(0, 5 - core.length);
 
   const toggleCore = (id: string) => {
     const h = rowsDb.find((x) => x.id === id);
     if (!h) return;
-    if (!h.core && core.length >= coreLimit) { setLimit(true); return; }
     updateHabit(id, { core: !h.core });
     toast.action(t(h.core ? 'disc.movedExtra' : 'disc.movedCore', { x: h.name }), t('explain.undo'), () => updateHabit(id, { core: h.core }), 5000);
   };
@@ -104,7 +97,6 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
   // hold a tile to reorder it, or to carry it between Core and Extra
   const rd = useHoldReorder({
     zones: { core: core.map((h) => h.id), extra: extra.map((h) => h.id) },
-    canEnter: (_id, zone) => zone !== 'core' || core.length < coreLimit,
     onDrop: (z, id, from, to) => {
       reorderHabits([...z.core, ...z.extra]);
       if (from !== to) {
@@ -128,7 +120,7 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
 
   return (
     <>
-      <div className="caption" data-tour="disc-core"><b>{t('home.core')}</b><span>{t('disc.coreMeta', { n: core.length, m: Math.min(5, coreLimit) })}</span></div>
+      <div className="caption" data-tour="disc-core"><b>{t('home.core')}</b><span>{core.length}</span></div>
       <div className="tl-grid" data-zone="core" data-empty={(rd.liftId && coreView.length === 0) || undefined}>
         {cards(coreView)}
         {!rd.liftId && Array.from({ length: Math.min(slots, core.length >= 3 ? 1 : 3 - core.length) }, (_, k) => (
@@ -145,9 +137,7 @@ function ActiveTab({ t, habits, sys, coreLimit }: { t: T; habits: TrackerHabit[]
       <Sheet open={!!detail} onClose={() => setParam('open', null)} title={detail ? t.pick(detail.name) : ''}>
         {detail && <HabitDetail t={t} h={detail} core={isCore(detail.id)} onSetup={() => setParam('setup', detail.id)} onCore={() => toggleCore(detail.id)} onArchive={() => archive(detail.id)} onMove={(dir) => move(detail.id, dir)} onToday={() => navigate('/')} />}
       </Sheet>
-      <HabitSetup habit={setupHabit} onClose={() => setParam('setup', null)} coreLimit={coreLimit} coreN={core.length} onLimit={() => setLimit(true)} />
-      <ConfirmDialog open={limit} title={t('disc.limitTitle', { n: coreLimit })} body={t('disc.limitBody', { n: coreLimit })} confirmLabel={t('auth.openPro')} cancelLabel={t('goals.gotIt')}
-        onConfirm={() => navigate('/pro')} onCancel={() => setLimit(false)} />
+      <HabitSetup habit={setupHabit} onClose={() => setParam('setup', null)} />
       <ConfirmDialog open={picking} title={t('disc.pickTitle')} cancelLabel={t('common.close')} confirmLabel={t('disc.pickNew')}
         body={extra.length ? (
           <span className={d.pickList}>

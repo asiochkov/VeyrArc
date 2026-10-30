@@ -1,3 +1,4 @@
+import { PageState } from '../ui/PageState';
 import { ArcLoader } from '../ui/ArcTrail';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, type ReactNode } from 'react';
@@ -10,7 +11,7 @@ import { hasBackend } from '../lib/supabase';
 
 /* Backend only: app screens need a session and a finished onboarding. */
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { ready, session, profile } = useAuth();
+  const { ready, session, profile, profileError, loadProfile } = useAuth();
   const qc = useQueryClient();
   const ran = useRef<string | null>(null);
   const uid = session?.user.id ?? null;
@@ -26,6 +27,8 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   // signing in: the arc draws itself (the brand mark as the loader), after a short beat so fast starts stay blank
   if (!ready) return <div style={{ height: '100%', background: 'var(--bg)', display: 'grid', placeItems: 'center', animation: 'boot 1ms 400ms both' }}><ArcLoader /></div>;
   if (!session) return <Navigate to="/welcome" replace />;
+  if (profileError && navigator.onLine) return <PageState variant="list" error onRetry={() => { void loadProfile(); }} />;
+  if (!profile && navigator.onLine) return <ArcLoader />;
   if (profile && !profile.onboarded_at) return <Navigate to="/onboarding" replace />;
   return children;
 }

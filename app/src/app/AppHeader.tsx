@@ -1,10 +1,10 @@
-import { config } from '../config';
+import { toast } from '../ui/toast';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { useHeader } from '../data/header';
 import { useT } from '../i18n';
-import { isAnon, signOut, useAuth, isProPlan } from '../lib/auth';
+import { isAnon, signOut, useAuth } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
 import { Icon } from '../ui/Icon';
 import { Avatar, InfoDialog } from '../ui/primitives';
@@ -44,7 +44,6 @@ export const roman = (n: number) => ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII
 export function AvatarMenu({ initials }: { initials: string }) {
   const t = useT();
   const navigate = useNavigate();
-  const plan = useAuth((x) => x.plan);
   const guest = useAuth((x) => hasBackend && isAnon(x.session));
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -76,9 +75,8 @@ export function AvatarMenu({ initials }: { initials: string }) {
           {guest && <button type="button" role="menuitem" className={s.item} onClick={() => go('/signup')}><Icon name="shield" size={16} />{t('menu.saveAccount')}</button>}
           <button type="button" role="menuitem" className={s.item} onClick={() => go('/settings/account')}><Icon name="user" size={16} />{t('auth.account')}</button>
           <button type="button" role="menuitem" className={s.item} onClick={() => go('/settings')}><Icon name="gear" size={16} />{t('settings.title')}</button>
-          {!config.beta && <button type="button" role="menuitem" className={s.item} onClick={() => go('/pro')}><Icon name="crown" size={16} />{hasBackend && isProPlan(plan) ? t('menu.proActive') : 'Pro'}</button>}
           <div className={s.sep} />
-          <button type="button" role="menuitem" className={s.item} onClick={() => { setOpen(false); if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}>
+          <button type="button" role="menuitem" className={s.item} onClick={() => { setOpen(false); if (hasBackend) void signOut().then(() => navigate('/welcome')).catch(() => toast.error(t('common.saveFailed'))); else navigate('/welcome'); }}>
             <Icon name="back" size={16} />{t('account.logout')}
           </button>
         </div>,

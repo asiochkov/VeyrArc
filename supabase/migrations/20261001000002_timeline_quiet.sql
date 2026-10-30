@@ -1,3 +1,6 @@
+-- Explicit prerequisite for a fresh database; existing schemas are left unchanged.
+create schema if not exists private;
+
 -- VeyrArc · Master Changeset tasks 26 and 32
 -- 26: system_events — the user's own activity feed (Analytics «Активность», sidebar inbox).
 --     Filled by triggers, read-only for the client.

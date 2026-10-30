@@ -23,7 +23,7 @@ const MOCK: SysEvent[] = [
 
 export function useEvents() {
   const session = useAuth((x) => x.session);
-  return useQuery({ queryKey: EVENTS_KEY, queryFn: hasBackend ? fetchEvents : async () => MOCK, enabled: !hasBackend || !!session, staleTime: 15_000 });
+  return useQuery({ queryKey: [...EVENTS_KEY, session?.user.id ?? 'demo'], queryFn: hasBackend ? fetchEvents : async () => MOCK, enabled: !hasBackend || !!session, staleTime: 15_000 });
 }
 
 export const EVENT_ICON: Record<string, IconName> = { habit: 'check', focus: 'bolt', planner: 'cal', goal: 'target', mood: 'spark', freeze: 'snowSm', quit: 'banProfile', arc: 'snow' };

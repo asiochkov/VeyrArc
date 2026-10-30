@@ -8,7 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AccountDialogs, type AccountModal } from '../../app/AccountDialogs';
 import { config } from '../../config';
 import { useLangStore, useT } from '../../i18n';
-import { deleteAccount, signOut, useAuth, userEmail, isProPlan } from '../../lib/auth';
+import { deleteAccount, signOut, useAuth, userEmail } from '../../lib/auth';
 import { saveOnboarding } from '../../lib/onboarding';
 import { track } from '../../lib/analytics';
 import { askPermission, pushStatus } from '../../lib/reminders';
@@ -258,13 +258,11 @@ export function Account() {
   const t = useT();
   const navigate = useNavigate();
   const flow = useFlow();
-  const { session, profile, plan: realPlan } = useAuth();
+  const { session, profile } = useAuth();
   // backend: real name / email / plan; otherwise the design's example values
   const f = hasBackend
     ? { ...flow.f, pname: profile?.first_name ?? '', first: profile?.first_name ?? '', last: profile?.last_name ?? '', nick: profile?.nickname ?? '', email: userEmail(session) }
     : flow.f;
-  const plan = hasBackend ? (isProPlan(realPlan) ? 'pro' : 'free') : flow.plan;
-  const setPlan = hasBackend ? () => {} : flow.setPlan;
   const lang = useLangStore((x) => x.lang);
   const setLang = useLangStore((x) => x.setLang);
   const [secOpen, setSecOpen] = useState(false);
@@ -275,7 +273,7 @@ export function Account() {
   // real numbers for the header (the design's sample numbers only without a backend)
   const hd = useHeader();
   const qToday = useSystem(todayRawOf);
-  const qStats = useQuery({ queryKey: ['accountStats'], queryFn: fetchAccountStats, enabled: hasBackend && !!session });
+  const qStats = useQuery({ queryKey: ['accountStats', session?.user.id], queryFn: fetchAccountStats, enabled: hasBackend && !!session });
   const streakNow = hasBackend ? (qToday.data ? buildToday(qToday.data, { initials: '', freezesAllowed: 1 }).stats.streak : '—') : 14;
   const statHabits = hasBackend ? (qStats.data?.habitsDone ?? '—') : 186;
   const statFocus = hasBackend ? (qStats.data?.focusHours ?? '—') : 42;
@@ -289,7 +287,6 @@ export function Account() {
         <div className={dir > 0 ? s.screenL : s.screenR}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...up(0) }}>
             <div className={s.h2}>{t('auth.account')}</div>
-            {!config.beta && <button type="button" className={s.planBadge} data-pro={plan === 'pro'} onClick={() => (hasBackend ? navigate('/pro') : setPlan(plan === 'free' ? 'pro' : 'free'))}>{plan === 'free' ? 'Free' : 'Pro'}</button>}
           </div>
 
           <div className={s.accHeader} style={up(1)}>
@@ -317,16 +314,6 @@ export function Account() {
             <div className={s.stat}><span className={s.statIcon}><Icon name="bolt" size={15} sw={1.6} /></span><span className={s.statNum}>{t('units.h', { h: statFocus })}</span><span className={s.statLabel}>{t('auth.statFocus')}</span></div>
           </div>
 
-          {plan === 'free' && !config.beta && (
-            <div className={s.upsell} style={up(3)}>
-              <span className={s.upsellIcon}><Icon name="lock" size={20} sw={1.8} /></span>
-              <div style={{ flex: '1 1 calc(100% - 56px)', minWidth: 0 }}>
-                <div style={{ font: 'var(--fw-heavy) 15px var(--font-ui)', color: '#f2e2c4' }}>{t('auth.upsellTitle')}</div>
-                <div style={{ font: 'var(--fw-medium) 13px/1.45 var(--font-ui)', color: 'rgba(var(--fg-rgb),.58)', marginTop: 3 }}>{t('auth.upsellSub')}</div>
-              </div>
-              <Link to="/pro" className={s.goldBtn}>{t('auth.openPro')}</Link>
-            </div>
-          )}
 
           <div className={s.list} style={up(4)}>
             <button type="button" className={s.row} onClick={() => setModal('name')}><span className={s.rowIcon}><Icon name="user" size={18} sw={1.8} /></span><span className={s.rowText}>{t('auth.personal')}</span>{chev}</button>
@@ -362,7 +349,6 @@ export function Account() {
                 <button type="button" className={s.segBtn} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button>
               </div>
             </div>
-            {!config.beta && <Link to="/pro" className={s.row}><span className={s.rowIcon}><Icon name="crown" size={18} sw={1.8} /></span><span className={s.rowText}>{t('auth.subscription')}</span><span className={s.rowValue}>{plan === 'free' ? 'Free' : 'Pro'}</span>{chev}</Link>}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18, ...up(5) }}>
@@ -370,7 +356,7 @@ export function Account() {
             <Cta variant="danger" onClick={() => setModal('del1')}>{t('auth.deleteAccount')}</Cta>
           </div>
           <AccountDialogs modal={modal} setModal={setModal}
-            onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}
+            onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')).catch(() => toast.error(t('common.saveFailed'))); else navigate('/welcome'); }}
             onDelete={async () => { if (hasBackend) await deleteAccount(); navigate('/welcome'); }} />
         </div>
       )}

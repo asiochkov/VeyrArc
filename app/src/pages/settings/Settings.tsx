@@ -1,4 +1,3 @@
-import { config } from '../../config';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState, type ReactNode } from 'react';
 import { useHeader } from '../../data/header';
@@ -6,7 +5,7 @@ import { daysBetween } from '../../data/model';
 import { exportData, startNewArc, setProfile } from '../../data/settings';
 import { SYSTEM_KEY, useSystem } from '../../state/system';
 import { toast } from '../../ui/toast';
-import { useAuth, userEmail, isProPlan } from '../../lib/auth';
+import { useAuth, userEmail } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
 import { askPermission } from '../../lib/reminders';
 import { sendTestPush } from '../../lib/push';
@@ -19,8 +18,6 @@ import { useLangStore, useT, type Lang, type T } from '../../i18n';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { Icon, type IconName } from '../../ui/Icon';
 import { ConfirmDialog, PhotoImg, Segmented } from '../../ui/primitives';
-import { cancelAutoRenew } from '../../lib/billing';
-import { InviteCard } from './InviteCard';
 import { useTheme } from '../../lib/theme';
 import { OathSheet } from '../../ui/OathSheet';
 import { roman } from '../../app/AppHeader';
@@ -34,7 +31,7 @@ const ARCS = [
   { id: 'arc2', n: 2, dates: { ru: '9 сент. – 7 дек.', en: 'Sep 9 – Dec 7' }, pct: '16%', current: true },
 ];
 /* Master Changeset RS-7: seven groups, Notion-like */
-type Group = 'account' | 'appearance' | 'notif' | 'arc' | 'plan' | 'data' | 'about';
+type Group = 'account' | 'appearance' | 'notif' | 'arc' | 'data' | 'about';
 
 export function Settings() {
   const t = useT();
@@ -44,7 +41,7 @@ export function Settings() {
   const setLang = useLangStore((x) => x.setLang);
   const [langOpen, setLangOpen] = useState(false);
   const [group, setGroup] = useState<Group>('account');
-  const { session, profile, plan } = useAuth();
+  const { session, profile } = useAuth();
   const hd = useHeader();
   const qc = useQueryClient();
   const arcsQ = useSystem((r) => r.arcs);
@@ -75,10 +72,6 @@ export function Settings() {
   const account = hasBackend
     ? { name: [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || userEmail(session), email: userEmail(session), initials: hd.initials }
     : { name: ACCOUNT.name, email: ACCOUNT.email, initials: hd.initials };
-  const isPro = hasBackend ? isProPlan(plan) : true;
-  const renew = hasBackend && plan?.renews_at
-    ? new Date(plan.renews_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })
-    : t.pick(ACCOUNT.renew);
   const fmtD = (d: string) => new Date(d + 'T00:00:00').toLocaleDateString(lang === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short' });
   const arcs = hasBackend
     ? (arcsQ.data ?? []).slice().reverse().map((a) => {
@@ -91,7 +84,6 @@ export function Settings() {
   const [arcModal, setArcModal] = useState(false);
   const [accModal, setAccModal] = useState<AccountModal>(null);
   const [oathOpen, setOathOpen] = useState(false);
-  const [cancelAsk, setCancelAsk] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [imp, setImp] = useState<ReturnType<typeof parseImport>>(null);
   const [importing, setImporting] = useState(false);
@@ -101,8 +93,8 @@ export function Settings() {
 
   const groups: [Group, string][] = [
     ['account', t('settings.account')], ['appearance', t('settings.appearance')], ['notif', t('settings.notifications')],
-    ['arc', t('settings.arc')], ['plan', t('settings.plan')], ['data', t('settings.dataPrivacy')], ['about', t('settings.about')],
-  ].filter(([g]) => !(config.beta && g === 'plan')) as [Group, string][];
+    ['arc', t('settings.arc')], ['data', t('settings.dataPrivacy')], ['about', t('settings.about')],
+  ];
   const show = (g: Group) => !isDesktop || group === g;
 
   const header = (
@@ -159,7 +151,6 @@ export function Settings() {
             </span>
             <span style={{ color: 'rgba(var(--fg-rgb),.56)' }}><Icon name="chevron" size={16} sw={2} /></span>
           </button>
-          {hasBackend && <InviteCard />}
         </div>
       )}
       {show('appearance') && (
@@ -247,41 +238,6 @@ export function Settings() {
           </div>
         </div>
       )}
-      {show('plan') && !config.beta && (
-        <div>
-          <div className={s.groupTitle}>{t('settings.plan')}</div>
-          {!isPro ? (
-            // B22: for Free the card invites to Pro (texts from the Account upsell)
-            <div className={s.proCard}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className={s.crown}><Icon name="lock" size={19} /></span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)', color: '#f2e2c4' }}>{t('auth.upsellTitle')}</span>
-                  <span style={{ display: 'block', font: 'var(--fw-medium) 12px/1.45 var(--font-ui)', color: 'rgba(var(--fg-rgb),.55)', marginTop: 3 }}>{t('auth.upsellSub')}</span>
-                </span>
-              </div>
-              <button type="button" className={s.manage} onClick={() => navigate('/pro')}>{t('auth.openPro')}</button>
-            </div>
-          ) : (
-          <div className={s.proCard}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span className={s.crown}><Icon name="crown" size={19} /></span>
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)', color: '#f2e2c4' }}>{t('settings.proActive')}</span>
-                <span style={{ display: 'block', font: 'var(--fw-medium) 12px/1.45 var(--font-ui)', color: 'rgba(var(--fg-rgb),.55)', marginTop: 3 }}>
-                  {!plan?.period ? t('settings.trialUntil') : plan.auto_renew ? t('settings.renews') : t('settings.activeUntil')} · <span style={{ fontFamily: 'var(--font-mono)' }}>{renew}</span>
-                  {plan?.period && plan.card && <><br />{plan.auto_renew ? t('settings.payWith', { c: plan.card }) : t('settings.autoOff')}</>}
-                </span>
-              </span>
-              <span className={s.proBadge}>PRO</span>
-            </div>
-            {plan?.period && plan.auto_renew
-              ? <button type="button" className={s.manage} onClick={() => setCancelAsk(true)}>{t('settings.cancelRenew')}</button>
-              : <Link to="/pro" className={s.manage}>{plan?.period ? t('settings.renewAgain') : t('settings.manage')}</Link>}
-          </div>
-          )}
-        </div>
-      )}
       {show('data') && (
         <div>
           <div className={s.groupTitle}>{t('settings.dataPrivacy')}</div>
@@ -324,10 +280,6 @@ export function Settings() {
         <div style={{ marginTop: 22 }}>{content}</div>
       )}
 
-      <ConfirmDialog open={cancelAsk} title={t('settings.cancelRenewTitle')} body={t('settings.cancelRenewBody', { date: renew ?? '' })}
-        confirmLabel={t('settings.cancelRenewOk')} cancelLabel={t('settings.keepRenew')} danger
-        onConfirm={() => { setCancelAsk(false); void cancelAutoRenew().then(() => toast.success(t('settings.cancelRenewDone'))).catch(() => toast.error(t('common.saveFailed'))); }}
-        onCancel={() => setCancelAsk(false)} />
       <ConfirmDialog
         open={arcModal} title={t('settings.newArcTitle')} body={t('settings.newArcBody', { d: hd.arcDay, n: hd.arcLength })}
         confirmLabel={t('settings.newArcOk')} cancelLabel={t('settings.cancel')}
@@ -343,15 +295,15 @@ export function Settings() {
           if (!imp || importing) return;
           if (!hasBackend) { setImp(null); return; }
           setImporting(true);
-          void runImport(imp.file).then((r) => {
-            toast.success(r.goalsSkipped ? t('settings.importDoneSkipped', { n: r.goalsSkipped }) : t('settings.importDone'));
+          void runImport(imp.file).then(() => {
+            toast.success(t('settings.importDone'));
             void qc.invalidateQueries({ queryKey: SYSTEM_KEY });
           }).catch(() => toast.error(t('settings.importFailed'))).finally(() => { setImporting(false); setImp(null); });
         }}
         onCancel={() => setImp(null)} />
       <OathSheet open={oathOpen} onClose={() => setOathOpen(false)} arcId={active?.id ?? null} current={active?.oath ?? ''} />
       <AccountDialogs modal={accModal} setModal={setAccModal}
-        onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')); else navigate('/welcome'); }}
+        onLogout={() => { if (hasBackend) void signOut().then(() => navigate('/welcome')).catch(() => toast.error(t('common.saveFailed'))); else navigate('/welcome'); }}
         onDelete={async () => { if (hasBackend) await deleteAccount(); navigate('/welcome'); }} />
     </div>
   );

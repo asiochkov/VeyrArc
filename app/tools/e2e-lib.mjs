@@ -1,6 +1,7 @@
+import { localUrl } from './e2e-safety.mjs';
 /* Shared helpers for the e2e runs against the local stack. */
 import { chromium } from '@playwright/test';
-export const APP = process.env.APP_URL || 'http://localhost:4173';
+export const APP = localUrl(process.env.APP_URL || 'http://localhost:4173');
 export const log = (...a) => console.log('✓', ...a);
 
 export async function open(viewport = { width: 390, height: 844 }, ctx = {}) {

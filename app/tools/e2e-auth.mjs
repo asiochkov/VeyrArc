@@ -1,13 +1,14 @@
+import { localUrl } from './e2e-safety.mjs';
 /*
  * End-to-end auth run against a local Supabase-like stack (see docs/local-backend.md):
  * guest → onboarding → first check-in → sign up (code from the mail sink) →
- * sign out → sign in → password reset → delete account.
+ * sign out → sign in → removed reset route.
  *   APP_URL=http://localhost:4173 MAIL_URL=http://127.0.0.1:54321/__mail node tools/e2e-auth.mjs
  */
 import { chromium } from '@playwright/test';
 
-const APP = process.env.APP_URL || 'http://localhost:4173';
-const MAIL = process.env.MAIL_URL || 'http://127.0.0.1:54321/__mail';
+const APP = localUrl(process.env.APP_URL || 'http://localhost:4173');
+const MAIL = localUrl(process.env.MAIL_URL || 'http://127.0.0.1:54321/__mail');
 const email = `e2e+${Date.now()}@veyrarc.test`;
 const log = (...a) => console.log('✓', ...a);
 const code = async (after) => {
@@ -92,26 +93,9 @@ try {
   await page.waitForURL('**/welcome');
   await page.goto(APP + '/login');
   await page.getByPlaceholder('напр. ivan@mail.ru').fill(email);
-  // beta: «Забыли пароль?» shows the support contact; the code reset screen stays reachable at /reset
-  await page.getByRole('button', { name: 'Забыли пароль?' }).click();
-  await page.getByText(/support@/).waitFor(); log('beta: forgot password shows the contact');
-  await page.getByRole('button', { name: 'Ок' }).click().catch(() => page.keyboard.press('Escape'));
+  if (await page.getByRole('button', { name: 'Забыли пароль?' }).count()) throw Error('Reset button should be absent');
   await page.goto(APP + '/reset');
-  await page.getByPlaceholder('напр. ivan@mail.ru').fill(email).catch(() => {});
-  const t1 = Date.now();
-  await page.getByRole('button', { name: 'Отправить код' }).click();
-  await page.getByRole('button', { name: 'Ввести код' }).click();
-  await typeCode(page, await code(t1));
-  await page.getByRole('button', { name: 'Продолжить', exact: true }).click();
-  await page.getByPlaceholder('минимум 8 символов').fill('N3wPassword!');
-  await page.locator('input[type="password"]').nth(1).fill('N3wPassword!');
-  await page.getByRole('button', { name: 'Сохранить пароль' }).click();
-  await page.getByText('Пароль обновлён').waitFor(); log('password reset by code');
-  await page.goto(APP + '/login');
-  await page.getByPlaceholder('напр. ivan@mail.ru').fill(email);
-  await page.locator('input[type="password"]').fill('N3wPassword!');
-  await page.getByRole('button', { name: 'Войти' }).last().click();
-  await page.waitForURL(APP + '/'); log('signed in with the new password');
+  await page.waitForURL(APP + '/login'); log('old reset link redirects to login');
 
   console.log(errors.length ? 'page errors: ' + errors.join(' | ') : 'no page errors');
 } catch (e) {

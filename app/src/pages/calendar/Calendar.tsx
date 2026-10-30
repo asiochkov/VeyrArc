@@ -87,7 +87,7 @@ function useCalendar() {
   const sq = useSystem((r) => r);
   const sys = sq.data;
   const outside = !!sys && (from < addDays(sys.day, -400) || to > addDays(sys.day, 120));
-  const extra = useQuery({ queryKey: ['calendar', from, to], queryFn: () => fetchCalendar(from, to), enabled: on && outside, refetchOnWindowFocus: false, placeholderData: (p) => p });
+  const extra = useQuery({ queryKey: ['calendar', session?.user.id ?? 'demo', from, to], queryFn: () => fetchCalendar(from, to), enabled: on && outside, refetchOnWindowFocus: false });
   const cats = sys?.cats ?? [];
   const [dragOver, setDragOver] = useState<{ id: string; s: number; e: number; day: string } | null>(null);
   const items = useMemo<Ev[]>(() => {

@@ -7,8 +7,8 @@ import type { IconName } from '../../ui/Icon';
  * Cross-screen state of the auth / onboarding flow (VeyrArc Auth.dc.html `state`).
  * Stage 3 moves persistence to Supabase (anonymous session → linked account).
  */
-export type Screen = 'welcome' | 'onboarding' | 'final' | 'home' | 'signup' | 'otp' | 'login' | 'reset' | 'account';
-export const ORDER: Screen[] = ['welcome', 'onboarding', 'final', 'home', 'signup', 'otp', 'login', 'reset', 'account'];
+export type Screen = 'welcome' | 'onboarding' | 'final' | 'home' | 'signup' | 'otp' | 'login' | 'account';
+export const ORDER: Screen[] = ['welcome', 'onboarding', 'final', 'home', 'signup', 'otp', 'login', 'account'];
 
 export type L = { ru: string; en: string };
 export type DirId = 'body' | 'mind' | 'disc' | 'prod' | 'quit';
@@ -43,8 +43,6 @@ type Flow = {
   setTime: (t: string) => void;
   perm: boolean;
   setPerm: (v: boolean) => void;
-  plan: 'free' | 'pro';
-  setPlan: (p: 'free' | 'pro') => void;
   /* backend: which email confirmation is pending (sign-up or guest linking) */
   pending: { kind: 'signup' | 'link'; email: string; pw: string } | null;
   setPending: (p: Flow['pending']) => void;
@@ -74,8 +72,6 @@ export const useFlow = create<Flow>()(persist((set, get) => ({
   setTime: (time) => set({ time }),
   perm: false,
   setPerm: (perm) => set({ perm }),
-  plan: 'free',
-  setPlan: (plan) => set({ plan }),
   pending: null,
   setPending: (pending) => set({ pending }),
   created: {},

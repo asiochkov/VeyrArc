@@ -1,3 +1,4 @@
+import { allRows } from '../data/pagination';
 import { useQuery, type QueryClient } from '@tanstack/react-query';
 import { isoDay } from '../lib/day';
 import { useAuth } from '../lib/auth';
@@ -37,33 +38,36 @@ export type SystemRaw = {
 };
 
 export const SYSTEM_KEY = ['system'] as const;
+export const systemKey = () => [...SYSTEM_KEY, useAuth.getState().session?.user.id ?? 'demo'] as const;
 
 export async function fetchSystem(): Promise<SystemRaw> {
+  const owner = useAuth.getState().session?.user.id;
+  if (!owner) throw Error('No session');
   const day = isoDay();
   const from = addDays(day, -400);
   const q = await Promise.all([
-    db().from('habits').select('*').order('sort').order('created_at'),
-    db().from('habit_logs').select('habit_id, day, value, done').gte('day', from),
-    db().from('day_entries').select('day, mood, water, frozen, note').gte('day', from),
-    db().from('focus_sessions').select('*').gte('started_at', from),
-    db().from('plan_items').select('*').gte('day', from).lte('day', addDays(day, 120)).order('starts_at', { nullsFirst: false }),
-    db().from('plan_categories').select('id, key, hue'),
-    db().from('arcs').select('*').order('number'),
-    db().from('quits').select('*').is('archived_at', null).order('created_at'),
-    db().from('quit_relapses').select('id, quit_id, at'),
-    db().from('goals').select('*').order('created_at'),
-    db().from('goal_tasks').select('*').order('sort'),
-    db().from('goal_entries').select('goal_id, day, done_task_ids, diary').gte('day', from),
+    allRows((fromPage, toPage) => db().from('habits').select('*').eq('user_id', owner).order('sort').order('created_at').order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('habit_logs').select('habit_id, day, value, done').eq('user_id', owner).gte('day', from).order('day').order('habit_id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('day_entries').select('day, mood, water, frozen, note').eq('user_id', owner).gte('day', from).order('day').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('focus_sessions').select('*').eq('user_id', owner).gte('started_at', from).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('plan_items').select('*').eq('user_id', owner).gte('day', from).lte('day', addDays(day, 120)).order('starts_at', { nullsFirst: false }).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('plan_categories').select('id, key, hue').or(`user_id.is.null,user_id.eq.${owner}`).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('arcs').select('*').eq('user_id', owner).order('number').order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('quits').select('*').eq('user_id', owner).is('archived_at', null).order('created_at').order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('quit_relapses').select('id, quit_id, at').eq('user_id', owner).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('goals').select('*').eq('user_id', owner).order('created_at').order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('goal_tasks').select('*').eq('user_id', owner).order('sort').order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('goal_entries').select('goal_id, day, done_task_ids, diary').eq('user_id', owner).gte('day', from).order('day').order('goal_id').range(fromPage, toPage)),
   ]);
-  for (const r of q) if (r.error) throw r.error;
-  const [habits, logs, days, focus, plan, cats, arcs, quits, relapses, goals, tasks, entries] = q.map((r) => r.data as never[]);
+  if (useAuth.getState().session?.user.id !== owner) throw Error('Session changed');
+  const [habits, logs, days, focus, plan, cats, arcs, quits, relapses, goals, tasks, entries] = q as unknown as never[][];
   return { day, habits, logs, days, focus, plan, cats, arcs, quits, relapses, goals, tasks, entries };
 }
 
 /** Read a slice of the system state; every screen shares the one fetch and cache entry. */
 export function useSystem<T>(select: (r: SystemRaw) => T) {
   const session = useAuth((x) => x.session);
-  return useQuery({ queryKey: SYSTEM_KEY, queryFn: fetchSystem, enabled: hasBackend && !!session, refetchOnWindowFocus: false, select });
+  return useQuery({ queryKey: systemKey(), queryFn: fetchSystem, enabled: hasBackend && !!session, refetchOnWindowFocus: false, select });
 }
 
 /* ---- slices in the shapes the screen builders already take ---- */
@@ -87,11 +91,11 @@ let client: QueryClient | null = null;
 export const bindSystem = (qc: QueryClient) => {
   client = qc;
   // design preview: the same screens run on sample data, fully interactive
-  if (!hasBackend) qc.setQueryData(SYSTEM_KEY, mockSystem());
+  if (!hasBackend) qc.setQueryData(systemKey(), mockSystem());
 };
 export const systemClient = () => client;
 /** Apply an optimistic change to the shared state (no-op before the first load). */
 export function patchSystem(fn: (r: SystemRaw) => SystemRaw) {
-  client?.setQueryData<SystemRaw>(SYSTEM_KEY, (r) => (r ? fn(r) : r));
+  client?.setQueryData<SystemRaw>(systemKey(), (r) => (r ? fn(r) : r));
 }
-export const getSystem = () => client?.getQueryData<SystemRaw>(SYSTEM_KEY);
+export const getSystem = () => client?.getQueryData<SystemRaw>(systemKey());

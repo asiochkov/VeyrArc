@@ -1,6 +1,5 @@
-import { config } from '../config';
 import { createBrowserRouter, createMemoryRouter, type RouteObject } from 'react-router-dom';
-import { Login, Reset, Signup, Verify, Welcome } from '../pages/auth/screens';
+import { Login, Signup, Verify, Welcome } from '../pages/auth/screens';
 import { Account, DayOne, Onboarding } from '../pages/auth/screens2';
 import { Today } from '../pages/today/Today';
 import { Disciplines } from '../pages/disciplines/Disciplines';
@@ -14,7 +13,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 const DEEP = /^(analytics|planner|goals|disciplines|settings|arc\/recap)(\/[\w-]+)?$/;
 function OpenLink() {
   const to = new URLSearchParams(useLocation().search).get('to') ?? '';
-  const path = decodeURIComponent(to).replace(/^web\+veyrarc:\/*/i, '').replace(/^\/+/, '').split(/[?#]/)[0];
+  const path = to.replace(/^web\+veyrarc:\/*/i, '').replace(/^\/+/, '').split(/[?#]/)[0];
   return <Navigate to={DEEP.test(path) ? '/' + path : '/'} replace />;
 }
 
@@ -36,7 +35,6 @@ const Goals = later(() => import('../pages/goals/Goals'), 'Goals');
 const Analytics = later(() => import('../pages/analytics/Analytics'), 'Analytics');
 const Recap = later(() => import('../pages/arc/Recap'), 'Recap');
 const Legal = later(() => import('../pages/legal/Legal'), 'Legal');
-const Pro = later(() => import('../pages/pro/Pro'), 'Pro');
 const Settings = later(() => import('../pages/settings/Settings'), 'Settings');
 const PreviewLayout = later(() => import('../preview/PreviewScreens'), 'PreviewLayout');
 const PreviewScreens = later(() => import('../preview/PreviewScreens'), 'PreviewScreens');
@@ -77,14 +75,14 @@ const routes: RouteObject[] = [
       { path: '/signup', element: <GuestOnly><Signup /></GuestOnly> },
       { path: '/verify', element: <Verify /> },
       { path: '/login', element: <GuestOnly><Login /></GuestOnly> },
-      { path: '/reset', element: <Reset /> },
+      { path: '/reset', element: <Navigate to="/login" replace /> },
       { path: '/arc/recap/:id', element: <RequireAuth><Recap /></RequireAuth> },
-      { path: '/pro', element: config.beta ? <Navigate to="/" replace /> : <Pro /> },
+      { path: '/pro', element: <Navigate to="/" replace /> },
       { path: '/terms', element: <Legal doc="terms" /> },
       { path: '/privacy', element: <Legal doc="privacy" /> },
-      { path: '/offer', element: config.beta ? <Navigate to="/" replace /> : <Legal doc="offer" /> },
+      { path: '/offer', element: <Navigate to="/" replace /> },
       { path: '/contacts', element: <Legal doc="contacts" /> },
-      { path: '/pricing', element: config.beta ? <Navigate to="/" replace /> : <Legal doc="pricing" /> },
+      { path: '/pricing', element: <Navigate to="/" replace /> },
       { path: '/settings/account', element: <RequireAuth><Account /></RequireAuth> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],

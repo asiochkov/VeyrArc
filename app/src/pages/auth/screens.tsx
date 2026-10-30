@@ -2,11 +2,10 @@ import { toast } from '../../ui/toast';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useT } from '../../i18n';
-import { google, nextPath, resendEmail, sendReset, setNewPassword, signIn, signUpOrLink, startGuest, verifyEmail, verifyReset } from '../../lib/auth';
+import { google, nextPath, resendEmail, signIn, signUpOrLink, startGuest, verifyEmail } from '../../lib/auth';
 import { hasBackend } from '../../lib/supabase';
 import { Icon } from '../../ui/Icon';
-import { Cta, InfoDialog } from '../../ui/primitives';
-import { config } from '../../config';
+import { Cta } from '../../ui/primitives';
 import s from './auth.module.css';
 import { LegalLinks } from '../legal/LegalLinks';
 import { AuthLayout, up } from './AuthLayout';
@@ -202,7 +201,6 @@ export function Login() {
   const navigate = useNavigate();
   const { f, setF } = useFlow();
   const [showPw, setShowPw] = useState(false);
-  const [help, setHelp] = useState(false);
   const [err, setErr] = useState(false);
   const { loading, load, run } = useLoad();
   const { shake, cls } = useShake();
@@ -233,136 +231,11 @@ export function Login() {
             onChange={(e) => { setF('lemail', e.target.value); setErr(false); }} />
           <Field
             wrapClass={cls('login')} wrapStyle={{ marginTop: 14, ...up(6) }} type={showPw ? 'text' : 'password'} value={f.lpw} placeholder="••••••••" showError={err}
-            label={<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}><label className={s.label}>{t('auth.password')}</label><button type="button" className={s.linkBtn} style={{ fontSize: 12.5 }} onClick={() => { if (config.beta) { setHelp(true); return; } setF('remail', f.lemail); navigate('/reset'); }}>{t('auth.forgot')}</button></div>}
+            label={t('auth.password')}
             onChange={(e) => { setF('lpw', e.target.value); setErr(false); }}
             right={<EyeButton shown={showPw} onToggle={() => setShowPw(!showPw)} />} />
           <SubmitCta valid={!!(f.lemail && f.lpw)} loading={loading === 'login'} onClick={submit} style={{ marginTop: 22, ...up(7) }}>{t('auth.signIn')}</SubmitCta>
           <div className={s.footer}>{t('auth.noAccount')} <button type="button" className={s.linkBtn} onClick={() => navigate('/signup')}>{t('auth.create')}</button></div>
-          {/* beta: reset e-mails are not reliable yet — the password is reset by hand on request */}
-          <InfoDialog open={help} title={t('auth.forgotBetaTitle')} okLabel={t('common.ok')} onClose={() => setHelp(false)}
-            body={<>{t('auth.forgotBetaBody')}<br /><b style={{ userSelect: 'all', WebkitUserSelect: 'all' }}>{config.site.support}</b></>} />
-        </div>
-      )}
-    </AuthLayout>
-  );
-}
-
-/* ---------------- Reset password ---------------- */
-
-type RStep = 'email' | 'check' | 'code' | 'newpw' | 'done';
-const RORDER: RStep[] = ['email', 'check', 'code', 'newpw', 'done'];
-
-export function Reset() {
-  const t = useT();
-  const navigate = useNavigate();
-  const { f, setF } = useFlow();
-  const [step, setStep] = useState<RStep>('email');
-  const [sdir, setSdir] = useState<1 | -1>(1);
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [showPw, setShowPw] = useState(false);
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [err, setErr] = useState(false);
-  const { loading, load, run } = useLoad();
-  const { shake, cls } = useShake();
-  const timer = useResendTimer(step === 'code');
-  // backend: the same steps, backed by Supabase password recovery (6-digit code)
-  const sendCode = () => {
-    if (!hasBackend) { load('reset', 1000, () => go('check')); return; }
-    void run('reset', async () => { await sendReset(f.remail.trim()).catch(() => {}); go('check'); });
-  };
-  const checkCode = () => {
-    if (!full) return;
-    if (!hasBackend) { load('otp', 1000, () => { if (otp.join('') === '000000') { setErr(true); shake('otp'); } else go('newpw'); }); return; }
-    void run('otp', async () => { try { await verifyReset(f.remail.trim(), otp.join('')); go('newpw'); } catch { setErr(true); shake('otp'); } });
-  };
-  const savePw = () => {
-    if (!hasBackend) { load('newpw', 1100, () => go('done')); return; }
-    void run('newpw', async () => { try { await setNewPassword(f.npw); go('done'); } catch { setTouched((x) => ({ ...x, npw: true })); } });
-  };
-  const resendReset = () => {
-    timer.reset(); setOtp(['', '', '', '', '', '']); setErr(false);
-    if (hasBackend) void sendReset(f.remail.trim()).catch(() => {});
-  };
-  const go = (next: RStep, d: 1 | -1 = 1) => { setSdir(d); setStep(next); };
-  const email = f.remail || 'anna.petrova@gmail.com';
-  const errs = {
-    remail: !emailRe.test(f.remail) ? t('auth.errEmailBad') : '',
-    npw: f.npw.length < 8 ? t('auth.errPw') : '',
-    npw2: f.npw2 !== f.npw ? t('auth.errPwMatch') : '',
-  };
-  const slide = sdir > 0 ? s.slideL : s.slideR;
-  const back = () => { const i = RORDER.indexOf(step); if (i <= 0 || step === 'done') navigate('/login'); else go(RORDER[i - 1], -1); };
-  const full = otp.every(Boolean);
-
-  return (
-    <AuthLayout screen="reset">
-      {({ dir }) => (
-        <div className={dir > 0 ? s.screenL : s.screenR}>
-          <button type="button" className={s.backBtn} style={up(0)} onClick={back}><Icon name="back" size={18} sw={2} /></button>
-
-          {step === 'email' && (
-            <div key="email" className={slide}>
-              <div className={s.h1} style={{ marginTop: 18 }}>{t('auth.resetTitle')}</div>
-              <div className={s.sub} style={{ marginTop: 8 }}>{t('auth.resetSub')}</div>
-              <Field wrapStyle={{ marginTop: 26 }} type="email" label={t('auth.email')} value={f.remail} placeholder={t('auth.phEmail')}
-                onChange={(e) => setF('remail', e.target.value)} onBlur={() => setTouched((x) => ({ ...x, remail: true }))} showError={touched.remail && !!errs.remail} error={errs.remail} />
-              <SubmitCta valid={!errs.remail} loading={loading === 'reset'} onClick={sendCode} style={{ marginTop: 22 }}>{t('auth.sendCode')}</SubmitCta>
-            </div>
-          )}
-
-          {step === 'check' && (
-            <div key="check" className={slide} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingTop: 24 }}>
-              <div className={s.iconTileLg}><Icon name="mail" size={36} sw={1.6} /></div>
-              <div className={s.h1} style={{ marginTop: 22 }}>{t('auth.checkMail')}</div>
-              <div className={s.sub} style={{ marginTop: 8, maxWidth: 300 }}>{t('auth.resetSentTo')}<span className={s.strong}>{email}</span></div>
-              <Cta style={{ marginTop: 28 }} onClick={() => { setOtp(['', '', '', '', '', '']); timer.reset(); go('code'); }}>{t('auth.enterCode')}</Cta>
-              <button type="button" className={s.linkBtn} style={{ marginTop: 16 }} onClick={() => go('email', -1)}>{t('auth.otherEmail')}</button>
-            </div>
-          )}
-
-          {step === 'code' && (
-            <div key="code" className={slide}>
-              <div className={s.h1} style={{ marginTop: 18 }}>{t('auth.enterCodeTitle')}</div>
-              <div className={s.sub} style={{ marginTop: 8 }}>{t('auth.sixDigits')}<span className={s.strong}>{email}</span></div>
-              <OtpInput value={otp} onChange={(v) => { setOtp(v); setErr(false); }} error={err} shakeClass={cls('otp')} />
-              {err && <div className={s.errText} style={{ textAlign: 'center', marginTop: 10 }}>{t('auth.wrongCode')}</div>}
-              <SubmitCta valid={full} loading={loading === 'otp'} style={{ marginTop: 22 }}
-                onClick={checkCode}>{t('auth.continue')}</SubmitCta>
-              <div style={{ marginTop: 18, textAlign: 'center' }}>
-                {timer.left === 0 ? (
-                  <button type="button" className={s.linkBtn} onClick={resendReset}>{t('auth.resend')}</button>
-                ) : (
-                  <span className={s.small}>{t('auth.resendIn')}<span style={{ fontFamily: 'var(--font-mono)' }}>{timer.label}</span></span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {step === 'newpw' && (
-            <div key="newpw" className={slide}>
-              <div className={s.h1} style={{ marginTop: 18 }}>{t('auth.newPassword')}</div>
-              <div className={s.sub} style={{ marginTop: 8 }}>{t('auth.newPasswordSub')}</div>
-              <div style={{ marginTop: 26 }}>
-                <Field label={t('auth.newPassword')} type={showPw ? 'text' : 'password'} value={f.npw} placeholder={t('auth.phPassword')}
-                  onChange={(e) => setF('npw', e.target.value)} onBlur={() => setTouched((x) => ({ ...x, npw: true }))} showError={touched.npw && !!errs.npw}
-                  right={<EyeButton shown={showPw} onToggle={() => setShowPw(!showPw)} />} />
-                <Strength pw={f.npw} />
-                {touched.npw && errs.npw && <div className={s.errText}>{errs.npw}</div>}
-              </div>
-              <Field wrapStyle={{ marginTop: 14 }} label={t('auth.repeatPassword')} type={showPw ? 'text' : 'password'} value={f.npw2} placeholder={t('auth.phRepeat')}
-                onChange={(e) => setF('npw2', e.target.value)} onBlur={() => setTouched((x) => ({ ...x, npw2: true }))} showError={touched.npw2 && !!errs.npw2} error={errs.npw2} />
-              <SubmitCta valid={!errs.npw && !errs.npw2 && !!f.npw2} loading={loading === 'newpw'} onClick={savePw} style={{ marginTop: 22 }}>{t('auth.savePassword')}</SubmitCta>
-            </div>
-          )}
-
-          {step === 'done' && (
-            <div key="done" className={slide} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingTop: 30 }}>
-              <span className={s.successBadge}><Icon name="checkLg" size={38} sw={2.6} /></span>
-              <div className={s.h1} style={{ marginTop: 22 }}>{t('auth.passwordUpdated')}</div>
-              <div className={s.sub} style={{ marginTop: 8 }}>{t('auth.signInWithNew')}</div>
-              <Cta style={{ marginTop: 28 }} onClick={() => navigate('/login')}>{t('auth.signIn')}</Cta>
-            </div>
-          )}
         </div>
       )}
     </AuthLayout>

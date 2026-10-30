@@ -2,8 +2,6 @@
 import type { IconName } from '../ui/Icon';
 import type { L } from './today';
 
-/* The design currently hard-codes Pro ("пока всё разблокируй"). */
-export const PROFILE_IS_PRO = true;
 
 export const PERIOD_DATA = { week: { value: 718, delta: 6 }, month: { value: 742, delta: 18 }, year: { value: 705, delta: 41 }, arc: { value: 690, delta: 52 } } as const;
 export type Period = keyof typeof PERIOD_DATA;

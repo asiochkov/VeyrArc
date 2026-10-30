@@ -17,7 +17,6 @@ const GROUPS: Group[] = [
       { path: '/goals', ru: 'Цели', en: 'Goals' },
       { path: '/analytics', ru: 'Профиль', en: 'Profile' },
       { path: '/settings', ru: 'Настройки', en: 'Settings' },
-      { path: '/pro', ru: 'VeyrArc Pro', en: 'VeyrArc Pro' },
     ],
   },
   {
@@ -29,7 +28,6 @@ const GROUPS: Group[] = [
       { path: '/signup', ru: 'Регистрация', en: 'Sign up' },
       { path: '/verify', ru: 'Код из письма', en: 'Email code' },
       { path: '/login', ru: 'Вход', en: 'Log in' },
-      { path: '/reset', ru: 'Сброс пароля', en: 'Reset password' },
       { path: '/settings/account', ru: 'Аккаунт', en: 'Account' },
     ],
   },

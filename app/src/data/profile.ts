@@ -1,3 +1,5 @@
+import { useAuth } from '../lib/auth';
+import { allRows } from '../data/pagination';
 import { isoDay } from '../lib/day';
 import { computeIndex } from '../state/compute';
 import { db } from '../lib/supabase';
@@ -20,7 +22,6 @@ export type ProfileData = {
   arcCompare: { current: number; previous: number; delta: number; currentPct: number; previousPct: number; currentN: number; previousN: number };
   HIST: Record<M.HistRange, number[]>;
   recommendations: typeof M.recommendations;
-  PROFILE_IS_PRO: boolean;
   initials: string;
 };
 
@@ -28,7 +29,7 @@ export const MOCK_PROFILE: ProfileData = {
   PERIOD_DATA: M.PERIOD_DATA, habitsCard: M.habitsCard, habitsSpark: M.habitsSpark, quitCard: M.quitCard, focusCard: M.focusCard,
   goalsCard: M.goalsCard, plannerCard: M.plannerCard, heatBestStreak: M.heatBestStreak, heatLevels: M.heatLevels, achievements: M.achievements,
   correlation: M.correlation, arcCompare: { ...M.arcCompare, currentN: 2, previousN: 1 }, HIST: M.HIST, recommendations: M.recommendations,
-  PROFILE_IS_PRO: M.PROFILE_IS_PRO, initials: 'AP',
+  initials: 'AP',
 };
 
 type GoalRow = { id: string; title: string; status: string; deadline: string | null; started_on: string };
@@ -39,23 +40,25 @@ type Raw = {
 };
 
 export async function fetchProfile(): Promise<Raw> {
+  const uid = useAuth.getState().session?.user.id;
+  if (!uid) throw Error('No session');
   const day = isoDay();
   const from = addDays(day, -400);
   const q = await Promise.all([
-    db().from('habits').select('*').is('archived_at', null),
-    db().from('habit_logs').select('habit_id, day, value, done').gte('day', from),
-    db().from('day_entries').select('day, mood, water, frozen').gte('day', from),
-    db().from('quits').select('*').is('archived_at', null),
-    db().from('quit_relapses').select('quit_id, at'),
-    db().from('goals').select('id, title, status, deadline, started_on'),
-    db().from('goal_tasks').select('id, goal_id'),
-    db().from('goal_entries').select('goal_id, day, done_task_ids').gte('day', from),
-    db().from('plan_items').select('*').gte('day', from),
-    db().from('focus_sessions').select('*').gte('started_at', from),
-    db().from('arcs').select('*').order('number'),
+    allRows((fromPage, toPage) => db().from('habits').select('*').eq('user_id', uid).is('archived_at', null).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('habit_logs').select('habit_id, day, value, done').eq('user_id', uid).gte('day', from).order('day').order('habit_id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('day_entries').select('day, mood, water, frozen').eq('user_id', uid).gte('day', from).order('day').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('quits').select('*').eq('user_id', uid).is('archived_at', null).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('quit_relapses').select('quit_id, at').eq('user_id', uid).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('goals').select('id, title, status, deadline, started_on').eq('user_id', uid).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('goal_tasks').select('id, goal_id').eq('user_id', uid).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('goal_entries').select('goal_id, day, done_task_ids').eq('user_id', uid).gte('day', from).order('day').order('goal_id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('plan_items').select('*').eq('user_id', uid).gte('day', from).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('focus_sessions').select('*').eq('user_id', uid).gte('started_at', from).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('arcs').select('*').eq('user_id', uid).order('number').order('id').range(fromPage, toPage)),
   ]);
-  for (const r of q) if (r.error) throw r.error;
-  const [h, l, d, qu, rl, g, t, e, p, f, a] = q.map((r) => r.data as never[]);
+  const [h, l, d, qu, rl, g, t, e, p, f, a] = q as unknown as never[][];
+  if (useAuth.getState().session?.user.id !== uid) throw Error('Account changed');
   return { day, habits: h, logs: l, days: d, quits: qu, relapses: rl, goals: g, tasks: t, entries: e, plan: p, focus: f, arcs: a };
 }
 
@@ -70,7 +73,7 @@ export function disciplineIndex(r: Raw, from: string, to: string) {
   return computeIndex(r, from, to).index;
 }
 
-export function buildProfile(r: Raw, opts: { pro: boolean; initials: string }): ProfileData {
+export function buildProfile(r: Raw, opts: { initials: string }): ProfileData {
   const { day } = r;
   const ix = indexLogs(r.logs);
   const frozen = new Set(r.days.filter((x) => x.frozen).map((x) => x.day));
@@ -166,18 +169,20 @@ export function buildProfile(r: Raw, opts: { pro: boolean; initials: string }): 
     },
     HIST: { '3m': hist(6, 15, 15), '6m': hist(12, 15, 15), '1y': hist(12, 30, 30) },
     recommendations: [M.recommendations[0], M.recommendations[2], M.recommendations[3]],
-    PROFILE_IS_PRO: opts.pro,
     initials: opts.initials,
   };
 }
 
 /** Account header numbers: habits ticked in total and focus hours (the streak comes from Today). */
 export async function fetchAccountStats() {
+  const uid = useAuth.getState().session?.user.id;
+  if (!uid) throw Error('No session');
   const [logs, focus] = await Promise.all([
-    db().from('habit_logs').select('habit_id', { count: 'exact', head: true }).eq('done', true),
-    db().from('focus_sessions').select('minutes').eq('completed', true),
+    db().from('habit_logs').select('habit_id', { count: 'exact', head: true }).eq('user_id', uid).eq('done', true),
+    allRows((fromPage, toPage) => db().from('focus_sessions').select('minutes').eq('user_id', uid).eq('completed', true).order('id').range(fromPage, toPage)),
   ]);
-  for (const x of [logs, focus]) if (x.error) throw x.error;
-  const minutes = (focus.data as { minutes: number }[]).reduce((a, x) => a + x.minutes, 0);
+  if (useAuth.getState().session?.user.id !== uid) throw Error('Account changed');
+  if (logs.error) throw logs.error;
+  const minutes = (focus as { minutes: number }[]).reduce((a, x) => a + x.minutes, 0);
   return { habitsDone: logs.count ?? 0, focusHours: Math.round((minutes / 60) * 10) / 10 };
 }

@@ -1,12 +1,16 @@
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
+import { validateEnvironment } from './src/lib/environment.js'
 import { VitePWA } from 'vite-plugin-pwa'
 import { execSync } from 'node:child_process'
 
 const BUILD = (process.env.RENDER_GIT_COMMIT || (() => { try { return execSync('git rev-parse HEAD').toString() } catch { return 'dev' } })()).trim().slice(0, 7)
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode, command }) => {
+  const env = { ...loadEnv(mode, process.cwd(), ''), ...process.env };
+  validateEnvironment(env, command === 'serve');
+  return ({
   define: { __BUILD__: JSON.stringify(BUILD) },
   resolve: mode === 'preview' ? { alias: { 'virtual:pwa-register': '/src/lib/stubs/pwa-register.ts' } } : undefined,
   plugins: [
@@ -19,8 +23,8 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ['push-sw.js', 'favicon.png', 'favicon-32.png', 'apple-touch-icon.png', 'logo-mark.png'],
       manifest: {
         // the staging clone installs as a separate app with its own name
-        name: process.env.VITE_APP_ENV === 'staging' ? 'VeyrArc ТЕСТ' : 'VeyrArc',
-        short_name: process.env.VITE_APP_ENV === 'staging' ? 'VeyrArc ТЕСТ' : 'VeyrArc',
+        name: env.VITE_APP_ENV === 'staging' ? 'VeyrArc ТЕСТ' : 'VeyrArc',
+        short_name: env.VITE_APP_ENV === 'staging' ? 'VeyrArc ТЕСТ' : 'VeyrArc',
         description: 'Привычки, цели и прогресс в одном месте',
         lang: 'ru',
         start_url: '/',
@@ -53,4 +57,5 @@ export default defineConfig(({ mode }) => ({
       },
     }),
   ],
-}))
+})
+})

@@ -1,3 +1,5 @@
+import { allRows } from '../data/pagination';
+import { useAuth } from '../lib/auth';
 import { db } from '../lib/supabase';
 import type { EvColor } from '../mock/calendar';
 import type { PlanRow } from './model';
@@ -14,12 +16,14 @@ export type Ev = {
 export type CalRaw = { items: PlanRow[]; cats: CatRow[] };
 
 export async function fetchCalendar(from: string, to: string): Promise<CalRaw> {
+  const uid = useAuth.getState().session?.user.id;
+  if (!uid) throw new Error('Not signed in');
   const [c, i] = await Promise.all([
-    db().from('plan_categories').select('id, key, hue'),
-    db().from('plan_items').select('*').gte('day', from).lte('day', to).order('starts_at', { nullsFirst: false }),
+    allRows((fromPage, toPage) => db().from('plan_categories').select('id, key, hue').or(`user_id.is.null,user_id.eq.${uid}`).order('id').range(fromPage, toPage)),
+    allRows((fromPage, toPage) => db().from('plan_items').select('*').eq('user_id', uid).gte('day', from).lte('day', to).order('starts_at', { nullsFirst: false }).order('id').range(fromPage, toPage)),
   ]);
-  for (const x of [c, i]) if (x.error) throw x.error;
-  return { items: i.data as PlanRow[], cats: c.data as CatRow[] };
+  if (useAuth.getState().session?.user.id !== uid) throw new Error('Account changed');
+  return { items: i as PlanRow[], cats: c as CatRow[] };
 }
 
 const toH = (t: string) => { const [h, m] = t.split(':').map(Number); return h + m / 60; };

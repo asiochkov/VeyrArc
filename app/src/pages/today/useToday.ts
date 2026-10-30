@@ -3,9 +3,7 @@ import { config } from '../../config';
 import { buildToday } from '../../data/today';
 import { useHeader } from '../../data/header';
 import { addDays, weekStart } from '../../data/model';
-import { useAuth, isProPlan } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
-import { hasBackend } from '../../lib/supabase';
 import { useNow } from '../../lib/useNow';
 import { dayStatus, nowAction, todayScore, type DayStatus } from '../../state/compute';
 import { activeArc, todayRawOf, useSystem, type SystemRaw } from '../../state/system';
@@ -24,12 +22,10 @@ export type LightenWhy = 'mood' | 'missed' | 'late';
 /** Everything the Today cockpit shows, derived from the one system state (re-computed every 30 s for the time of day). */
 export function useToday() {
   const q = useSystem((r) => r);
-  const plan = useAuth((x) => x.plan);
   const hd = useHeader();
   const now = useNow(30_000);
   const sys: SystemRaw | undefined = q.data;
-  const bonusFreezes = useAuth((a) => a.bonusFreezes);
-  const freezesAllowed = hasBackend && !isProPlan(plan) ? config.limits.free.freezesPerWeek : config.limits.pro.freezesPerWeek;
+  const freezesAllowed = config.freezesPerWeek;
 
   const data = useMemo(() => {
     if (!sys) return null;
@@ -53,7 +49,7 @@ export function useToday() {
     const frozenThisWeek = sys.days.filter((x) => x.frozen && x.day >= weekStart(y) && x.day <= addDays(weekStart(y), 6)).length;
     const recovery = yStatus === 'broken' && view.streakBase === 0 && d.getHours() < 23 && !recoveryDismissed(y)
       && dayStatus(idx, addDays(day, -2), day) !== 'broken' && dayStatus(idx, addDays(day, -2), day) !== 'none'
-      ? { day: y, left: Math.max(0, freezesAllowed - frozenThisWeek) + bonusFreezes } : null;
+      ? { day: y, left: Math.max(0, freezesAllowed - frozenThisWeek) } : null;
     const action = nowAction({ habits: raw.habits, logs: sys.logs, plan: sys.plan, arcStart: arc?.started_on ?? null, oath: arc?.oath ?? null }, d, reviewDone(day));
     const todayMood = sys.days.find((x) => x.day === day)?.mood ?? null;
     const focusToday = sys.focus.filter((f) => f.completed && (f.session_type ?? 'focus') === 'focus' && isoDay(new Date(f.started_at)) === day);
@@ -81,7 +77,7 @@ export function useToday() {
       focusToday: { sessions: focusToday.length, minutes: focusToday.reduce((a, f) => a + f.minutes, 0) },
       freezes: { used: view.stats.freezesUsed, allowed: freezesAllowed },
     };
-  }, [sys, now, hd.initials, freezesAllowed, bonusFreezes]);
+  }, [sys, now, hd.initials, freezesAllowed]);
 
   return { ready: !!data, data, loadError: q.isError && !q.data, retry: () => { void q.refetch(); } };
 }

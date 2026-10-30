@@ -2,12 +2,9 @@ import { createPortal } from 'react-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppHeader, roman } from '../../app/AppHeader';
-import { config } from '../../config';
 import { addDays, daysBetween, parseDay } from '../../data/model';
 import { useT, type T } from '../../i18n';
-import { isProPlan, useAuth } from '../../lib/auth';
 import { isoDay } from '../../lib/day';
-import { hasBackend } from '../../lib/supabase';
 import { useIsDesktop } from '../../lib/useIsDesktop';
 import { GOAL_HUES } from '../../mock/goals';
 import {
@@ -58,8 +55,6 @@ export function Goals() {
   const view = params.get('view') === 'month' ? 'month' : 'day';
   const today = isoDay();
   const q = useSystem((r) => r);
-  const plan = useAuth((x) => x.plan);
-  const limit = hasBackend && !isProPlan(plan) ? config.limits.free.goals : Infinity;
   const [adding, setAdding] = useState(params.get('new') === '1');
   const [recap, setRecap] = useState<string | null>(null);
   useEffect(() => {
@@ -79,7 +74,6 @@ export function Goals() {
   const { sys, active, completed, selected } = m;
   const setView = (v: 'day' | 'month') => setParams((p) => { const n = new URLSearchParams(p); if (v === 'day') n.delete('view'); else n.set('view', v); return n; }, { replace: true });
   const pick = (id: string) => navigate(`/goals/${id}${view === 'month' ? '?view=month' : ''}`);
-  const atLimit = active.length >= limit;
   const arc = activeArc(sys);
 
   return (
@@ -94,13 +88,7 @@ export function Goals() {
             {completed.map((x) => <button key={x.id} type="button" className={g.doneChip} onClick={() => setRecap(x.id)}>✓ {x.title}</button>)}
           </div>
         )}
-        {adding && (atLimit ? (
-          <div className={g.limit}>
-            <b>{t('goals.limitTitle')}</b>
-            <span>{t('goals.limitDesc', { n: limit })}</span>
-            <div className={g.row}><button type="button" className={g.ghost} onClick={() => setAdding(false)}>{t('goals.gotIt')}</button><Link to="/pro" className={g.primaryLink}>{t('auth.openPro')}</Link></div>
-          </div>
-        ) : <GoalForm t={t} sys={sys} onDone={(id) => { setAdding(false); if (id) pick(id); }} />)}
+        {adding && <GoalForm t={t} sys={sys} onDone={(id) => { setAdding(false); if (id) pick(id); }} />}
         {!selected ? (
           !adding && <Empty t={t} sys={sys} onDone={(id) => pick(id)} onCustom={() => setAdding(true)} />
         ) : (

@@ -1,3 +1,4 @@
+import { allRows, rowKeys } from './pagination';
 import { mutate } from './sync';
 import { useAuth, type Profile } from '../lib/auth';
 import { db } from '../lib/supabase';
@@ -13,7 +14,8 @@ export async function fetchArcs() {
 export function setProfile(patch: Partial<Profile>) {
   const cur = useAuth.getState().profile;
   if (cur) useAuth.setState({ profile: { ...cur, ...patch } });
-  mutate(() => updateProfile(patch), { rollback: () => { void useAuth.getState().loadProfile(); } });
+  if (!cur) return;
+  mutate({ t: 'profiles', a: 'update', v: patch, eq: { id: cur.id } }, { rollback: () => { void useAuth.getState().loadProfile(); } });
 }
 
 export async function updateProfile(patch: Partial<Profile>) {
@@ -32,13 +34,18 @@ export async function startNewArc() {
 
 /** «Экспортировать данные»: everything the user owns as one JSON file (B20). */
 export async function exportData() {
-  const tables = ['profiles', 'subscriptions', 'arcs', 'habits', 'habit_logs', 'quits', 'quit_relapses', 'day_entries', 'focus_sessions', 'plan_items', 'goals', 'goal_tasks', 'goal_entries'];
+  const uid = useAuth.getState().session?.user.id;
+  if (!uid) throw new Error('Not signed in');
+  const tables = ['profiles', 'arcs', 'habits', 'habit_logs', 'quits', 'quit_relapses', 'day_entries', 'focus_sessions', 'plan_items', 'goals', 'goal_tasks', 'goal_entries'];
   const out: Record<string, unknown> = { exported_at: new Date().toISOString() };
   for (const t of tables) {
-    const r = await db().from(t).select('*');
-    if (r.error) throw r.error;
-    out[t] = r.data;
+    out[t] = await allRows((from, to) => {
+      let q = db().from(t).select('*').eq(t === 'profiles' ? 'id' : 'user_id', uid);
+      for (const k of rowKeys[t]) q = q.order(k);
+      return q.range(from, to);
+    });
   }
+  if (useAuth.getState().session?.user.id !== uid) throw new Error('Account changed');
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
