@@ -24,6 +24,8 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   goalAdd: 'R2',
   stepAdd: 'R2',
   relapse: 'R3', // §6.6: quit.relapse R3 exactly
+  quitAdd: 'R2', // §6.6: quit.add R2
+  quitArchive: 'R3', // §6.6: quit.archive R3
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

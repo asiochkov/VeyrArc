@@ -5,8 +5,8 @@ import { isoDay } from '../lib/day';
 import { GOAL_HUES } from '../mock/goals';
 import { HABIT_PALETTE } from '../mock/tracker';
 import {
-  addGoalStep, createGoal, createHabit, deleteEvent, deleteGoal, deleteGoalStep, deleteHabit, logGoalTask, logHabit, logMood,
-  logRelapse, saveEvent, saveFreeze, setEventDone,
+  addGoalStep, addQuit, archiveQuit, createGoal, createHabit, deleteEvent, deleteGoal, deleteGoalStep, deleteHabit, logGoalTask, logHabit, logMood,
+  logRelapse, restoreQuit, saveEvent, saveFreeze, setEventDone,
 } from '../state/actions';
 import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
@@ -531,6 +531,31 @@ function runOne(it: Intent, c: Ctx): Reply {
       if (hits[0]?.score >= SURE) return relapse(c, hits[0].item.id, hits[0].item.name);
       if (quits.length === 1) return relapse(c, quits[0].id, quits[0].name);
       return { ok: true, say: ru ? 'С чем был срыв?' : 'Which one?', choices: quits.slice(0, 4).map((x) => ({ label: x.name, run: () => relapse(c, x.id, x.name) })) };
+    }
+
+    // C-07: addQuit/archiveQuit already existed in state/actions.ts, just weren't reachable by voice
+    case 'quitAdd': {
+      const exist = c.sys?.quits.find((q) => matchOf(it.name, q.name) >= 0.85);
+      if (exist) return { ok: true, say: ru ? `Отказ ${q(exist.name)} уже есть` : `“${exist.name}” already exists` };
+      const id = crypto.randomUUID();
+      addQuit({ id, name: it.name.slice(0, 60), hue: '#D96A5B', icon: 'ban', unit: null, per_day: 1, clean_since: c.day });
+      const undo = () => archiveQuit(id, true);
+      remember(it.name, undo);
+      return { ok: true, say: ru ? `Добавил отказ «${it.name}». Отсчёт начат с сегодняшнего дня.` : `Added “${it.name}”. Counting from today.`, undo };
+    }
+    case 'quitArchive': {
+      const quits = c.sys?.quits ?? [];
+      if (!quits.length) return { ok: false, say: ru ? 'У вас нет отказов' : 'No quits set up' };
+      const hits = rank(it.query, quits, (x) => x.name);
+      const doIt = (quitId: string, name: string): Reply => {
+        const row = archiveQuit(quitId, true);
+        const undo = row ? () => restoreQuit(row) : undefined;
+        if (undo) remember(name, undo);
+        return { ok: true, say: ru ? `Убрал отказ «${name}»` : `Removed “${name}”`, undo };
+      };
+      if (hits[0]?.score >= SURE) return doIt(hits[0].item.id, hits[0].item.name);
+      if (quits.length === 1) return doIt(quits[0].id, quits[0].name);
+      return { ok: true, say: ru ? 'Какой отказ убрать?' : 'Which one?', choices: quits.slice(0, 4).map((x) => ({ label: x.name, run: () => doIt(x.id, x.name) })) };
     }
 
     case 'undo': {

@@ -57,6 +57,11 @@ const cases: C[] = [
   ['хочу научиться играть на гитаре', { kind: 'goalAdd', title: 'Научиться играть на гитаре' }],
   ['в цель английский добавь выучить 20 слов', { kind: 'stepAdd', goal: 'английский', text: 'Выучить 20 слов' }],
   ['сорвался с курения', { kind: 'relapse', query: 'курения' }],
+  // C-07: quits (addQuit/archiveQuit now reachable by voice)
+  ['добавь отказ от курения', { kind: 'quitAdd', name: 'Курение' }],
+  ['заведи отказ от сладкого', { kind: 'quitAdd', name: 'Сладкое' }],
+  ['хочу бросить курить', { kind: 'goalAdd', title: 'Бросить курить' }], // must not be hijacked by quitAdd
+  ['убери отказ курение', { kind: 'quitArchive', query: 'курение' }],
   ['подведи итоги', { kind: 'review' }],
   ['переключи на английский', { kind: 'lang', to: 'en' }],
   ['верни как было', { kind: 'undo' }],

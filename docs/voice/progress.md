@@ -52,6 +52,17 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - 5 new regression cases added to `tools/unit/voice-intents.test.ts` (64/64 passing total).
   - **Not done** (still open, carried forward): "пятого ноября" after a verb with no day-trigger word, and "купить хлеб" becoming a task with no trigger verb at all — both need real intent-detection design work (risk of over-matching), not a quick regex patch. Left for a dedicated WP3.2 pass.
 
+## WP5 — Execution (started early, scoped slice: quits)
+
+- [x] **WP5.4 (partial)** — First slice of the C-07 coverage backlog: quit management is now reachable by voice.
+  - New intents `quitAdd` (risk R2) and `quitArchive` (risk R3) in `nlu.ts` — triggers require the literal word "отказ" so they can't collide with the existing "хочу бросить X" → `goalAdd` pattern (verified: "хочу бросить курить" still stays a goal, not hijacked).
+  - `run.ts` wires them to the already-existing `addQuit`/`archiveQuit`/`restoreQuit` actions (per C-07's own note: "все нужные actions в коде уже есть"). `quitArchive` uses the same fuzzy-match-then-confirm pattern as the existing `relapse` case (`rank()`/`SURE`/choices fallback).
+  - Small targeted fix for a real grammar bug: "отказ от курения"/"от сладкого" names the target in genitive case — added a 2-ending (`-ия→-ие`, `-ого→-ое`) local converter scoped to just this capture (not a general `nominative()` fix — that's B-10's own, much bigger problem).
+  - Both risky by design (R2/R3) — go through the WP1.1 confirm-before-execute flow automatically, no extra wiring needed.
+  - 4 new test cases in `voice-intents.test.ts` (68/68 passing total), including a regression guard for the `goalAdd` collision risk.
+  - `typecheck`, `build` clean. **Not yet covered by an execution-level test** (`runOne()` needs a full `SystemRaw` context — same gap as all existing `run.ts` cases, not something to newly invent here).
+  - Remaining C-07 items (habit edit/archive, goal deadline/completion, diary, oath, settings, stats questions) are still open — this is one slice of a large backlog, not the whole thing.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

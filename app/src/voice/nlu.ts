@@ -23,6 +23,8 @@ export type Intent =
   | { kind: 'goalAdd'; title: string }
   | { kind: 'stepAdd'; goal: string; text: string }
   | { kind: 'relapse'; query: string }
+  | { kind: 'quitAdd'; name: string }
+  | { kind: 'quitArchive'; query: string }
   | { kind: 'review' }
   | { kind: 'weekReview' }
   | { kind: 'freeze' }
@@ -422,6 +424,16 @@ function one(t: string, now: Date): Intent {
   const step = t.match(new RegExp(L + '(?:добавь|запиши|создай|новый)? ?(?:шаг|подзадач[ау]|задач[ау]) (?:в|к|для) цел[иья]? ?(.+?)\\s*(?::|—|-|это| шаг )\\s*(.+)'))
     ?? t.match(new RegExp(L + '(?:в|к|для) цел[иья]? (.+?) (?:добавь|запиши|шаг)\\s+(.+)'));
   if (step) return { kind: 'stepAdd', goal: clean(step[1]), text: cap(clean(step[2])) };
+  // C-07: quits (addQuit/archiveQuit already exist in state/actions.ts, just weren't reachable by voice)
+  const quitStop = t.match(new RegExp(L + '(?:останови|прекрати|убери|заархивируй|удали|архивируй|stop|remove|archive)(?: трекать)?\\s*отказ(?:ы|а)?(?: от)?\\s+(.+)'));
+  if (quitStop && clean(quitStop[1])) return { kind: 'quitArchive', query: clean(quitStop[1]) };
+  const quitAdd = t.match(new RegExp(L + '(?:добавь|создай|новый|новую|заведи|начни(?: трекать)?|add|new)(?: мне)?\\s*отказ(?:ы|а)?(?: от)?\\s+(.+)'));
+  if (quitAdd && clean(quitAdd[1])) {
+    // «отказ от Х» names X in genitive («курения», «сладкого») — a small targeted fix for the two
+    // most common endings; not a general nominative() fix (B-10 — that's its own, bigger problem)
+    const name = clean(quitAdd[1]).replace(/ия$/, 'ие').replace(/ого$/, 'ое');
+    return { kind: 'quitAdd', name: cap(name) };
+  }
   const goal = t.match(new RegExp(L + '(?:добавь|создай|поставь|новая|новую|заведи|set|add|new)(?: мне)?(?: новую| новая)? (?:цель|goal)\\s*(.*)'))
     ?? t.match(new RegExp('^(?:моя )?(?:цель|goal)\\s*(?:—|-|:|это)\\s*(.+)'));
   if (goal && clean(goal[1])) return { kind: 'goalAdd', title: cap(clean(goal[1])) };
@@ -547,6 +559,7 @@ function restoreCase(it: Intent, raw: string): Intent {
   if (it.kind === 'goalAdd') return { ...it, title: fix(it.title) };
   if (it.kind === 'stepAdd') return { ...it, text: fix(it.text) };
   if (it.kind === 'habitAdd') return { ...it, name: fix(it.name) };
+  if (it.kind === 'quitAdd') return { ...it, name: fix(it.name) };
   return it;
 }
 function understandLower(raw: string, now: Date): Intent[] {
