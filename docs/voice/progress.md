@@ -61,7 +61,8 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - Both risky by design (R2/R3) — go through the WP1.1 confirm-before-execute flow automatically, no extra wiring needed.
   - 4 new test cases in `voice-intents.test.ts` (68/68 passing total), including a regression guard for the `goalAdd` collision risk.
   - `typecheck`, `build` clean. **Not yet covered by an execution-level test** (`runOne()` needs a full `SystemRaw` context — same gap as all existing `run.ts` cases, not something to newly invent here).
-  - Remaining C-07 items (habit edit/archive, goal deadline/completion, diary, oath, settings, stats questions) are still open — this is one slice of a large backlog, not the whole thing.
+- [x] **WP5.1 (partial)** — habit archive/restore/delete, same slice shape: `habitArchive`/`habitRestore` (R2) and `habitDelete` (R3) intents in `nlu.ts`, wired to the already-existing `archiveHabit`/`restoreHabit`/`deleteHabit` actions. `habitDelete` has no undo — it's a hard DB delete that also drops the habit's log history, unlike archive (reversible via restore). 4 new tests (71/71 total), verified no collision with the existing `done`/`taskDelete` intents.
+  - Remaining C-07 items (goal deadline/completion, diary, oath, settings, stats questions) are still open — this is two slices of a large backlog, not the whole thing.
 
 ## Notes / deviations from master prompt
 

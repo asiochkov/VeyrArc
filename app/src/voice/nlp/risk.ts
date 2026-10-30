@@ -26,6 +26,9 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   relapse: 'R3', // §6.6: quit.relapse R3 exactly
   quitAdd: 'R2', // §6.6: quit.add R2
   quitArchive: 'R3', // §6.6: quit.archive R3
+  habitArchive: 'R2', // §6.6: habit.pause R2 (reversible — restoreHabit undoes it)
+  habitRestore: 'R2', // §6.6: habit.restore R2
+  habitDelete: 'R3', // §6.6: habit.remove R3 (deleteHabit has no undo)
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

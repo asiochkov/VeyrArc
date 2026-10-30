@@ -25,6 +25,9 @@ export type Intent =
   | { kind: 'relapse'; query: string }
   | { kind: 'quitAdd'; name: string }
   | { kind: 'quitArchive'; query: string }
+  | { kind: 'habitArchive'; query: string }
+  | { kind: 'habitRestore'; query: string }
+  | { kind: 'habitDelete'; query: string }
   | { kind: 'review' }
   | { kind: 'weekReview' }
   | { kind: 'freeze' }
@@ -419,6 +422,15 @@ function one(t: string, now: Date): Intent {
   const hab = t.match(new RegExp(L + '(?:добавь|создай|заведи|новая|новую|начни|хочу|add|new|create)(?: мне)?(?: новую| новая)? (?:привычк[ауи]|habit)\\s*(.*)'))
     ?? t.match(new RegExp('^(?:хочу|буду|начну|начинаю) (?:каждый день|ежедневно)\\s+(.*)'));
   if (hab && clean(hab[1])) return habitAdd(clean(hab[1]));
+
+  // C-07: habit archive/restore/delete (createHabit already existed by voice, the rest of the
+  // lifecycle — archiveHabit/restoreHabit/deleteHabit — did not)
+  const habArchive = t.match(new RegExp(L + '(?:заархивируй|архивируй|останови|убери|приостанови|поставь на паузу|pause|archive)\\s+привычк[ауи]\\s+(.+)'));
+  if (habArchive && clean(habArchive[1])) return { kind: 'habitArchive', query: clean(habArchive[1]) };
+  const habRestore = t.match(new RegExp(L + '(?:восстанови|верни|возобнови|restore|resume)\\s+привычк[ауи]\\s+(.+)'));
+  if (habRestore && clean(habRestore[1])) return { kind: 'habitRestore', query: clean(habRestore[1]) };
+  const habDelete = t.match(new RegExp(L + '(?:удали|сотри|delete|remove)\\s+привычк[ауи]\\s+(.+)'));
+  if (habDelete && clean(habDelete[1])) return { kind: 'habitDelete', query: clean(habDelete[1]) };
 
   // goals: «добавь шаг в цель марафон: растяжка», «в цель английский добавь слова»
   const step = t.match(new RegExp(L + '(?:добавь|запиши|создай|новый)? ?(?:шаг|подзадач[ау]|задач[ау]) (?:в|к|для) цел[иья]? ?(.+?)\\s*(?::|—|-|это| шаг )\\s*(.+)'))

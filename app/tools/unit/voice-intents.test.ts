@@ -62,6 +62,10 @@ const cases: C[] = [
   ['заведи отказ от сладкого', { kind: 'quitAdd', name: 'Сладкое' }],
   ['хочу бросить курить', { kind: 'goalAdd', title: 'Бросить курить' }], // must not be hijacked by quitAdd
   ['убери отказ курение', { kind: 'quitArchive', query: 'курение' }],
+  // C-07: habit archive/restore/delete
+  ['заархивируй привычку чтение', { kind: 'habitArchive', query: 'чтение' }],
+  ['восстанови привычку чтение', { kind: 'habitRestore', query: 'чтение' }],
+  ['удали привычку чтение', { kind: 'habitDelete', query: 'чтение' }],
   ['подведи итоги', { kind: 'review' }],
   ['переключи на английский', { kind: 'lang', to: 'en' }],
   ['верни как было', { kind: 'undo' }],

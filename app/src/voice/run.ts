@@ -5,8 +5,8 @@ import { isoDay } from '../lib/day';
 import { GOAL_HUES } from '../mock/goals';
 import { HABIT_PALETTE } from '../mock/tracker';
 import {
-  addGoalStep, addQuit, archiveQuit, createGoal, createHabit, deleteEvent, deleteGoal, deleteGoalStep, deleteHabit, logGoalTask, logHabit, logMood,
-  logRelapse, restoreQuit, saveEvent, saveFreeze, setEventDone,
+  addGoalStep, addQuit, archiveHabit, archiveQuit, createGoal, createHabit, deleteEvent, deleteGoal, deleteGoalStep, deleteHabit, logGoalTask, logHabit, logMood,
+  logRelapse, restoreHabit, restoreQuit, saveEvent, saveFreeze, setEventDone,
 } from '../state/actions';
 import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
@@ -507,6 +507,41 @@ function runOne(it: Intent, c: Ctx): Reply {
       remember(h.name, undo);
       const what = it.type === 'counter' ? ` — ${it.target}${it.unit ? ` ${it.unit}` : ''} в день` : it.type === 'duration' ? ` — ${it.minutes} мин в день` : '';
       return { ok: true, undo, say: ru ? `Добавил привычку ${q(h.name)}${what}${h.core ? ', это Core' : ''}. Каждый день` : `Habit “${h.name}” added` };
+    }
+    // C-07: habit archive/restore/delete — createHabit already existed by voice, the rest of the
+    // lifecycle did not. Same fuzzy-match-then-confirm pattern as taskDelete/relapse.
+    case 'habitArchive': {
+      const hits = rank(it.query, habitsOf(c), (h) => h.name);
+      const doIt = (id: string, name: string): Reply => {
+        archiveHabit(id);
+        const undo = () => restoreHabit(id);
+        remember(name, undo);
+        return { ok: true, say: ru ? `Заархивировал привычку ${q(name)}` : `Archived “${name}”`, undo };
+      };
+      if (hits[0]?.score >= SURE) return doIt(hits[0].item.id, hits[0].item.name);
+      if (!hits.length) return { ok: false, say: ru ? `Не нашёл привычку ${q(it.query)}` : `Couldn’t find “${it.query}”` };
+      return { ok: true, say: ru ? 'Какую привычку?' : 'Which one?', choices: hits.slice(0, 4).map((h) => ({ label: h.item.name, run: () => doIt(h.item.id, h.item.name) })) };
+    }
+    case 'habitRestore': {
+      const archived = (c.sys?.habits ?? []).filter((h) => h.archived_at);
+      const hits = rank(it.query, archived, (h) => h.name);
+      const doIt = (id: string, name: string): Reply => {
+        restoreHabit(id);
+        const undo = () => archiveHabit(id);
+        remember(name, undo);
+        return { ok: true, say: ru ? `Восстановил привычку ${q(name)}` : `Restored “${name}”`, undo };
+      };
+      if (hits[0]?.score >= SURE) return doIt(hits[0].item.id, hits[0].item.name);
+      if (!hits.length) return { ok: false, say: ru ? 'Не нашёл такую привычку в архиве' : 'Couldn’t find that in the archive' };
+      return { ok: true, say: ru ? 'Какую привычку восстановить?' : 'Which one?', choices: hits.slice(0, 4).map((h) => ({ label: h.item.name, run: () => doIt(h.item.id, h.item.name) })) };
+    }
+    case 'habitDelete': {
+      const hits = rank(it.query, habitsOf(c), (h) => h.name);
+      // permanent — deleteHabit also drops the habit's logs, no undo is possible
+      const doIt = (id: string, name: string): Reply => { deleteHabit(id); return { ok: true, say: ru ? `Удалил привычку ${q(name)} насовсем` : `Deleted “${name}” permanently` }; };
+      if (hits[0]?.score >= SURE) return doIt(hits[0].item.id, hits[0].item.name);
+      if (!hits.length) return { ok: false, say: ru ? `Не нашёл привычку ${q(it.query)}` : `Couldn’t find “${it.query}”` };
+      return { ok: true, say: ru ? 'Какую привычку удалить навсегда?' : 'Which one?', choices: hits.slice(0, 4).map((h) => ({ label: h.item.name, run: () => doIt(h.item.id, h.item.name) })) };
     }
     case 'goalAdd': {
       const id = crypto.randomUUID();
