@@ -18,6 +18,18 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - **Result (confirms + fixes finding H12):** main chunk 282.24 kB → **214.59 kB raw** (88.41 → **65.03 kB gzip**, **−23.4 kB gzip**). New `engine-*.js` chunk: 62.52 kB raw / **22.08 kB gzip** (well under the 150 kB gzip ceiling from §6.19.3). `AssistantPanel-*.js` + `.css`: ~3.6 kB gzip combined.
   - `typecheck`, `build`, `test:voice` (59/59) all clean after the refactor.
 
+## WP1 — Risk and decisions
+
+- [x] **WP1.1** — `app/src/voice/nlp/risk.ts` (R0–R4 per intent `kind`, mapped against the current 20-kind `Intent` union — not the full §6.6 domain table, which only exists once WP3/WP5 add those intents) and `app/src/voice/nlp/decide.ts` (risk-only routing: R2+ → `confirm`, R0/R1 → `execute`). Wired into `engine.ts`'s `handle()`: a risky command now shows "Точно — «...»?" with Yes/Cancel chips instead of running immediately (fixes findings C-05, D-01).
+  - No confidence score exists on the current rule-based `understand()` output, so decision routing is risk-only for now (not the confidence-weighted §6.7.2–6.7.4 formula) — that lands once WP1.2/WP3 add a classifier.
+  - `nlp/params.ts` skipped for this pass — nothing to tune yet with no confidence score; will land with the classifier.
+  - New `tools/unit/voice-risk.test.ts` (12 checks, all passing) covers the risk table and the confirm/execute split.
+  - Bundle impact: zero on the main chunk — `risk.ts`/`decide.ts` are only reachable via the lazy `engine.ts` chunk.
+- [ ] WP1.2 — classifier (confidence scoring, oos detection)
+- [ ] WP1.3 — audit findings B/C verification against current code
+- [ ] WP1.4 — `reply.ts`, tone (§6.13.6)
+- [ ] WP1.5 — undo journal (`journal.ts`)
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

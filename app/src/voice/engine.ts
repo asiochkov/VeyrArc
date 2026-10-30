@@ -1,5 +1,6 @@
 import { useLangStore } from '../i18n';
-import { normalize, similarity, understand } from './nlu';
+import { normalize, similarity, understand, type Intent } from './nlu';
+import { decide } from './nlp/decide';
 import { hints, runAll, type Choice, type Reply } from './run';
 import { closeAssistant, useAssistant, useVoice, voiceSupported } from './shell';
 
@@ -94,11 +95,26 @@ export function handle(text: string) {
       if (r) { show(r); return; }
       set({ choices: [] }); // not an answer: a new command
     }
-    show(runAll(understand(said), lang()));
+    const intents = understand(said);
+    if (decide(intents).action === 'confirm') { show(confirmReply(intents, said, lang())); return; }
+    show(runAll(intents, lang()));
   } catch (e) {
     console.error('[voice]', e);
     fail(lang() === 'ru' ? 'Не получилось выполнить команду' : 'Could not do that');
   }
+}
+
+/** a risky (R2+) command: ask before doing it (fixes C-05, D-01) */
+function confirmReply(intents: Intent[], said: string, ru2: 'ru' | 'en'): Reply {
+  const ru = ru2 === 'ru';
+  return {
+    ok: true,
+    say: ru ? `Точно — «${said}»?` : `Confirm — "${said}"?`,
+    choices: [
+      { label: ru ? 'Да' : 'Yes', yes: true, run: () => runAll(intents, ru2) },
+      { label: ru ? 'Отмена' : 'Cancel', yes: false, run: () => ({ ok: true, say: ru ? 'Хорошо, отменил' : 'Okay, cancelled' }) },
+    ],
+  };
 }
 /** a tapped choice button */
 export function choose(c: Choice) { set({ state: 'processing', heard: c.label }); try { show(c.run()); } catch { fail(lang() === 'ru' ? 'Не получилось' : 'Could not do that'); } }
