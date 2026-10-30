@@ -26,7 +26,7 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - New `tools/unit/voice-risk.test.ts` (12 checks, all passing) covers the risk table and the confirm/execute split.
   - Bundle impact: zero on the main chunk — `risk.ts`/`decide.ts` are only reachable via the lazy `engine.ts` chunk.
 - [ ] WP1.2 — classifier (confidence scoring, oos detection)
-- [ ] WP1.3 — audit findings B/C verification against current code
+- [x] **WP1.3** — Sections B (`nlu.ts`) and C (`run.ts`) re-verified against current code and line numbers (see `audit-findings.md`). 8/12 B-findings and 6/7 C-findings confirmed exactly as filed; the rest carried forward to the WP that actually touches that code (no speculative fixes outside the current WP's scope). Notably: **C-01 is now partially fixed by WP1.1** (taskDelete can no longer run without confirmation — residual gap: the confirm prompt doesn't show *which* task the fuzzy match picked).
 - [ ] WP1.4 — `reply.ts`, tone (§6.13.6)
 - [ ] WP1.5 — undo journal (`journal.ts`)
 
