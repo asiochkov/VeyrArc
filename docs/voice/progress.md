@@ -63,6 +63,7 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - `typecheck`, `build` clean. **Not yet covered by an execution-level test** (`runOne()` needs a full `SystemRaw` context — same gap as all existing `run.ts` cases, not something to newly invent here).
 - [x] **WP5.1 (partial)** — habit archive/restore/delete, same slice shape: `habitArchive`/`habitRestore` (R2) and `habitDelete` (R3) intents in `nlu.ts`, wired to the already-existing `archiveHabit`/`restoreHabit`/`deleteHabit` actions. `habitDelete` has no undo — it's a hard DB delete that also drops the habit's log history, unlike archive (reversible via restore). 4 new tests (71/71 total), verified no collision with the existing `done`/`taskDelete` intents.
   - Remaining C-07 items (goal deadline/completion, diary, oath, settings, stats questions) are still open — this is two slices of a large backlog, not the whole thing.
+- [x] **C-04 fixed (quick win)** — greeting personalization in `run.ts`'s `case 'chat'`: was `const name = ''` (dead code). Now uses `profile.nickname || profile.first_name` when set, falls back to the generic greeting otherwise.
 
 ## Notes / deviations from master prompt
 

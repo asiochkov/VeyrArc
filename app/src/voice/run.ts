@@ -11,6 +11,7 @@ import {
 import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
 import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/system';
+import { useAuth } from '../lib/auth';
 import { matchOf, type AskWhat, type Intent, type NavTo } from './nlu';
 import { useVoice } from './shell'; // used only inside callbacks (engine.ts imports this module)
 
@@ -605,8 +606,11 @@ function runOne(it: Intent, c: Ctx): Reply {
         suggest: ru ? ['сделал зарядку и медитацию', 'выпил 2 стакана воды', 'завтра в 10 стоматолог', 'перенеси звонок маме на пятницу', 'что у меня сегодня', 'что дальше', 'фокус 50', 'пауза', 'мне грустно', 'добавь привычку чтение 20 минут', 'в цель марафон добавь растяжка', 'итоги дня', 'открой цели', 'отмени'] : undefined,
       };
     case 'chat': {
-      const name = '';
-      if (it.say === 'hello') return { ok: true, say: ru ? `Привет${name}! Что сделаем?` : 'Hi! What shall we do?', suggest: examples(ru, c) };
+      // C-04: this used to be a dead `const name = ''` even though the profile has it
+      const who = useAuth.getState().profile;
+      const nm = who?.nickname?.trim() || who?.first_name?.trim() || '';
+      const name = nm ? `, ${nm}` : '';
+      if (it.say === 'hello') return { ok: true, say: ru ? `Привет${name}! Что сделаем?` : `Hi${nm ? `, ${nm}` : ''}! What shall we do?`, suggest: examples(ru, c) };
       if (it.say === 'thanks') return { ok: true, say: ru ? 'Всегда пожалуйста' : 'Any time' };
       if (it.say === 'praise') return { ok: true, say: ru ? 'Спасибо! Продолжаем' : 'Thanks! Let’s keep going' };
       return { ok: true, say: ru ? 'До связи' : 'Bye', close: true };
