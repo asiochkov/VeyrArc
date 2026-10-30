@@ -28,7 +28,7 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [ ] WP1.2 — classifier (confidence scoring, oos detection)
 - [x] **WP1.3** — Sections B (`nlu.ts`) and C (`run.ts`) re-verified against current code and line numbers (see `audit-findings.md`). 8/12 B-findings and 6/7 C-findings confirmed exactly as filed; the rest carried forward to the WP that actually touches that code (no speculative fixes outside the current WP's scope). Notably: **C-01 is now partially fixed by WP1.1** (taskDelete can no longer run without confirmation — residual gap: the confirm prompt doesn't show *which* task the fuzzy match picked).
 - [ ] WP1.4 — `reply.ts`, tone (§6.13.6)
-- [ ] WP1.5 — undo journal (`journal.ts`)
+- [x] **WP1.5** — `app/src/voice/journal.ts`: persisted, readable log of voice exchanges (`said`/`reply`/`ok`/timestamp), capped at 50 entries × 200 chars, stored via `store.ts`. Wired into `engine.ts`'s `show()` so every reply gets journaled. **Important scope note:** this is a *readable history* fix for half of C-02 ("no journal of what I did"), not an undo-after-reload fix — `run.ts`'s undo mechanism is `() => void` closures, which cannot survive a page reload (functions aren't serializable). True cross-reload undo needs the richer `UndoOp` data model from the master prompt (§5.3), which is a WP5 exec-rewrite concern, not something to retrofit here. No UI reads the journal yet — that's `JournalSheet.tsx` in WP6.13.2.
 
 ## Notes / deviations from master prompt
 

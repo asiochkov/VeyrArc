@@ -1,4 +1,5 @@
 import { useLangStore } from '../i18n';
+import { journalAppend } from './journal';
 import { normalize, similarity, understand, type Intent } from './nlu';
 import { decide } from './nlp/decide';
 import { hints, runAll, type Choice, type Reply } from './run';
@@ -61,6 +62,7 @@ function speak(text: string, then?: () => void) {
 let closeAfter: ReturnType<typeof setTimeout> | undefined;
 function show(r: Reply) {
   set({ state: 'speaking', reply: r.say, ok: r.ok, list: r.list ?? [], suggest: r.suggest ?? [], choices: r.choices ?? [], canUndo: !!r.undo });
+  journalAppend(useVoice.getState().heard, r.say, r.ok);
   navigator.vibrate?.(r.ok ? 15 : [20, 40, 20]);
   // a question: listen for the answer right after it is asked
   speak(r.say, r.choices?.length && voiceSupported() ? () => startVoice() : undefined);
