@@ -8,7 +8,7 @@ import { userEmail, useAuth } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
 import { useSystem } from '../state/system';
 import { AssistantMark } from '../voice/AssistantMark';
-import { openAssistant } from '../voice/voice';
+import { openAssistant } from '../voice/shell';
 import { Icon } from '../ui/Icon';
 import { Avatar } from '../ui/primitives';
 import { roman } from './AppHeader';

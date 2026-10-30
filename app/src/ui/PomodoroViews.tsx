@@ -1,6 +1,6 @@
 import { toast } from './toast';
 import { useEffect, useState } from 'react';
-import { useAssistant } from '../voice/voice';
+import { useAssistant } from '../voice/shell';
 import { useT } from '../i18n';
 import { isoDay } from '../lib/day';
 import { scheduled } from '../data/model';

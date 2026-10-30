@@ -35,4 +35,12 @@ Voice engine lazy chunk should stay under 150 KB gzip.
 - No golden dataset (`*.jsonl`) yet.
 - `tsx` not yet a devDependency.
 
-This file will be updated after WP0 completes with new numbers for comparison.
+## After WP0.5 (shell/engine split)
+
+- Main chunk: `index-*.js` — **214.59 kB raw / 65.03 kB gzip** (was 282.24 / 88.41 — **−23.4 kB gzip**)
+- New `engine-*.js` chunk (lazy, loaded on first `openAssistant()`): **62.52 kB raw / 22.08 kB gzip**
+- New `AssistantPanel-*.js` + `.module.css` chunk (lazy, `React.lazy`): ~3.6 kB gzip combined
+- PWA precache: 67 entries / 1320.70 KiB (was 60 / 1318.35 — the 7 new entries are the new split chunks, still precached for offline)
+- `typecheck`, `build`, `test:voice` (59/59): clean
+
+This file will be updated again after WP0 fully completes (WP0.2, WP0.3 remaining).

@@ -1,32 +1,23 @@
-import { create } from 'zustand';
 import { useLangStore } from '../i18n';
 import { normalize, similarity, understand } from './nlu';
 import { hints, runAll, type Choice, type Reply } from './run';
+import { closeAssistant, useAssistant, useVoice, voiceSupported } from './shell';
 
 /*
- * Voice assistant state machine (ТЗ модуль 2.2): idle → listening → processing → speaking → idle,
- * any step can fall into error (auto-reset). Speech recognition and speech are the browser's own
- * (Web Speech API, free); the transcript never leaves the device except through the browser.
+ * Voice 2.0 — the engine (ТЗ §5.2): speech recognition, NLU, execution and TTS. Loaded lazily
+ * by shell.ts's openAssistant() — never part of the main bundle. State lives in shell.ts's
+ * useVoice/useAssistant so the lightweight shell keeps working even before this chunk resolves.
  */
-export type VoiceState = 'idle' | 'listening' | 'processing' | 'speaking' | 'error';
-type Store = {
-  state: VoiceState; heard: string; reply: string; ok: boolean;
-  list: string[]; suggest: string[]; choices: Choice[]; canUndo: boolean;
-  /** speech can't be used here (no permission, no service): the panel switches to typing */
-  blocked: boolean;
-};
-export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false, blocked: false }));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Rec = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SR = (): (new () => Rec) | null => (typeof window === 'undefined' ? null : (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition || null);
-export const voiceSupported = () => !!SR();
 
 let rec: Rec | null = null;
 let resetTimer: ReturnType<typeof setTimeout> | undefined;
 let silence: ReturnType<typeof setTimeout> | undefined;
-const set = (p: Partial<Store>) => useVoice.setState(p);
+const set = (p: Partial<ReturnType<typeof useVoice.getState>>) => useVoice.setState(p);
 const lang = () => useLangStore.getState().lang as 'ru' | 'en';
 
 function fail(msg: string) {
@@ -167,16 +158,13 @@ export function startVoice() {
 export function stopVoice() { try { rec?.stop(); } catch { /* already stopped */ } }
 export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; clearTimeout(silence); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
 
-/* the assistant panel (opened by the bubble next to the dock) */
-type Panel = { open: boolean };
-export const useAssistant = create<Panel>(() => ({ open: false }));
-export function openAssistant() {
-  if (useAssistant.getState().open) return;
-  useAssistant.setState({ open: true });
-  // phrases that fit this screen and this moment, ready to tap
-  set({ heard: '', reply: '', list: [], suggest: hints(location.pathname, lang()), choices: [], canUndo: false, ok: true, state: 'idle' });
-  navigator.vibrate?.(10);
-  // after the dock has merged; without speech recognition the panel opens on the text field
+/** the shell just set open:true — fill the suggestions and, where supported, start listening */
+export function onOpen() {
+  set({ suggest: hints(location.pathname, lang()) });
   if (voiceSupported()) setTimeout(() => { if (useAssistant.getState().open) startVoice(); }, 420);
 }
-export function closeAssistant() { clearTimeout(closeAfter); cancelVoice(); set({ choices: [] }); useAssistant.setState({ open: false }); }
+/** the shell just set open:false — stop any in-flight recognition/speech */
+export function onClose() {
+  clearTimeout(closeAfter);
+  cancelVoice();
+}

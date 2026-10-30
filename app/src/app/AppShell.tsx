@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useLangStore } from '../i18n';
 import { useIsDesktop } from '../lib/useIsDesktop';
@@ -6,7 +6,7 @@ import { PomodoroSheet, DockedPomodoro } from '../ui/PomodoroViews';
 import { AddSheet } from './AddSheet';
 import s from './AppShell.module.css';
 import { BottomBar } from './BottomBar';
-import { AssistantPanel } from '../voice/AssistantPanel';
+import { useAssistant } from '../voice/shell';
 import { CommandPalette } from './CommandPalette';
 import { TourOverlay } from '../ui/Tour';
 import { DEFAULT_TILE, NAV, navIdFor, useAdd } from './nav';
@@ -20,6 +20,14 @@ import { Sidebar, SidebarDrawer, useSidebarCollapsed } from './Sidebar';
 export type Chrome = 'app' | 'settings' | 'bare';
 
 const seen = new Set<string>();
+
+// the heavy recognition/NLU/TTS pipeline (engine.ts → nlu.ts → run.ts) only downloads once opened (H12)
+const LazyAssistantPanel = lazy(() => import('../voice/AssistantPanel').then((m) => ({ default: m.AssistantPanel })));
+function AssistantPanelSlot() {
+  const open = useAssistant((a) => a.open);
+  if (!open) return null;
+  return <Suspense fallback={null}><LazyAssistantPanel /></Suspense>;
+}
 
 export function AppShell({ chrome }: { chrome: Chrome }) {
   const isDesktop = useIsDesktop();
@@ -54,7 +62,7 @@ export function AppShell({ chrome }: { chrome: Chrome }) {
             <RouteFade />
           </main>
         </div>
-        <AssistantPanel />
+        <AssistantPanelSlot />
         {overlays}
       </div>
     );
@@ -66,7 +74,7 @@ export function AppShell({ chrome }: { chrome: Chrome }) {
         <main className={s.mobileMain}>
           <RouteFade />
         </main>
-        {chrome === 'app' && <AssistantPanel />}
+        {chrome === 'app' && <AssistantPanelSlot />}
         {chrome === 'app' && <BottomBar />}
       </div>
       <SidebarDrawer />

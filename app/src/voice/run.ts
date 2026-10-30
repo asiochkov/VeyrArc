@@ -12,7 +12,7 @@ import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
 import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/system';
 import { matchOf, type AskWhat, type Intent, type NavTo } from './nlu';
-import { useVoice } from './voice'; // used only inside callbacks (voice imports this module)
+import { useVoice } from './shell'; // used only inside callbacks (engine.ts imports this module)
 
 /*
  * Intent → the app's own actions (ТЗ модуль 2: «AI никогда не вызывает базу напрямую»).

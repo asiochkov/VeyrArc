@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useT } from '../i18n';
 import { Icon } from '../ui/Icon';
 import { AssistantMark } from '../voice/AssistantMark';
-import { closeAssistant, openAssistant, useAssistant, useVoice } from '../voice/voice';
+import { closeAssistant, openAssistant, useAssistant, useVoice } from '../voice/shell';
 import s from './BottomBar.module.css';
 import { NAV, navIdFor } from './nav';
 
