@@ -407,7 +407,9 @@ function one(t: string, now: Date): Intent {
   }
 
   // navigation: «открой цели», «покажи статистику», «настройки»
-  if (st(OPEN).test(t) || t.split(' ').length <= 2) {
+  // B-03: short phrases starting with a done-verb («закончил отчёт») used to match nav-by-word-count
+  // before ever reaching the done-marking logic below — «отчет» alone triggered Analytics.
+  if ((st(OPEN).test(t) || t.split(' ').length <= 2) && !new RegExp('^(?:' + DONE_V + ')' + R).test(t)) {
     for (const [re, to] of PAGES) {
       if (!re.test(t)) continue;
       // «покажи прогресс / что на сегодня» are questions, not pages

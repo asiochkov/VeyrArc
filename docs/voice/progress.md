@@ -97,6 +97,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] Fixed B-02: the neutral-mood pattern's bare `ничего` matched *inside* negations — "я устал и ничего не хочу" logged mood level 2 (neutral) instead of reading "устал" (tired, level 1). For someone in a genuinely bad state, this was the worst possible misread the system could produce. Added a negative lookahead so `ничего` only counts as "fine" when it isn't followed by "не"/"хорошего"/"особенного". Bare "ничего" (a reply meaning "I'm fine") and "настроение ничего" (explicit context) still correctly read as neutral — only the negation case changed.
   - 2 new regression tests (87/87 total). `typecheck`/`build` clean.
 
+## B-03 — stop stem-matching done-verb phrases as navigation
+
+- [x] Fixed B-03: the nav shortcut for short phrases (≤2 words, no "open/show" verb required) matched "закончил отчёт" against the Analytics page's `отчет` stem before the phrase ever reached the done-verb logic. Added a guard: bail out of the nav-by-word-count path if the phrase starts with a `DONE_V` verb. Explicit navigation ("покажи отчёт") is unaffected.
+  - Self-caught bug in my own fix: first attempt used `\b` for the word-boundary check, which is ASCII-only in JS and doesn't work correctly after/before Cyrillic letters — exactly the trap `nlu.ts`'s own `L`/`R` constants exist to avoid (`// word start (\b is ASCII-only in JS)`). Switched to `R`.
+  - 2 new tests (89/89 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

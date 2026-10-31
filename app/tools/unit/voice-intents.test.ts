@@ -49,6 +49,9 @@ const cases: C[] = [
   ['перерыв 5 минут', { kind: 'focus', op: 'break', minutes: 5 }],
   ['открой цели', { kind: 'nav', to: '/goals' }],
   ['покажи статистику', { kind: 'nav', to: '/analytics' }],
+  // B-03: a done-verb short phrase must not be hijacked by nav-by-word-count
+  ['закончил отчёт', { kind: 'done', query: 'отчет' }],
+  ['покажи отчёт', { kind: 'nav', to: '/analytics' }], // but an explicit OPEN verb still navigates
   ['что у меня сегодня', { kind: 'ask', what: 'plan' }],
   ['какие планы на завтра', { kind: 'ask', what: 'planTomorrow' }],
   ['чем заняться', { kind: 'ask', what: 'next' }],
