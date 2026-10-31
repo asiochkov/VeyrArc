@@ -37,6 +37,8 @@ export type Intent =
   | { kind: 'search'; query: string }
   | { kind: 'habitWeakest' }
   | { kind: 'habitTop' }
+  | { kind: 'ritualSave'; name: string; steps: string[] }
+  | { kind: 'ritualList' }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -388,6 +390,15 @@ function one(t: string, now: Date): Intent {
   // habit.weakest / habit.top (§6.6): «где я просел», «какая привычка у меня слабее всего»
   if (st('где я просел|слабе(?:е|йшая) привычк|худш(?:ая|ие) привычк|провисает|weakest habit').test(t)) return { kind: 'habitWeakest' };
   if (st('лучш(?:ая|ие) привычк|топ привычк|сильне(?:е|йшая) привычк|best habit|top habit').test(t)) return { kind: 'habitTop' };
+
+  // ritual.create/list (§6.9, §6.10.2 #197): a named list of steps, saved to prefs.rituals.
+  // Not implemented: ritual.run (speaking it back step by step is flows/engine.ts territory, WP6.9).
+  const ritualSave = t.match(new RegExp(L + '(?:сохрани|создай|добавь|запиши)\\s*ритуал\\s+(.+?)\\s*(?::|—|-)\\s*(.+)'));
+  if (ritualSave) {
+    const steps = ritualSave[2].split(/\s*,\s*/).map(clean).filter(Boolean);
+    if (steps.length) return { kind: 'ritualSave', name: cap(clean(ritualSave[1])), steps };
+  }
+  if (st('мои ритуалы|какие.*ритуал|покажи ритуал|list rituals|my rituals').test(t)) return { kind: 'ritualList' };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

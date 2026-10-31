@@ -14,6 +14,7 @@ import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/syste
 import { useAuth } from '../lib/auth';
 import { setProfile } from '../data/settings';
 import { useTheme } from '../lib/theme';
+import { usePrefs } from './prefs';
 import { matchOf, similarity, type AskWhat, type Intent, type NavTo } from './nlu';
 import { useVoice } from './shell'; // used only inside callbacks (engine.ts imports this module)
 
@@ -604,6 +605,20 @@ function runOne(it: Intent, c: Ctx): Reply {
           ? (ru ? `Слабее всего — ${q(pick.h.name)}: ${pct}% за две недели` : `Weakest: “${pick.h.name}” — ${pct}% over 2 weeks`)
           : (ru ? `Лучше всего — ${q(pick.h.name)}: ${pct}% за две недели` : `Best: “${pick.h.name}” — ${pct}% over 2 weeks`),
       };
+    }
+
+    // ritual.create/list — a named list of steps, saved locally (prefs.ts, WP0.4). No ritual.run
+    // yet: speaking it back step by step needs the flows engine (WP6.9), not built here.
+    case 'ritualSave': {
+      const rituals = usePrefs.getState().prefs.rituals;
+      const next = [...rituals.filter((r) => r.name.toLowerCase() !== it.name.toLowerCase()), { name: it.name, steps: it.steps }];
+      usePrefs.getState().update({ rituals: next });
+      return { ok: true, say: ru ? `Сохранил ритуал ${q(it.name)}: ${it.steps.join(', ')}` : `Saved ritual “${it.name}”: ${it.steps.join(', ')}` };
+    }
+    case 'ritualList': {
+      const rituals = usePrefs.getState().prefs.rituals;
+      if (!rituals.length) return { ok: true, say: ru ? 'У вас пока нет сохранённых ритуалов' : 'No saved rituals yet' };
+      return { ok: true, say: ru ? `У вас ${rituals.length} ${plural(rituals.length, 'ритуал', 'ритуала', 'ритуалов')}` : `${rituals.length} ritual${rituals.length === 1 ? '' : 's'}`, list: rituals.map((r) => `${r.name}: ${r.steps.join(', ')}`) };
     }
 
     case 'ask': return answer(c, it.what);

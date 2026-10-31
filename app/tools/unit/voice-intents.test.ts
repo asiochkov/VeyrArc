@@ -107,6 +107,9 @@ const cases: C[] = [
   // habit.weakest / habit.top
   ['где я просел', { kind: 'habitWeakest' }],
   ['какая у меня лучшая привычка', { kind: 'habitTop' }],
+  // ritual.create/list
+  ['сохрани ритуал утро: зарядка, вода, медитация', { kind: 'ritualSave', name: 'Утро', steps: ['зарядка', 'вода', 'медитация'] }],
+  ['мои ритуалы', { kind: 'ritualList' }],
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
   ['медитация', { kind: 'guess' }],
@@ -118,10 +121,12 @@ const cases: C[] = [
   ['сегодня погода хорошая', { kind: 'unknown', text: 'offtopic' }], // non-health offtopic unaffected
 ];
 let fail = 0;
+// field equality, with array-valued fields (e.g. ritualSave.steps) compared by contents, not reference
+const eq = (a: unknown, b: unknown) => (Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((x, i) => x === b[i]) : a === b);
 for (const [text, want] of cases) {
   const got = understand(text, now);
   const wants = Array.isArray(want) ? want : [want];
-  const ok = wants.every((w, i) => got[i] && Object.entries(w).every(([k, v]) => (got[i] as Record<string, unknown>)[k] === v));
+  const ok = wants.every((w, i) => got[i] && Object.entries(w).every(([k, v]) => eq((got[i] as Record<string, unknown>)[k], v)));
   if (!ok) { fail++; console.log('✗', text, '→', JSON.stringify(got), 'want', JSON.stringify(want)); }
 }
 const sims: [string, string, boolean][] = [

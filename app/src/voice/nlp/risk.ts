@@ -40,6 +40,8 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   search: 'R0', // §6.6: search.all R0 — pure info
   habitWeakest: 'R0', // §6.6: habit.weakest R0
   habitTop: 'R0', // §6.6: habit.top R0
+  ritualSave: 'R2', // §6.6: ritual.create R2 (creates a standing structure)
+  ritualList: 'R0',
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

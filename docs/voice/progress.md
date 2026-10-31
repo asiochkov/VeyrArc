@@ -153,6 +153,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] Two new R0 intents answering "где я просел" / "какая у меня лучшая привычка": completion rate over the last 14 scheduled days per active habit, picks the min/max. Reuses `indexLogs`/`isLogged`/`scheduled` from `data/model.ts` — no new stats engine, same primitives `habitStreak`/`habitBest` already used.
   - 2 new tests (99/99 total). `typecheck`/`build` clean.
 
+## ritual.create / ritual.list
+
+- [x] `ritualSave` (R2) and `ritualList` (R0) — "сохрани ритуал утро: зарядка, вода, медитация" / "мои ритуалы". Finally puts the `prefs.rituals` field (added in WP0.4, unused until now) to use. **Not built**: `ritual.run` — speaking a saved ritual back step-by-step needs the flows engine (`flows/engine.ts`, WP6.9), not a quick addition here.
+  - Fixed a real test-harness bug while adding this: `tools/unit/voice-intents.test.ts`'s comparator used `===` on every field, which silently fails for array-valued fields (reference inequality) — the `ritualSave.steps` test printed identical JSON on both sides yet reported as failing. Now compares arrays by contents.
+  - 2 new tests (101/101 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
