@@ -43,6 +43,8 @@ const cases: C[] = [
   ['сдвинь встречу с Аней на пятницу в 12', { kind: 'taskMove', day: '2026-10-16', time: '12:00' }],
   ['удали задачу купить хлеб', { kind: 'taskDelete', query: 'купить хлеб' }],
   ['фокус 25', { kind: 'focus', op: 'start', minutes: 25 }],
+  // B-04: bare «час» (no digit) must mean 60 minutes, not nothing
+  ['начни фокус на час', { kind: 'focus', op: 'start', minutes: 60 }],
   ['запусти помодоро на полчаса', { kind: 'focus', op: 'start', minutes: 30 }],
   ['хочу поработать час', { kind: 'focus', op: 'start', minutes: 60 }],
   ['пауза', { kind: 'focus', op: 'pause' }],

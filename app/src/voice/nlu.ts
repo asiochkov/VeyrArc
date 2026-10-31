@@ -389,7 +389,9 @@ function one(t: string, now: Date): Intent {
   const isFocus = st('фокус|помодоро|pomodoro|таймер|focus|концентрац|сосредоточ|глубок[а-я]* работ').test(t);
   if (isFocus || /^(?:пауза|продолжи|продолжить|стоп|перерыв)/.test(t)) {
     const n = t.match(/(\d{1,3})\s*(минут|мин|час)?/);
-    const minutes = n ? Math.min(180, Math.max(1, Number(n[1]) * (n[2]?.startsWith('час') ? 60 : 1))) : null;
+    // B-04: «на час» has no digit at all («1 час» would already match above) — only «полчаса»
+    // gets converted to a number by wordsToDigits, bare «час» never did.
+    const minutes = n ? Math.min(180, Math.max(1, Number(n[1]) * (n[2]?.startsWith('час') ? 60 : 1))) : st('час').test(t) ? 60 : null;
     if (st('пауз|приостанов|pause|подожди').test(t)) return { kind: 'focus', op: 'pause', minutes: null };
     if (st('продолж|возобнов|resume|continue').test(t)) return { kind: 'focus', op: 'resume', minutes: null };
     if (st('стоп|останов|выключ|сбрось|сброс|закончи|заверши|отмени|stop|reset|end').test(t)) return { kind: 'focus', op: 'stop', minutes: null };

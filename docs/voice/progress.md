@@ -103,6 +103,10 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - Self-caught bug in my own fix: first attempt used `\b` for the word-boundary check, which is ASCII-only in JS and doesn't work correctly after/before Cyrillic letters — exactly the trap `nlu.ts`'s own `L`/`R` constants exist to avoid (`// word start (\b is ASCII-only in JS)`). Switched to `R`.
   - 2 new tests (89/89 total). `typecheck`/`build` clean.
 
+## B-04 — bare «час» in focus length
+
+- [x] Fixed B-04: "начни фокус на час" had no digit for the minutes regex to catch, so it silently fell back to `null` (→ default length) instead of 60 minutes. Added the same bare-"час"-means-60 fallback the *other* focus-start pattern already had. 1 new test (90/90 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
