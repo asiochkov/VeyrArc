@@ -10,6 +10,9 @@ const cases: C[] = [
   ['настроение на троечку', { kind: 'mood', level: 2 }],
   ['день на 8 из 10', { kind: 'mood', level: 3 }],
   ['я устал', { kind: 'mood', level: 1 }],
+  // B-02: «ничего» inside a negation must not read as neutral mood
+  ['я устал и ничего не хочу', { kind: 'mood', level: 1 }],
+  ['настроение ничего', { kind: 'mood', level: 2 }], // bare «ничего» as context still means "fine"
   ['i feel great', { kind: 'mood', level: 4 }],
   ['сделал зарядку и медитацию', [{ kind: 'done', query: 'зарядку' }, { kind: 'done', query: 'медитацию' }]],
   ['выпил 2 стакана воды', { kind: 'done', amount: 2 }],

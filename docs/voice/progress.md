@@ -92,6 +92,11 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] Fixed C-03: multi-intent replies ("сделал зарядку и медитацию") used to be spoken as one `SpeechSynthesisUtterance` for the whole `.join('. ')`-ed block — one long monologue. `engine.ts`'s `speak()` now splits on sentence boundaries (`/(?<=[.!?])\s+/`, matching §6.11.2) and chains each sentence as its own utterance via `onend`, giving a natural pause between them. Single-sentence replies (the common case) are unaffected — one chunk, same as before. `cancelVoice()`'s `speechSynthesis.cancel()` still aborts the whole chain (barge-in unaffected).
   - `typecheck`/`build`/`test:voice` (85/85) clean — TTS timing isn't something the test harness or browser tooling can verify (no speaker output check available), so this was checked by code review only.
 
+## B-02 — stop misreading distress as neutral mood (S1, highest severity open so far)
+
+- [x] Fixed B-02: the neutral-mood pattern's bare `ничего` matched *inside* negations — "я устал и ничего не хочу" logged mood level 2 (neutral) instead of reading "устал" (tired, level 1). For someone in a genuinely bad state, this was the worst possible misread the system could produce. Added a negative lookahead so `ничего` only counts as "fine" when it isn't followed by "не"/"хорошего"/"особенного". Bare "ничего" (a reply meaning "I'm fine") and "настроение ничего" (explicit context) still correctly read as neutral — only the negation case changed.
+  - 2 new regression tests (87/87 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

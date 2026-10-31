@@ -302,7 +302,9 @@ export const matchScore = (query: string, name: string) => Math.round(similarity
 const MOOD: [RegExp, number][] = [
   [st('ужасн|отвратительн|кошмарн|хуже некуда|очень плох|паршив|хренов|депресс|terribl|awful|horribl'), 0],
   [st('не очень|плох|грустн|так себе|устал|уныл|тяжел|тревожн|печальн|bad|sad|tired|not great'), 1],
-  [st('нормальн|норм|средн|ничего|спокойн|ровн|ок' + R + '|окей|okay|fine|neutral|so so'), 2],
+  // B-02: bare «ничего» used to match inside «ничего не хочу» / «ничего не делал» — the worst
+  // possible misread for someone in a bad state. Only count it as "fine" when it isn't a negation.
+  [st('нормальн|норм|средн|ничего(?!\\s+(?:не|хорошего|особенного))|спокойн|ровн|ок' + R + '|окей|okay|fine|neutral|so so'), 2],
   [st('неплох|хорош|бодр|радост|good|nice'), 3],
   [st('отличн|прекрасн|супер|замечательн|великолепн|круто|кайф|счастлив|лучше всех|на высоте|огонь|great|amazing|excellent|awesome|fantastic'), 4],
 ];
