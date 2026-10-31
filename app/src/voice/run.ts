@@ -6,7 +6,7 @@ import { GOAL_HUES } from '../mock/goals';
 import { HABIT_PALETTE } from '../mock/tracker';
 import {
   addGoalStep, addQuit, archiveHabit, archiveQuit, createGoal, createHabit, deleteEvent, deleteGoal, deleteGoalStep, deleteHabit, logGoalTask, logHabit, logMood,
-  logRelapse, restoreHabit, restoreQuit, saveEvent, saveFreeze, setEventDone,
+  logRelapse, restoreHabit, restoreQuit, saveEvent, saveFreeze, setEventDone, updateGoal,
 } from '../state/actions';
 import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
@@ -559,6 +559,26 @@ function runOne(it: Intent, c: Ctx): Reply {
       const undo = () => deleteGoalStep(id);
       remember(it.text, undo);
       return { ok: true, undo, say: ru ? `Добавил шаг ${q(it.text)} в цель ${q(g.item.title)}` : `Step added to “${g.item.title}”` };
+    }
+    // C-07: goal completion and deadline — updateGoal already existed, just weren't reachable by voice
+    case 'goalComplete': {
+      const gs = (c.sys?.goals ?? []).filter((x) => x.status === 'active');
+      const g = rank(it.query, gs, (x) => x.title)[0];
+      if (!g || g.score < MAYBE) return { ok: false, say: ru ? `Не нашёл цель ${q(it.query)}` : `No goal like “${it.query}”` };
+      updateGoal(g.item.id, { status: 'completed', completed_at: new Date().toISOString() });
+      const undo = () => updateGoal(g.item.id, { status: 'active', completed_at: null });
+      remember(g.item.title, undo);
+      return { ok: true, undo, say: ru ? `Поздравляю! Цель ${q(g.item.title)} завершена` : `Goal “${g.item.title}” completed — congrats!` };
+    }
+    case 'goalDeadline': {
+      const gs = (c.sys?.goals ?? []).filter((x) => x.status === 'active');
+      const g = rank(it.query, gs, (x) => x.title)[0];
+      if (!g || g.score < MAYBE) return { ok: false, say: ru ? `Не нашёл цель ${q(it.query)}` : `No goal like “${it.query}”` };
+      const prevDeadline = g.item.deadline;
+      updateGoal(g.item.id, { deadline: it.day });
+      const undo = () => updateGoal(g.item.id, { deadline: prevDeadline });
+      remember(g.item.title, undo);
+      return { ok: true, undo, say: ru ? `Дедлайн цели ${q(g.item.title)} — ${it.day}` : `Deadline for “${g.item.title}” set to ${it.day}` };
     }
     case 'relapse': {
       const quits = c.sys?.quits ?? [];

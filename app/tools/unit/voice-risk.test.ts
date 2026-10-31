@@ -20,6 +20,8 @@ check('quitAdd → confirm', decide(understand('добавь отказ от к�
 check('quitArchive → confirm', decide(understand('убери отказ курение', now)).action === 'confirm');
 check('habitArchive → confirm', decide(understand('заархивируй привычку чтение', now)).action === 'confirm');
 check('habitDelete → confirm', decide(understand('удали привычку чтение', now)).action === 'confirm');
+check('goalComplete → confirm', decide(understand('заверши цель марафон', now)).action === 'confirm');
+check('goalDeadline → confirm', decide(understand('поставь дедлайн цели марафон на 20 ноября', now)).action === 'confirm');
 
 // risk table itself
 check('riskOf taskDelete = R3', riskOf('taskDelete') === 'R3');

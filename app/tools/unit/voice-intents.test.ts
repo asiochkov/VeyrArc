@@ -66,6 +66,11 @@ const cases: C[] = [
   ['заархивируй привычку чтение', { kind: 'habitArchive', query: 'чтение' }],
   ['восстанови привычку чтение', { kind: 'habitRestore', query: 'чтение' }],
   ['удали привычку чтение', { kind: 'habitDelete', query: 'чтение' }],
+  // C-07: goal completion and deadline
+  ['заверши цель марафон', { kind: 'goalComplete', query: 'марафон' }],
+  ['цель марафон завершена', { kind: 'goalComplete', query: 'марафон' }],
+  ['поставь дедлайн цели марафон на 20 ноября', { kind: 'goalDeadline', query: 'марафон', day: '2026-11-20' }],
+  ['добавь шаг в цель марафон: растяжка', { kind: 'stepAdd', goal: 'марафон', text: 'Растяжка' }], // must not be hijacked by goal intents
   ['подведи итоги', { kind: 'review' }],
   ['переключи на английский', { kind: 'lang', to: 'en' }],
   ['верни как было', { kind: 'undo' }],

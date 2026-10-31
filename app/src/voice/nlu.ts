@@ -28,6 +28,8 @@ export type Intent =
   | { kind: 'habitArchive'; query: string }
   | { kind: 'habitRestore'; query: string }
   | { kind: 'habitDelete'; query: string }
+  | { kind: 'goalComplete'; query: string }
+  | { kind: 'goalDeadline'; query: string; day: string }
   | { kind: 'review' }
   | { kind: 'weekReview' }
   | { kind: 'freeze' }
@@ -436,6 +438,16 @@ function one(t: string, now: Date): Intent {
   const step = t.match(new RegExp(L + '(?:добавь|запиши|создай|новый)? ?(?:шаг|подзадач[ау]|задач[ау]) (?:в|к|для) цел[иья]? ?(.+?)\\s*(?::|—|-|это| шаг )\\s*(.+)'))
     ?? t.match(new RegExp(L + '(?:в|к|для) цел[иья]? (.+?) (?:добавь|запиши|шаг)\\s+(.+)'));
   if (step) return { kind: 'stepAdd', goal: clean(step[1]), text: cap(clean(step[2])) };
+  // C-07: goal completion and deadline (updateGoal already existed, not reachable by voice)
+  const goalDone = t.match(new RegExp(L + '(?:заверши|закрой|выполнил[аи]?|достиг(?:ла)?)\\s+цель\\s+(.+)'))
+    ?? t.match(new RegExp(L + 'цель\\s+(.+?)\\s+(?:завершена|выполнена|достигнута|готова)' + R));
+  if (goalDone && clean(goalDone[1])) return { kind: 'goalComplete', query: clean(goalDone[1]) };
+  const dl = t.match(new RegExp(L + '(?:поставь|измени|перенеси|сделай)\\s*дедлайн\\s*(?:цели|по цели|для цели)?\\s*(.+?)\\s+на\\s+(.+)'))
+    ?? t.match(new RegExp(L + 'дедлайн\\s*(?:цели|по цели)?\\s*(.+?)\\s*(?:—|:|-)\\s*(.+)'));
+  if (dl) {
+    const { day } = takeDay(dl[2], now);
+    if (day) return { kind: 'goalDeadline', query: clean(dl[1]), day };
+  }
   // C-07: quits (addQuit/archiveQuit already exist in state/actions.ts, just weren't reachable by voice)
   const quitStop = t.match(new RegExp(L + '(?:останови|прекрати|убери|заархивируй|удали|архивируй|stop|remove|archive)(?: трекать)?\\s*отказ(?:ы|а)?(?: от)?\\s+(.+)'));
   if (quitStop && clean(quitStop[1])) return { kind: 'quitArchive', query: clean(quitStop[1]) };
