@@ -117,6 +117,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - **Known residual gap, documented not silently left**: the first intent's query comes out as "отметь" (the verb) instead of a habit name — "позанимался" has no content beyond being the trigger verb in this exact phrasing, and `run.ts`'s object-cleaning strips it as a DONE_V match, leaving nothing to fall back on but the verb itself. Not dangerous (downstream fuzzy-matching just won't find a habit called "отметь" and will ask which one), but not clean either. Flagged in `audit-findings.md` as a separate, deeper gap rather than claimed as fixed.
   - 1 new test documenting the actual (improved but imperfect) output (92/92 total). `typecheck`/`build` clean.
 
+## B-12 — care-aware reply for health questions
+
+- [x] Partially fixed B-12: added a conservative keyword detector for health/medical questions (боли, симптомы, давление, лекарства, "как похудеть", диеты, …) that routes to a new `unknown.text === 'offtopic-health'`, replied to with "Я не могу давать медицинских советов — лучше спросить врача" instead of the generic offtopic brush-off (per §6.7.4/§6.18's named care-layer requirement). Non-health offtopic (weather/jokes/etc.) is unaffected.
+  - **Not the whole finding**: motivation/"why" questions and a proper general-purpose chat/small-talk class are still open — this covers specifically the medical-advice example B-12 names, kept narrow to avoid over-broad keyword matching that could misfire on legitimate habit/task phrases.
+  - 3 new tests (95/95 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

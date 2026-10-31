@@ -735,6 +735,8 @@ function runOne(it: Intent, c: Ctx): Reply {
 }
 
 function unknown(c: Ctx, text: string): Reply {
+  // B-12/§6.7.4/§6.18: a gentle, explicit disclaimer for health questions instead of a flat "didn't understand"
+  if (text === 'offtopic-health') return { ok: false, say: c.ru ? 'Я не могу давать медицинских советов — лучше спросить врача. А вот привычку или самочувствие отслеживать помогу' : 'I can’t give medical advice — best to ask a doctor. I can help track a habit or how you’re feeling, though' };
   if (text === 'offtopic') return { ok: false, say: c.ru ? 'С этим не помогу — я отвечаю за ваш день в VeyrArc: привычки, задачи, фокус и цели' : 'I can’t help with that — I run your day in VeyrArc', suggest: examples(c.ru, c) };
   return {
     ok: false,

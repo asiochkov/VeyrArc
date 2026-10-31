@@ -421,6 +421,9 @@ function one(t: string, now: Date): Intent {
     }
   }
 
+  // B-12: health/medical questions used to either misfire as a command or get the generic "didn't
+  // understand" with no care — a gentle, explicit "I can't give medical advice" instead (§6.7.4, §6.18).
+  if (st('болит|заболел[аи]?|симптом|температур|давлени[ея]|лекарств|таблетк|диагноз|стоит ли (?:идти )?к врачу|опасно ли|сколько калорий|как похудеть|как сбросить вес|какая диета').test(t)) return { kind: 'unknown', text: 'offtopic-health' };
   // outside the app: said kindly, not guessed into a command
   if (st('погод|курс доллар|курс валют|новост|анекдот|шутк|расскажи сказк|кто такой|кто такая|столиц|weather|news|joke').test(t)) return { kind: 'unknown', text: 'offtopic' };
 

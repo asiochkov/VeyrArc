@@ -30,7 +30,7 @@ Findings are re-checked incrementally, in the WP that touches that area — this
 | B-09 | S2 | Carried forward | English coverage is much thinner than Russian (no "create a habit reading 20 minutes", no "i smoked a cigarette") — WP3.3. |
 | B-10 | S3 | Carried forward | `nominative()`/`stem()` are crude suffix-stripping, not real morphology — breaks on less common cases. WP3/WP5 territory. |
 | B-11 | S3 | **Confirmed** | `app/src/app/CommandPalette.tsx:34` has its own `commands(q, ...)` parser, completely separate from `nlu.ts`'s `understand()`. Two independent, diverging command grammars. |
-| B-12 | S2 | **Confirmed** | No "off-topic / advice / small talk" class exists — the only non-command fallback is the weather/news/joke trigger list in `nlu.ts` (returns `{ kind: 'unknown', text: 'offtopic' }`). Any health/motivation/"why" question either becomes a misfired command or "didn't understand". |
+| B-12 | S2 | **Partially fixed** | Added a conservative health/medical keyword detector (боли, симптомы, лекарства, диеты, "как похудеть", …) → `{ kind: 'unknown', text: 'offtopic-health' }`, with a gentle "я не могу давать медицинских советов — лучше спросить врача" reply instead of a flat "didn't understand" (§6.7.4, §6.18). Motivation/"why" questions and the general lack of a proper chat/small-talk class are still open — this covers specifically the named medical-advice example, not the whole finding. |
 
 ## Section C — execution (`run.ts`) — verified 2026-10-30 (WP1.3)
 

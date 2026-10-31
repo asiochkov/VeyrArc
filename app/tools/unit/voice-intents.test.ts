@@ -106,6 +106,10 @@ const cases: C[] = [
   ['медитация', { kind: 'guess' }],
   ['подведи итоги недели', { kind: 'weekReview' }],
   ['заморозь вчера', { kind: 'freeze' }],
+  // B-12: health questions get a care-aware disclaimer, not a generic offtopic brush-off
+  ['у меня болит голова', { kind: 'unknown', text: 'offtopic-health' }],
+  ['как похудеть', { kind: 'unknown', text: 'offtopic-health' }],
+  ['сегодня погода хорошая', { kind: 'unknown', text: 'offtopic' }], // non-health offtopic unaffected
 ];
 let fail = 0;
 for (const [text, want] of cases) {
