@@ -82,6 +82,11 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - **Scoped deliberately narrow**: one slot type, one intent. This is not WP4's general dialog manager (`DialogContext`, TTL, multiple slot grammars) — just the smallest fix that closes the literal finding.
   - Verified via `understand()` output only (run.ts can't run outside Vite — it statically imports React/`.module.css`, same constraint as always); `typecheck`/`build`/`test:voice` (85/85) clean, no new permanent test added for the ask-slot *execution* path itself since there's no harness that can run `runOne()` yet (same gap noted for every other `run.ts` case).
 
+## C-06 — offer an alternative time on conflict
+
+- [x] Fixed C-06: `taskAdd` used to only report "В это время уже ${other title}" when the new event overlapped an existing one, with no way forward except retyping. Now computes the next free gap after the conflicting event (`nextFreeSlot()`, a small local scan of the day's events — not the full `exec/calendar.ts` module planned for WP5.7) and offers it as a choice: tap/say "На 16:00" to move there, or "Оставить как есть" to keep the overlap. Moving is itself undoable (reverts to the original clashing time).
+  - `typecheck`/`build`/`test:voice` (85/85) clean — this only touches `run.ts`'s internal scheduling logic, no new intents, so no new parse-level tests needed.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

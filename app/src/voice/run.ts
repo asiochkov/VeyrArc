@@ -82,6 +82,15 @@ const SURE = 0.62, MAYBE = 0.45;
 const habitsOf = (c: Ctx) => (c.sys?.habits ?? []).filter((h) => !h.archived_at);
 const logOf = (c: Ctx, id: string) => c.sys?.logs.find((l) => l.habit_id === id && l.day === c.day);
 const openTasks = (c: Ctx, from = c.day, to = c.day) => (c.sys?.plan ?? []).filter((p) => p.day >= from && p.day <= to);
+/** C-06: the first free gap of `durMin` on `day`, starting no earlier than `afterMin` */
+function nextFreeSlot(c: Ctx, day: string, afterMin: number, durMin: number): number {
+  const busy = openTasks(c, day, day).filter((p) => !p.done && p.starts_at)
+    .map((p) => [toMin(hm(p.starts_at!)), toMin(hm(p.ends_at ?? p.starts_at!))] as const)
+    .sort((a, b) => a[0] - b[0]);
+  let t = afterMin;
+  for (const [s, e] of busy) { if (t < e && s < t + durMin) t = e; }
+  return Math.min(t, 23 * 60 + 59);
+}
 const steps = (c: Ctx) => {
   const active = new Map((c.sys?.goals ?? []).filter((g) => g.status === 'active').map((g) => [g.id, g]));
   return (c.sys?.tasks ?? []).filter((t) => active.has(t.goal_id)).map((t) => ({ ...t, goal: active.get(t.goal_id)! }));
@@ -404,12 +413,27 @@ function runOne(it: Intent, c: Ctx): Reply {
       const undo = () => deleteEvent(ev.id);
       remember(it.title, undo);
       const when = ru ? whenRu(it.day, day) : whenEn(it.day, day);
-      return {
-        ok: true, undo,
-        say: (ru ? `Добавил ${q(it.title)} ${when}${it.time ? ` в ${it.time}${it.end ? `–${it.end}` : ''}` : ''}` : `Added “${it.title}” ${when}${it.time ? ` at ${it.time}` : ''}`)
-          + (clash ? (ru ? `. В это время уже ${q(clash.title)}` : `. Overlaps “${clash.title}”`) : '')
-          + (past ? (ru ? '. Это время уже прошло — если нужно на завтра, скажите «перенеси на завтра»' : '') : ''),
-      };
+      const base = (ru ? `Добавил ${q(it.title)} ${when}${it.time ? ` в ${it.time}${it.end ? `–${it.end}` : ''}` : ''}` : `Added “${it.title}” ${when}${it.time ? ` at ${it.time}` : ''}`)
+        + (past ? (ru ? '. Это время уже прошло — если нужно на завтра, скажите «перенеси на завтра»' : '') : '');
+      // C-06: used to only report the overlap — now also offers the next free slot
+      if (clash && it.time && end) {
+        const durMin = toMin(end) - toMin(it.time);
+        const altMin = nextFreeSlot(c, it.day, toMin(hm(clash.ends_at ?? clash.starts_at!)), durMin);
+        const altTime = fromMin(altMin), altEnd = fromMin(Math.min(23 * 60 + 59, altMin + durMin));
+        const moveToAlt = (): Reply => {
+          saveEvent({ ...ev, starts_at: altTime, ends_at: altEnd }, false);
+          return { ok: true, say: ru ? `Перенёс на ${altTime}` : `Moved to ${altTime}`, undo: () => saveEvent(ev, false) };
+        };
+        return {
+          ok: true, undo,
+          say: base + (ru ? `. В это время уже ${q(clash.title)}. Поставить на ${altTime}?` : `. Overlaps “${clash.title}”. Put it at ${altTime} instead?`),
+          choices: [
+            { label: ru ? `На ${altTime}` : `At ${altTime}`, yes: true, run: moveToAlt },
+            { label: ru ? 'Оставить как есть' : 'Keep as is', yes: false, run: () => ({ ok: true, say: ru ? 'Оставил как есть' : 'Kept as is' }) },
+          ],
+        };
+      }
+      return { ok: true, undo, say: base };
     }
 
     case 'taskMove': {
