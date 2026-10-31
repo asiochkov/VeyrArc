@@ -35,6 +35,8 @@ export type Intent =
   | { kind: 'settingsTheme'; to: 'light' | 'dark' | 'system' }
   | { kind: 'settingsReminder'; time: string }
   | { kind: 'search'; query: string }
+  | { kind: 'habitWeakest' }
+  | { kind: 'habitTop' }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -382,6 +384,10 @@ function one(t: string, now: Date): Intent {
   // search.all (§6.10.2): plan/goals/tasks/diary/notes/habits/quits by free text
   const search = t.match(new RegExp(L + '(?:найди|поищи|где у меня|search)\\s+(.+)'));
   if (search && clean(search[1])) return { kind: 'search', query: clean(search[1]) };
+
+  // habit.weakest / habit.top (§6.6): «где я просел», «какая привычка у меня слабее всего»
+  if (st('где я просел|слабе(?:е|йшая) привычк|худш(?:ая|ие) привычк|провисает|weakest habit').test(t)) return { kind: 'habitWeakest' };
+  if (st('лучш(?:ая|ие) привычк|топ привычк|сильне(?:е|йшая) привычк|best habit|top habit').test(t)) return { kind: 'habitTop' };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

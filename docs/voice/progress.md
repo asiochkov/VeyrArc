@@ -148,6 +148,11 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - Deliberately **not** building `wins.add`/`wins.list` from the §6.10.2 catalogue — "wins" isn't an existing concept in the app (no table, no actions, no UI). That's a product decision and a new data model, not something to invent unilaterally at the voice layer.
   - 2 new tests (97/97 total). `typecheck`/`build` clean.
 
+## habit.weakest / habit.top
+
+- [x] Two new R0 intents answering "где я просел" / "какая у меня лучшая привычка": completion rate over the last 14 scheduled days per active habit, picks the min/max. Reuses `indexLogs`/`isLogged`/`scheduled` from `data/model.ts` — no new stats engine, same primitives `habitStreak`/`habitBest` already used.
+  - 2 new tests (99/99 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

@@ -104,6 +104,9 @@ const cases: C[] = [
   // search.all
   ['найди марафон', { kind: 'search', query: 'марафон' }],
   ['где у меня встреча с Аней', { kind: 'search', query: 'встреча с аней' }],
+  // habit.weakest / habit.top
+  ['где я просел', { kind: 'habitWeakest' }],
+  ['какая у меня лучшая привычка', { kind: 'habitTop' }],
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
   ['медитация', { kind: 'guess' }],

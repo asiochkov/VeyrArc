@@ -1,4 +1,4 @@
-import { addDays, daysBetween, DAYS_ALL, habitBest, habitStreak, indexLogs, scheduled, type PlanRow } from '../data/model';
+import { addDays, daysBetween, DAYS_ALL, habitBest, habitStreak, indexLogs, isLogged, scheduled, type PlanRow } from '../data/model';
 import { buildToday } from '../data/today';
 import { useLangStore } from '../i18n';
 import { isoDay } from '../lib/day';
@@ -576,6 +576,33 @@ function runOne(it: Intent, c: Ctx): Reply {
         ok: true,
         say: ru ? `Нашёл ${top.length} ${plural(top.length, 'совпадение', 'совпадения', 'совпадений')}` : `Found ${top.length} match${top.length === 1 ? '' : 'es'}`,
         list: top.map((h) => `${h.label} · ${h.kind}`),
+      };
+    }
+
+    // habit.weakest / habit.top (§6.6): completion rate over the last 14 scheduled days
+    case 'habitWeakest':
+    case 'habitTop': {
+      const hs = habitsOf(c);
+      if (!hs.length) return { ok: false, say: ru ? 'У вас пока нет привычек' : 'No habits yet' };
+      const ix = indexLogs(c.sys?.logs ?? []);
+      const rate = (h: (typeof hs)[number]) => {
+        let total = 0, done = 0;
+        for (let i = 0; i < 14; i++) {
+          const d = addDays(day, -i);
+          if (h.created_at.slice(0, 10) > d || !scheduled(h, d)) continue;
+          total++; if (isLogged(ix, h.id, d)) done++;
+        }
+        return total ? done / total : 0;
+      };
+      const scored = hs.map((h) => ({ h, r: rate(h) }));
+      const weakest = it.kind === 'habitWeakest';
+      const pick = scored.sort((a, b) => (weakest ? a.r - b.r : b.r - a.r))[0];
+      const pct = Math.round(pick.r * 100);
+      return {
+        ok: true,
+        say: weakest
+          ? (ru ? `Слабее всего — ${q(pick.h.name)}: ${pct}% за две недели` : `Weakest: “${pick.h.name}” — ${pct}% over 2 weeks`)
+          : (ru ? `Лучше всего — ${q(pick.h.name)}: ${pct}% за две недели` : `Best: “${pick.h.name}” — ${pct}% over 2 weeks`),
       };
     }
 
