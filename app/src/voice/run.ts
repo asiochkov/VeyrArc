@@ -1,4 +1,4 @@
-import { addDays, DAYS_ALL, habitBest, habitStreak, indexLogs, scheduled, type PlanRow } from '../data/model';
+import { addDays, daysBetween, DAYS_ALL, habitBest, habitStreak, indexLogs, scheduled, type PlanRow } from '../data/model';
 import { buildToday } from '../data/today';
 import { useLangStore } from '../i18n';
 import { isoDay } from '../lib/day';
@@ -518,6 +518,12 @@ function runOne(it: Intent, c: Ctx): Reply {
       const ix = indexLogs(c.sys?.logs ?? []);
       const cur = habitStreak(hit.item, ix, day), best = habitBest(hit.item, ix, day);
       return { ok: true, say: ru ? `${q(hit.item.name)}: серия ${cur} ${plural(cur, 'день', 'дня', 'дней')}${best > cur ? `, рекорд — ${best}` : ''}` : `“${hit.item.name}”: streak ${cur}${best > cur ? `, best ${best}` : ''}` };
+    }
+    case 'quitDaysQuery': {
+      const hit = rank(it.query, c.sys?.quits ?? [], (x) => x.name)[0];
+      if (!hit || hit.score < MAYBE) return { ok: false, say: ru ? `Не нашёл такой отказ ${q(it.query)}` : `No quit like “${it.query}”` };
+      const n = daysBetween(hit.item.clean_since, day);
+      return { ok: true, say: ru ? `${q(hit.item.name)}: ${n} ${plural(n, 'день', 'дня', 'дней')}` : `“${hit.item.name}”: ${n} days` };
     }
 
     case 'ask': return answer(c, it.what);

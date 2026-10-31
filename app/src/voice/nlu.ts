@@ -35,6 +35,7 @@ export type Intent =
   | { kind: 'settingsTheme'; to: 'light' | 'dark' | 'system' }
   | { kind: 'settingsReminder'; time: string }
   | { kind: 'habitStreakQuery'; query: string }
+  | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
   | { kind: 'weekReview' }
   | { kind: 'freeze' }
@@ -371,6 +372,9 @@ function one(t: string, now: Date): Intent {
   // C-07: per-habit streak question (habitStreak/habitBest already existed, not reachable by voice)
   const hStreak = t.match(new RegExp(L + '(?:как(?:ая|ой|ое)|сколько дней подряд я|what.?s my)(?:\\s+у меня)?\\s+(?:серия|стрик|streak)\\s*(?:по|у меня по|for)?\\s*(.+)'));
   if (hStreak && clean(hStreak[1])) return { kind: 'habitStreakQuery', query: clean(hStreak[1]) };
+  // C-07: «сколько дней я не курю» — a quit.days question, distinct from habit streaks
+  const qDays = t.match(new RegExp(L + 'сколько(?: уже)?(?: дней)? я не\\s+(.+?)' + R));
+  if (qDays && clean(qDays[1])) return { kind: 'quitDaysQuery', query: clean(qDays[1]) };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

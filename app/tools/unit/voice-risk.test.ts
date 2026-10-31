@@ -27,6 +27,7 @@ check('arcOath → confirm', decide(understand('поставь клятву: н�
 check('settingsTheme → execute', decide(understand('включи тёмную тему', now)).action === 'execute');
 check('settingsReminder → confirm', decide(understand('поставь напоминание на 21:00', now)).action === 'confirm');
 check('habitStreakQuery → execute', decide(understand('какая серия по бегу', now)).action === 'execute');
+check('quitDaysQuery → execute', decide(understand('сколько дней я не курю', now)).action === 'execute');
 
 // risk table itself
 check('riskOf taskDelete = R3', riskOf('taskDelete') === 'R3');
