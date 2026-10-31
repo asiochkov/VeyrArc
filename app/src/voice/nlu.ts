@@ -425,7 +425,11 @@ function one(t: string, now: Date): Intent {
   if (st('погод|курс доллар|курс валют|новост|анекдот|шутк|расскажи сказк|кто такой|кто такая|столиц|weather|news|joke').test(t)) return { kind: 'unknown', text: 'offtopic' };
 
   // questions
-  if (st('что|чем|какие|какой|какая|какое|каких|который|которое|сколько|как |когда|есть ли|расскажи|напомни что|покажи что|what|how|which|when').test(t) || /\?$/.test(t)) {
+  // B-08: «отметь ЧТО я позанимался…» — «что» here is the conjunction "that", not the question
+  // word "what". Without this guard the whole phrase (incl. the mood clause later in it) read as
+  // a single question and never reached the multi-clause split below.
+  const reportingThat = new RegExp('^(?:' + DONE_V + '|' + UNDO_V + ')\\s+что' + R).test(t);
+  if (!reportingThat && (st('что|чем|какие|какой|какая|какое|каких|который|которое|сколько|как |когда|есть ли|расскажи|напомни что|покажи что|what|how|which|when').test(t) || /\?$/.test(t))) {
     if (st('врем|час' + R + '|который час|сколько времени|time').test(t) && !st('фокус|работал').test(t)) return { kind: 'ask', what: 'time' };
     if (st('число|дата|какой сегодня день|какое сегодня|date|day is it').test(t)) return { kind: 'ask', what: 'date' };
     if (st('завтра|tomorrow').test(t)) return { kind: 'ask', what: 'planTomorrow' };
@@ -626,7 +630,10 @@ function understandLower(raw: string, now: Date): Intent[] {
   const t = normalize(raw);
   const whole = one(t, now);
   if (!['guess', 'done', 'undone', 'mood'].includes(whole.kind)) return [whole];
-  const parts = splitClauses(t).flatMap((p) => (whole.kind === 'done' || whole.kind === 'undone' ? p.split(/\s+(?:и|а|and)\s+/) : [p])).map(clean).filter(Boolean);
+  // B-08: «отметь что я позанимался и поставь настроение хорошее» — two different command types
+  // joined by «и» used to only split when the *whole* phrase first read as done/undone; extended
+  // to mood too, since the same two-commands-in-one-sentence shape happens there as well.
+  const parts = splitClauses(t).flatMap((p) => (whole.kind === 'done' || whole.kind === 'undone' || whole.kind === 'mood' ? p.split(/\s+(?:и|а|and)\s+/) : [p])).map(clean).filter(Boolean);
   if (parts.length < 2) return [whole];
   const out: Intent[] = [];
   for (const p of parts) {

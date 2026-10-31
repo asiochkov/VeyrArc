@@ -17,6 +17,10 @@ const cases: C[] = [
   ['сделал зарядку и медитацию', [{ kind: 'done', query: 'зарядку' }, { kind: 'done', query: 'медитацию' }]],
   // B-07: «напомнил» is a request about the future, not a completed habit — must not read as done
   ['хочу чтобы ты напомнил про тренировку', { kind: 'guess', query: 'напомнил про тренировку' }],
+  // B-08: two different command types joined by «и» used to misread as one «ask mood» question;
+  // now splits into two intents. The first one's query is imperfect («отметь», not a habit name —
+  // «позанимался» has no content beyond being the trigger verb itself, a separate deeper gap).
+  ['отметь что я позанимался и поставь настроение хорошее', [{ kind: 'done', query: 'отметь' }, { kind: 'mood', level: 3 }]],
   ['выпил 2 стакана воды', { kind: 'done', amount: 2 }],
   ['ещё стакан воды', { kind: 'done', amount: 1 }],
   ['поработал 2 часа над проектом', { kind: 'done', minutes: 120 }],

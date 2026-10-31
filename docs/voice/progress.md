@@ -111,6 +111,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 
 - [x] Fixed B-07: `doneVerb()`'s generic past-tense matcher (any `-ал/-ил/-ел/…` verb) caught "напомнил" ("reminded", used in a request about the *future*) as a completed habit. Added it to the `NOT_DONE` exclusion list — now correctly falls through to `guess` instead of silently marking something done. 1 new test (91/91 total). `typecheck`/`build` clean.
 
+## B-08 — two commands joined by «и» no longer collapse into one question
+
+- [x] Partially fixed B-08. Two independent bugs combined to cause this: (1) the question detector read «что» as "what" even when it was the conjunction "that" right after a mark/done verb — added a `reportingThat` guard excluding `<DONE_V|UNDO_V> что`; (2) the clause-split-on-«и» logic only ran when the *whole* phrase first parsed as `done`/`undone` — extended to `mood` too. Result: "отметь что я позанимался и поставь настроение хорошее" now produces two intents (done + mood) instead of one wrong `ask`.
+  - **Known residual gap, documented not silently left**: the first intent's query comes out as "отметь" (the verb) instead of a habit name — "позанимался" has no content beyond being the trigger verb in this exact phrasing, and `run.ts`'s object-cleaning strips it as a DONE_V match, leaving nothing to fall back on but the verb itself. Not dangerous (downstream fuzzy-matching just won't find a habit called "отметь" and will ask which one), but not clean either. Flagged in `audit-findings.md` as a separate, deeper gap rather than claimed as fixed.
+  - 1 new test documenting the actual (improved but imperfect) output (92/92 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
