@@ -87,6 +87,11 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] Fixed C-06: `taskAdd` used to only report "В это время уже ${other title}" when the new event overlapped an existing one, with no way forward except retyping. Now computes the next free gap after the conflicting event (`nextFreeSlot()`, a small local scan of the day's events — not the full `exec/calendar.ts` module planned for WP5.7) and offers it as a choice: tap/say "На 16:00" to move there, or "Оставить как есть" to keep the overlap. Moving is itself undoable (reverts to the original clashing time).
   - `typecheck`/`build`/`test:voice` (85/85) clean — this only touches `run.ts`'s internal scheduling logic, no new intents, so no new parse-level tests needed.
 
+## C-03 — sentence-chunked speech
+
+- [x] Fixed C-03: multi-intent replies ("сделал зарядку и медитацию") used to be spoken as one `SpeechSynthesisUtterance` for the whole `.join('. ')`-ed block — one long monologue. `engine.ts`'s `speak()` now splits on sentence boundaries (`/(?<=[.!?])\s+/`, matching §6.11.2) and chains each sentence as its own utterance via `onend`, giving a natural pause between them. Single-sentence replies (the common case) are unaffected — one chunk, same as before. `cancelVoice()`'s `speechSynthesis.cancel()` still aborts the whole chain (barge-in unaffected).
+  - `typecheck`/`build`/`test:voice` (85/85) clean — TTS timing isn't something the test harness or browser tooling can verify (no speaker output check available), so this was checked by code review only.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

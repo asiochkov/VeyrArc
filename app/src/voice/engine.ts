@@ -44,6 +44,20 @@ function pickVoice(code: string) {
 }
 let muted = false;
 export const setMuted = (v: boolean) => { muted = v; if (v) window.speechSynthesis?.cancel(); };
+/** C-03: a chunk of a multi-sentence reply, chained via onend so each sentence is its own utterance
+ * with a natural pause between — was one long monologue glued together with '. '. */
+function speakChunk(synth: SpeechSynthesis, chunks: string[], i: number, done: () => void) {
+  if (i >= chunks.length) { done(); return; }
+  const u = new SpeechSynthesisUtterance(chunks[i]);
+  u.lang = lang() === 'ru' ? 'ru-RU' : 'en-US';
+  const v = pickVoice(lang());
+  if (v) u.voice = v;
+  u.rate = 1.04;
+  if (i === 0) u.onstart = () => set({ state: 'speaking' });
+  u.onend = () => speakChunk(synth, chunks, i + 1, done);
+  u.onerror = () => speakChunk(synth, chunks, i + 1, done);
+  synth.speak(u);
+}
 function speak(text: string, then?: () => void) {
   const synth = typeof window !== 'undefined' ? window.speechSynthesis : undefined;
   const done = () => {
@@ -53,15 +67,10 @@ function speak(text: string, then?: () => void) {
   };
   if (!synth || muted) { set({ state: 'speaking' }); setTimeout(done, 400); return; }
   synth.cancel();
-  // spoken without the list marks and quotes
-  const u = new SpeechSynthesisUtterance(text.replace(/[«»"“”]/g, '').replace(/ · /g, ', '));
-  u.lang = lang() === 'ru' ? 'ru-RU' : 'en-US';
-  const v = pickVoice(lang());
-  if (v) u.voice = v;
-  u.rate = 1.04;
-  u.onstart = () => set({ state: 'speaking' });
-  u.onend = done; u.onerror = done;
-  synth.speak(u);
+  // spoken without the list marks and quotes; each sentence becomes its own utterance (C-03)
+  const clean = text.replace(/[«»"“”]/g, '').replace(/ · /g, ', ');
+  const chunks = clean.split(/(?<=[.!?])\s+/).filter(Boolean);
+  speakChunk(synth, chunks.length ? chunks : [clean], 0, done);
   // autoplay policy may keep it silent: the text still shows the answer
   setTimeout(() => { if (useVoice.getState().state === 'processing') { set({ state: 'speaking' }); setTimeout(done, 1200); } }, 900);
 }
