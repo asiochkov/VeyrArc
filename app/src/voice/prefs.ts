@@ -29,7 +29,7 @@ export type VoicePrefs = {
 export const DEFAULT_PREFS: VoicePrefs = {
   muted: false,
   sound: true,
-  rate: 1.0,
+  rate: 1.04, // matches the rate engine.ts hardcoded before it was wired to this pref
   tone: 'neutral',
   aliases: [],
   macros: [],

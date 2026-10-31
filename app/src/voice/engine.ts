@@ -2,6 +2,7 @@ import { useLangStore } from '../i18n';
 import { journalAppend } from './journal';
 import { normalize, similarity, takeTime, understand, type Intent } from './nlu';
 import { decide } from './nlp/decide';
+import { usePrefs } from './prefs';
 import { hints, runAll, type Choice, type Reply } from './run';
 import { closeAssistant, useAssistant, useVoice, voiceSupported } from './shell';
 
@@ -42,8 +43,10 @@ function pickVoice(code: string) {
   const mine = vs.filter((v) => v.lang?.toLowerCase().startsWith(code));
   return mine.find((v) => /premium|enhanced|natural|milena|yuri|siri|google/i.test(v.name)) ?? mine[0];
 }
-let muted = false;
-export const setMuted = (v: boolean) => { muted = v; if (v) window.speechSynthesis?.cancel(); };
+// E-02: used to be a module-level `let muted = false` that forgot itself on every reload —
+// prefs.ts already had the persisted field (WP0.4), it just wasn't connected to anything yet.
+let muted = usePrefs.getState().prefs.muted;
+export const setMuted = (v: boolean) => { muted = v; usePrefs.getState().update({ muted: v }); if (v) window.speechSynthesis?.cancel(); };
 /** C-03: a chunk of a multi-sentence reply, chained via onend so each sentence is its own utterance
  * with a natural pause between — was one long monologue glued together with '. '. */
 function speakChunk(synth: SpeechSynthesis, chunks: string[], i: number, done: () => void) {
@@ -52,7 +55,7 @@ function speakChunk(synth: SpeechSynthesis, chunks: string[], i: number, done: (
   u.lang = lang() === 'ru' ? 'ru-RU' : 'en-US';
   const v = pickVoice(lang());
   if (v) u.voice = v;
-  u.rate = 1.04;
+  u.rate = usePrefs.getState().prefs.rate; // was hardcoded 1.04; prefs.ts's 0.8–1.4 range wasn't wired to anything yet
   if (i === 0) u.onstart = () => set({ state: 'speaking' });
   u.onend = () => speakChunk(synth, chunks, i + 1, done);
   u.onerror = () => speakChunk(synth, chunks, i + 1, done);

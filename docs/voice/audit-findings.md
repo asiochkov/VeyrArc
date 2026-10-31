@@ -48,7 +48,7 @@ Findings are re-checked incrementally, in the WP that touches that area — this
 
 Not yet re-verified — confirmed at the start of the WP that implements them (per master prompt §4.2 step 1):
 - D (dialog) → WP4
-- E (TTS) → WP6.1
+- E (TTS) → WP6.1. **E-02 fixed early** (2026-10-31): `muted` was a module-level `let` that forgot itself on reload — wired to `prefs.ts`'s already-built (WP0.4) persisted `muted` field. Also wired TTS `rate` the same way (was hardcoded `1.04`; `DEFAULT_PREFS.rate` set to `1.04` to match exactly, so nobody's speech speed silently changed).
 - F (UX/CSS) → WP6
 - G (onboarding) → WP6.4
 - H (perf/compat) → **H12 fixed in WP0.5** (voice engine now lazy-split, see `baseline.md`); the rest (cross-browser, device perf) → WP7

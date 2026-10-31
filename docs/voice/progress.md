@@ -123,6 +123,13 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - **Not the whole finding**: motivation/"why" questions and a proper general-purpose chat/small-talk class are still open — this covers specifically the medical-advice example B-12 names, kept narrow to avoid over-broad keyword matching that could misfire on legitimate habit/task phrases.
   - 3 new tests (95/95 total). `typecheck`/`build` clean.
 
+## E-02 — persist mute and speech rate (connects WP0.4's unused prefs.ts to real behavior)
+
+- [x] Fixed E-02: `muted` was a plain module-level `let` in `engine.ts` — reset to `false` on every reload, no matter what the person chose. `prefs.ts` already had a persisted `muted` field since WP0.4, it just had zero consumers. `setMuted()` now calls `usePrefs.getState().update({ muted })`, and the module initializes `muted` from the stored value.
+  - Same treatment for TTS `rate`: was hardcoded `1.04` in `speak()`, `prefs.ts`'s `rate` field (0.8–1.4 range, §6.11.5) existed but was unused. Now reads from prefs. Set `DEFAULT_PREFS.rate` to `1.04` (matching the old hardcoded value exactly) so this is a pure wiring fix — nobody's default speech speed changes.
+  - No UI to *change* these yet (that's `VoiceSettings.tsx`, WP6.5) — this just makes the already-built persistence layer actually take effect.
+  - `typecheck`/`build`/`test:voice` (95/95) clean — no new tests needed, nothing here is reachable from `understand()`'s parse-level tests.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
