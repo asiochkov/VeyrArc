@@ -152,7 +152,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
   },
   privacy: {
     ru: {
-      title: 'Политика конфиденциальности', updated: 'Обновлено 29 сентября 2026',
+      title: 'Политика конфиденциальности', updated: 'Обновлено 31 октября 2026',
       sections: [
         ['Что мы собираем', 'Email, имя и фамилию (если вы их указали), язык и часовой пояс; ваши привычки, отметки, отказы, цели, записи дневника, задачи планера, настроение и фокус-сессии.'],
         ['Зачем', 'Только чтобы приложение работало: показывать прогресс, считать серии и индекс дисциплины, отправлять коды входа и напоминания, которые вы включили.'],
@@ -160,12 +160,13 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
         ['Кому передаём', 'Никому не продаём и не передаём данные для рекламы. Подрядчики выше обрабатывают данные только для работы сервиса.'],
         ['Вход через Google', 'При входе через Google мы получаем ваш email и имя. Другие данные Google-аккаунта не запрашиваются.'],
         ['Ваши права', 'Экспорт всех данных — Настройки → Данные → Экспортировать. Удаление аккаунта и всех данных — там же. По другим запросам пишите на почту ниже.'],
+        ['Голосовой ассистент', 'Когда вы говорите с ассистентом, ваш браузер или телефон сам распознаёт речь (например, сервисы распознавания от Google, Apple или другого производителя). VeyrArc не записывает, не получает и не хранит аудио. Мы получаем только распознанный текст команды, чтобы её выполнить, и не сохраняем его, если вы не включите «Помочь улучшить ассистента» в настройках. Если вы скачаете распознавание на устройстве, звук вообще не покидает телефон. Пользоваться ассистентом можно и без голоса: команды можно печатать.'],
         ['Cookies и аналитика', 'Используется только локальное хранилище браузера для входа и языка. Рекламных трекеров нет. Чтобы понимать, где людям неудобно, мы записываем в собственную базу обезличенные события использования (шаг онбординга, первая отметка, возврат в приложение) — без текстов ваших привычек и записей.'],
         ['Контакты', `${CONTACT}`],
       ],
     },
     en: {
-      title: 'Privacy policy', updated: 'Updated September 29, 2026',
+      title: 'Privacy policy', updated: 'Updated October 31, 2026',
       sections: [
         ['What we collect', 'Email, first and last name (if you give them), language and time zone; your habits, check-ins, quits, goals, journal entries, planner tasks, mood and focus sessions.'],
         ['Why', 'Only to run the app: show progress, compute streaks and the discipline index, send sign-in codes and the reminders you turned on.'],
@@ -173,6 +174,7 @@ const DOCS: Record<DocId, Record<'ru' | 'en', Doc>> = {
         ['Sharing', 'We never sell data or share it for advertising. The providers above process it only to run the service.'],
         ['Google sign-in', 'With Google sign-in we receive your email and name. No other Google account data is requested.'],
         ['Your rights', 'Export all data in Settings → Data → Export. Delete the account and all data there too. For other requests, email us below.'],
+        ['Voice assistant', 'When you speak to the assistant, your browser or phone’s system processes the audio (for example, speech-recognition services from Google, Apple or another vendor). VeyrArc does not record, receive or store audio. We only receive the recognised text of the command in order to carry it out, and we do not keep it unless you turn on “Help improve the assistant” in settings. If you download on-device recognition, audio never leaves your phone. You can use the assistant without voice: commands can be typed.'],
         ['Cookies and analytics', 'Only the browser’s local storage is used for sign-in and language. No advertising trackers. To see where people struggle we record anonymous usage events in our own database (an onboarding step, the first check-in, coming back) — never the text of your habits or notes.'],
         ['Contact', `${CONTACT}`],
       ],

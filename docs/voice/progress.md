@@ -136,6 +136,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - **Found the same bug in ~15 other `tools/e2e-*.mjs` files** (disciplines, planner, import, retention, …) — unrelated to voice, out of scope for this project, left untouched. Worth a separate cleanup pass someday.
   - Verified with `node --check` (syntax) and `typecheck`; didn't run the full Playwright e2e suite (needs a `vite preview` server on :4173 and installed browser binaries — more setup than this one-line path fix warranted).
 
+## J-01 — voice privacy disclosure
+
+- [x] Fixed J-01: `Legal.tsx`'s privacy policy never mentioned the voice assistant at all — speech recognition is a third-party (Google/Apple/vendor) service running in the browser, not something VeyrArc operates, and that needs disclosing. Added a dedicated "Голосовой ассистент"/"Voice assistant" section to both RU and EN privacy docs, using the exact wording from master-prompt §6.18. Bumped both "last updated" dates to today since the content materially changed.
+  - The text promises voice text/audio aren't kept server-side unless "Помочь улучшить ассистента" is turned on. This is accurate as written today — no server-side voice telemetry exists yet (WP0.3/K-01 still pending) — and now stands as a documented constraint those future WPs have to respect.
+  - `typecheck`/`build`/`test:voice` (95/95) clean — plain copy change, no logic touched.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
