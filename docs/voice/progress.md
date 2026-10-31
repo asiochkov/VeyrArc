@@ -130,6 +130,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - No UI to *change* these yet (that's `VoiceSettings.tsx`, WP6.5) — this just makes the already-built persistence layer actually take effect.
   - `typecheck`/`build`/`test:voice` (95/95) clean — no new tests needed, nothing here is reachable from `understand()`'s parse-level tests.
 
+## K-03 — portable e2e screenshot path
+
+- [x] Fixed K-03: `tools/e2e-voice.mjs`'s screenshot path was hardcoded to `/tmp/claude-0/-home-claude-repo/2a26a2d0-.../scratchpad/` — one old cloud session's path, doesn't exist on this machine and never would on Windows. Now `process.env.SHOT_DIR || path.join(os.tmpdir(), 'veyrarc-shots')`, directory created with `mkdirSync(..., { recursive: true })`.
+  - **Found the same bug in ~15 other `tools/e2e-*.mjs` files** (disciplines, planner, import, retention, …) — unrelated to voice, out of scope for this project, left untouched. Worth a separate cleanup pass someday.
+  - Verified with `node --check` (syntax) and `typecheck`; didn't run the full Playwright e2e suite (needs a `vite preview` server on :4173 and installed browser binaries — more setup than this one-line path fix warranted).
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

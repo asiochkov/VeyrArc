@@ -54,4 +54,4 @@ Not yet re-verified — confirmed at the start of the WP that implements them (p
 - H (perf/compat) → **H12 fixed in WP0.5** (voice engine now lazy-split, see `baseline.md`); the rest (cross-browser, device perf) → WP7
 - I (push) → WP6.8
 - J (legal/limits) → WP7.1
-- K (process/tooling) → mostly closed in WP0 (K-01 telemetry pending WP0.3, K-02 tooling done, K-03/K-04 remain)
+- K (process/tooling) → K-02 done (WP0.1), **K-03 fixed** (2026-10-31: `tools/e2e-voice.mjs`'s screenshot path was hardcoded to one old session's `/tmp/claude-0/...` — didn't exist on this machine, wouldn't exist on Windows at all; now `process.env.SHOT_DIR || os.tmpdir()/veyrarc-shots`, directory created if missing. Found the identical hardcoded-path bug in ~15 *other* `tools/e2e-*.mjs` files for unrelated features — out of scope for the voice project, left alone, worth a separate pass). K-01 (telemetry) pending WP0.3, K-04 remains.

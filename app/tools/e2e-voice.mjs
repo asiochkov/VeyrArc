@@ -1,6 +1,13 @@
+import { mkdirSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { APP, guestOnboard, log, open } from './e2e-lib.mjs';
 // Assistant: tap the mark next to the dock, «say» a phrase (fake SpeechRecognition), check the app did it
-const S = '/tmp/claude-0/-home-claude-repo/2a26a2d0-2e4a-50c4-9d86-2549853ae036/scratchpad/';
+// K-03: this used to be hardcoded to one old session's /tmp path — breaks on every other machine (and
+// doesn't exist at all on Windows). Now portable: SHOT_DIR env override, else the OS temp dir.
+const SHOT_DIR = process.env.SHOT_DIR || path.join(os.tmpdir(), 'veyrarc-shots');
+mkdirSync(SHOT_DIR, { recursive: true });
+const S = SHOT_DIR + path.sep;
 const { browser, page, errors } = await open({ width: 390, height: 844 }, { hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
 await page.addInitScript(() => {
   class R { start() { if (window.__deny) { setTimeout(() => { this.onerror?.({ error: 'not-allowed' }); this.onend?.(); }, 50); return; } window.__rec = this; } stop() { setTimeout(() => this.onend?.(), 30); } abort() { this.onend?.(); } }
