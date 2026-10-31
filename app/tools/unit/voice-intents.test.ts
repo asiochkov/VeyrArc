@@ -15,6 +15,8 @@ const cases: C[] = [
   ['настроение ничего', { kind: 'mood', level: 2 }], // bare «ничего» as context still means "fine"
   ['i feel great', { kind: 'mood', level: 4 }],
   ['сделал зарядку и медитацию', [{ kind: 'done', query: 'зарядку' }, { kind: 'done', query: 'медитацию' }]],
+  // B-07: «напомнил» is a request about the future, not a completed habit — must not read as done
+  ['хочу чтобы ты напомнил про тренировку', { kind: 'guess', query: 'напомнил про тренировку' }],
   ['выпил 2 стакана воды', { kind: 'done', amount: 2 }],
   ['ещё стакан воды', { kind: 'done', amount: 1 }],
   ['поработал 2 часа над проектом', { kind: 'done', minutes: 120 }],

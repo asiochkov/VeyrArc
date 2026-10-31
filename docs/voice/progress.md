@@ -107,6 +107,10 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 
 - [x] Fixed B-04: "начни фокус на час" had no digit for the minutes regex to catch, so it silently fell back to `null` (→ default length) instead of 60 minutes. Added the same bare-"час"-means-60 fallback the *other* focus-start pattern already had. 1 new test (90/90 total). `typecheck`/`build` clean.
 
+## B-07 — stop misreading "напомнил" as done
+
+- [x] Fixed B-07: `doneVerb()`'s generic past-tense matcher (any `-ал/-ил/-ел/…` verb) caught "напомнил" ("reminded", used in a request about the *future*) as a completed habit. Added it to the `NOT_DONE` exclusion list — now correctly falls through to `guess` instead of silently marking something done. 1 new test (91/91 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
