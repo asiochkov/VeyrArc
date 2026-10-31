@@ -110,6 +110,7 @@ const cases: C[] = [
   // ritual.create/list
   ['сохрани ритуал утро: зарядка, вода, медитация', { kind: 'ritualSave', name: 'Утро', steps: ['зарядка', 'вода', 'медитация'] }],
   ['мои ритуалы', { kind: 'ritualList' }],
+  ['экспортируй мои данные', { kind: 'exportData' }],
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
   ['медитация', { kind: 'guess' }],

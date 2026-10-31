@@ -12,7 +12,7 @@ import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
 import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/system';
 import { useAuth } from '../lib/auth';
-import { setProfile } from '../data/settings';
+import { exportData, setProfile } from '../data/settings';
 import { useTheme } from '../lib/theme';
 import { usePrefs } from './prefs';
 import { matchOf, similarity, type AskWhat, type Intent, type NavTo } from './nlu';
@@ -619,6 +619,11 @@ function runOne(it: Intent, c: Ctx): Reply {
       const rituals = usePrefs.getState().prefs.rituals;
       if (!rituals.length) return { ok: true, say: ru ? 'У вас пока нет сохранённых ритуалов' : 'No saved rituals yet' };
       return { ok: true, say: ru ? `У вас ${rituals.length} ${plural(rituals.length, 'ритуал', 'ритуала', 'ритуалов')}` : `${rituals.length} ritual${rituals.length === 1 ? '' : 's'}`, list: rituals.map((r) => `${r.name}: ${r.steps.join(', ')}`) };
+    }
+
+    case 'exportData': {
+      exportData().catch((e) => console.error('[voice] export failed', e));
+      return { ok: true, say: ru ? 'Начал экспорт — файл скачается через пару секунд' : 'Exporting your data — the file will download in a moment' };
     }
 
     case 'ask': return answer(c, it.what);

@@ -42,6 +42,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   habitTop: 'R0', // §6.6: habit.top R0
   ritualSave: 'R2', // §6.6: ritual.create R2 (creates a standing structure)
   ritualList: 'R0',
+  exportData: 'R3', // §6.6: export.data R3
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

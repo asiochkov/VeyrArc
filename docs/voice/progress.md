@@ -159,6 +159,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - Fixed a real test-harness bug while adding this: `tools/unit/voice-intents.test.ts`'s comparator used `===` on every field, which silently fails for array-valued fields (reference inequality) — the `ritualSave.steps` test printed identical JSON on both sides yet reported as failing. Now compares arrays by contents.
   - 2 new tests (101/101 total). `typecheck`/`build` clean.
 
+## export.data (and the deliberate non-fix: account.delete)
+
+- [x] `exportData` (R3) wired to the already-existing `data/settings.ts` export (downloads a JSON of all tables). Fire-and-forget async, same pattern as `saveDiary`.
+- **Deliberately not wiring `account.delete` (R4)** — the master prompt itself flags (§6.10.2 #91) that account deletion needs a *stronger* confirmation than the standard R2/R3 flow, and our `decide.ts` currently only has one strength of "are you sure" (R2/R3/R4 all route through the same single confirm). Shipping irreversible whole-account deletion behind one misheard "да" is a real safety risk, not just a missing feature — it stays unimplemented until `decide.ts` grows an actual R4 tier (double confirmation, or confirmation that can't be answered by voice alone).
+  - 2 new tests (102/102 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

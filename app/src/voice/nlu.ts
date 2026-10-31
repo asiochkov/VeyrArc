@@ -39,6 +39,7 @@ export type Intent =
   | { kind: 'habitTop' }
   | { kind: 'ritualSave'; name: string; steps: string[] }
   | { kind: 'ritualList' }
+  | { kind: 'exportData' }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -399,6 +400,11 @@ function one(t: string, now: Date): Intent {
     if (steps.length) return { kind: 'ritualSave', name: cap(clean(ritualSave[1])), steps };
   }
   if (st('мои ритуалы|какие.*ритуал|покажи ритуал|list rituals|my rituals').test(t)) return { kind: 'ritualList' };
+
+  // export.data (§6.10.2 #233). Deliberately NOT wiring account.delete (R4) by voice — that's an
+  // irreversible, whole-account action and our confirm flow has only one strength of "are you sure",
+  // not the extra R4 safeguard the master prompt calls for (#91). Too risky to ship on a misheard word.
+  if (st('экспортируй (?:мои )?данные|выгрузи (?:мои )?данные|скачай (?:мои )?данные|export my data|export data').test(t)) return { kind: 'exportData' };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };
