@@ -101,6 +101,9 @@ const cases: C[] = [
   ['какая у меня серия', { kind: 'ask', what: 'streak' }], // must stay the general question
   // C-07: «сколько дней я не курю» — quit.days query
   ['сколько дней я не курю', { kind: 'quitDaysQuery', query: 'курю' }],
+  // search.all
+  ['найди марафон', { kind: 'search', query: 'марафон' }],
+  ['где у меня встреча с Аней', { kind: 'search', query: 'встреча с аней' }],
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
   ['медитация', { kind: 'guess' }],

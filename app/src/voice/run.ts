@@ -14,7 +14,7 @@ import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/syste
 import { useAuth } from '../lib/auth';
 import { setProfile } from '../data/settings';
 import { useTheme } from '../lib/theme';
-import { matchOf, type AskWhat, type Intent, type NavTo } from './nlu';
+import { matchOf, similarity, type AskWhat, type Intent, type NavTo } from './nlu';
 import { useVoice } from './shell'; // used only inside callbacks (engine.ts imports this module)
 
 /*
@@ -555,6 +555,28 @@ function runOne(it: Intent, c: Ctx): Reply {
       if (!hit || hit.score < MAYBE) return { ok: false, say: ru ? `Не нашёл такой отказ ${q(it.query)}` : `No quit like “${it.query}”` };
       const n = daysBetween(hit.item.clean_since, day);
       return { ok: true, say: ru ? `${q(hit.item.name)}: ${n} ${plural(n, 'день', 'дня', 'дней')}` : `“${hit.item.name}”: ${n} days` };
+    }
+
+    // §6.10.2 search.all: plan/goals/tasks/diary/notes/habits/quits by free text, in one place
+    case 'search': {
+      type Hit2 = { label: string; kind: string; score: number };
+      const hits: Hit2[] = [];
+      const add = (label: string | null | undefined, kind: string) => { if (label) { const s = similarity(it.query, label); if (s > 0.3) hits.push({ label, kind, score: s }); } };
+      for (const p of c.sys?.plan ?? []) add(p.title, ru ? 'план' : 'plan');
+      for (const g of c.sys?.goals ?? []) add(g.title, ru ? 'цель' : 'goal');
+      for (const tk of c.sys?.tasks ?? []) add(tk.text, ru ? 'шаг' : 'step');
+      for (const e of c.sys?.entries ?? []) add(e.diary?.slice(0, 60), ru ? 'дневник' : 'diary');
+      for (const d of c.sys?.days ?? []) add(d.note?.slice(0, 60), ru ? 'заметка' : 'note');
+      for (const h of c.sys?.habits ?? []) add(h.name, ru ? 'привычка' : 'habit');
+      for (const qu of c.sys?.quits ?? []) add(qu.name, ru ? 'отказ' : 'quit');
+      hits.sort((a, b) => b.score - a.score);
+      const top = hits.slice(0, 8);
+      if (!top.length) return { ok: true, say: ru ? `Ничего не нашёл по ${q(it.query)}` : `Found nothing for “${it.query}”` };
+      return {
+        ok: true,
+        say: ru ? `Нашёл ${top.length} ${plural(top.length, 'совпадение', 'совпадения', 'совпадений')}` : `Found ${top.length} match${top.length === 1 ? '' : 'es'}`,
+        list: top.map((h) => `${h.label} · ${h.kind}`),
+      };
     }
 
     case 'ask': return answer(c, it.what);

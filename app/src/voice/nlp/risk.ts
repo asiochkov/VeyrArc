@@ -37,6 +37,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   settingsReminder: 'R2', // §6.6: settings.reminder R2
   habitStreakQuery: 'R0', // §6.6: habit.streak R0 — pure info
   quitDaysQuery: 'R0', // §6.6: quit.days R0 — pure info
+  search: 'R0', // §6.6: search.all R0 — pure info
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

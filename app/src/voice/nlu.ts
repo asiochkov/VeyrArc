@@ -34,6 +34,7 @@ export type Intent =
   | { kind: 'arcOath'; text: string }
   | { kind: 'settingsTheme'; to: 'light' | 'dark' | 'system' }
   | { kind: 'settingsReminder'; time: string }
+  | { kind: 'search'; query: string }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -377,6 +378,10 @@ function one(t: string, now: Date): Intent {
   // C-07: «сколько дней я не курю» — a quit.days question, distinct from habit streaks
   const qDays = t.match(new RegExp(L + 'сколько(?: уже)?(?: дней)? я не\\s+(.+?)' + R));
   if (qDays && clean(qDays[1])) return { kind: 'quitDaysQuery', query: clean(qDays[1]) };
+
+  // search.all (§6.10.2): plan/goals/tasks/diary/notes/habits/quits by free text
+  const search = t.match(new RegExp(L + '(?:найди|поищи|где у меня|search)\\s+(.+)'));
+  if (search && clean(search[1])) return { kind: 'search', query: clean(search[1]) };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

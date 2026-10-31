@@ -142,6 +142,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - The text promises voice text/audio aren't kept server-side unless "Помочь улучшить ассистента" is turned on. This is accurate as written today — no server-side voice telemetry exists yet (WP0.3/K-01 still pending) — and now stands as a documented constraint those future WPs have to respect.
   - `typecheck`/`build`/`test:voice` (95/95) clean — plain copy change, no logic touched.
 
+## search.all — free-text search across the whole system
+
+- [x] New `search` intent (R0), triggers on "найди X" / "поищи X" / "где у меня X". Scans `plan.title`, `goals.title`, `tasks.text`, `entries.diary`, `days.note`, `habits.name`, `quits.name` using the existing `similarity()` fuzzy matcher — no new matching logic invented, same scoring used for habit/task lookups everywhere else. Top 8 results, labeled by kind ("план"/"цель"/"привычка"/…).
+  - Deliberately **not** building `wins.add`/`wins.list` from the §6.10.2 catalogue — "wins" isn't an existing concept in the app (no table, no actions, no UI). That's a product decision and a new data model, not something to invent unilaterally at the voice layer.
+  - 2 new tests (97/97 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
