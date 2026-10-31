@@ -1,4 +1,4 @@
-import { addDays, DAYS_ALL, scheduled, type PlanRow } from '../data/model';
+import { addDays, DAYS_ALL, habitBest, habitStreak, indexLogs, scheduled, type PlanRow } from '../data/model';
 import { buildToday } from '../data/today';
 import { useLangStore } from '../i18n';
 import { isoDay } from '../lib/day';
@@ -510,6 +510,14 @@ function runOne(it: Intent, c: Ctx): Reply {
       const undo = () => setProfile({ reminder_time: prev });
       remember('reminder', undo);
       return { ok: true, undo, say: ru ? `Буду напоминать в ${it.time}` : `I’ll remind you at ${it.time}` };
+    }
+    // C-07: per-habit streak — habitStreak/habitBest already existed, not reachable by voice
+    case 'habitStreakQuery': {
+      const hit = rank(it.query, habitsOf(c), (h) => h.name)[0];
+      if (!hit || hit.score < MAYBE) return { ok: false, say: ru ? `Не нашёл привычку ${q(it.query)}` : `No habit like “${it.query}”` };
+      const ix = indexLogs(c.sys?.logs ?? []);
+      const cur = habitStreak(hit.item, ix, day), best = habitBest(hit.item, ix, day);
+      return { ok: true, say: ru ? `${q(hit.item.name)}: серия ${cur} ${plural(cur, 'день', 'дня', 'дней')}${best > cur ? `, рекорд — ${best}` : ''}` : `“${hit.item.name}”: streak ${cur}${best > cur ? `, best ${best}` : ''}` };
     }
 
     case 'ask': return answer(c, it.what);

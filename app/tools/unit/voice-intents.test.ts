@@ -81,6 +81,10 @@ const cases: C[] = [
   ['включи светлую тему', { kind: 'settingsTheme', to: 'light' }],
   ['напоминай мне в 9 утра', { kind: 'settingsReminder', time: '09:00' }],
   ['поставь напоминание на 21:00', { kind: 'settingsReminder', time: '21:00' }],
+  // C-07: per-habit streak question
+  ['какая серия по бегу', { kind: 'habitStreakQuery', query: 'бегу' }],
+  ['какой у меня стрик по чтению', { kind: 'habitStreakQuery', query: 'чтению' }],
+  ['какая у меня серия', { kind: 'ask', what: 'streak' }], // must stay the general question
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
   ['медитация', { kind: 'guess' }],

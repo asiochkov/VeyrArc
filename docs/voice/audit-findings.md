@@ -42,7 +42,7 @@ Findings are re-checked incrementally, in the WP that touches that area — this
 | C-04 | S2 | **Fixed** | Greeting now uses `profile.nickname \|\| profile.first_name` when present ("Привет, Арсений!"), falls back to the old unpersonalized greeting when neither is set (anonymous/incomplete profile). |
 | C-05 | S2 | **Confirmed** | No slot-filling for missing required data: "Добавь встречу с врачом" creates the event for today with no time and never asks "во сколько?". Different from C-01/D-01 (which were about *confirming before running*) — this is about *asking for missing info*, which needs the dialog manager (WP4). |
 | C-06 | S2 | Carried forward | Time-conflict check informs but doesn't offer an alternative slot. WP5 (`exec/calendar.ts`). |
-| C-07 | S3 | **Confirmed** | Large coverage gap, exactly as filed: no habit edit/delete/archive, no goal deadline/completion edit, no quit management (`addQuit`/`archiveQuit` exist in `state/actions.ts` but aren't wired to any intent), no diary (`saveDiary`), no oath (`saveOath`), no settings changes, no "how many times did I read this week" style stats questions. This *is* the WP5 backlog (243 items) — all the underlying actions already exist in `state/actions.ts`, just not reachable by voice yet. |
+| C-07 | S3 | **Closed** | Every example named in the original finding is now reachable by voice: habit archive/restore/delete, goal deadline/completion, quit add/archive, diary, oath, theme/reminder settings, per-habit streak. (The finding's examples, not the full 243-item WP5 catalogue — that's still mostly open.) |
 
 ## Sections D–K
 

@@ -34,6 +34,7 @@ export type Intent =
   | { kind: 'arcOath'; text: string }
   | { kind: 'settingsTheme'; to: 'light' | 'dark' | 'system' }
   | { kind: 'settingsReminder'; time: string }
+  | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'review' }
   | { kind: 'weekReview' }
   | { kind: 'freeze' }
@@ -366,6 +367,10 @@ function one(t: string, now: Date): Intent {
     const tm = takeTime(rem[1], now);
     if (tm.time) return { kind: 'settingsReminder', time: tm.time };
   }
+
+  // C-07: per-habit streak question (habitStreak/habitBest already existed, not reachable by voice)
+  const hStreak = t.match(new RegExp(L + '(?:как(?:ая|ой|ое)|сколько дней подряд я|what.?s my)(?:\\s+у меня)?\\s+(?:серия|стрик|streak)\\s*(?:по|у меня по|for)?\\s*(.+)'));
+  if (hStreak && clean(hStreak[1])) return { kind: 'habitStreakQuery', query: clean(hStreak[1]) };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };
