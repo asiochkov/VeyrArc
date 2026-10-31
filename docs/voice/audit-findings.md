@@ -49,7 +49,7 @@ Findings are re-checked incrementally, in the WP that touches that area — this
 Not yet re-verified — confirmed at the start of the WP that implements them (per master prompt §4.2 step 1):
 - D (dialog) → WP4
 - E (TTS) → WP6.1. **E-02 fixed early** (2026-10-31): `muted` was a module-level `let` that forgot itself on reload — wired to `prefs.ts`'s already-built (WP0.4) persisted `muted` field. Also wired TTS `rate` the same way (was hardcoded `1.04`; `DEFAULT_PREFS.rate` set to `1.04` to match exactly, so nobody's speech speed silently changed).
-- F (UX/CSS) → WP6
+- F (UX/CSS) → WP6. **F-06 checked** (2026-10-31): `i18n/ru.ts`/`en.ts` already have `voice.sayIt`/`sayHint`/`holdTip`/`add.titleVoice` in both languages — not missing. They're just unused (`grep` finds zero consumers) because the components that would use them (`FirstRun.tsx`, hold-to-speak UI) don't exist yet — WP6.4. Not a bug to fix now; building speculative UI just to consume orphaned strings would be premature.
 - G (onboarding) → WP6.4
 - H (perf/compat) → **H12 fixed in WP0.5** (voice engine now lazy-split, see `baseline.md`); the rest (cross-browser, device perf) → WP7
 - I (push) → WP6.8
