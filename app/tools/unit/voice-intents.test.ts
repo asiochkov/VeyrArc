@@ -71,6 +71,9 @@ const cases: C[] = [
   ['цель марафон завершена', { kind: 'goalComplete', query: 'марафон' }],
   ['поставь дедлайн цели марафон на 20 ноября', { kind: 'goalDeadline', query: 'марафон', day: '2026-11-20' }],
   ['добавь шаг в цель марафон: растяжка', { kind: 'stepAdd', goal: 'марафон', text: 'Растяжка' }], // must not be hijacked by goal intents
+  // C-07: goal diary and arc oath
+  ['запиши в дневник цели марафон: сегодня пробежал 5 км', { kind: 'goalDiary', query: 'марафон', text: 'Сегодня пробежал 5 км' }],
+  ['поставь клятву: не сдаваться', { kind: 'arcOath', text: 'Не сдаваться' }],
   ['подведи итоги', { kind: 'review' }],
   ['переключи на английский', { kind: 'lang', to: 'en' }],
   ['верни как было', { kind: 'undo' }],

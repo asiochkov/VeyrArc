@@ -31,6 +31,8 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   habitDelete: 'R3', // §6.6: habit.remove R3 (deleteHabit has no undo)
   goalComplete: 'R3', // §6.6: goal.complete R3
   goalDeadline: 'R2', // §6.6: goal.deadline R2
+  goalDiary: 'R2', // §6.6: goal.diary.add R2
+  arcOath: 'R2', // §6.6: arc.oath.set R2
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

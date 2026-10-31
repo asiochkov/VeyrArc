@@ -6,7 +6,7 @@ import { GOAL_HUES } from '../mock/goals';
 import { HABIT_PALETTE } from '../mock/tracker';
 import {
   addGoalStep, addQuit, archiveHabit, archiveQuit, createGoal, createHabit, deleteEvent, deleteGoal, deleteGoalStep, deleteHabit, logGoalTask, logHabit, logMood,
-  logRelapse, restoreHabit, restoreQuit, saveEvent, saveFreeze, setEventDone, updateGoal,
+  logRelapse, restoreHabit, restoreQuit, saveDiary, saveEvent, saveFreeze, saveOath, setEventDone, updateGoal,
 } from '../state/actions';
 import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
@@ -579,6 +579,25 @@ function runOne(it: Intent, c: Ctx): Reply {
       const undo = () => updateGoal(g.item.id, { deadline: prevDeadline });
       remember(g.item.title, undo);
       return { ok: true, undo, say: ru ? `Дедлайн цели ${q(g.item.title)} — ${it.day}` : `Deadline for “${g.item.title}” set to ${it.day}` };
+    }
+    case 'goalDiary': {
+      const gs = (c.sys?.goals ?? []).filter((x) => x.status === 'active');
+      const g = rank(it.query, gs, (x) => x.title)[0];
+      if (!g || g.score < MAYBE) return { ok: false, say: ru ? `Не нашёл цель ${q(it.query)}` : `No goal like “${it.query}”` };
+      const prev = c.sys?.entries.find((e) => e.goal_id === g.item.id && e.day === c.day)?.diary ?? null;
+      saveDiary(g.item.id, c.day, it.text.slice(0, 500), () => {}, () => {});
+      const undo = () => saveDiary(g.item.id, c.day, prev ?? '', () => {}, () => {});
+      remember(g.item.title, undo);
+      return { ok: true, undo, say: ru ? `Записал в дневник цели ${q(g.item.title)}` : `Added to the diary for “${g.item.title}”` };
+    }
+    case 'arcOath': {
+      const arc = c.sys ? activeArc(c.sys) : null;
+      if (!arc) return { ok: false, say: ru ? 'Нет активной арки' : 'No active arc' };
+      const prevOath = arc.oath;
+      saveOath(arc.id, it.text);
+      const undo = () => saveOath(arc.id, prevOath ?? '');
+      remember('oath', undo);
+      return { ok: true, undo, say: ru ? 'Клятва записана' : 'Oath saved' };
     }
     case 'relapse': {
       const quits = c.sys?.quits ?? [];

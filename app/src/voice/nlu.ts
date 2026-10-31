@@ -30,6 +30,8 @@ export type Intent =
   | { kind: 'habitDelete'; query: string }
   | { kind: 'goalComplete'; query: string }
   | { kind: 'goalDeadline'; query: string; day: string }
+  | { kind: 'goalDiary'; query: string; text: string }
+  | { kind: 'arcOath'; text: string }
   | { kind: 'review' }
   | { kind: 'weekReview' }
   | { kind: 'freeze' }
@@ -448,6 +450,11 @@ function one(t: string, now: Date): Intent {
     const { day } = takeDay(dl[2], now);
     if (day) return { kind: 'goalDeadline', query: clean(dl[1]), day };
   }
+  // C-07: goal diary and arc oath (saveDiary/saveOath already existed, not reachable by voice)
+  const diary = t.match(new RegExp(L + 'дневник(?:е)?\\s*(?:цели|по цели|для цели)?\\s*(.+?)\\s*(?:—|:|-)\\s*(.+)'));
+  if (diary && clean(diary[2])) return { kind: 'goalDiary', query: clean(diary[1]), text: cap(clean(diary[2])) };
+  const oath = t.match(new RegExp(L + 'клятв[ауы]\\s*(?:арки|на арку)?\\s*(?:—|:|-)\\s*(.+)'));
+  if (oath && clean(oath[1])) return { kind: 'arcOath', text: cap(clean(oath[1])) };
   // C-07: quits (addQuit/archiveQuit already exist in state/actions.ts, just weren't reachable by voice)
   const quitStop = t.match(new RegExp(L + '(?:останови|прекрати|убери|заархивируй|удали|архивируй|stop|remove|archive)(?: трекать)?\\s*отказ(?:ы|а)?(?: от)?\\s+(.+)'));
   if (quitStop && clean(quitStop[1])) return { kind: 'quitArchive', query: clean(quitStop[1]) };
