@@ -1,6 +1,6 @@
 import { useLangStore } from '../i18n';
 import { journalAppend } from './journal';
-import { normalize, similarity, understand, type Intent } from './nlu';
+import { normalize, similarity, takeTime, understand, type Intent } from './nlu';
 import { decide } from './nlp/decide';
 import { hints, runAll, type Choice, type Reply } from './run';
 import { closeAssistant, useAssistant, useVoice, voiceSupported } from './shell';
@@ -68,11 +68,11 @@ function speak(text: string, then?: () => void) {
 
 let closeAfter: ReturnType<typeof setTimeout> | undefined;
 function show(r: Reply) {
-  set({ state: 'speaking', reply: r.say, ok: r.ok, list: r.list ?? [], suggest: r.suggest ?? [], choices: r.choices ?? [], canUndo: !!r.undo });
+  set({ state: 'speaking', reply: r.say, ok: r.ok, list: r.list ?? [], suggest: r.suggest ?? [], choices: r.choices ?? [], canUndo: !!r.undo, pendingSlot: r.ask ?? null });
   journalAppend(useVoice.getState().heard, r.say, r.ok);
   navigator.vibrate?.(r.ok ? 15 : [20, 40, 20]);
-  // a question: listen for the answer right after it is asked
-  speak(r.say, r.choices?.length && voiceSupported() ? () => startVoice() : undefined);
+  // a question (choice or ask-slot): listen for the answer right after it is asked
+  speak(r.say, (r.choices?.length || r.ask) && voiceSupported() ? () => startVoice() : undefined);
   if (r.close) { clearTimeout(closeAfter); closeAfter = setTimeout(() => closeAssistant(), 900); }
 }
 
@@ -97,6 +97,13 @@ export function handle(text: string) {
   if (!said) return;
   set({ state: 'processing', heard: said });
   try {
+    const slot = useVoice.getState().pendingSlot;
+    if (slot?.slot === 'taskAdd.time') {
+      set({ pendingSlot: null });
+      const tm = takeTime(normalize(said), new Date());
+      if (tm.time) { show(runAll([{ kind: 'taskAdd', title: slot.title, day: slot.day, time: tm.time, end: tm.end }], lang())); return; }
+      // didn't catch a time: fall through and treat it as a fresh command instead of re-asking forever
+    }
     const pending = useVoice.getState().choices;
     if (pending.length) {
       const r = answerChoice(said, pending);

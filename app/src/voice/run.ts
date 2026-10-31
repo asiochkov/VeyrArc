@@ -37,6 +37,8 @@ export type Reply = {
   to?: string;
   close?: boolean;
   undo?: () => void;
+  /** C-05: a missing required slot — the next utterance is parsed for it instead of a new command */
+  ask?: { slot: 'taskAdd.time'; title: string; day: string };
 };
 
 type Ctx = { ru: boolean; sys: SystemRaw | undefined; day: string; now: Date };
@@ -389,6 +391,11 @@ function runOne(it: Intent, c: Ctx): Reply {
     }
 
     case 'taskAdd': {
+      // C-05: an appointment-shaped task with no time silently saved with none and never asked —
+      // ask once instead of guessing. Plain to-dos («купить хлеб») are untouched, no time expected.
+      if (!it.time && /встреч|созвон|звонок|приём|прием|событие|мероприятие/i.test(it.title)) {
+        return { ok: true, say: ru ? `Во сколько ${q(it.title)}?` : `What time for “${it.title}”?`, ask: { slot: 'taskAdd.time', title: it.title, day: it.day } };
+      }
       const end = it.end ?? (it.time ? fromMin(Math.min(23 * 60 + 59, toMin(it.time) + 60)) : null);
       const ev: PlanRow = { id: crypto.randomUUID(), title: it.title, day: it.day, starts_at: it.time, ends_at: end, note: null, done: false, category_id: null };
       const clash = it.time ? openTasks(c, it.day, it.day).find((p) => !p.done && p.starts_at && toMin(hm(p.starts_at)) < toMin(end!) && toMin(hm(p.ends_at ?? p.starts_at)) > toMin(it.time!)) : undefined;

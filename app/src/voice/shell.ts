@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Choice } from './run';
+import type { Choice, Reply } from './run';
 
 /*
  * Voice 2.0 — the always-loaded shell (ТЗ §5.2, §6.13.1, finding H12). BottomBar, Sidebar and
@@ -13,8 +13,10 @@ type Store = {
   list: string[]; suggest: string[]; choices: Choice[]; canUndo: boolean;
   /** speech can't be used here (no permission, no service): the panel switches to typing */
   blocked: boolean;
+  /** C-05/§5.3 ask-slot: a missing piece of info — the next utterance answers it, not a new command */
+  pendingSlot: Reply['ask'] | null;
 };
-export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false, blocked: false }));
+export const useVoice = create<Store>(() => ({ state: 'idle', heard: '', reply: '', ok: true, list: [], suggest: [], choices: [], canUndo: false, blocked: false, pendingSlot: null }));
 
 type Panel = { open: boolean };
 export const useAssistant = create<Panel>(() => ({ open: false }));
@@ -34,13 +36,13 @@ export function openAssistant() {
   if (useAssistant.getState().open) return;
   useAssistant.setState({ open: true });
   // phrases that fit this screen and this moment arrive once the engine chunk resolves
-  useVoice.setState({ heard: '', reply: '', list: [], suggest: [], choices: [], canUndo: false, ok: true, state: 'idle' });
+  useVoice.setState({ heard: '', reply: '', list: [], suggest: [], choices: [], canUndo: false, ok: true, state: 'idle', pendingSlot: null });
   navigator.vibrate?.(10);
   loadEngine().then((m) => m.onOpen());
 }
 
 export function closeAssistant() {
   useAssistant.setState({ open: false });
-  useVoice.setState({ choices: [] });
+  useVoice.setState({ choices: [], pendingSlot: null });
   engineMod?.onClose(); // nothing to cancel if the engine was never loaded (closed without ever listening)
 }

@@ -73,6 +73,15 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - **This closes the C-07 finding's named backlog** (habit/goal/quit lifecycle, diary, oath, settings, stats) — every example explicitly named in the finding is now reachable by voice. The finding's closing line ("все нужные actions в коде уже есть") is now also true for voice *intents*, not just the underlying state actions. This is not all 243 items from the master prompt's full catalogue — just the specific gap C-07 called out.
 - [x] **C-04 fixed (quick win)** — greeting personalization in `run.ts`'s `case 'chat'`: was `const name = ''` (dead code). Now uses `profile.nickname || profile.first_name` when set, falls back to the generic greeting otherwise.
 
+## C-05 — minimal ask-slot mechanism (early taste of WP4)
+
+- [x] Fixed C-05: an appointment-shaped `taskAdd` with no time ("добавь встречу с врачом") now asks "Во сколько?" instead of silently saving with no time.
+  - `run.ts`: `Reply` gained an `ask?: { slot: 'taskAdd.time'; title; day }` field; the `taskAdd` case returns it when the title matches appointment words (встреча/созвон/звонок/приём/событие/мероприятие) and no time was parsed.
+  - `shell.ts`: `useVoice` gained `pendingSlot`, set from `r.ask` in `engine.ts`'s `show()`.
+  - `engine.ts`'s `handle()`: checks `pendingSlot` first — if set, the next utterance is parsed with `takeTime()`; a successful parse completes the `taskAdd`, a failed one clears the slot and falls through to normal command handling (no infinite re-asking).
+  - **Scoped deliberately narrow**: one slot type, one intent. This is not WP4's general dialog manager (`DialogContext`, TTL, multiple slot grammars) — just the smallest fix that closes the literal finding.
+  - Verified via `understand()` output only (run.ts can't run outside Vite — it statically imports React/`.module.css`, same constraint as always); `typecheck`/`build`/`test:voice` (85/85) clean, no new permanent test added for the ask-slot *execution* path itself since there's no harness that can run `runOne()` yet (same gap noted for every other `run.ts` case).
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
