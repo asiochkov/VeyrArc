@@ -13,6 +13,8 @@ import { pomo, usePomodoro } from '../state/pomodoro';
 import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/system';
 import { useAuth } from '../lib/auth';
 import { exportData, setProfile } from '../data/settings';
+import { referralLink, type MyReferral } from '../lib/referral';
+import { db, hasBackend } from '../lib/supabase';
 import { useTheme } from '../lib/theme';
 import { usePrefs } from './prefs';
 import { matchOf, similarity, type AskWhat, type Intent, type NavTo } from './nlu';
@@ -624,6 +626,22 @@ function runOne(it: Intent, c: Ctx): Reply {
     case 'exportData': {
       exportData().catch((e) => console.error('[voice] export failed', e));
       return { ok: true, say: ru ? 'Начал экспорт — файл скачается через пару секунд' : 'Exporting your data — the file will download in a moment' };
+    }
+
+    case 'referralShare': {
+      if (!hasBackend) return { ok: false, say: ru ? 'Нужен аккаунт, чтобы поделиться' : 'Sign in to share' };
+      db().rpc('my_referral').then(({ data, error }) => {
+        if (error || !data) return;
+        navigator.clipboard?.writeText(referralLink((data as MyReferral).code)).catch(() => {});
+      });
+      return { ok: true, say: ru ? 'Скопировал вашу ссылку для друга в буфер обмена' : 'Copied your referral link to the clipboard' };
+    }
+    case 'profileName': {
+      const prev = useAuth.getState().profile?.first_name ?? null;
+      setProfile({ first_name: it.name });
+      const undo = () => setProfile({ first_name: prev });
+      remember('name', undo);
+      return { ok: true, undo, say: ru ? `Буду звать вас ${it.name}` : `I’ll call you ${it.name}` };
     }
 
     case 'ask': return answer(c, it.what);

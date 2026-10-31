@@ -43,6 +43,8 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   ritualSave: 'R2', // §6.6: ritual.create R2 (creates a standing structure)
   ritualList: 'R0',
   exportData: 'R3', // §6.6: export.data R3
+  referralShare: 'R1', // §6.6: referral.share R1
+  profileName: 'R2', // §6.6: profile.name R2
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

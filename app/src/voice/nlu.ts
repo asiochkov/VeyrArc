@@ -40,6 +40,8 @@ export type Intent =
   | { kind: 'ritualSave'; name: string; steps: string[] }
   | { kind: 'ritualList' }
   | { kind: 'exportData' }
+  | { kind: 'referralShare' }
+  | { kind: 'profileName'; name: string }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -405,6 +407,11 @@ function one(t: string, now: Date): Intent {
   // irreversible, whole-account action and our confirm flow has only one strength of "are you sure",
   // not the extra R4 safeguard the master prompt calls for (#91). Too risky to ship on a misheard word.
   if (st('экспортируй (?:мои )?данные|выгрузи (?:мои )?данные|скачай (?:мои )?данные|export my data|export data').test(t)) return { kind: 'exportData' };
+
+  // referral.share (§6.10.2) and profile.name (#29: first_name/nickname)
+  if (st('реферальн|пригласи друга|поделись ссылкой|пригласительн|referral|invite a friend').test(t)) return { kind: 'referralShare' };
+  const rename = t.match(new RegExp(L + '(?:назови меня|моё имя|измени имя(?: на)?|зови меня|call me|my name is)\\s+(.+)'));
+  if (rename && clean(rename[1])) return { kind: 'profileName', name: cap(clean(rename[1])) };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

@@ -165,6 +165,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - **Deliberately not wiring `account.delete` (R4)** — the master prompt itself flags (§6.10.2 #91) that account deletion needs a *stronger* confirmation than the standard R2/R3 flow, and our `decide.ts` currently only has one strength of "are you sure" (R2/R3/R4 all route through the same single confirm). Shipping irreversible whole-account deletion behind one misheard "да" is a real safety risk, not just a missing feature — it stays unimplemented until `decide.ts` grows an actual R4 tier (double confirmation, or confirmation that can't be answered by voice alone).
   - 2 new tests (102/102 total). `typecheck`/`build` clean.
 
+## referral.share and profile.name
+
+- [x] `referralShare` (R1): calls `db().rpc('my_referral')` directly (not the `useMyReferral` React Query hook — hooks can't be called from `runOne()`, a plain function, so this is a fresh one-off RPC call) and copies the link to the clipboard.
+- [x] `profileName` (R2): "назови меня Арсений" → `setProfile({ first_name })`, undoable.
+  - 3 new tests (104/104 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
