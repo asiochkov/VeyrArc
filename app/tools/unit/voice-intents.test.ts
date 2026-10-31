@@ -76,6 +76,11 @@ const cases: C[] = [
   ['поставь клятву: не сдаваться', { kind: 'arcOath', text: 'Не сдаваться' }],
   ['подведи итоги', { kind: 'review' }],
   ['переключи на английский', { kind: 'lang', to: 'en' }],
+  // C-07: theme and reminder time
+  ['включи тёмную тему', { kind: 'settingsTheme', to: 'dark' }],
+  ['включи светлую тему', { kind: 'settingsTheme', to: 'light' }],
+  ['напоминай мне в 9 утра', { kind: 'settingsReminder', time: '09:00' }],
+  ['поставь напоминание на 21:00', { kind: 'settingsReminder', time: '21:00' }],
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
   ['медитация', { kind: 'guess' }],

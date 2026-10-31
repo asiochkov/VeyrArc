@@ -12,6 +12,8 @@ import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
 import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/system';
 import { useAuth } from '../lib/auth';
+import { setProfile } from '../data/settings';
+import { useTheme } from '../lib/theme';
 import { matchOf, type AskWhat, type Intent, type NavTo } from './nlu';
 import { useVoice } from './shell'; // used only inside callbacks (engine.ts imports this module)
 
@@ -491,6 +493,23 @@ function runOne(it: Intent, c: Ctx): Reply {
     case 'lang': {
       useLangStore.getState().setLang(it.to);
       return { ok: true, say: it.to === 'en' ? 'Switched to English' : 'Переключил на русский' };
+    }
+
+    // C-07: theme and reminder time — setTheme/setProfile already existed, not reachable by voice
+    case 'settingsTheme': {
+      const prev = useTheme.getState().theme;
+      useTheme.getState().setTheme(it.to);
+      const undo = () => useTheme.getState().setTheme(prev);
+      remember('theme', undo);
+      const label = it.to === 'dark' ? (ru ? 'тёмную' : 'dark') : it.to === 'light' ? (ru ? 'светлую' : 'light') : (ru ? 'системную' : 'system');
+      return { ok: true, undo, say: ru ? `Включил ${label} тему` : `Switched to ${label} theme` };
+    }
+    case 'settingsReminder': {
+      const prev = useAuth.getState().profile?.reminder_time ?? null;
+      setProfile({ reminder_time: it.time });
+      const undo = () => setProfile({ reminder_time: prev });
+      remember('reminder', undo);
+      return { ok: true, undo, say: ru ? `Буду напоминать в ${it.time}` : `I’ll remind you at ${it.time}` };
     }
 
     case 'ask': return answer(c, it.what);

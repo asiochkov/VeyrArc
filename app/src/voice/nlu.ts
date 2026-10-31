@@ -32,6 +32,8 @@ export type Intent =
   | { kind: 'goalDeadline'; query: string; day: string }
   | { kind: 'goalDiary'; query: string; text: string }
   | { kind: 'arcOath'; text: string }
+  | { kind: 'settingsTheme'; to: 'light' | 'dark' | 'system' }
+  | { kind: 'settingsReminder'; time: string }
   | { kind: 'review' }
   | { kind: 'weekReview' }
   | { kind: 'freeze' }
@@ -354,6 +356,16 @@ function one(t: string, now: Date): Intent {
   // language
   if (st('английск|english').test(t) && st('язык|переключ|смени|сделай|switch|language|на английск').test(t)) return { kind: 'lang', to: 'en' };
   if (st('русск|russian').test(t) && st('язык|переключ|смени|сделай|switch|language|на русск').test(t)) return { kind: 'lang', to: 'ru' };
+
+  // C-07: theme and reminder time (setTheme/setProfile already existed, not reachable by voice)
+  if (st('тёмн|темн|ночн|dark').test(t) && st('тем[ауы]|режим|theme|mode').test(t)) return { kind: 'settingsTheme', to: 'dark' };
+  if (st('светл|дневн|light').test(t) && st('тем[ауы]|режим|theme|mode').test(t)) return { kind: 'settingsTheme', to: 'light' };
+  if (st('систем|system').test(t) && st('тем[ауы]|режим|theme|mode').test(t)) return { kind: 'settingsTheme', to: 'system' };
+  const rem = t.match(new RegExp(L + '(?:напоминай(?: мне)?|поставь напоминание|измени напоминание|измени время напоминания)\\s*(.+)'));
+  if (rem) {
+    const tm = takeTime(rem[1], now);
+    if (tm.time) return { kind: 'settingsReminder', time: tm.time };
+  }
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

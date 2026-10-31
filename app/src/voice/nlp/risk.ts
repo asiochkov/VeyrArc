@@ -33,6 +33,8 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   goalDeadline: 'R2', // §6.6: goal.deadline R2
   goalDiary: 'R2', // §6.6: goal.diary.add R2
   arcOath: 'R2', // §6.6: arc.oath.set R2
+  settingsTheme: 'R1', // §6.6: settings.theme R1
+  settingsReminder: 'R2', // §6.6: settings.reminder R2
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

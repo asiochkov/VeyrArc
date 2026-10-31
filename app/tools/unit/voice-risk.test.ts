@@ -24,6 +24,8 @@ check('goalComplete → confirm', decide(understand('заверши цель м�
 check('goalDeadline → confirm', decide(understand('поставь дедлайн цели марафон на 20 ноября', now)).action === 'confirm');
 check('goalDiary → confirm', decide(understand('запиши в дневник цели марафон: сегодня пробежал 5 км', now)).action === 'confirm');
 check('arcOath → confirm', decide(understand('поставь клятву: не сдаваться', now)).action === 'confirm');
+check('settingsTheme → execute', decide(understand('включи тёмную тему', now)).action === 'execute');
+check('settingsReminder → confirm', decide(understand('поставь напоминание на 21:00', now)).action === 'confirm');
 
 // risk table itself
 check('riskOf taskDelete = R3', riskOf('taskDelete') === 'R3');
