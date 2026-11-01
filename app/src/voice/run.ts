@@ -672,6 +672,23 @@ function runOne(it: Intent, c: Ctx): Reply {
       };
     }
 
+    case 'habitCompare': {
+      const hs = habitsOf(c);
+      const ha = rank(it.a, hs, (h) => h.name)[0];
+      const hb = rank(it.b, hs, (h) => h.name)[0];
+      if (!ha || ha.score < MAYBE) return { ok: false, say: ru ? `Не нашёл привычку ${q(it.a)}` : `No habit like “${it.a}”` };
+      if (!hb || hb.score < MAYBE) return { ok: false, say: ru ? `Не нашёл привычку ${q(it.b)}` : `No habit like “${it.b}”` };
+      const ix = indexLogs(c.sys?.logs ?? []);
+      const sa = habitStreak(ha.item, ix, day), sb = habitStreak(hb.item, ix, day);
+      const lead = sa === sb ? null : sa > sb ? ha.item.name : hb.item.name;
+      return {
+        ok: true,
+        say: ru
+          ? `${q(ha.item.name)}: ${sa} ${plural(sa, 'день', 'дня', 'дней')}, ${q(hb.item.name)}: ${sb} ${plural(sb, 'день', 'дня', 'дней')}${lead ? `. Впереди — ${lead}` : '. Ровно'}`
+          : `“${ha.item.name}”: ${sa} days, “${hb.item.name}”: ${sb} days${lead ? `. ${lead} is ahead` : '. Tied'}`,
+      };
+    }
+
     case 'ask': return answer(c, it.what);
 
     case 'habitAdd': {

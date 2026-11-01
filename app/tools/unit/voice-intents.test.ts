@@ -116,6 +116,7 @@ const cases: C[] = [
   ['не беспокой меня с 22 до 7', { kind: 'settingsQuiet', from: '22:00', to: '07:00' }],
   ['выключи уведомления', { kind: 'settingsNotifyOff' }],
   ['какой у меня тариф', { kind: 'infoPlan' }],
+  ['сравни бег и чтение', { kind: 'habitCompare', a: 'бег', b: 'чтение' }],
   ['что у меня по плану', { kind: 'ask', what: 'plan' }], // must not be hijacked by infoPlan
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],

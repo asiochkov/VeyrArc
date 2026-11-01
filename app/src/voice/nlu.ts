@@ -45,6 +45,7 @@ export type Intent =
   | { kind: 'settingsQuiet'; from: string; to: string }
   | { kind: 'settingsNotifyOff' }
   | { kind: 'infoPlan' }
+  | { kind: 'habitCompare'; a: string; b: string }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -433,6 +434,10 @@ function one(t: string, now: Date): Intent {
   // bare «план» — in this app that overwhelmingly means the day's schedule (ask.plan), not a
   // subscription tier; only «тариф»/«подписка» or the explicit pro/free phrasing count.
   if (st('как(?:ой|ая)(?: у меня)? (?:тариф|подписк)|я на (?:про|бесплатном)(?: плане)?|what.?s my (?:plan|subscription)|my subscription').test(t)) return { kind: 'infoPlan' };
+
+  // habit.compare (R0): «сравни бег и чтение»
+  const cmp = t.match(new RegExp(L + '(?:сравни|compare)\\s+(.+?)\\s+(?:и|с|and|vs)\\s+(.+)'));
+  if (cmp && clean(cmp[1]) && clean(cmp[2])) return { kind: 'habitCompare', a: clean(cmp[1]), b: clean(cmp[2]) };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

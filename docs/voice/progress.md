@@ -182,6 +182,15 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] `infoPlan` (R0): "какой у меня тариф" → reports Pro vs. free plan + limits (`config.limits`, `isProPlan`). Deliberately **excluded bare "план" from the trigger** — caught the collision before it shipped: in this app "план" overwhelmingly means the day's schedule (`ask.plan`, already existing), not a subscription tier. Only "тариф"/"подписка" or explicit "я на про/бесплатном" count; verified "что у меня по плану" and "мой план на сегодня" still resolve to `ask.plan`, not `infoPlan`.
   - 2 new tests (108/108 total). `typecheck`/`build` clean.
 
+## habit.compare
+
+- [x] `habitCompare` (R0): "сравни бег и чтение" → both streaks via the existing `habitStreak`. Verified no collision with multi-intent "и"-splitting ("сделал зарядку и медитацию" still produces two `done` intents — the `сравни` trigger word gates this cleanly).
+  - 1 new test (109/109 total). `typecheck`/`build` clean.
+
+### Considered and skipped: feedback.wrong
+
+`feedback.wrong` (§6.10.2 #92–99) deliberately **not** added as a voice intent — its natural phrasing ("это неправильно", "ты ошибся") already belongs to the existing `undo` intent (`/^(?:...|это ошибка|ошибся|ошиблась|...)$/`). The master prompt's own design has this as a UI button (👎 in `AssistantHelp.tsx`, WP6.13.2) that logs to `veyrarc.voice.wrong.v1`, not a spoken command — adding a colliding voice trigger would be the wrong shape for this feature, not a missing one.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
