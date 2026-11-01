@@ -42,6 +42,7 @@ export type Intent =
   | { kind: 'templateSave'; name: string; items: { title: string; time: string | null }[] }
   | { kind: 'templateList' }
   | { kind: 'templateApply'; name: string }
+  | { kind: 'aliasAdd'; alias: string; target: string }
   | { kind: 'exportData' }
   | { kind: 'referralShare' }
   | { kind: 'profileName'; name: string }
@@ -436,6 +437,14 @@ function one(t: string, now: Date): Intent {
   if (st('мои шаблоны|какие.*шаблон|list templates|my templates').test(t)) return { kind: 'templateList' };
   const tplApply = t.match(new RegExp(L + '(?:примени|запусти)\\s*шаблон\\s+(.+)'));
   if (tplApply && clean(tplApply[1])) return { kind: 'templateApply', name: clean(tplApply[1]) };
+
+  // prefs.alias.add (§6.4.6, #100): «когда я говорю спортзал, имей в виду тренировка». Applied by
+  // engine.ts before this function ever runs (nlu.ts stays prefs-free/pure — see handle()).
+  // «значит» is a listed filler word (FILLERS) and never survives normalize() — can't use it here.
+  // The comma and the meaning-phrase have to be consumed together, or a sentence with both
+  // («X, имей в виду Y») leaves the phrase sitting inside the captured target.
+  const alias = t.match(new RegExp(L + '(?:когда я говорю|алиас)\\s+(.+?)\\s*,?\\s*(?:имей в виду|это|means|—|-|=)\\s*(.+)'));
+  if (alias && clean(alias[1]) && clean(alias[2])) return { kind: 'aliasAdd', alias: clean(alias[1]), target: clean(alias[2]) };
 
   // export.data (§6.10.2 #233). Deliberately NOT wiring account.delete (R4) by voice — that's an
   // irreversible, whole-account action and our confirm flow has only one strength of "are you sure",

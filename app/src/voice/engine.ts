@@ -104,6 +104,16 @@ function answerChoice(text: string, choices: Choice[]): Reply | null | 'cancel' 
 }
 
 /** run a phrase (spoken, typed or a tapped suggestion) */
+/** prefs.alias.add (§6.4.6): substitute saved aliases before parsing — kept out of nlu.ts so that
+ * module stays prefs-free/pure (it runs fine in a plain node test script with no localStorage). */
+function applyAliases(text: string): string {
+  const aliases = usePrefs.getState().prefs.aliases;
+  if (!aliases.length) return text;
+  let out = text;
+  for (const a of aliases) out = out.replace(new RegExp(`(?<![a-zа-я0-9])${a.alias}(?![a-zа-я0-9])`, 'gi'), a.target);
+  return out;
+}
+
 export function handle(text: string) {
   const said = text.trim();
   if (!said) return;
@@ -123,7 +133,7 @@ export function handle(text: string) {
       if (r) { show(r); return; }
       set({ choices: [] }); // not an answer: a new command
     }
-    const intents = understand(said);
+    const intents = understand(applyAliases(said));
     if (decide(intents).action === 'confirm') { show(confirmReply(intents, said, lang())); return; }
     show(runAll(intents, lang()));
   } catch (e) {

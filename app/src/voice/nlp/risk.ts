@@ -45,6 +45,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   templateSave: 'R2', // §6.6: template.save R2
   templateList: 'R0',
   templateApply: 'R2', // §6.6: template.apply R2 — creates real events on the day
+  aliasAdd: 'R1', // §6.6: prefs.alias.add R1
   exportData: 'R3', // §6.6: export.data R3
   referralShare: 'R1', // §6.6: referral.share R1
   profileName: 'R2', // §6.6: profile.name R2

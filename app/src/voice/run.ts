@@ -652,6 +652,13 @@ function runOne(it: Intent, c: Ctx): Reply {
       return { ok: true, undo, say: ru ? `Применил шаблон ${q(tpl.name)}: добавил ${created.length} ${plural(created.length, 'пункт', 'пункта', 'пунктов')}` : `Applied “${tpl.name}”: added ${created.length} item${created.length === 1 ? '' : 's'}` };
     }
 
+    case 'aliasAdd': {
+      const aliases = usePrefs.getState().prefs.aliases;
+      const next = [...aliases.filter((a) => a.alias.toLowerCase() !== it.alias.toLowerCase()), { alias: it.alias, target: it.target }].slice(-30);
+      usePrefs.getState().update({ aliases: next });
+      return { ok: true, say: ru ? `Запомнил: ${q(it.alias)} теперь значит ${q(it.target)}` : `Got it: “${it.alias}” now means “${it.target}”` };
+    }
+
     case 'exportData': {
       exportData().catch((e) => console.error('[voice] export failed', e));
       return { ok: true, say: ru ? 'Начал экспорт — файл скачается через пару секунд' : 'Exporting your data — the file will download in a moment' };

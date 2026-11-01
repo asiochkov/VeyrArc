@@ -113,6 +113,8 @@ const cases: C[] = [
   ['сохрани шаблон рабочий день: зарядка в 7, работа в 9, обед в 13', { kind: 'templateSave', name: 'Рабочий день' }], // partial match: items list has its own known «в N → PM» time heuristic
   ['примени шаблон рабочий день', { kind: 'templateApply', name: 'рабочий день' }],
   ['мои шаблоны', { kind: 'templateList' }],
+  ['когда я говорю спортзал, имей в виду тренировка', { kind: 'aliasAdd', alias: 'спортзал', target: 'тренировка' }],
+  ['алиас спортзал - тренировка', { kind: 'aliasAdd', alias: 'спортзал', target: 'тренировка' }],
   ['экспортируй мои данные', { kind: 'exportData' }],
   ['пригласи друга', { kind: 'referralShare' }],
   ['назови меня Арсений', { kind: 'profileName', name: 'Арсений' }],

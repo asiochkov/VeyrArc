@@ -263,6 +263,12 @@ After hitting the same mistake three times in a row (taskTop3, habitTrend), swep
   - Noted, not fixed: "зарядка в 7" resolves to 19:00 — that's `takeTime`'s existing "bare small hour, no AM/PM → assume PM" heuristic, applied consistently everywhere it's used (including plain `taskAdd`), not something specific to templates. Changing it would be a broader behavioral change outside this feature's scope.
   - 3 new tests (129/129 total). `typecheck`/`build` clean.
 
+## prefs.alias.add — and actually wired it in, not just stored
+
+- [x] `aliasAdd` (R1): "когда я говорю спортзал, имей в виду тренировка" saves to `prefs.aliases` (WP0.4, unused until now) — but unlike rituals/templates, this feature is pointless if the alias is never actually *applied*. Wired `engine.ts`'s `handle()` to substitute known aliases in the text *before* calling `understand()` (`applyAliases()`), so "сделал спортзал" now resolves as if the user had said "тренировка". Kept out of `nlu.ts` deliberately — that module stays prefs-free/pure, runnable in a plain node script with no localStorage, which is how every trigger in this session got hand-verified.
+  - Found and fixed two bugs while building the trigger itself: (1) "значит" is a listed filler word, stripped by `normalize()` before any regex sees it — can't be used as a separator; (2) the regex only consumed one of the two separators present in "X, имей в виду Y" (the comma), leaving "имей в виду" sitting inside the captured target text. Fixed by making the comma and the meaning-phrase a single combined optional-then-required separator.
+  - 2 new tests (131/131 total). `typecheck`/`build` clean, no bundle growth (the substitution lives in the lazy `engine.ts` chunk).
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
