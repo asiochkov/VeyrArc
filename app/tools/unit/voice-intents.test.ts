@@ -113,6 +113,7 @@ const cases: C[] = [
   ['экспортируй мои данные', { kind: 'exportData' }],
   ['пригласи друга', { kind: 'referralShare' }],
   ['назови меня Арсений', { kind: 'profileName', name: 'Арсений' }],
+  ['моё имя Арсений', { kind: 'profileName', name: 'Арсений' }], // «моё» → «мое» via normalize()'s ё→е pass
   ['не беспокой меня с 22 до 7', { kind: 'settingsQuiet', from: '22:00', to: '07:00' }],
   ['выключи уведомления', { kind: 'settingsNotifyOff' }],
   ['какой у меня тариф', { kind: 'infoPlan' }],

@@ -252,6 +252,11 @@ Not built — `category_id` is a UI-defined id the user can't name by voice with
 - [x] `habitTrend` (R0): "какая тенденция по чтению" / "растёт ли бег" → this-week vs. prior-week completion rate, rising/falling/flat. Two more instances of the same bug class as taskTop3's: trigger regex used "растёт" (literal ё, never survives `normalize()`'s ё→е pass) and "ли" (a listed filler word, stripped before any regex sees the text) — fixed by matching the post-normalize form.
   - 2 new tests (125/125 total). `typecheck`/`build` clean.
 
+## Audit sweep: hunted the ё/filler-word bug class across earlier triggers
+
+After hitting the same mistake three times in a row (taskTop3, habitTrend), swept every trigger added this session for literal "ё" or listed-filler words. Found one more live bug: `profileName`'s "моё имя" alternative (added earlier, untested — only "назови меня X" had actually been verified) never matched, since `normalize()` turns "моё" into "мое" before the regex ever sees it. Fixed, plus removed a redundant (harmless, but dead) "тёмн" branch from `settingsTheme` that only ever matched via its "темн" neighbor anyway.
+  - 1 new regression test (126/126 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

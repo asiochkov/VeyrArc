@@ -386,7 +386,7 @@ function one(t: string, now: Date): Intent {
   if (st('русск|russian').test(t) && st('язык|переключ|смени|сделай|switch|language|на русск').test(t)) return { kind: 'lang', to: 'ru' };
 
   // C-07: theme and reminder time (setTheme/setProfile already existed, not reachable by voice)
-  if (st('тёмн|темн|ночн|dark').test(t) && st('тем[ауы]|режим|theme|mode').test(t)) return { kind: 'settingsTheme', to: 'dark' };
+  if (st('темн|ночн|dark').test(t) && st('тем[ауы]|режим|theme|mode').test(t)) return { kind: 'settingsTheme', to: 'dark' };
   if (st('светл|дневн|light').test(t) && st('тем[ауы]|режим|theme|mode').test(t)) return { kind: 'settingsTheme', to: 'light' };
   if (st('систем|system').test(t) && st('тем[ауы]|режим|theme|mode').test(t)) return { kind: 'settingsTheme', to: 'system' };
   const rem = t.match(new RegExp(L + '(?:напоминай(?: мне)?|поставь напоминание|измени напоминание|измени время напоминания)\\s*(.+)'));
@@ -426,7 +426,7 @@ function one(t: string, now: Date): Intent {
 
   // referral.share (§6.10.2) and profile.name (#29: first_name/nickname)
   if (st('реферальн|пригласи друга|поделись ссылкой|пригласительн|referral|invite a friend').test(t)) return { kind: 'referralShare' };
-  const rename = t.match(new RegExp(L + '(?:назови меня|моё имя|измени имя(?: на)?|зови меня|call me|my name is)\\s+(.+)'));
+  const rename = t.match(new RegExp(L + '(?:назови меня|мое имя|измени имя(?: на)?|зови меня|call me|my name is)\\s+(.+)'));
   if (rename && clean(rename[1])) return { kind: 'profileName', name: cap(clean(rename[1])) };
 
   // settings.quiet (R2) and settings.notifyOff (R1) — checked in that order: a quiet-hours phrase
