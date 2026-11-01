@@ -188,7 +188,15 @@ function ask(c: Ctx, hits: Hit<Target>[], run: (t: Target) => Reply, verb: strin
 }
 
 function doTarget(c: Ctx, t: Target, amount: number | null, minutes: number | null): Reply {
-  if (t.t === 'habit') return markHabit(c, t.h, amount, minutes);
+  if (t.t === 'habit') {
+    const r = markHabit(c, t.h, amount, minutes);
+    // prefs.chains (#136): «после зарядки скажи отличная работа» — append once the habit is done
+    if (r.ok && logOf(c, t.h.id)?.done) {
+      const chain = usePrefs.getState().prefs.chains.find((ch) => ch.after === t.h.id);
+      if (chain) return { ...r, say: `${r.say} ${chain.say}` };
+    }
+    return r;
+  }
   if (t.t === 'task') return markTask(c, t.p, true);
   if (t.t === 'step') return stepDone(c, t.s.goal_id, t.s.id) ? { ok: true, say: c.ru ? `Шаг ${q(t.s.text)} уже выполнен` : 'Already done' } : markStep(c, t.s, true);
   return relapse(c, t.id, t.name);
@@ -629,6 +637,14 @@ function runOne(it: Intent, c: Ctx): Reply {
       const rit = usePrefs.getState().prefs.rituals.find((r) => matchOf(it.name, r.name) >= MAYBE);
       if (!rit) return { ok: false, say: ru ? `Не нашёл ритуал ${q(it.name)}` : `No ritual like “${it.name}”` };
       return runAll(rit.steps.map((s): Intent => ({ kind: 'done', query: s, amount: null, minutes: null })), ru ? 'ru' : 'en');
+    }
+    case 'chainAdd': {
+      const hit = rank(it.habitQuery, habitsOf(c), (h) => h.name)[0];
+      if (!hit || hit.score < MAYBE) return { ok: false, say: ru ? `Не нашёл привычку ${q(it.habitQuery)}` : `No habit like “${it.habitQuery}”` };
+      const chains = usePrefs.getState().prefs.chains;
+      const next = [...chains.filter((ch) => ch.after !== hit.item.id), { after: hit.item.id, say: it.say }];
+      usePrefs.getState().update({ chains: next });
+      return { ok: true, say: ru ? `После ${q(hit.item.name)} буду говорить: «${it.say}»` : `After “${hit.item.name}” I’ll say: “${it.say}”` };
     }
 
     case 'templateSave': {

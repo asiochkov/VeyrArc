@@ -40,6 +40,7 @@ export type Intent =
   | { kind: 'ritualSave'; name: string; steps: string[] }
   | { kind: 'ritualList' }
   | { kind: 'ritualRun'; name: string }
+  | { kind: 'chainAdd'; habitQuery: string; say: string }
   | { kind: 'templateSave'; name: string; items: { title: string; time: string | null }[] }
   | { kind: 'templateList' }
   | { kind: 'templateApply'; name: string }
@@ -429,6 +430,11 @@ function one(t: string, now: Date): Intent {
   // instead of needing the full interactive flows engine this was originally deferred for.
   const ritualRun = t.match(new RegExp(L + '(?:запусти|начни|выполни)\\s*ритуал\\s+(.+)'));
   if (ritualRun && clean(ritualRun[1])) return { kind: 'ritualRun', name: clean(ritualRun[1]) };
+
+  // prefs.chains (#136): «после зарядки скажи отличная работа» — append a phrase once that habit
+  // is marked done. Resolved to the habit's id at save time (run.ts, fuzzy-matched like everywhere else).
+  const chainAdd = t.match(new RegExp(L + 'после\\s+(.+?)\\s+(?:скажи|говори|say)\\s+(.+)'));
+  if (chainAdd && clean(chainAdd[1]) && clean(chainAdd[2])) return { kind: 'chainAdd', habitQuery: clean(chainAdd[1]), say: cap(clean(chainAdd[2])) };
 
   // template.save/list/apply (§6.10.2 #30, #136): a named day-plan, saved to prefs.templates.
   // Unlike rituals (just a list of names), apply actually creates the day's events via saveEvent.

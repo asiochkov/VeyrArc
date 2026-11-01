@@ -280,6 +280,11 @@ After hitting the same mistake three times in a row (taskTop3, habitTrend), swep
 Earlier this session `ritual.run` was declared out of scope, assuming it needed the full interactive flows engine (WP6.9). Building `macroAdd`'s replay afterward showed that wasn't true for rituals specifically: ritual steps are habit *names* (not arbitrary commands), so "запусти ритуал утро" just needs to construct a synthetic `done` intent per step and run them through the existing `runAll()` — reusing the same fuzzy habit-matching every "сделал X" already goes through. Risk R1 (same tier as a single `done`).
   - 1 new test (134/134 total), verified no collision with `ritualList`/`ritualSave`. `typecheck`/`build` clean.
 
+## prefs.chains
+
+- [x] `chainAdd` (R1): "после зарядки скажи отличная работа" saves `{after: habitId, say}` to `prefs.chains` (WP0.4, unused until now), resolved to the habit's id at save time via the same fuzzy matcher every habit lookup uses. Wired into `doTarget()`'s habit branch — once a habit transitions to done, the matching chain's phrase is appended to the reply.
+  - 2 new tests (135/135 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
