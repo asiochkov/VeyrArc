@@ -110,6 +110,9 @@ const cases: C[] = [
   // ritual.create/list
   ['сохрани ритуал утро: зарядка, вода, медитация', { kind: 'ritualSave', name: 'Утро', steps: ['зарядка', 'вода', 'медитация'] }],
   ['мои ритуалы', { kind: 'ritualList' }],
+  ['сохрани шаблон рабочий день: зарядка в 7, работа в 9, обед в 13', { kind: 'templateSave', name: 'Рабочий день' }], // partial match: items list has its own known «в N → PM» time heuristic
+  ['примени шаблон рабочий день', { kind: 'templateApply', name: 'рабочий день' }],
+  ['мои шаблоны', { kind: 'templateList' }],
   ['экспортируй мои данные', { kind: 'exportData' }],
   ['пригласи друга', { kind: 'referralShare' }],
   ['назови меня Арсений', { kind: 'profileName', name: 'Арсений' }],

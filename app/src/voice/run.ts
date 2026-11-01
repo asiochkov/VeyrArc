@@ -626,6 +626,32 @@ function runOne(it: Intent, c: Ctx): Reply {
       return { ok: true, say: ru ? `У вас ${rituals.length} ${plural(rituals.length, 'ритуал', 'ритуала', 'ритуалов')}` : `${rituals.length} ritual${rituals.length === 1 ? '' : 's'}`, list: rituals.map((r) => `${r.name}: ${r.steps.join(', ')}`) };
     }
 
+    case 'templateSave': {
+      const templates = usePrefs.getState().prefs.templates;
+      const next = [...templates.filter((x) => x.name.toLowerCase() !== it.name.toLowerCase()), { name: it.name, items: it.items.map((i) => ({ title: i.title, time: i.time ?? undefined })) }];
+      usePrefs.getState().update({ templates: next });
+      return { ok: true, say: ru ? `Сохранил шаблон ${q(it.name)}: ${it.items.length} ${plural(it.items.length, 'пункт', 'пункта', 'пунктов')}` : `Saved template “${it.name}”: ${it.items.length} item${it.items.length === 1 ? '' : 's'}` };
+    }
+    case 'templateList': {
+      const templates = usePrefs.getState().prefs.templates;
+      if (!templates.length) return { ok: true, say: ru ? 'У вас пока нет сохранённых шаблонов' : 'No saved templates yet' };
+      return { ok: true, say: ru ? `У вас ${templates.length} ${plural(templates.length, 'шаблон', 'шаблона', 'шаблонов')}` : `${templates.length} template${templates.length === 1 ? '' : 's'}`, list: templates.map((x) => `${x.name}: ${x.items.map((i) => i.title).join(', ')}`) };
+    }
+    case 'templateApply': {
+      const tpl = usePrefs.getState().prefs.templates.find((x) => matchOf(it.name, x.name) >= MAYBE);
+      if (!tpl) return { ok: false, say: ru ? `Не нашёл шаблон ${q(it.name)}` : `No template like “${it.name}”` };
+      const created = tpl.items.map((i) => {
+        const id = crypto.randomUUID();
+        const time = i.time ?? null;
+        const end = time ? fromMin(Math.min(23 * 60 + 59, toMin(time) + 60)) : null;
+        saveEvent({ id, title: i.title, day, starts_at: time, ends_at: end, note: null, done: false, category_id: null }, true);
+        return id;
+      });
+      const undo = () => created.forEach((id) => deleteEvent(id));
+      remember(tpl.name, undo);
+      return { ok: true, undo, say: ru ? `Применил шаблон ${q(tpl.name)}: добавил ${created.length} ${plural(created.length, 'пункт', 'пункта', 'пунктов')}` : `Applied “${tpl.name}”: added ${created.length} item${created.length === 1 ? '' : 's'}` };
+    }
+
     case 'exportData': {
       exportData().catch((e) => console.error('[voice] export failed', e));
       return { ok: true, say: ru ? 'Начал экспорт — файл скачается через пару секунд' : 'Exporting your data — the file will download in a moment' };

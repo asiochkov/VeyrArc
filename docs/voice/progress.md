@@ -257,6 +257,12 @@ Not built — `category_id` is a UI-defined id the user can't name by voice with
 After hitting the same mistake three times in a row (taskTop3, habitTrend), swept every trigger added this session for literal "ё" or listed-filler words. Found one more live bug: `profileName`'s "моё имя" alternative (added earlier, untested — only "назови меня X" had actually been verified) never matched, since `normalize()` turns "моё" into "мое" before the regex ever sees it. Fixed, plus removed a redundant (harmless, but dead) "тёмн" branch from `settingsTheme` that only ever matched via its "темн" neighbor anyway.
   - 1 new regression test (126/126 total). `typecheck`/`build` clean.
 
+## template.save/list/apply
+
+- [x] Unlike rituals (just stored, no run), templates actually do something: `templateApply` creates real events for the day via `saveEvent`, batch-undoable. "сохрани шаблон рабочий день: зарядка в 7, работа в 9, обед в 13" → `templateSave`; "примени шаблон рабочий день" → creates 3 events today. Puts `prefs.templates` (built in WP0.4, unused until now) to work.
+  - Noted, not fixed: "зарядка в 7" resolves to 19:00 — that's `takeTime`'s existing "bare small hour, no AM/PM → assume PM" heuristic, applied consistently everywhere it's used (including plain `taskAdd`), not something specific to templates. Changing it would be a broader behavioral change outside this feature's scope.
+  - 3 new tests (129/129 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

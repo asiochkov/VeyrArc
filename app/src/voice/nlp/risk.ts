@@ -42,6 +42,9 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   habitTop: 'R0', // §6.6: habit.top R0
   ritualSave: 'R2', // §6.6: ritual.create R2 (creates a standing structure)
   ritualList: 'R0',
+  templateSave: 'R2', // §6.6: template.save R2
+  templateList: 'R0',
+  templateApply: 'R2', // §6.6: template.apply R2 — creates real events on the day
   exportData: 'R3', // §6.6: export.data R3
   referralShare: 'R1', // §6.6: referral.share R1
   profileName: 'R2', // §6.6: profile.name R2

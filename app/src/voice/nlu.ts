@@ -39,6 +39,9 @@ export type Intent =
   | { kind: 'habitTop' }
   | { kind: 'ritualSave'; name: string; steps: string[] }
   | { kind: 'ritualList' }
+  | { kind: 'templateSave'; name: string; items: { title: string; time: string | null }[] }
+  | { kind: 'templateList' }
+  | { kind: 'templateApply'; name: string }
   | { kind: 'exportData' }
   | { kind: 'referralShare' }
   | { kind: 'profileName'; name: string }
@@ -418,6 +421,21 @@ function one(t: string, now: Date): Intent {
     if (steps.length) return { kind: 'ritualSave', name: cap(clean(ritualSave[1])), steps };
   }
   if (st('мои ритуалы|какие.*ритуал|покажи ритуал|list rituals|my rituals').test(t)) return { kind: 'ritualList' };
+
+  // template.save/list/apply (§6.10.2 #30, #136): a named day-plan, saved to prefs.templates.
+  // Unlike rituals (just a list of names), apply actually creates the day's events via saveEvent.
+  const tplSave = t.match(new RegExp(L + '(?:сохрани|создай)\\s*шаблон\\s+(.+?)\\s*(?::|—|-)\\s*(.+)'));
+  if (tplSave) {
+    const items = tplSave[2].split(/\s*,\s*/).map(clean).filter(Boolean).map((p) => {
+      const tm = takeTime(p, now);
+      const title = cap(clean(tm.rest));
+      return title ? { title, time: tm.time } : null;
+    }).filter((x): x is { title: string; time: string | null } => !!x);
+    if (items.length) return { kind: 'templateSave', name: cap(clean(tplSave[1])), items };
+  }
+  if (st('мои шаблоны|какие.*шаблон|list templates|my templates').test(t)) return { kind: 'templateList' };
+  const tplApply = t.match(new RegExp(L + '(?:примени|запусти)\\s*шаблон\\s+(.+)'));
+  if (tplApply && clean(tplApply[1])) return { kind: 'templateApply', name: clean(tplApply[1]) };
 
   // export.data (§6.10.2 #233). Deliberately NOT wiring account.delete (R4) by voice — that's an
   // irreversible, whole-account action and our confirm flow has only one strength of "are you sure",
