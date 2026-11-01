@@ -244,9 +244,9 @@ export function stopVoice() { try { rec?.stop(); } catch { /* already stopped */
 export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; clearTimeout(silence); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
 
 /** the shell just set open:true — fill the suggestions and, where supported, start listening */
-export function onOpen() {
+export function onOpen(autoListen = true) {
   set({ suggest: hints(location.pathname, lang()) });
-  if (voiceSupported()) setTimeout(() => { if (useAssistant.getState().open) startVoice(); }, 420);
+  if (autoListen && voiceSupported()) setTimeout(() => { if (useAssistant.getState().open) startVoice(); }, 420);
 }
 /** the shell just set open:false — stop any in-flight recognition/speech */
 export function onClose() {

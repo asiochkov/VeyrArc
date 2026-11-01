@@ -32,13 +32,15 @@ function loadEngine(): Promise<Engine> {
   return loading;
 }
 
-export function openAssistant() {
+/** autoListen: false for §6.16's ?say=... shortcut — a command is about to run immediately, so
+ * the usual "start listening 420ms after open" behavior would otherwise clobber its result. */
+export function openAssistant(opts?: { autoListen?: boolean }) {
   if (useAssistant.getState().open) return;
   useAssistant.setState({ open: true });
   // phrases that fit this screen and this moment arrive once the engine chunk resolves
   useVoice.setState({ heard: '', reply: '', list: [], suggest: [], choices: [], canUndo: false, ok: true, state: 'idle', pendingSlot: null });
   navigator.vibrate?.(10);
-  loadEngine().then((m) => m.onOpen());
+  loadEngine().then((m) => m.onOpen(opts?.autoListen ?? true));
 }
 
 export function closeAssistant() {

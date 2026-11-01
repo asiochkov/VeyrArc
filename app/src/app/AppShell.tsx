@@ -6,7 +6,7 @@ import { PomodoroSheet, DockedPomodoro } from '../ui/PomodoroViews';
 import { AddSheet } from './AddSheet';
 import s from './AppShell.module.css';
 import { BottomBar } from './BottomBar';
-import { useAssistant } from '../voice/shell';
+import { openAssistant, useAssistant } from '../voice/shell';
 import { CommandPalette } from './CommandPalette';
 import { TourOverlay } from '../ui/Tour';
 import { DEFAULT_TILE, NAV, navIdFor, useAdd } from './nav';
@@ -35,6 +35,7 @@ export function AppShell({ chrome }: { chrome: Chrome }) {
   const rootCls = `${s.root} ${fading ? s.fading : ''}`;
   const [collapsed, setCollapsed] = useSidebarCollapsed();
   useShortcuts(chrome !== 'bare', () => setCollapsed((c) => !c));
+  useVoiceShortcuts();
 
   if (chrome === 'bare') {
     return (
@@ -84,6 +85,22 @@ export function AppShell({ chrome }: { chrome: Chrome }) {
 }
 
 /* Keyboard-first (section 3′): ⌘K palette, C compose, [ sidebar, G then T/H/P/L/A to go. */
+/* §6.16: ?assistant=1 opens the panel on load; ?say=<text> opens it and runs that command right
+ * away (PWA shortcuts, deep links). Runs once; the query string is then dropped via replaceState
+ * so a refresh doesn't re-trigger it. */
+function useVoiceShortcuts() {
+  useEffect(() => {
+    const p = new URLSearchParams(location.search);
+    const assistant = p.get('assistant');
+    const say = p.get('say');
+    if (!assistant && !say) return;
+    openAssistant(say ? { autoListen: false } : undefined);
+    if (say) import('../voice/engine').then((m) => m.handle(say));
+    history.replaceState(null, '', location.pathname + location.hash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
 function useShortcuts(on: boolean, toggleSidebar: () => void) {
   const navigate = useNavigate();
   const { pathname } = useLocation();

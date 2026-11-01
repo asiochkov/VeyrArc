@@ -39,7 +39,7 @@ export function BottomBar() {
         <span className={s.live} data-state={vstate} aria-hidden="true"><i /><i /><i /></span>
       </nav>
       <span className={s.neck} aria-hidden="true" />
-      <button type="button" className={`${s.drop} ${s.glass}`} onClick={open ? closeAssistant : openAssistant}
+      <button type="button" className={`${s.drop} ${s.glass}`} onClick={open ? closeAssistant : () => openAssistant()}
         aria-label={open ? t('common.close') : t('voice.open')} aria-expanded={open}>
         <AssistantMark size={28} />
       </button>

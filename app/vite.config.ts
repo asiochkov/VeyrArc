@@ -40,6 +40,8 @@ export default defineConfig(({ mode }) => ({
           { name: 'Сегодня', url: '/' },
           { name: 'Планер', url: '/planner' },
           { name: 'Фокус', url: '/?focus=1' },
+          { name: 'Голос', url: '/?assistant=1' },
+          { name: 'Сказать «фокус 25»', url: '/?say=%D1%84%D0%BE%D0%BA%D1%83%D1%81%2025' },
         ],
       } as Record<string, unknown>,
       workbox: {
