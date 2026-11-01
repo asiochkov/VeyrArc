@@ -656,6 +656,10 @@ function runOne(it: Intent, c: Ctx): Reply {
       const label = it.tone === 'soft' ? (ru ? 'мягче' : 'softer') : it.tone === 'strict' ? (ru ? 'строже' : 'stricter') : (ru ? 'нейтральнее' : 'more neutral');
       return { ok: true, say: ru ? `Буду отвечать ${label}` : `I’ll be ${label}` };
     }
+    case 'prefsSound': {
+      usePrefs.getState().update({ sound: it.on });
+      return { ok: true, say: it.on ? (ru ? 'Включил звуковые сигналы' : 'Turned on sound cues') : (ru ? 'Выключил звуковые сигналы' : 'Turned off sound cues') };
+    }
     case 'supportReport':
     case 'supportIdea': {
       const subject = it.kind === 'supportReport' ? (ru ? 'VeyrArc: Отчёт о проблеме' : 'VeyrArc: Bug report') : (ru ? 'VeyrArc: Идея' : 'VeyrArc: Idea');

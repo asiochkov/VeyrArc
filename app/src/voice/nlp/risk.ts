@@ -46,6 +46,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   chainAdd: 'R1', // a simple, reversible preference — same tier as prefs.alias.add
   prefsSpeech: 'R1', // §6.6: prefs.speech R1
   prefsStyle: 'R1', // §6.6: prefs.style R1
+  prefsSound: 'R1', // same tier as prefs.speech/prefs.style — a simple, reversible preference flip
   supportReport: 'R1', // §6.6: support.report R1
   supportIdea: 'R1', // §6.6: support.idea R1
   templateSave: 'R2', // §6.6: template.save R2

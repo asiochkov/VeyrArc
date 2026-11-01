@@ -43,6 +43,7 @@ export type Intent =
   | { kind: 'chainAdd'; habitQuery: string; say: string }
   | { kind: 'prefsSpeech'; delta: number }
   | { kind: 'prefsStyle'; tone: 'soft' | 'neutral' | 'strict' }
+  | { kind: 'prefsSound'; on: boolean }
   | { kind: 'supportReport'; text: string }
   | { kind: 'supportIdea'; text: string }
   | { kind: 'templateSave'; name: string; items: { title: string; time: string | null }[] }
@@ -449,6 +450,10 @@ function one(t: string, now: Date): Intent {
   if (st('будь мягче|говори мягче|softer tone').test(t)) return { kind: 'prefsStyle', tone: 'soft' };
   if (st('будь строже|говори строже|stricter tone').test(t)) return { kind: 'prefsStyle', tone: 'strict' };
   if (st('будь нейтральн|neutral tone').test(t)) return { kind: 'prefsStyle', tone: 'neutral' };
+  // prefs.sound (R1, §6.12): the earcon on/off switch — prefs.sound existed since WP0.4 but had no
+  // way to change it (no settings UI for it yet either; this is the first control surface).
+  if (st('включи звук[иа]? ассистента|включи звуковые сигналы|turn on (?:assistant )?sounds').test(t)) return { kind: 'prefsSound', on: true };
+  if (st('выключи звук[иа]? ассистента|выключи звуковые сигналы|отключи звук[иа]? ассистента|turn off (?:assistant )?sounds').test(t)) return { kind: 'prefsSound', on: false };
 
   // support.report / support.idea (R1): mailto: with build + UA info, per §6.10.2
   const bugReport = t.match(new RegExp(L + '(?:сообщи о проблеме|нашел баг|report a bug)\\s*[:.]?\\s*(.+)'));

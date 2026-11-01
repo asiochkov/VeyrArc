@@ -1,4 +1,5 @@
 import { useLangStore } from '../i18n';
+import { earconDone, earconError, earconListen } from './earcons';
 import { journalAppend } from './journal';
 import { normalize, similarity, takeTime, understand, type Intent } from './nlu';
 import { decide } from './nlp/decide';
@@ -32,6 +33,7 @@ const lang = () => useLangStore.getState().lang as 'ru' | 'en';
 
 function fail(msg: string) {
   set({ state: 'error', reply: msg, ok: false });
+  earconError();
   navigator.vibrate?.([20, 40, 20]);
   clearTimeout(resetTimer);
   resetTimer = setTimeout(() => set({ state: 'idle' }), 4000);
@@ -82,6 +84,7 @@ let closeAfter: ReturnType<typeof setTimeout> | undefined;
 function show(r: Reply) {
   set({ state: 'speaking', reply: r.say, ok: r.ok, list: r.list ?? [], suggest: r.suggest ?? [], choices: r.choices ?? [], canUndo: !!r.undo, pendingSlot: r.ask ?? null });
   journalAppend(useVoice.getState().heard, r.say, r.ok);
+  if (r.ok) earconDone(); else earconError();
   navigator.vibrate?.(r.ok ? 15 : [20, 40, 20]);
   // a question (choice or ask-slot): listen for the answer right after it is asked
   speak(r.say, (r.choices?.length || r.ask) && voiceSupported() ? () => startVoice() : undefined);
@@ -216,6 +219,7 @@ export function startVoice() {
   const asking = useVoice.getState().choices.length > 0;
   const fresh = !useVoice.getState().reply; // just opened: the context hints stay on screen while listening
   set({ state: 'listening', heard: '', ok: true, ...(asking || fresh ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
+  earconListen();
   navigator.vibrate?.(12);
   // nothing heard for 7 s → stop without doing anything; a pause after words ends the phrase
   silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, 7000);

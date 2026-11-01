@@ -115,6 +115,8 @@ const cases: C[] = [
   ['говори быстрее', { kind: 'prefsSpeech', delta: 0.1 }],
   ['говори медленнее', { kind: 'prefsSpeech', delta: -0.1 }],
   ['будь мягче', { kind: 'prefsStyle', tone: 'soft' }],
+  ['включи звуки ассистента', { kind: 'prefsSound', on: true }],
+  ['выключи звук ассистента', { kind: 'prefsSound', on: false }],
   ['сообщи о проблеме: кнопка не работает', { kind: 'supportReport', text: 'Кнопка не работает' }],
   ['у меня идея: добавьте виджет на главный экран', { kind: 'supportIdea', text: 'Добавьте виджет на главный экран' }],
   ['сохрани шаблон рабочий день: зарядка в 7, работа в 9, обед в 13', { kind: 'templateSave', name: 'Рабочий день' }], // partial match: items list has its own known «в N → PM» time heuristic

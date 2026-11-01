@@ -37,6 +37,9 @@ check('high ASR confidence on R0 nav → execute', decide(understand('откро
 check('no ASR confidence (typed) on R0 nav → execute', decide(understand('открой планер', now)).action === 'execute');
 check('zero ASR confidence (unsupported browser) on R0 nav → execute', decide(understand('открой планер', now), 0).action === 'execute');
 
+check('prefsSound on → execute', decide(understand('включи звуки ассистента', now)).action === 'execute');
+check('riskOf prefsSound = R1', riskOf('prefsSound') === 'R1');
+
 // risk table itself
 check('riskOf taskDelete = R3', riskOf('taskDelete') === 'R3');
 check('riskOf quitAdd = R2', riskOf('quitAdd') === 'R2');
