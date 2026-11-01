@@ -478,7 +478,10 @@ function one(t: string, now: Date): Intent {
     if (st('стоп|останов|выключ|сбрось|сброс|закончи|заверши|отмени|stop|reset|end').test(t)) return { kind: 'focus', op: 'stop', minutes: null };
     if (st('перерыв|отдых|передышк|break|rest').test(t)) return { kind: 'focus', op: 'break', minutes };
     if (st('покажи|открой|show|open').test(t) && !minutes) return { kind: 'focus', op: 'open', minutes: null };
-    if (isFocus) return { kind: 'focus', op: 'start', minutes };
+    // a bare «фокус» stem matched, but this reads as a question («сколько я сегодня
+    // фокусировался») — let it fall through to the question block (ask.focusToday) instead of
+    // starting a brand new session.
+    if (isFocus && !st('сколько|что|как |когда').test(t) && !/\?$/.test(t)) return { kind: 'focus', op: 'start', minutes };
   }
   if (st('поработа[юем]|хочу поработать|сяду за работу|let me work|deep work').test(t) && /\d|час/.test(t)) {
     const n = t.match(/(\d{1,3})\s*(минут|мин|час)?/);

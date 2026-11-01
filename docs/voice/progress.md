@@ -237,9 +237,10 @@ Not built — `category_id` is a UI-defined id the user can't name by voice with
 - [x] `focusByCategory` (R0): "куда уходит моё время" → focus minutes by category over the last 7 days, sorted descending. Found a new, unrelated bug while testing it (see below) — the feature itself is unaffected and committed separately from that fix.
   - 1 new test (120/120 total). `typecheck`/`build` clean.
 
-## New finding: bare "фокус" stem swallows focus-query questions
+## Fixed: bare "фокус" stem swallowed focus-query questions
 
-While testing `focusByCategory`, found that "сколько я сегодня фокусировался" (how much did I focus today) resolves to `{ kind: 'focus', op: 'start', minutes: null }` — starting a *new* focus session — instead of answering the question. Root cause: `isFocus` matches on the bare stem "фокус" anywhere in the sentence, and that check runs *before* the question-detection block reaches its own `ask.focusToday` branch, so a focus-related question never gets a chance. Will fix in a follow-up commit (same shape as B-04: gate the op:'start' fallback so a question-marked sentence doesn't fall through to it).
+"сколько я сегодня фокусировался" (how much did I focus today) used to resolve to `{ kind: 'focus', op: 'start', minutes: null }` — starting a *new* session instead of answering. `isFocus` matches the bare stem "фокус" anywhere, and that check runs before the question-detection block reaches `ask.focusToday`. Fixed with the same shape as B-04: `op: 'start'` no longer fires when the sentence is clearly a question (сколько/что/как/когда or a trailing `?`) — verified "фокус 25", "начни фокус на час", "хочу поработать час" (none of which are questions) still start sessions correctly.
+  - 1 new regression test (121/121 total). `typecheck`/`build` clean.
 
 ## Notes / deviations from master prompt
 
