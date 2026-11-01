@@ -43,6 +43,7 @@ export type Intent =
   | { kind: 'templateList' }
   | { kind: 'templateApply'; name: string }
   | { kind: 'aliasAdd'; alias: string; target: string }
+  | { kind: 'macroAdd'; trigger: string; phrases: string[] }
   | { kind: 'exportData' }
   | { kind: 'referralShare' }
   | { kind: 'profileName'; name: string }
@@ -445,6 +446,15 @@ function one(t: string, now: Date): Intent {
   // («X, имей в виду Y») leaves the phrase sitting inside the captured target.
   const alias = t.match(new RegExp(L + '(?:когда я говорю|алиас)\\s+(.+?)\\s*,?\\s*(?:имей в виду|это|means|—|-|=)\\s*(.+)'));
   if (alias && clean(alias[1]) && clean(alias[2])) return { kind: 'aliasAdd', alias: clean(alias[1]), target: clean(alias[2]) };
+
+  // prefs.macro.add (§6.10.2 #100, max 30): «сделай макрос утро: сделал зарядку, выпил стакан
+  // воды, фокус 25» — unlike rituals (reference only), the trigger word itself replays these
+  // phrases through the normal pipeline (wired in engine.ts's handle(), checked before parsing).
+  const macroAdd = t.match(new RegExp(L + '(?:сделай|создай|запиши)\\s*макрос\\s+(.+?)\\s*(?::|—|-)\\s*(.+)'));
+  if (macroAdd) {
+    const phrases = macroAdd[2].split(/\s*,\s*/).map(clean).filter(Boolean);
+    if (phrases.length) return { kind: 'macroAdd', trigger: clean(macroAdd[1]), phrases };
+  }
 
   // export.data (§6.10.2 #233). Deliberately NOT wiring account.delete (R4) by voice — that's an
   // irreversible, whole-account action and our confirm flow has only one strength of "are you sure",

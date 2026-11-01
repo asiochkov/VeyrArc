@@ -269,6 +269,12 @@ After hitting the same mistake three times in a row (taskTop3, habitTrend), swep
   - Found and fixed two bugs while building the trigger itself: (1) "значит" is a listed filler word, stripped by `normalize()` before any regex sees it — can't be used as a separator; (2) the regex only consumed one of the two separators present in "X, имей в виду Y" (the comma), leaving "имей в виду" sitting inside the captured target text. Fixed by making the comma and the meaning-phrase a single combined optional-then-required separator.
   - 2 new tests (131/131 total). `typecheck`/`build` clean, no bundle growth (the substitution lives in the lazy `engine.ts` chunk).
 
+## prefs.macro.add — fully functional, not just storage
+
+- [x] `macroAdd` (R2): "сделай макрос утро: сделал зарядку, фокус 25" saves a named sequence to `prefs.macros`. Unlike `ritualSave` (reference only, `ritual.run` explicitly out of scope — needs the flows engine), a macro's trigger word is actually wired to replay: `engine.ts`'s `handle()` checks every fresh utterance against saved macro triggers, and on a match, re-parses each stored phrase through `understand()` and feeds the combined intent list through the existing `runAll()` — reusing its multi-intent combining and undo-batching for free, no new execution machinery needed. Goes through the normal risk/confirm gate too (the combined intents are what `decide()` sees).
+  - This turned out to be simpler than `ritual.run`, which I'd earlier judged too complex (assumed it needed the full interactive flow engine) — the difference is that macro phrases are pre-recorded *exact* commands, not step *names* needing fresh interpretation each time, so no interactivity is required.
+  - 2 new tests (133/133 total), verified no collision with `ritualSave`'s similar "X: a, b, c" syntax. `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

@@ -133,7 +133,11 @@ export function handle(text: string) {
       if (r) { show(r); return; }
       set({ choices: [] }); // not an answer: a new command
     }
-    const intents = understand(applyAliases(said));
+    // prefs.macro.add: the trigger word itself replays its saved phrases through the normal
+    // pipeline (each phrase re-parsed and run in order, same combining/undo-batching as a
+    // multi-intent sentence — see runAll()).
+    const macro = usePrefs.getState().prefs.macros.find((m) => normalize(m.trigger) === normalize(said));
+    const intents = macro ? macro.phrases.flatMap((p) => understand(applyAliases(p))) : understand(applyAliases(said));
     if (decide(intents).action === 'confirm') { show(confirmReply(intents, said, lang())); return; }
     show(runAll(intents, lang()));
   } catch (e) {

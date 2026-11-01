@@ -658,6 +658,12 @@ function runOne(it: Intent, c: Ctx): Reply {
       usePrefs.getState().update({ aliases: next });
       return { ok: true, say: ru ? `Запомнил: ${q(it.alias)} теперь значит ${q(it.target)}` : `Got it: “${it.alias}” now means “${it.target}”` };
     }
+    case 'macroAdd': {
+      const macros = usePrefs.getState().prefs.macros;
+      const next = [...macros.filter((m) => m.trigger.toLowerCase() !== it.trigger.toLowerCase()), { trigger: it.trigger, phrases: it.phrases }].slice(-30);
+      usePrefs.getState().update({ macros: next });
+      return { ok: true, say: ru ? `Сохранил макрос ${q(it.trigger)}: ${it.phrases.length} ${plural(it.phrases.length, 'фраза', 'фразы', 'фраз')}. Скажите «${it.trigger}», чтобы запустить` : `Saved macro “${it.trigger}”: ${it.phrases.length} phrase${it.phrases.length === 1 ? '' : 's'}` };
+    }
 
     case 'exportData': {
       exportData().catch((e) => console.error('[voice] export failed', e));

@@ -115,6 +115,8 @@ const cases: C[] = [
   ['мои шаблоны', { kind: 'templateList' }],
   ['когда я говорю спортзал, имей в виду тренировка', { kind: 'aliasAdd', alias: 'спортзал', target: 'тренировка' }],
   ['алиас спортзал - тренировка', { kind: 'aliasAdd', alias: 'спортзал', target: 'тренировка' }],
+  ['сделай макрос утро: сделал зарядку, фокус 25', { kind: 'macroAdd', trigger: 'утро', phrases: ['сделал зарядку', 'фокус 25'] }],
+  ['сохрани ритуал утро: зарядка, вода', { kind: 'ritualSave', name: 'Утро', steps: ['зарядка', 'вода'] }], // must not be hijacked by macroAdd
   ['экспортируй мои данные', { kind: 'exportData' }],
   ['пригласи друга', { kind: 'referralShare' }],
   ['назови меня Арсений', { kind: 'profileName', name: 'Арсений' }],
