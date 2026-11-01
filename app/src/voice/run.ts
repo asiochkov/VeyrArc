@@ -643,6 +643,22 @@ function runOne(it: Intent, c: Ctx): Reply {
       remember('name', undo);
       return { ok: true, undo, say: ru ? `Буду звать вас ${it.name}` : `I’ll call you ${it.name}` };
     }
+    case 'settingsQuiet': {
+      const prof = useAuth.getState().profile;
+      const prevFrom = prof?.quiet_from ?? null, prevTo = prof?.quiet_to ?? null;
+      setProfile({ quiet_from: it.from, quiet_to: it.to });
+      const undo = () => setProfile({ quiet_from: prevFrom, quiet_to: prevTo });
+      remember('quiet', undo);
+      return { ok: true, undo, say: ru ? `Тихие часы: с ${it.from} до ${it.to}` : `Quiet hours: ${it.from}–${it.to}` };
+    }
+    case 'settingsNotifyOff': {
+      const prof = useAuth.getState().profile;
+      const prev = prof ? { notify_habits: prof.notify_habits, notify_summary: prof.notify_summary, notify_focus: prof.notify_focus, notify_arc: prof.notify_arc } : null;
+      setProfile({ notify_habits: false, notify_summary: false, notify_focus: false, notify_arc: false });
+      const undo = () => { if (prev) setProfile(prev); };
+      remember('notify', undo);
+      return { ok: true, undo, say: ru ? 'Выключил все уведомления' : 'Turned off all notifications' };
+    }
 
     case 'ask': return answer(c, it.what);
 

@@ -45,6 +45,8 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   exportData: 'R3', // §6.6: export.data R3
   referralShare: 'R1', // §6.6: referral.share R1
   profileName: 'R2', // §6.6: profile.name R2
+  settingsQuiet: 'R2', // §6.6: settings.quiet R2
+  settingsNotifyOff: 'R1', // §6.6: settings.notifyOff R1
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

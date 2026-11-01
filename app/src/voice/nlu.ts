@@ -42,6 +42,8 @@ export type Intent =
   | { kind: 'exportData' }
   | { kind: 'referralShare' }
   | { kind: 'profileName'; name: string }
+  | { kind: 'settingsQuiet'; from: string; to: string }
+  | { kind: 'settingsNotifyOff' }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -412,6 +414,19 @@ function one(t: string, now: Date): Intent {
   if (st('реферальн|пригласи друга|поделись ссылкой|пригласительн|referral|invite a friend').test(t)) return { kind: 'referralShare' };
   const rename = t.match(new RegExp(L + '(?:назови меня|моё имя|измени имя(?: на)?|зови меня|call me|my name is)\\s+(.+)'));
   if (rename && clean(rename[1])) return { kind: 'profileName', name: cap(clean(rename[1])) };
+
+  // settings.quiet (R2) and settings.notifyOff (R1) — checked in that order: a quiet-hours phrase
+  // ("не беспокой меня с 22 до 7") also contains notifyOff's trigger words, so the more specific,
+  // time-bearing match has to be tried first or it never gets a chance.
+  // a dedicated parser, not takeTime's «с T до T» — that one assumes a same-day event and bumps an
+  // earlier end hour by +12 («с 15 до 4» → 15:00–16:00), which is wrong here: quiet hours legitimately
+  // cross midnight («с 22 до 7» means overnight, 22:00–07:00, not 22:00–19:00).
+  const quiet = t.match(new RegExp(L + '(?:не беспокой меня|тихие часы|не присылай(?: мне)? уведомлени[яю]|не уведомляй меня|quiet hours)\\s*(?:с|from)?\\s*(\\d{1,2})(?:[:.](\\d{2}))?\\s*(?:до|to|-)\\s*(\\d{1,2})(?:[:.](\\d{2}))?' + R));
+  if (quiet) {
+    const h1 = Number(quiet[1]), m1 = Number(quiet[2] ?? 0), h2 = Number(quiet[3]), m2 = Number(quiet[4] ?? 0);
+    if (h1 <= 23 && h2 <= 23 && m1 <= 59 && m2 <= 59) return { kind: 'settingsQuiet', from: `${pad(h1)}:${pad(m1)}`, to: `${pad(h2)}:${pad(m2)}` };
+  }
+  if (st('выключи (?:все )?уведомлени|отключи (?:все )?уведомлени|не присылай(?: мне)? уведомлени|turn off notifications|disable notifications').test(t)) return { kind: 'settingsNotifyOff' };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

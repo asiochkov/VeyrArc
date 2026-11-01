@@ -113,6 +113,8 @@ const cases: C[] = [
   ['экспортируй мои данные', { kind: 'exportData' }],
   ['пригласи друга', { kind: 'referralShare' }],
   ['назови меня Арсений', { kind: 'profileName', name: 'Арсений' }],
+  ['не беспокой меня с 22 до 7', { kind: 'settingsQuiet', from: '22:00', to: '07:00' }],
+  ['выключи уведомления', { kind: 'settingsNotifyOff' }],
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
   ['медитация', { kind: 'guess' }],

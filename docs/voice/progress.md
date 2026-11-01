@@ -171,6 +171,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] `profileName` (R2): "назови меня Арсений" → `setProfile({ first_name })`, undoable.
   - 3 new tests (104/104 total). `typecheck`/`build` clean.
 
+## settings.quiet and settings.notifyOff
+
+- [x] `settingsQuiet` (R2) and `settingsNotifyOff` (R1), both wired to `setProfile`. Found and fixed a real bug while building this: reusing `takeTime`'s "с T до T" parser for quiet hours was wrong — that parser assumes a same-day event and bumps an earlier end hour by +12 ("с 15 до 4" → treated as 15:00–16:00 PM), which silently corrupts an overnight range ("с 22 до 7" → was becoming 22:00–19:00 instead of 22:00–07:00). Wrote a dedicated small parser instead of repurposing calendar-event time logic for a different concept.
+  - Trigger ordering matters: quiet-hours phrasing ("не присылай уведомления с 23 до 8") shares words with the plain notifyOff trigger, so the time-bearing pattern is tried first and only falls through to `settingsNotifyOff` if no time range was found.
+  - 3 new tests (106/106 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
