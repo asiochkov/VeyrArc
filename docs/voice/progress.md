@@ -196,6 +196,13 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] `achievementsQuery` (R0): "мои достижения" → reuses `computeAchievements` (same engine the Analytics page uses), reports count + lists up to 8, language-aware labels.
   - 1 new test (110/110 total). `typecheck`/`build` clean.
 
+## B-01 — fixed the universal taskAdd trap
+
+- [x] The most severe (S1) open NLU finding: bare modal words ("нужно", "надо", "необходимо", "должен", "должна") used to create a task from *any* sentence containing them, with no other signal. "мне надо в туалет" → fake task "В туалет". "я должен лучше стараться" → fake task "Лучше стараться". Venting, not task creation.
+  - Split `TASK_V` into `TASK_STRONG` (запиши/добавь/создай/напомни/… — sufficient on its own) and `TASK_WEAK` (the bare modal words — now gated: only creates a task alongside a day/time marker or a task-shaped noun, the same signals the other two decision branches already required).
+  - 4 new regression tests confirming the fix + that the legitimate case ("надо отправить отчёт до пятницы" — has a deadline) still works (113/113 total).
+  - `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

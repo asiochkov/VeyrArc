@@ -351,7 +351,13 @@ const PAGES: [RegExp, NavTo][] = [
 
 const DONE_V = 'вычеркни|вычеркнуть|сделал[аи]?|сделано|сделана|выполнил[аи]?|выполнено|выполнена|отметь|отметить|отметил[аи]?|отмечай|закончил[аи]?|закончила|завершил[аи]?|прочитал[аи]?|почитал[аи]?|выпил[аи]?|пробежал[аи]?|побегал[аи]?|позанимал[а-я]*|потренировал[а-я]*|помедитировал[аи]?|сходил[аи]?|погулял[аи]?|поспал[аи]?|принял[аи]?|записал[аи]?|позвонил[аи]?|написал[аи]?|убрал[аи]?с[ья]|приготовил[аи]?|готово|готова|done|did|completed|finished|mark';
 const UNDO_V = 'сними (?:отметку|галочку)(?: с| со)?|сними(?: с| со)?|убери отметку(?: с)?|убери галочку(?: с)?|отмени отметку(?: с)?|не (?:сделал[аи]?|выполнил[аи]?|делал[аи]?)|unmark|uncheck';
-const TASK_V = 'задач[ауи]|напомни(?:те)?(?: мне)?|напоминание|запланируй|запланировать|запиши(?: мне)?|занеси|поставь(?: мне)?|добавь(?: мне)?|создай|внеси|не забыть|нужно|надо|необходимо|должен|должна|remind me(?: to)?|add task|task|schedule';
+// B-01: "нужно"/"надо"/"необходимо"/"должен"/"должна" are bare modal words that show up in all kinds
+// of venting ("надо отдохнуть", "я должен лучше стараться") with no actual task behind them. Split
+// from the explicit creation verbs: the weak group only creates a task alongside a day/time marker
+// or a task-shaped noun (see the decision below), never on its own.
+const TASK_STRONG = 'задач[ауи]|напомни(?:те)?(?: мне)?|напоминание|запланируй|запланировать|запиши(?: мне)?|занеси|поставь(?: мне)?|добавь(?: мне)?|создай|внеси|remind me(?: to)?|add task|task|schedule';
+const TASK_WEAK = 'не забыть|нужно|надо|необходимо|должен|должна';
+const TASK_V = TASK_STRONG + '|' + TASK_WEAK;
 const TASK_N = 'встреч[ауи]|созвон|звонок|дело|дела|событие|мероприятие|запись к|прием|приём|дедлайн|meeting|call|event';
 
 function splitClauses(t: string) {
@@ -597,7 +603,8 @@ function one(t: string, now: Date): Intent {
   const tm = takeTime(rest, now);
   const markedTime = !!(day || tm.time);
   const hasTaskNoun = st(TASK_N).test(t);
-  if ((taskM && !/^(?:поставь|ставь) (?:галочк|отметк|плюс)/.test(t)) || (markedTime && !doneVerb(t)) || (hasTaskNoun && st('добавь|создай|поставь|запиши').test(t))) {
+  const strongTrigger = st(TASK_STRONG).test(t);
+  if ((taskM && strongTrigger && !/^(?:поставь|ставь) (?:галочк|отметк|плюс)/.test(t)) || (markedTime && !doneVerb(t)) || (hasTaskNoun && st('добавь|создай|поставь|запиши').test(t))) {
     let title = clean(tm.rest.replace(new RegExp('(?:\\s(?:до|к|на|в|во|с|по|для|at|by|on))+\\s*$'), ' ').replace(new RegExp('^(?:о том(?:,)? что|про|что|чтобы|о|об|мне|в план(?:ер)?|в календарь)' + R, 'g'), ' '));
     title = clean(title.replace(new RegExp(L + '(?:задачу|задача|напоминание|в план(?:ер)?|в календарь)' + R, 'g'), ' '));
     title = clean(title.replace(new RegExp('^(?:(?:а|и|но|у меня|мне|я|нам|у нас|будет|есть|поставить|добавить|записать|запланировать|создать)\\s+)+'), ''));
