@@ -126,6 +126,9 @@ const cases: C[] = [
   ['сколько осталось выпить воды', { kind: 'counterRemaining', query: 'воды' }],
   ['что у меня осталось', { kind: 'ask', what: 'left' }],
   ['что я не сделал', { kind: 'ask', what: 'left' }],
+  // B-09: EN phrasing that used to fall through entirely
+  ['i smoked a cigarette', { kind: 'relapse', query: 'cigarette' }],
+  ['create a habit reading 20 minutes', { kind: 'habitAdd' }], // partial match: the trigger now fires at all (was 'guess'); exact type/target inference for EN duration phrasing is a separate, deeper gap
   ['что у меня по плану', { kind: 'ask', what: 'plan' }], // must not be hijacked by infoPlan
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],

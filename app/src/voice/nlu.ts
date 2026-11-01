@@ -530,11 +530,14 @@ function one(t: string, now: Date): Intent {
   if (mood != null) return { kind: 'mood', level: mood };
 
   // a slip in a quit: «сорвался с курения», «я покурил», «выпил алкоголь» (quits only)
-  const slip = t.match(new RegExp(L + '(?:сорвал(?:ся|ась|ись)|срыв|не удержал(?:ся|ась)|relapsed?|slipped)(?:\\s+(?:с|со|по|на|в))?\\s*(.*)'));
+  // B-09: EN relapse phrasing is usually a direct action ("i smoked a cigarette"), not "relapsed
+  // on X" — the RU pattern's structure doesn't translate, needed its own EN alternatives.
+  const slip = t.match(new RegExp(L + '(?:сорвал(?:ся|ась|ись)|срыв|не удержал(?:ся|ась)|relapsed?(?: on)?|slipped(?: on)?|smoked (?:a |one )?|had a cigarette|drank (?:a |some )?)\\s*(?:с|со|по|на|в)?\\s*(.*)'));
   if (slip) return { kind: 'relapse', query: clean(slip[1]) };
 
   // new habit
-  const hab = t.match(new RegExp(L + '(?:добавь|создай|заведи|новая|новую|начни|хочу|add|new|create)(?: мне)?(?: новую| новая)? (?:привычк[ауи]|habit)\\s*(.*)'))
+  // B-09: EN phrasing takes an article ("create A habit ...") that the RU-shaped pattern didn't allow for
+  const hab = t.match(new RegExp(L + '(?:добавь|создай|заведи|новая|новую|начни|хочу|add|new|create)(?: мне)?(?: новую| новая)?(?: a| the)? (?:привычк[ауи]|habit)\\s*(?:of |to )?(.*)'))
     ?? t.match(new RegExp('^(?:хочу|буду|начну|начинаю) (?:каждый день|ежедневно)\\s+(.*)'));
   if (hab && clean(hab[1])) return habitAdd(clean(hab[1]));
 

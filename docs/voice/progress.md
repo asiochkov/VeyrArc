@@ -208,6 +208,11 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] `counterRemaining` (R0): "сколько осталось выпить воды" → `goal - logged` for a matched counter-type habit. Checked for collision with the existing `ask.left` ("что осталось") first — both share the word "осталось" and sit in the same question-detection block, so the counter check (requires an action verb + object: выпить/пройти/сделать/…) runs first and only intercepts counter-habit-shaped phrases; bare "что у меня осталось"/"что я не сделал" still resolve to `ask.left`, now with first-time regression test coverage for that path too.
   - 3 new tests (116/116 total). `typecheck`/`build` clean.
 
+## B-09 — EN trigger coverage
+
+- [x] Fixed both named false-negatives: "i smoked a cigarette" (added EN relapse action-phrasing — EN states the action directly, RU's "relapsed on X" structure doesn't translate) and "create a habit reading 20 minutes" (the habitAdd trigger required bare "habit" with no article — EN needs "a"/"the"). Both now recognized; `habitAdd`'s EN duration/counter type-inference still has its own separate gap (comes out as a counter, not duration — not a trigger-matching issue, a deeper one left open).
+  - 2 new tests (118/118 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
