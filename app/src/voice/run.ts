@@ -674,6 +674,17 @@ function runOne(it: Intent, c: Ctx): Reply {
       };
     }
 
+    case 'taskNote': {
+      const tasks = openTasks(c, c.day, addDays(c.day, 30));
+      const hit = rank(it.query, tasks, (p) => p.title)[0];
+      if (!hit || hit.score < MAYBE) return { ok: false, say: ru ? `Не нашёл задачу ${q(it.query)}` : `No task like “${it.query}”` };
+      const prevNote = hit.item.note;
+      saveEvent({ ...hit.item, note: it.note }, false);
+      const undo = () => saveEvent({ ...hit.item, note: prevNote }, false);
+      remember(hit.item.title, undo);
+      return { ok: true, undo, say: ru ? `Добавил заметку к ${q(hit.item.title)}` : `Added a note to “${hit.item.title}”` };
+    }
+
     case 'habitCompare': {
       const hs = habitsOf(c);
       const ha = rank(it.a, hs, (h) => h.name)[0];

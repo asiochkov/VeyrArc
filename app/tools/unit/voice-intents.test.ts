@@ -124,6 +124,7 @@ const cases: C[] = [
   ['мне нужно выспаться', { kind: 'guess', query: 'мне нужно выспаться' }], // (line 36 already covers: weak trigger + deadline still works)
   // counter.remaining, checked before the broader ask.left
   ['сколько осталось выпить воды', { kind: 'counterRemaining', query: 'воды' }],
+  ['добавь заметку к встрече с врачом: не забыть анализы', { kind: 'taskNote', query: 'встрече с врачом', note: 'Не забыть анализы' }],
   ['что у меня осталось', { kind: 'ask', what: 'left' }],
   ['что я не сделал', { kind: 'ask', what: 'left' }],
   // B-09: EN phrasing that used to fall through entirely

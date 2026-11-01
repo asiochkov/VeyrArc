@@ -48,6 +48,7 @@ export type Intent =
   | { kind: 'habitCompare'; a: string; b: string }
   | { kind: 'achievementsQuery' }
   | { kind: 'counterRemaining'; query: string }
+  | { kind: 'taskNote'; query: string; note: string }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -442,6 +443,10 @@ function one(t: string, now: Date): Intent {
   // bare «план» — in this app that overwhelmingly means the day's schedule (ask.plan), not a
   // subscription tier; only «тариф»/«подписка» or the explicit pro/free phrasing count.
   if (st('как(?:ой|ая)(?: у меня)? (?:тариф|подписк)|я на (?:про|бесплатном)(?: плане)?|what.?s my (?:plan|subscription)|my subscription').test(t)) return { kind: 'infoPlan' };
+
+  // task.note (R2): «добавь заметку к встрече с врачом: не забыть анализы»
+  const tNote = t.match(new RegExp(L + '(?:добавь )?заметк[ау] к\\s*(.+?)\\s*(?::|—|-)\\s*(.+)'));
+  if (tNote && clean(tNote[2])) return { kind: 'taskNote', query: clean(tNote[1]), note: cap(clean(tNote[2])) };
 
   // habit.compare (R0): «сравни бег и чтение»
   const cmp = t.match(new RegExp(L + '(?:сравни|compare)\\s+(.+?)\\s+(?:и|с|and|vs)\\s+(.+)'));

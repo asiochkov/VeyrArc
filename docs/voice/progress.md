@@ -223,6 +223,15 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - Fix: `orbTap` now gates only on `voiceSupported()` (no API at all — genuinely permanent) and always calls `startVoice()` otherwise. `startVoice()` clears `blocked` at the top of every attempt (every call is an explicit retry by construction) — `onerror` re-sets it if the same cause fires again.
   - `typecheck`/`build`/`test:voice` (118/118) clean, no bundle growth. Runtime behavior (mic permission state) isn't something the test harness can exercise — verified by code review of the full state path.
 
+## task.note
+
+- [x] `taskNote` (R2): "добавь заметку к встрече с врачом: не забыть анализы" → `saveEvent` with `note` patched, undoable. Caught and fixed a query-truncation bug while building it: an over-eager optional noun-matching group in the trigger regex was silently eating part of the task name before the fuzzy search ever saw it ("встрече с врачом" → only "с врачом" reached `rank()`). Simplified the regex to capture the full phrase.
+  - 1 new test (119/119 total), verified no collision with the existing `stepAdd` "цель X: Y" phrasing. `typecheck`/`build` clean.
+
+### Considered and skipped: task.category, task.duration (edit)
+
+Not built — `category_id` is a UI-defined id the user can't name by voice without a lookup table (no such table exists), and duration-editing would need to disambiguate from the existing time-range creation syntax ("с 15 до 16") in a way that risks real collisions. Both left for a dedicated pass rather than a rushed, under-tested addition.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
