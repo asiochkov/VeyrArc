@@ -50,6 +50,7 @@ export type Intent =
   | { kind: 'counterRemaining'; query: string }
   | { kind: 'taskNote'; query: string; note: string }
   | { kind: 'focusByCategory' }
+  | { kind: 'taskTop3' }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -444,6 +445,11 @@ function one(t: string, now: Date): Intent {
   // bare «план» — in this app that overwhelmingly means the day's schedule (ask.plan), not a
   // subscription tier; only «тариф»/«подписка» or the explicit pro/free phrasing count.
   if (st('как(?:ой|ая)(?: у меня)? (?:тариф|подписк)|я на (?:про|бесплатном)(?: плане)?|what.?s my (?:plan|subscription)|my subscription').test(t)) return { kind: 'infoPlan' };
+
+  // task.top3 (R0): «топ 3 задачи», «три главные задачи»
+  // «три» is already «3» by this point — wordsToDigits (inside normalize) converts it before any
+  // trigger regex ever runs.
+  if (st('топ.?3|3 главн(?:ые|ых) задач[а-я]*|3 важн(?:ые|ых) задач[а-я]*|top 3 tasks|top three tasks').test(t)) return { kind: 'taskTop3' };
 
   // focus.byCategory (R0): «куда уходит моё время», «фокус по категориям»
   if (st('фокус по категор|распределение фокуса|куда уходит(?: моё| мое)? время|focus by category|time breakdown').test(t)) return { kind: 'focusByCategory' };

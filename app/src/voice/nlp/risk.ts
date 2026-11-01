@@ -53,6 +53,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   counterRemaining: 'R0', // §6.6: counter.remaining R0
   taskNote: 'R2', // §6.6: task.note R2
   focusByCategory: 'R0', // §6.6: focus.byCategory R0
+  taskTop3: 'R0', // pure read — listing, not changing, the plan
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

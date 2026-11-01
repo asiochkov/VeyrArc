@@ -127,6 +127,8 @@ const cases: C[] = [
   ['добавь заметку к встрече с врачом: не забыть анализы', { kind: 'taskNote', query: 'встрече с врачом', note: 'Не забыть анализы' }],
   ['куда уходит моё время', { kind: 'focusByCategory' }],
   ['сколько я сегодня фокусировался', { kind: 'ask', what: 'focusToday' }], // was wrongly starting a new session
+  ['топ 3 задачи', { kind: 'taskTop3' }],
+  ['три главные задачи', { kind: 'taskTop3' }], // «три» → «3» via wordsToDigits before this trigger ever runs
   ['что у меня осталось', { kind: 'ask', what: 'left' }],
   ['что я не сделал', { kind: 'ask', what: 'left' }],
   // B-09: EN phrasing that used to fall through entirely

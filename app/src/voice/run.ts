@@ -674,6 +674,16 @@ function runOne(it: Intent, c: Ctx): Reply {
       };
     }
 
+    case 'taskTop3': {
+      const open = openTasks(c, day, day).filter((p) => !p.done).sort((a, b) => (a.starts_at ?? '99').localeCompare(b.starts_at ?? '99')).slice(0, 3);
+      if (!open.length) return { ok: true, say: ru ? 'На сегодня задач нет' : 'No tasks today' };
+      return {
+        ok: true,
+        say: ru ? `Топ ${open.length}: ${open.map((p) => p.title).join(', ')}` : `Top ${open.length}: ${open.map((p) => p.title).join(', ')}`,
+        list: open.map((p) => `${p.starts_at ? hm(p.starts_at) : (ru ? 'весь день' : 'any time')} · ${p.title}`),
+      };
+    }
+
     case 'focusByCategory': {
       const from = addDays(day, -6);
       const sessions = (c.sys?.focus ?? []).filter((f) => f.completed && (f.session_type ?? 'focus') === 'focus' && isoDay(new Date(f.started_at)) >= from && isoDay(new Date(f.started_at)) <= day);

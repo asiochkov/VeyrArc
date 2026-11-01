@@ -242,6 +242,11 @@ Not built — `category_id` is a UI-defined id the user can't name by voice with
 "сколько я сегодня фокусировался" (how much did I focus today) used to resolve to `{ kind: 'focus', op: 'start', minutes: null }` — starting a *new* session instead of answering. `isFocus` matches the bare stem "фокус" anywhere, and that check runs before the question-detection block reaches `ask.focusToday`. Fixed with the same shape as B-04: `op: 'start'` no longer fires when the sentence is clearly a question (сколько/что/как/когда or a trailing `?`) — verified "фокус 25", "начни фокус на час", "хочу поработать час" (none of which are questions) still start sessions correctly.
   - 1 new regression test (121/121 total). `typecheck`/`build` clean.
 
+## task.top3
+
+- [x] `taskTop3` (R0): "топ 3 задачи" / "три главные задачи" → first 3 undone tasks today, sorted by time. Caught and fixed two trigger bugs while verifying it by hand before committing: (1) `задач` as a literal needs `[а-я]*` or the word-boundary check (`R`) rejects it when the actual phrase is "задачи" (longer word, same prefix); (2) "три" is already converted to "3" by `wordsToDigits` inside `normalize()` by the time any trigger regex runs — the literal Cyrillic word never appears in the text the regex sees. Same class of mistake as the earlier habitCompare/taskNote fixes — worth testing every new trigger by hand before trusting it, not just reading the regex.
+  - 2 new tests (123/123 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
