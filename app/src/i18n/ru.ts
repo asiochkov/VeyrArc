@@ -689,6 +689,7 @@ export const ru = {
     log: 'Отметить «{x}»',
     unlog: 'Снять отметку «{x}»',
     logged: '{x} ✓',
+    runCommand: 'Выполнить: «{x}»',
   },
   lighten: {
     title: 'Режим восстановления',

@@ -684,6 +684,7 @@ export const en: Dict = {
     log: 'Check “{x}”',
     unlog: 'Uncheck “{x}”',
     logged: '{x} ✓',
+    runCommand: 'Run: “{x}”',
   },
   lighten: {
     title: 'Recovery mode',

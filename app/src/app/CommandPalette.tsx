@@ -9,6 +9,8 @@ import { useSystem, type SystemRaw } from '../state/system';
 import { Icon, type IconName } from '../ui/Icon';
 import { toast } from '../ui/toast';
 import { useTour, type TourId } from '../ui/Tour';
+import type { Risk } from '../voice/nlp/risk';
+import type { Intent } from '../voice/nlu';
 import s from './CommandPalette.module.css';
 import { NAV, useAdd } from './nav';
 
@@ -19,6 +21,23 @@ import { NAV, useAdd } from './nav';
  *   «встреча 15:00 шеф» / «завтра 9:00 бег» → event, «настроение 4» → mood.
  */
 type Row = { id: string; icon: IconName; title: string; sub?: string; kbd?: string; run: () => void };
+
+/**
+ * B-11: lazily-loaded bridge into the voice assistant's shared grammar (`nlu.ts`/`run.ts`). Loaded
+ * dynamically — not a static import — so the palette (part of the always-on `AppShell` bundle)
+ * doesn't drag the whole voice engine back into the main chunk the way a direct import would (that
+ * regressed the WP0.5 code-split from ~215 kB to ~300 kB when first tried; see docs/voice/baseline.md).
+ * Fetches once, on first palette open, and is cached here for the rest of the session.
+ */
+type VoiceApi = { understand: (q: string) => Intent[]; runAll: (intents: Intent[]) => { ok: boolean; say: string }; riskOf: (k: Intent['kind']) => Risk; needsConfirm: (r: Risk) => boolean };
+let voiceApiPromise: Promise<VoiceApi> | null = null;
+function loadVoiceApi(): Promise<VoiceApi> {
+  if (!voiceApiPromise) {
+    voiceApiPromise = Promise.all([import('../voice/nlu'), import('../voice/run'), import('../voice/nlp/risk')])
+      .then(([nlu, run, risk]) => ({ understand: nlu.understand, runAll: run.runAll, riskOf: risk.riskOf, needsConfirm: risk.needsConfirm }));
+  }
+  return voiceApiPromise;
+}
 
 const norm = (x: string) => x.toLowerCase().replace(/ё/g, 'е').trim();
 function score(q: string, text: string) {
@@ -93,7 +112,9 @@ export function CommandPalette() {
   const [sel, setSel] = useState(0);
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLDivElement>(null);
+  const [voiceApi, setVoiceApi] = useState<VoiceApi | null>(null);
   useEffect(() => { if (paletteOpen) { setQ(''); setSel(0); setTimeout(() => input.current?.focus(), 0); } }, [paletteOpen]);
+  useEffect(() => { if (paletteOpen && !voiceApi) loadVoiceApi().then(setVoiceApi); }, [paletteOpen, voiceApi]);
   const go = (to: string) => { closePalette(); navigate(to); };
   const { pathname } = useLocation();
   const tourId: TourId | null = pathname === '/' ? 'today' : pathname.startsWith('/disciplines') ? 'disciplines' : pathname.startsWith('/analytics') ? 'analytics' : null;
@@ -121,9 +142,26 @@ export function CommandPalette() {
       for (const e of sys.entries) if (e.diary && score(q, e.diary) > 1) found.push({ id: 'd' + e.goal_id + e.day, icon: 'doc', title: e.diary.slice(0, 80), sub: e.day, run: () => go(`/goals/${e.goal_id}`) });
     }
     const matched = base.filter((b) => score(q, b.title) > 0);
-    return [...cmd, ...found.slice(0, 12), ...matched];
+    // B-11: the palette used to have its own small, separate command grammar (`commands()` above) —
+    // completely disjoint from the voice assistant's `nlu.ts`. Rather than teach the palette every
+    // intent voice already knows (habit archive, settings, search, …), fall back to the shared
+    // `understand()` parser whenever nothing above matched anything. Only offered for R0/R1 intents:
+    // the palette has no confirm step the way the assistant panel does, so an R2+ (structural or
+    // destructive) result is deliberately left unlisted here rather than running without a "точно?".
+    const voiceFallback: Row[] = [];
+    if (voiceApi && q.trim().length >= 3 && cmd.length === 0 && found.length === 0) {
+      const intents = voiceApi.understand(q.trim());
+      const first = intents[0];
+      if (first && !['guess', 'unknown', 'chat', 'help'].includes(first.kind) && !voiceApi.needsConfirm(voiceApi.riskOf(first.kind))) {
+        voiceFallback.push({
+          id: 'voice-fallback', icon: 'spark', title: t('palette.runCommand', { x: q.trim() }),
+          run: () => { const r = voiceApi.runAll(intents); if (r.say) toast[r.ok === false ? 'error' : 'success'](r.say); closePalette(); },
+        });
+      }
+    }
+    return [...cmd, ...found.slice(0, 12), ...matched, ...voiceFallback];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, sys, paletteOpen, t, tourId]);
+  }, [q, sys, paletteOpen, t, tourId, voiceApi]);
   useEffect(() => { setSel(0); }, [q]);
   useEffect(() => { list.current?.querySelector(`[data-i="${sel}"]`)?.scrollIntoView({ block: 'nearest' }); }, [sel]);
   if (!paletteOpen) return null;
