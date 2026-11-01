@@ -122,6 +122,10 @@ const cases: C[] = [
   ['мне надо в туалет', { kind: 'guess', query: 'мне надо в туалет' }],
   ['я должен лучше стараться', { kind: 'guess', query: 'я должен лучше стараться' }],
   ['мне нужно выспаться', { kind: 'guess', query: 'мне нужно выспаться' }], // (line 36 already covers: weak trigger + deadline still works)
+  // counter.remaining, checked before the broader ask.left
+  ['сколько осталось выпить воды', { kind: 'counterRemaining', query: 'воды' }],
+  ['что у меня осталось', { kind: 'ask', what: 'left' }],
+  ['что я не сделал', { kind: 'ask', what: 'left' }],
   ['что у меня по плану', { kind: 'ask', what: 'plan' }], // must not be hijacked by infoPlan
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],

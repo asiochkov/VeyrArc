@@ -50,6 +50,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   infoPlan: 'R0', // §6.6: info.plan R0
   habitCompare: 'R0', // §6.6: habit.compare R0
   achievementsQuery: 'R0', // §6.6: achievements R0
+  counterRemaining: 'R0', // §6.6: counter.remaining R0
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

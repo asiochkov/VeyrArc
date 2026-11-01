@@ -701,6 +701,22 @@ function runOne(it: Intent, c: Ctx): Reply {
       };
     }
 
+    case 'counterRemaining': {
+      const counters = habitsOf(c).filter((h) => h.type === 'counter');
+      const hit = rank(it.query, counters, (h) => h.name)[0];
+      if (!hit || hit.score < MAYBE) return { ok: false, say: ru ? `Не нашёл такую привычку ${q(it.query)}` : `No counter habit like “${it.query}”` };
+      const h = hit.item;
+      const cur = logOf(c, h.id)?.value ?? 0;
+      const goal = h.target ?? 1;
+      const left = Math.max(0, goal - cur);
+      return {
+        ok: true,
+        say: left === 0
+          ? (ru ? `${q(h.name)} уже выполнена сегодня` : `“${h.name}” is already done today`)
+          : (ru ? `Осталось ${left}${h.unit ? ` ${h.unit}` : ''} по ${q(h.name)}` : `${left}${h.unit ? ` ${h.unit}` : ''} left for “${h.name}”`),
+      };
+    }
+
     case 'ask': return answer(c, it.what);
 
     case 'habitAdd': {

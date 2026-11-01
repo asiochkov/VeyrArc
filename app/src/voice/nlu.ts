@@ -47,6 +47,7 @@ export type Intent =
   | { kind: 'infoPlan' }
   | { kind: 'habitCompare'; a: string; b: string }
   | { kind: 'achievementsQuery' }
+  | { kind: 'counterRemaining'; query: string }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -508,6 +509,11 @@ function one(t: string, now: Date): Intent {
     if (st('число|дата|какой сегодня день|какое сегодня|date|day is it').test(t)) return { kind: 'ask', what: 'date' };
     if (st('завтра|tomorrow').test(t)) return { kind: 'ask', what: 'planTomorrow' };
     if (st('дальше|следующ|сейчас делать|заняться|начать|в первую очередь|next|now').test(t)) return { kind: 'ask', what: 'next' };
+    // counter.remaining: «сколько осталось выпить воды» — checked before the general «осталось»
+    // (ask.left) so only a counter-habit-shaped phrase (verb + object) gets intercepted; bare
+    // «что осталось» / «сколько осталось» with no object still falls through to ask.left.
+    const remQ = t.match(new RegExp(L + 'сколько(?: ещ[её]| осталось)+(?: мне)?(?: нужно)?\\s+(?:выпить|пройти|сделать|пробежать|проплыть|прочитать)\\s+(.+)' + R));
+    if (remQ && clean(remQ[1])) return { kind: 'counterRemaining', query: clean(remQ[1]) };
     if (st('остал|не сделал|не выполнил|left|remaining').test(t)) return { kind: 'ask', what: 'left' };
     if (st('сери|streak|подряд').test(t)) return { kind: 'ask', what: 'streak' };
     if (st('фокус|работал|focus').test(t)) return { kind: 'ask', what: 'focusToday' };
