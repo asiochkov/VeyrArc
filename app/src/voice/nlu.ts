@@ -44,6 +44,7 @@ export type Intent =
   | { kind: 'profileName'; name: string }
   | { kind: 'settingsQuiet'; from: string; to: string }
   | { kind: 'settingsNotifyOff' }
+  | { kind: 'infoPlan' }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -427,6 +428,11 @@ function one(t: string, now: Date): Intent {
     if (h1 <= 23 && h2 <= 23 && m1 <= 59 && m2 <= 59) return { kind: 'settingsQuiet', from: `${pad(h1)}:${pad(m1)}`, to: `${pad(h2)}:${pad(m2)}` };
   }
   if (st('выключи (?:все )?уведомлени|отключи (?:все )?уведомлени|не присылай(?: мне)? уведомлени|turn off notifications|disable notifications').test(t)) return { kind: 'settingsNotifyOff' };
+
+  // info.plan (R0): «какой у меня тариф», «я на про или бесплатном». Deliberately not matching
+  // bare «план» — in this app that overwhelmingly means the day's schedule (ask.plan), not a
+  // subscription tier; only «тариф»/«подписка» or the explicit pro/free phrasing count.
+  if (st('как(?:ой|ая)(?: у меня)? (?:тариф|подписк)|я на (?:про|бесплатном)(?: плане)?|what.?s my (?:plan|subscription)|my subscription').test(t)) return { kind: 'infoPlan' };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

@@ -177,6 +177,11 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
   - Trigger ordering matters: quiet-hours phrasing ("не присылай уведомления с 23 до 8") shares words with the plain notifyOff trigger, so the time-bearing pattern is tried first and only falls through to `settingsNotifyOff` if no time range was found.
   - 3 new tests (106/106 total). `typecheck`/`build` clean.
 
+## info.plan
+
+- [x] `infoPlan` (R0): "какой у меня тариф" → reports Pro vs. free plan + limits (`config.limits`, `isProPlan`). Deliberately **excluded bare "план" from the trigger** — caught the collision before it shipped: in this app "план" overwhelmingly means the day's schedule (`ask.plan`, already existing), not a subscription tier. Only "тариф"/"подписка" or explicit "я на про/бесплатном" count; verified "что у меня по плану" and "мой план на сегодня" still resolve to `ask.plan`, not `infoPlan`.
+  - 2 new tests (108/108 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

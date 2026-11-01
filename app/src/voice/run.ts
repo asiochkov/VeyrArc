@@ -11,7 +11,8 @@ import {
 import { dayStatus, nowAction, todayScore } from '../state/compute';
 import { pomo, usePomodoro } from '../state/pomodoro';
 import { activeArc, getSystem, todayRawOf, type SystemRaw } from '../state/system';
-import { useAuth } from '../lib/auth';
+import { isProPlan, useAuth } from '../lib/auth';
+import { config } from '../config';
 import { exportData, setProfile } from '../data/settings';
 import { referralLink, type MyReferral } from '../lib/referral';
 import { db, hasBackend } from '../lib/supabase';
@@ -658,6 +659,17 @@ function runOne(it: Intent, c: Ctx): Reply {
       const undo = () => { if (prev) setProfile(prev); };
       remember('notify', undo);
       return { ok: true, undo, say: ru ? 'Выключил все уведомления' : 'Turned off all notifications' };
+    }
+
+    case 'infoPlan': {
+      const pro = isProPlan(useAuth.getState().plan);
+      const lim = pro ? config.limits.pro : config.limits.free;
+      return {
+        ok: true,
+        say: pro
+          ? (ru ? 'У вас план Pro' : 'You’re on Pro')
+          : (ru ? `У вас бесплатный план: до ${lim.core} Core-привычек и ${lim.goals} целей` : `You’re on the free plan: up to ${lim.core} Core habits and ${lim.goals} goals`),
+      };
     }
 
     case 'ask': return answer(c, it.what);
