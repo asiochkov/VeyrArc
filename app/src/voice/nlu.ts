@@ -49,6 +49,7 @@ export type Intent =
   | { kind: 'achievementsQuery' }
   | { kind: 'counterRemaining'; query: string }
   | { kind: 'taskNote'; query: string; note: string }
+  | { kind: 'focusByCategory' }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -443,6 +444,9 @@ function one(t: string, now: Date): Intent {
   // bare «план» — in this app that overwhelmingly means the day's schedule (ask.plan), not a
   // subscription tier; only «тариф»/«подписка» or the explicit pro/free phrasing count.
   if (st('как(?:ой|ая)(?: у меня)? (?:тариф|подписк)|я на (?:про|бесплатном)(?: плане)?|what.?s my (?:plan|subscription)|my subscription').test(t)) return { kind: 'infoPlan' };
+
+  // focus.byCategory (R0): «куда уходит моё время», «фокус по категориям»
+  if (st('фокус по категор|распределение фокуса|куда уходит(?: моё| мое)? время|focus by category|time breakdown').test(t)) return { kind: 'focusByCategory' };
 
   // task.note (R2): «добавь заметку к встрече с врачом: не забыть анализы»
   const tNote = t.match(new RegExp(L + '(?:добавь )?заметк[ау] к\\s*(.+?)\\s*(?::|—|-)\\s*(.+)'));

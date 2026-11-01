@@ -674,6 +674,21 @@ function runOne(it: Intent, c: Ctx): Reply {
       };
     }
 
+    case 'focusByCategory': {
+      const from = addDays(day, -6);
+      const sessions = (c.sys?.focus ?? []).filter((f) => f.completed && (f.session_type ?? 'focus') === 'focus' && isoDay(new Date(f.started_at)) >= from && isoDay(new Date(f.started_at)) <= day);
+      const byCat = new Map<string, number>();
+      for (const f of sessions) { const k = f.category ?? (ru ? 'без категории' : 'uncategorized'); byCat.set(k, (byCat.get(k) ?? 0) + f.minutes); }
+      if (!byCat.size) return { ok: true, say: ru ? 'За неделю фокуса ещё не было' : 'No focus sessions this week' };
+      const sorted = [...byCat.entries()].sort((a, b) => b[1] - a[1]);
+      const total = sorted.reduce((s, [, m]) => s + m, 0);
+      return {
+        ok: true,
+        say: ru ? `За неделю ${total} мин фокуса` : `${total} min of focus this week`,
+        list: sorted.map(([cat, m]) => `${cat}: ${m} ${ru ? 'мин' : 'min'}`),
+      };
+    }
+
     case 'taskNote': {
       const tasks = openTasks(c, c.day, addDays(c.day, 30));
       const hit = rank(it.query, tasks, (p) => p.title)[0];

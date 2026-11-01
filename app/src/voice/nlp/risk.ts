@@ -52,6 +52,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   achievementsQuery: 'R0', // §6.6: achievements R0
   counterRemaining: 'R0', // §6.6: counter.remaining R0
   taskNote: 'R2', // §6.6: task.note R2
+  focusByCategory: 'R0', // §6.6: focus.byCategory R0
   review: 'R0',
   weekReview: 'R0',
   freeze: 'R1',

@@ -232,6 +232,15 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 
 Not built — `category_id` is a UI-defined id the user can't name by voice without a lookup table (no such table exists), and duration-editing would need to disambiguate from the existing time-range creation syntax ("с 15 до 16") in a way that risks real collisions. Both left for a dedicated pass rather than a rushed, under-tested addition.
 
+## focus.byCategory
+
+- [x] `focusByCategory` (R0): "куда уходит моё время" → focus minutes by category over the last 7 days, sorted descending. Found a new, unrelated bug while testing it (see below) — the feature itself is unaffected and committed separately from that fix.
+  - 1 new test (120/120 total). `typecheck`/`build` clean.
+
+## New finding: bare "фокус" stem swallows focus-query questions
+
+While testing `focusByCategory`, found that "сколько я сегодня фокусировался" (how much did I focus today) resolves to `{ kind: 'focus', op: 'start', minutes: null }` — starting a *new* focus session — instead of answering the question. Root cause: `isFocus` matches on the bare stem "фокус" anywhere in the sentence, and that check runs *before* the question-detection block reaches its own `ask.focusToday` branch, so a focus-related question never gets a chance. Will fix in a follow-up commit (same shape as B-04: gate the op:'start' fallback so a question-marked sentence doesn't fall through to it).
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
