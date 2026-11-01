@@ -42,6 +42,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   habitTop: 'R0', // §6.6: habit.top R0
   ritualSave: 'R2', // §6.6: ritual.create R2 (creates a standing structure)
   ritualList: 'R0',
+  ritualRun: 'R1', // marks several habits done — same R1 tier as a single `done`
   templateSave: 'R2', // §6.6: template.save R2
   templateList: 'R0',
   templateApply: 'R2', // §6.6: template.apply R2 — creates real events on the day

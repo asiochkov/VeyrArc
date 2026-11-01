@@ -625,6 +625,11 @@ function runOne(it: Intent, c: Ctx): Reply {
       if (!rituals.length) return { ok: true, say: ru ? 'У вас пока нет сохранённых ритуалов' : 'No saved rituals yet' };
       return { ok: true, say: ru ? `У вас ${rituals.length} ${plural(rituals.length, 'ритуал', 'ритуала', 'ритуалов')}` : `${rituals.length} ritual${rituals.length === 1 ? '' : 's'}`, list: rituals.map((r) => `${r.name}: ${r.steps.join(', ')}`) };
     }
+    case 'ritualRun': {
+      const rit = usePrefs.getState().prefs.rituals.find((r) => matchOf(it.name, r.name) >= MAYBE);
+      if (!rit) return { ok: false, say: ru ? `Не нашёл ритуал ${q(it.name)}` : `No ritual like “${it.name}”` };
+      return runAll(rit.steps.map((s): Intent => ({ kind: 'done', query: s, amount: null, minutes: null })), ru ? 'ru' : 'en');
+    }
 
     case 'templateSave': {
       const templates = usePrefs.getState().prefs.templates;

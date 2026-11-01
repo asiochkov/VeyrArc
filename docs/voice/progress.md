@@ -155,7 +155,7 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 
 ## ritual.create / ritual.list
 
-- [x] `ritualSave` (R2) and `ritualList` (R0) — "сохрани ритуал утро: зарядка, вода, медитация" / "мои ритуалы". Finally puts the `prefs.rituals` field (added in WP0.4, unused until now) to use. **Not built**: `ritual.run` — speaking a saved ritual back step-by-step needs the flows engine (`flows/engine.ts`, WP6.9), not a quick addition here.
+- [x] `ritualSave` (R2) and `ritualList` (R0) — "сохрани ритуал утро: зарядка, вода, медитация" / "мои ритуалы". Finally puts the `prefs.rituals` field (added in WP0.4, unused until now) to use. (`ritual.run` was deferred here as needing the flows engine — turned out not to be true, see below: built later the same session.)
   - Fixed a real test-harness bug while adding this: `tools/unit/voice-intents.test.ts`'s comparator used `===` on every field, which silently fails for array-valued fields (reference inequality) — the `ritualSave.steps` test printed identical JSON on both sides yet reported as failing. Now compares arrays by contents.
   - 2 new tests (101/101 total). `typecheck`/`build` clean.
 
@@ -274,6 +274,11 @@ After hitting the same mistake three times in a row (taskTop3, habitTrend), swep
 - [x] `macroAdd` (R2): "сделай макрос утро: сделал зарядку, фокус 25" saves a named sequence to `prefs.macros`. Unlike `ritualSave` (reference only, `ritual.run` explicitly out of scope — needs the flows engine), a macro's trigger word is actually wired to replay: `engine.ts`'s `handle()` checks every fresh utterance against saved macro triggers, and on a match, re-parses each stored phrase through `understand()` and feeds the combined intent list through the existing `runAll()` — reusing its multi-intent combining and undo-batching for free, no new execution machinery needed. Goes through the normal risk/confirm gate too (the combined intents are what `decide()` sees).
   - This turned out to be simpler than `ritual.run`, which I'd earlier judged too complex (assumed it needed the full interactive flow engine) — the difference is that macro phrases are pre-recorded *exact* commands, not step *names* needing fresh interpretation each time, so no interactivity is required.
   - 2 new tests (133/133 total), verified no collision with `ritualSave`'s similar "X: a, b, c" syntax. `typecheck`/`build` clean.
+
+## ritual.run — revisited and built after all
+
+Earlier this session `ritual.run` was declared out of scope, assuming it needed the full interactive flows engine (WP6.9). Building `macroAdd`'s replay afterward showed that wasn't true for rituals specifically: ritual steps are habit *names* (not arbitrary commands), so "запусти ритуал утро" just needs to construct a synthetic `done` intent per step and run them through the existing `runAll()` — reusing the same fuzzy habit-matching every "сделал X" already goes through. Risk R1 (same tier as a single `done`).
+  - 1 new test (134/134 total), verified no collision with `ritualList`/`ritualSave`. `typecheck`/`build` clean.
 
 ## Notes / deviations from master prompt
 

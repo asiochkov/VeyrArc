@@ -39,6 +39,7 @@ export type Intent =
   | { kind: 'habitTop' }
   | { kind: 'ritualSave'; name: string; steps: string[] }
   | { kind: 'ritualList' }
+  | { kind: 'ritualRun'; name: string }
   | { kind: 'templateSave'; name: string; items: { title: string; time: string | null }[] }
   | { kind: 'templateList' }
   | { kind: 'templateApply'; name: string }
@@ -416,13 +417,18 @@ function one(t: string, now: Date): Intent {
   if (st('лучш(?:ая|ие) привычк|топ привычк|сильне(?:е|йшая) привычк|best habit|top habit').test(t)) return { kind: 'habitTop' };
 
   // ritual.create/list (§6.9, §6.10.2 #197): a named list of steps, saved to prefs.rituals.
-  // Not implemented: ritual.run (speaking it back step by step is flows/engine.ts territory, WP6.9).
+  // ritual.run is implemented below (ritualRun) — steps are habit names, reuses the done-matcher.
   const ritualSave = t.match(new RegExp(L + '(?:сохрани|создай|добавь|запиши)\\s*ритуал\\s+(.+?)\\s*(?::|—|-)\\s*(.+)'));
   if (ritualSave) {
     const steps = ritualSave[2].split(/\s*,\s*/).map(clean).filter(Boolean);
     if (steps.length) return { kind: 'ritualSave', name: cap(clean(ritualSave[1])), steps };
   }
   if (st('мои ритуалы|какие.*ритуал|покажи ритуал|list rituals|my rituals').test(t)) return { kind: 'ritualList' };
+  // ritual.run: steps are habit *names*, not full commands — each becomes a synthetic `done`
+  // intent (same as marking a habit done by name), reusing the existing fuzzy habit matcher
+  // instead of needing the full interactive flows engine this was originally deferred for.
+  const ritualRun = t.match(new RegExp(L + '(?:запусти|начни|выполни)\\s*ритуал\\s+(.+)'));
+  if (ritualRun && clean(ritualRun[1])) return { kind: 'ritualRun', name: clean(ritualRun[1]) };
 
   // template.save/list/apply (§6.10.2 #30, #136): a named day-plan, saved to prefs.templates.
   // Unlike rituals (just a list of names), apply actually creates the day's events via saveEvent.
