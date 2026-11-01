@@ -168,6 +168,10 @@ export function startVoice() {
   window.speechSynthesis?.cancel();
   if (!Ctor) { fail(ru ? 'Голосовой ввод не поддерживается в этом браузере. Откройте в Safari или Chrome.' : 'Voice input is not supported in this browser.'); return; }
   if (rec) { stopVoice(); return; }
+  // A-06: every call here is an explicit retry (orb tap or auto-start) — give the blocked flag a
+  // fresh chance each time instead of leaving it stuck for the rest of the session. Re-blocks itself
+  // in onerror below if this attempt fails again for the same reason.
+  set({ blocked: false });
   const r: Rec = new Ctor();
   rec = r;
   r.lang = ru ? 'ru-RU' : 'en-US';

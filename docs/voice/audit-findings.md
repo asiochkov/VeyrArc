@@ -12,7 +12,7 @@ Findings are re-checked incrementally, in the WP that touches that area — this
 | A-03 | S2 | **Confirmed** | Silence timers are hardcoded: `final && !interim ? 900 : 2200` (ms), plus the 7000ms no-speech timeout. No adaptive endpointing. |
 | A-04 | S1 | Carried forward | Cross-browser STT gaps (Firefox, iOS PWA) — needs device testing in WP2/WP7, not verifiable from source alone. |
 | A-05 | S2 | **Confirmed** | `setTimeout(() => { ... startVoice(); }, 420)` in `openAssistant()` — fixed delay before auto-starting mic after panel opens. |
-| A-06 | S2 | Carried forward | Blocked-mic recovery UX — to verify in WP2.1/WP6.3. |
+| A-06 | S2 | **Fixed** | Found the real bug while looking: `blocked` was set in `onerror` but *never cleared anywhere* — once set (even for recoverable causes like `network`), the orb permanently fell back to typing for the rest of the session, with zero retry path. Fixed in two places: `AssistantPanel.tsx`'s `orbTap` now always attempts `startVoice()` when the mic API exists at all (only `!voiceSupported()` — no API, ever — goes straight to typing); `engine.ts`'s `startVoice()` clears `blocked` at the start of every attempt, since every call is by definition an explicit retry. Re-blocks itself via the existing `onerror` handler if the same cause fires again. |
 | A-07 | S3 | Carried forward | Hold-to-talk tooltip/i18n — cosmetic, deferred to WP6. |
 
 ## Section B — understanding (`nlu.ts`) — verified 2026-10-30 (WP1.3)

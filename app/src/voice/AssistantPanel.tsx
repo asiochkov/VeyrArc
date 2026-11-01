@@ -38,7 +38,14 @@ export function AssistantPanel() {
   const label = choices.length && !listening ? t('voice.asking') : !voice && state === 'idle' ? t('voice.typeHint') : t(`voice.state.${look === 'error' ? 'error' : state}`);
   const send = (e?: React.FormEvent) => { e?.preventDefault(); const v = text.trim(); if (!v) return; setText(''); handle(v); };
   const say = (phrase: string) => { setText(''); handle(phrase); };
-  const orbTap = () => { if (!voice) { setTyping(true); input.current?.focus(); return; } if (listening) stopVoice(); else startVoice(); };
+  // A-06: `blocked` never cleared itself and the orb always fell back to typing once set — no way
+  // back to voice for the rest of the session, even for recoverable causes (network came back, mic
+  // permission was granted afterwards). If the mic API exists at all, a tap always gets a real retry.
+  const orbTap = () => {
+    if (!voiceSupported()) { setTyping(true); input.current?.focus(); return; }
+    if (listening) { stopVoice(); return; }
+    startVoice();
+  };
   return (
     <div className={s.root} data-look={look} data-rich={!listening && (list.length > 0 || suggest.length > 3 || choices.length > 0)} role="dialog" aria-modal="true" aria-label={t('voice.open')}>
       <button type="button" className={s.close} onClick={closeAssistant} aria-label={t('common.close')}><Icon name="close" size={16} sw={2} /></button>

@@ -217,6 +217,12 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 
 - [x] Partial, honest fix: true cross-reload undo is still impossible (closures aren't serializable — needs the `UndoOp` rewrite, WP5, not something to force here). What's fixed: "отмени" after a reload used to say the misleading "Отменять нечего" (nothing to undo) even when something clearly had just happened. Now checks `journal.ts` (WP1.5) and, if a recent exchange exists, says so honestly: what it can't undo and what that last action was. No new tests (behavior only differs post-reload, which the unit harness doesn't model — `understand()`-level parsing is unaffected). `typecheck`/`build` clean, no bundle growth.
 
+## A-06 — the blocked flag had no way back
+
+- [x] Found a real, previously-undetected bug while addressing this finding: `blocked` (set on `not-allowed`/`service-blocked`/`network` errors) was never cleared *anywhere* in the code — not on success, not on retry, nothing. Once set, `AssistantPanel`'s `voice` flag (`voiceSupported() && !blocked`) stayed false for the rest of the session, and `orbTap` checked that same flag to decide whether to even attempt `startVoice()` — so tapping the orb after any one of those errors permanently fell back to typing-only, including for `network`, which is very likely transient.
+  - Fix: `orbTap` now gates only on `voiceSupported()` (no API at all — genuinely permanent) and always calls `startVoice()` otherwise. `startVoice()` clears `blocked` at the top of every attempt (every call is an explicit retry by construction) — `onerror` re-sets it if the same cause fires again.
+  - `typecheck`/`build`/`test:voice` (118/118) clean, no bundle growth. Runtime behavior (mic permission state) isn't something the test harness can exercise — verified by code review of the full state path.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
