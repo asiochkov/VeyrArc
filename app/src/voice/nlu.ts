@@ -46,6 +46,7 @@ export type Intent =
   | { kind: 'settingsNotifyOff' }
   | { kind: 'infoPlan' }
   | { kind: 'habitCompare'; a: string; b: string }
+  | { kind: 'habitTrend'; query: string }
   | { kind: 'achievementsQuery' }
   | { kind: 'counterRemaining'; query: string }
   | { kind: 'taskNote'; query: string; note: string }
@@ -459,6 +460,12 @@ function one(t: string, now: Date): Intent {
   if (tNote && clean(tNote[2])) return { kind: 'taskNote', query: clean(tNote[1]), note: cap(clean(tNote[2])) };
 
   // habit.compare (R0): «сравни бег и чтение»
+  // habit.trend (R0): «какая тенденция по чтению», «растёт ли бег»
+  // normalize() already turned «ё» into «е» («растёт» → «растет») and stripped «ли» as a filler
+  // word (it's in FILLERS) — neither can appear literally in a trigger regex by this point.
+  const trendQ = t.match(new RegExp(L + '(?:какая тенденция (?:по|у)|как меняется|растет|падает|trend for)\\s+(.+)'));
+  if (trendQ && clean(trendQ[1])) return { kind: 'habitTrend', query: clean(trendQ[1]) };
+
   const cmp = t.match(new RegExp(L + '(?:сравни|compare)\\s+(.+?)\\s+(?:и|с|and|vs)\\s+(.+)'));
   if (cmp && clean(cmp[1]) && clean(cmp[2])) return { kind: 'habitCompare', a: clean(cmp[1]), b: clean(cmp[2]) };
 

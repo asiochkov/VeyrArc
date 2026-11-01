@@ -49,6 +49,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   settingsNotifyOff: 'R1', // §6.6: settings.notifyOff R1
   infoPlan: 'R0', // §6.6: info.plan R0
   habitCompare: 'R0', // §6.6: habit.compare R0
+  habitTrend: 'R0', // §6.6: habit.trend R0
   achievementsQuery: 'R0', // §6.6: achievements R0
   counterRemaining: 'R0', // §6.6: counter.remaining R0
   taskNote: 'R2', // §6.6: task.note R2

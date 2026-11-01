@@ -710,6 +710,30 @@ function runOne(it: Intent, c: Ctx): Reply {
       return { ok: true, undo, say: ru ? `Добавил заметку к ${q(hit.item.title)}` : `Added a note to “${hit.item.title}”` };
     }
 
+    case 'habitTrend': {
+      const hit = rank(it.query, habitsOf(c), (h) => h.name)[0];
+      if (!hit || hit.score < MAYBE) return { ok: false, say: ru ? `Не нашёл привычку ${q(it.query)}` : `No habit like “${it.query}”` };
+      const ix = indexLogs(c.sys?.logs ?? []);
+      const rate = (from: number, to: number) => {
+        let total = 0, done = 0;
+        for (let i = from; i < to; i++) {
+          const d = addDays(day, -i);
+          if (hit.item.created_at.slice(0, 10) > d || !scheduled(hit.item, d)) continue;
+          total++; if (isLogged(ix, hit.item.id, d)) done++;
+        }
+        return total ? done / total : 0;
+      };
+      const recent = rate(0, 7), prior = rate(7, 14);
+      const diff = recent - prior;
+      const trend = Math.abs(diff) < 0.1 ? (ru ? 'ровно' : 'flat') : diff > 0 ? (ru ? 'растёт' : 'rising') : (ru ? 'падает' : 'falling');
+      return {
+        ok: true,
+        say: ru
+          ? `${q(hit.item.name)}: ${trend} — ${Math.round(recent * 100)}% на этой неделе, было ${Math.round(prior * 100)}%`
+          : `“${hit.item.name}”: ${trend} — ${Math.round(recent * 100)}% this week, was ${Math.round(prior * 100)}%`,
+      };
+    }
+
     case 'habitCompare': {
       const hs = habitsOf(c);
       const ha = rank(it.a, hs, (h) => h.name)[0];

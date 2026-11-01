@@ -129,6 +129,8 @@ const cases: C[] = [
   ['сколько я сегодня фокусировался', { kind: 'ask', what: 'focusToday' }], // was wrongly starting a new session
   ['топ 3 задачи', { kind: 'taskTop3' }],
   ['три главные задачи', { kind: 'taskTop3' }], // «три» → «3» via wordsToDigits before this trigger ever runs
+  ['растёт ли бег', { kind: 'habitTrend', query: 'бег' }], // «ё»→«е» and «ли» (a filler word) are both gone by the time this regex runs
+  ['какая тенденция по чтению', { kind: 'habitTrend', query: 'чтению' }],
   ['что у меня осталось', { kind: 'ask', what: 'left' }],
   ['что я не сделал', { kind: 'ask', what: 'left' }],
   // B-09: EN phrasing that used to fall through entirely
