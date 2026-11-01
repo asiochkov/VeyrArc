@@ -43,6 +43,8 @@ export type Intent =
   | { kind: 'chainAdd'; habitQuery: string; say: string }
   | { kind: 'prefsSpeech'; delta: number }
   | { kind: 'prefsStyle'; tone: 'soft' | 'neutral' | 'strict' }
+  | { kind: 'supportReport'; text: string }
+  | { kind: 'supportIdea'; text: string }
   | { kind: 'templateSave'; name: string; items: { title: string; time: string | null }[] }
   | { kind: 'templateList' }
   | { kind: 'templateApply'; name: string }
@@ -447,6 +449,12 @@ function one(t: string, now: Date): Intent {
   if (st('будь мягче|говори мягче|softer tone').test(t)) return { kind: 'prefsStyle', tone: 'soft' };
   if (st('будь строже|говори строже|stricter tone').test(t)) return { kind: 'prefsStyle', tone: 'strict' };
   if (st('будь нейтральн|neutral tone').test(t)) return { kind: 'prefsStyle', tone: 'neutral' };
+
+  // support.report / support.idea (R1): mailto: with build + UA info, per §6.10.2
+  const bugReport = t.match(new RegExp(L + '(?:сообщи о проблеме|нашел баг|report a bug)\\s*[:.]?\\s*(.+)'));
+  if (bugReport && clean(bugReport[1])) return { kind: 'supportReport', text: cap(clean(bugReport[1])) };
+  const idea = t.match(new RegExp(L + '(?:у меня идея|есть идея|предложение|i have an idea)\\s*[:.]?\\s*(.+)'));
+  if (idea && clean(idea[1])) return { kind: 'supportIdea', text: cap(clean(idea[1])) };
 
   // template.save/list/apply (§6.10.2 #30, #136): a named day-plan, saved to prefs.templates.
   // Unlike rituals (just a list of names), apply actually creates the day's events via saveEvent.

@@ -291,6 +291,12 @@ Earlier this session `ritual.run` was declared out of scope, assuming it needed 
 - [x] `prefsStyle` (R1): "будь мягче"/"строже"/"нейтральнее" sets `prefs.tone`. Honestly has **no visible effect yet** — nothing in `run.ts` reads `tone` to change reply wording (that's `reply.ts`/§6.13.6, judged too large to retrofit earlier — WP1.4/WP6 territory). Letting the preference be set now is still useful groundwork, just not a complete feature on its own.
   - 3 new tests (138/138 total). `typecheck`/`build` clean.
 
+## support.report / support.idea
+
+- [x] Both R1: "сообщи о проблеме: X" / "у меня идея: X" open a `mailto:` draft to `config.site.support` with the message, build id (`__BUILD__`), and `navigator.userAgent` in the body — matches §6.10.2's design exactly (subject lines "VeyrArc: Отчёт о проблеме" / "VeyrArc: Идея").
+  - Found a real, inherent collision while testing: a feedback message that happens to *mention* "тёмную тему" ("dark theme", as in "add a dark theme option") gets caught by `settingsTheme`'s trigger instead, since that command's own words appear inside the free-text feedback. Not a regex bug to fix — same category as the already-documented `feedback.wrong` exclusion: free-text intents will always be able to collide with command triggers that happen to share vocabulary, and no regex can fully resolve that without real intent classification (confidence scoring, still blocked on the missing classifier). Verified the trigger works correctly on non-colliding phrasing.
+  - 2 new tests (140/140 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

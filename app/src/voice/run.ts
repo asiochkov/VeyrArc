@@ -656,6 +656,13 @@ function runOne(it: Intent, c: Ctx): Reply {
       const label = it.tone === 'soft' ? (ru ? 'мягче' : 'softer') : it.tone === 'strict' ? (ru ? 'строже' : 'stricter') : (ru ? 'нейтральнее' : 'more neutral');
       return { ok: true, say: ru ? `Буду отвечать ${label}` : `I’ll be ${label}` };
     }
+    case 'supportReport':
+    case 'supportIdea': {
+      const subject = it.kind === 'supportReport' ? (ru ? 'VeyrArc: Отчёт о проблеме' : 'VeyrArc: Bug report') : (ru ? 'VeyrArc: Идея' : 'VeyrArc: Idea');
+      const body = `${it.text}\n\n---\nBuild: ${__BUILD__}\nUA: ${navigator.userAgent}`;
+      window.open(`mailto:${config.site.support}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+      return { ok: true, say: ru ? 'Открыл письмо в почте — проверьте и отправьте' : 'Opened an email draft — check and send it' };
+    }
 
     case 'templateSave': {
       const templates = usePrefs.getState().prefs.templates;
