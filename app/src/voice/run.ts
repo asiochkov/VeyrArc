@@ -1,4 +1,5 @@
 import { addDays, daysBetween, DAYS_ALL, habitBest, habitStreak, indexLogs, isLogged, scheduled, type PlanRow } from '../data/model';
+import { computeAchievements } from '../data/achievements';
 import { buildToday } from '../data/today';
 import { useLangStore } from '../i18n';
 import { isoDay } from '../lib/day';
@@ -686,6 +687,17 @@ function runOne(it: Intent, c: Ctx): Reply {
         say: ru
           ? `${q(ha.item.name)}: ${sa} ${plural(sa, 'день', 'дня', 'дней')}, ${q(hb.item.name)}: ${sb} ${plural(sb, 'день', 'дня', 'дней')}${lead ? `. Впереди — ${lead}` : '. Ровно'}`
           : `“${ha.item.name}”: ${sa} days, “${hb.item.name}”: ${sb} days${lead ? `. ${lead} is ahead` : '. Tied'}`,
+      };
+    }
+
+    case 'achievementsQuery': {
+      if (!c.sys) return { ok: false, say: ru ? 'Данные ещё загружаются, попробуйте через секунду' : 'Still loading, try again in a second' };
+      const unlocked = computeAchievements(c.sys, day).filter((a) => a.unlocked);
+      if (!unlocked.length) return { ok: true, say: ru ? 'Пока нет открытых достижений' : 'No achievements unlocked yet' };
+      return {
+        ok: true,
+        say: ru ? `У вас ${unlocked.length} ${plural(unlocked.length, 'достижение', 'достижения', 'достижений')}` : `${unlocked.length} achievement${unlocked.length === 1 ? '' : 's'} unlocked`,
+        list: unlocked.slice(0, 8).map((a) => a.label[ru ? 'ru' : 'en']),
       };
     }
 

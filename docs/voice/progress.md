@@ -191,6 +191,11 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 
 `feedback.wrong` (§6.10.2 #92–99) deliberately **not** added as a voice intent — its natural phrasing ("это неправильно", "ты ошибся") already belongs to the existing `undo` intent (`/^(?:...|это ошибка|ошибся|ошиблась|...)$/`). The master prompt's own design has this as a UI button (👎 in `AssistantHelp.tsx`, WP6.13.2) that logs to `veyrarc.voice.wrong.v1`, not a spoken command — adding a colliding voice trigger would be the wrong shape for this feature, not a missing one.
 
+## achievements query
+
+- [x] `achievementsQuery` (R0): "мои достижения" → reuses `computeAchievements` (same engine the Analytics page uses), reports count + lists up to 8, language-aware labels.
+  - 1 new test (110/110 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

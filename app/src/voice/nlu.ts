@@ -46,6 +46,7 @@ export type Intent =
   | { kind: 'settingsNotifyOff' }
   | { kind: 'infoPlan' }
   | { kind: 'habitCompare'; a: string; b: string }
+  | { kind: 'achievementsQuery' }
   | { kind: 'habitStreakQuery'; query: string }
   | { kind: 'quitDaysQuery'; query: string }
   | { kind: 'review' }
@@ -438,6 +439,9 @@ function one(t: string, now: Date): Intent {
   // habit.compare (R0): «сравни бег и чтение»
   const cmp = t.match(new RegExp(L + '(?:сравни|compare)\\s+(.+?)\\s+(?:и|с|and|vs)\\s+(.+)'));
   if (cmp && clean(cmp[1]) && clean(cmp[2])) return { kind: 'habitCompare', a: clean(cmp[1]), b: clean(cmp[2]) };
+
+  // achievements (R0): «мои достижения», «какие у меня ачивки»
+  if (st('мои достижени|каки[ех] у меня достижени|my achievements|мои ачивк').test(t)) return { kind: 'achievementsQuery' };
 
   // weekly review, freeze yesterday
   if (st('итоги недели|обзор недели|подвед[иу] (?:итоги )?недел|недельн[а-я]* (?:обзор|итог)|как прошла неделя|weekly review|review (?:the|my) week').test(t)) return { kind: 'weekReview' };

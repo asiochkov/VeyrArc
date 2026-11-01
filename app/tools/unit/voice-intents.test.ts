@@ -117,6 +117,7 @@ const cases: C[] = [
   ['выключи уведомления', { kind: 'settingsNotifyOff' }],
   ['какой у меня тариф', { kind: 'infoPlan' }],
   ['сравни бег и чтение', { kind: 'habitCompare', a: 'бег', b: 'чтение' }],
+  ['мои достижения', { kind: 'achievementsQuery' }],
   ['что у меня по плану', { kind: 'ask', what: 'plan' }], // must not be hijacked by infoPlan
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
