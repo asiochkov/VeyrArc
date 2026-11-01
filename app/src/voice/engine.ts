@@ -114,7 +114,13 @@ function applyAliases(text: string): string {
   return out;
 }
 
-export function handle(text: string) {
+/**
+ * B-06: `asrConfidence` is the browser's own per-utterance recognition confidence (0..1), passed
+ * through from `startVoice()`'s `onend` when `text` came from the microphone. Typed text (the
+ * panel's input box, the palette fallback, `?say=` URL shortcuts) has no such thing — those call
+ * sites simply omit it, and `decide()` skips the ASR check entirely in that case.
+ */
+export function handle(text: string, asrConfidence?: number) {
   const said = text.trim();
   if (!said) return;
   set({ state: 'processing', heard: said });
@@ -138,7 +144,7 @@ export function handle(text: string) {
     // multi-intent sentence — see runAll()).
     const macro = usePrefs.getState().prefs.macros.find((m) => normalize(m.trigger) === normalize(said));
     const intents = macro ? macro.phrases.flatMap((p) => understand(applyAliases(p))) : understand(applyAliases(said));
-    if (decide(intents).action === 'confirm') { show(confirmReply(intents, said, lang())); return; }
+    if (decide(intents, asrConfidence).action === 'confirm') { show(confirmReply(intents, said, lang())); return; }
     show(runAll(intents, lang()));
   } catch (e) {
     console.error('[voice]', e);
@@ -175,6 +181,18 @@ function pickBestAlt(alts: string[]): string {
   return alts[0]?.trim() ?? '';
 }
 
+/**
+ * A-03: adaptive endpointing without a VAD/ML model — the two free signals the Web Speech API
+ * already gives us for nothing. 1) a phrase ending on a conjunction/preposition/incomplete number
+ * word almost never is one — «встреча с», «через», «в половине» all mean more words are coming,
+ * so wait longer. 2) when the browser's own ASR confidence for the settled result is low, it's
+ * often mid-word or noisy — also worth a longer pause before cutting it off.
+ */
+const TRAILING_OPEN = /(?:^|\s)(и|а|но|что|чтобы|на|в|к|с|у|до|через|без|для|или|как|если|не|это|из|по|за|над|под|со|во|пол|половине)$/i;
+function soundsUnfinished(text: string): boolean {
+  return TRAILING_OPEN.test(text.trim().toLowerCase().replace(/ё/g, 'е'));
+}
+
 export function startVoice() {
   const Ctor = SR();
   const ru = lang() === 'ru';
@@ -194,24 +212,30 @@ export function startVoice() {
   r.continuous = false;
   let final = '';
   let finalAlts: string[] = []; // the final result's n-best transcripts, in ASR-confidence order
+  let finalConfidence = 1; // A-03/B-06: the ASR's own confidence (0..1) for the settled transcript
   const asking = useVoice.getState().choices.length > 0;
   const fresh = !useVoice.getState().reply; // just opened: the context hints stay on screen while listening
   set({ state: 'listening', heard: '', ok: true, ...(asking || fresh ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
   navigator.vibrate?.(12);
   // nothing heard for 7 s → stop without doing anything; a pause after words ends the phrase
   silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, 7000);
-  r.onresult = (e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; length: number; [i: number]: { transcript: string } }> }) => {
+  r.onresult = (e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; length: number; [i: number]: { transcript: string; confidence?: number } }> }) => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const res = e.results[i];
       if (res.isFinal) {
         final += res[0].transcript;
         finalAlts = Array.from({ length: res.length }, (_, j) => res[j].transcript);
+        finalConfidence = res[0].confidence ?? 1;
       } else interim += res[0].transcript;
     }
     set({ heard: (final + interim).trim() });
     clearTimeout(silence);
-    silence = setTimeout(() => { if (rec === r) r.stop(); }, final && !interim ? 900 : 2200);
+    // A-03: a phrase that still sounds grammatically open, or one the ASR itself is unsure about,
+    // gets extra time before being cut off instead of the same fixed 900/2200 ms for every utterance.
+    const base = final && !interim ? 900 : 2200;
+    const extra = soundsUnfinished(final + interim) || (final && !interim && finalConfidence < 0.5) ? 900 : 0;
+    silence = setTimeout(() => { if (rec === r) r.stop(); }, base + extra);
   };
   r.onerror = (e: { error: string }) => {
     rec = null; clearTimeout(silence);
@@ -234,7 +258,9 @@ export function startVoice() {
     clearTimeout(silence);
     const text = pickBestAlt(finalAlts) || final.trim() || useVoice.getState().heard.trim();
     if (useVoice.getState().state !== 'listening') return;
-    if (text) handle(text); else set({ state: 'idle' });
+    // B-06: only pass the confidence along when we actually heard a final result through the mic —
+    // `pickBestAlt`/the raw `heard` fallback paths didn't come with a trustworthy per-utterance score.
+    if (text) handle(text, finalAlts.length ? finalConfidence : undefined); else set({ state: 'idle' });
   };
   try { r.start(); } catch { rec = null; fail(ru ? 'Микрофон занят' : 'Microphone is busy'); }
 }

@@ -30,6 +30,13 @@ check('settingsReminder → confirm', decide(understand('поставь напо
 check('habitStreakQuery → execute', decide(understand('какая серия по бегу', now)).action === 'execute');
 check('quitDaysQuery → execute', decide(understand('сколько дней я не курю', now)).action === 'execute');
 
+// A-03/B-06: low ASR confidence forces a confirm even for an otherwise-R0/R1 intent; typed text
+// (no asrConfidence argument) and high-confidence speech skip this check entirely.
+check('low ASR confidence on R0 nav → confirm', decide(understand('открой планер', now), 0.3).action === 'confirm');
+check('high ASR confidence on R0 nav → execute', decide(understand('открой планер', now), 0.9).action === 'execute');
+check('no ASR confidence (typed) on R0 nav → execute', decide(understand('открой планер', now)).action === 'execute');
+check('zero ASR confidence (unsupported browser) on R0 nav → execute', decide(understand('открой планер', now), 0).action === 'execute');
+
 // risk table itself
 check('riskOf taskDelete = R3', riskOf('taskDelete') === 'R3');
 check('riskOf quitAdd = R2', riskOf('quitAdd') === 'R2');
