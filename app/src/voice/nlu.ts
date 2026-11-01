@@ -41,6 +41,8 @@ export type Intent =
   | { kind: 'ritualList' }
   | { kind: 'ritualRun'; name: string }
   | { kind: 'chainAdd'; habitQuery: string; say: string }
+  | { kind: 'prefsSpeech'; delta: number }
+  | { kind: 'prefsStyle'; tone: 'soft' | 'neutral' | 'strict' }
   | { kind: 'templateSave'; name: string; items: { title: string; time: string | null }[] }
   | { kind: 'templateList' }
   | { kind: 'templateApply'; name: string }
@@ -435,6 +437,16 @@ function one(t: string, now: Date): Intent {
   // is marked done. Resolved to the habit's id at save time (run.ts, fuzzy-matched like everywhere else).
   const chainAdd = t.match(new RegExp(L + 'после\\s+(.+?)\\s+(?:скажи|говори|say)\\s+(.+)'));
   if (chainAdd && clean(chainAdd[1]) && clean(chainAdd[2])) return { kind: 'chainAdd', habitQuery: clean(chainAdd[1]), say: cap(clean(chainAdd[2])) };
+
+  // prefs.speech (R1): speech rate is already wired to TTS (E-02) — this actually changes something
+  if (st('говори быстрее|быстрее говори|speak faster').test(t)) return { kind: 'prefsSpeech', delta: 0.1 };
+  if (st('говори медленнее|медленнее говори|speak slower').test(t)) return { kind: 'prefsSpeech', delta: -0.1 };
+  // prefs.style (R1): tone is stored but nothing reads it yet (reply.ts/§6.13.6 is still WP1.4/WP6
+  // — the broader tone-rewriting pass was judged too large to retrofit earlier this session). This
+  // just lets the preference be set now; it has no visible effect on replies until that lands.
+  if (st('будь мягче|говори мягче|softer tone').test(t)) return { kind: 'prefsStyle', tone: 'soft' };
+  if (st('будь строже|говори строже|stricter tone').test(t)) return { kind: 'prefsStyle', tone: 'strict' };
+  if (st('будь нейтральн|neutral tone').test(t)) return { kind: 'prefsStyle', tone: 'neutral' };
 
   // template.save/list/apply (§6.10.2 #30, #136): a named day-plan, saved to prefs.templates.
   // Unlike rituals (just a list of names), apply actually creates the day's events via saveEvent.

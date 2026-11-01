@@ -285,6 +285,12 @@ Earlier this session `ritual.run` was declared out of scope, assuming it needed 
 - [x] `chainAdd` (R1): "после зарядки скажи отличная работа" saves `{after: habitId, say}` to `prefs.chains` (WP0.4, unused until now), resolved to the habit's id at save time via the same fuzzy matcher every habit lookup uses. Wired into `doTarget()`'s habit branch — once a habit transitions to done, the matching chain's phrase is appended to the reply.
   - 2 new tests (135/135 total). `typecheck`/`build` clean.
 
+## prefs.speech and prefs.style
+
+- [x] `prefsSpeech` (R1): "говори быстрее"/"медленнее" nudges `prefs.rate` by ±0.1 (clamped 0.8–1.4) — has a real, audible effect immediately since rate was already wired to TTS (E-02 fix earlier this session).
+- [x] `prefsStyle` (R1): "будь мягче"/"строже"/"нейтральнее" sets `prefs.tone`. Honestly has **no visible effect yet** — nothing in `run.ts` reads `tone` to change reply wording (that's `reply.ts`/§6.13.6, judged too large to retrofit earlier — WP1.4/WP6 territory). Letting the preference be set now is still useful groundwork, just not a complete feature on its own.
+  - 3 new tests (138/138 total). `typecheck`/`build` clean.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

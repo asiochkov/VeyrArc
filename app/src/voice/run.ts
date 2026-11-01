@@ -646,6 +646,16 @@ function runOne(it: Intent, c: Ctx): Reply {
       usePrefs.getState().update({ chains: next });
       return { ok: true, say: ru ? `После ${q(hit.item.name)} буду говорить: «${it.say}»` : `After “${hit.item.name}” I’ll say: “${it.say}”` };
     }
+    case 'prefsSpeech': {
+      const next = Math.max(0.8, Math.min(1.4, Math.round((usePrefs.getState().prefs.rate + it.delta) * 100) / 100));
+      usePrefs.getState().update({ rate: next });
+      return { ok: true, say: ru ? `Скорость речи: ${next}` : `Speech rate: ${next}` };
+    }
+    case 'prefsStyle': {
+      usePrefs.getState().update({ tone: it.tone });
+      const label = it.tone === 'soft' ? (ru ? 'мягче' : 'softer') : it.tone === 'strict' ? (ru ? 'строже' : 'stricter') : (ru ? 'нейтральнее' : 'more neutral');
+      return { ok: true, say: ru ? `Буду отвечать ${label}` : `I’ll be ${label}` };
+    }
 
     case 'templateSave': {
       const templates = usePrefs.getState().prefs.templates;
