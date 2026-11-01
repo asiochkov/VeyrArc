@@ -297,6 +297,12 @@ Earlier this session `ritual.run` was declared out of scope, assuming it needed 
   - Found a real, inherent collision while testing: a feedback message that happens to *mention* "тёмную тему" ("dark theme", as in "add a dark theme option") gets caught by `settingsTheme`'s trigger instead, since that command's own words appear inside the free-text feedback. Not a regex bug to fix — same category as the already-documented `feedback.wrong` exclusion: free-text intents will always be able to collide with command triggers that happen to share vocabulary, and no regex can fully resolve that without real intent classification (confidence scoring, still blocked on the missing classifier). Verified the trigger works correctly on non-colliding phrasing.
   - 2 new tests (140/140 total). `typecheck`/`build` clean.
 
+## WP6.13.2: JournalSheet UI — first real UI build this session
+
+- [x] `journal.ts` (WP1.5) had no UI consuming it — `JournalSheet.tsx` reads `journalList()` fresh on every open (the journal has no subscribe/notify, it's plain localStorage), shows time/said/reply per entry (failed replies tinted with `--danger`), and a clear button. Wired via a new button in `AssistantPanel.tsx` (top-left, mirroring the existing close button), local `useState` for open/closed — no new global store needed.
+  - Built on the existing `Sheet` component (same modal pattern as `AddSheet`/`PomodoroSheet`) and real design tokens from `src/styles/tokens.css` — caught and fixed two invented variable names before committing (`--text-dim` doesn't exist, the real one is `--text-muted`; `--c-danger` doesn't exist, it's `--danger`).
+  - **Honest caveat**: this is the first actual UI component built this session. I verified it via `typecheck`/`build` (clean, correctly split into the lazy `AssistantPanel` chunk — 5.36 kB / 2.13 kB gzip, not the main bundle) and careful reading against the existing `Sheet`/token patterns, but **have not seen it render** — the built-in browser tool available to me cannot reach a localhost dev server. Worth a real look before this ships.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).

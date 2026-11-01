@@ -4,6 +4,7 @@ import { useT } from '../i18n';
 import { Icon } from '../ui/Icon';
 import { bindNavigate } from './run';
 import { choose, handle, startVoice, stopVoice } from './engine';
+import { JournalSheet } from './JournalSheet';
 import { closeAssistant, useAssistant, useVoice, voiceSupported } from './shell';
 import s from './assistant.module.css';
 
@@ -22,6 +23,7 @@ export function AssistantPanel() {
   const voice = voiceSupported() && !blocked;
   const [typing, setTyping] = useState(false);
   const [text, setText] = useState('');
+  const [journalOpen, setJournalOpen] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => { bindNavigate((to) => navigate(to)); return () => bindNavigate(null); }, [navigate]);
   useEffect(() => {
@@ -49,6 +51,8 @@ export function AssistantPanel() {
   return (
     <div className={s.root} data-look={look} data-rich={!listening && (list.length > 0 || suggest.length > 3 || choices.length > 0)} role="dialog" aria-modal="true" aria-label={t('voice.open')}>
       <button type="button" className={s.close} onClick={closeAssistant} aria-label={t('common.close')}><Icon name="close" size={16} sw={2} /></button>
+      <button type="button" className={s.journalBtn} onClick={() => setJournalOpen(true)} aria-label={t('voice.journalOpen')}><Icon name="clipboard" size={16} sw={2} /></button>
+      <JournalSheet open={journalOpen} onClose={() => setJournalOpen(false)} />
       <div className={s.stage}>
         <button type="button" className={s.orb} onClick={orbTap} aria-label={listening ? t('voice.stop') : t('voice.again')}>
           <i /><i /><i />

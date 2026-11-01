@@ -737,6 +737,8 @@ export const en: Dict = {
     state: { listening: 'Listening', processing: 'Thinking', speaking: 'Done', error: 'Didn’t work', idle: 'Tap the orb and speak' },
     sayIt: 'Say it', sayHint: '“Task call mom tomorrow at 3 pm”, “done workout”, “mood 4”',
     holdTip: 'Hold «+» to speak',
+    journalOpen: 'Journal', journalTitle: 'Assistant journal', journalEmpty: 'Nothing yet — your command history will show up here',
+    journalClear: 'Clear journal',
   },
   add: {
     titleVoice: 'Add (hold to speak)',
