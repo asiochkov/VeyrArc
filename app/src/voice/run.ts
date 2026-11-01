@@ -1,5 +1,6 @@
 import { addDays, daysBetween, DAYS_ALL, habitBest, habitStreak, indexLogs, isLogged, scheduled, type PlanRow } from '../data/model';
 import { computeAchievements } from '../data/achievements';
+import { journalList } from './journal';
 import { buildToday } from '../data/today';
 import { useLangStore } from '../i18n';
 import { isoDay } from '../lib/day';
@@ -859,7 +860,17 @@ function runOne(it: Intent, c: Ctx): Reply {
 
     case 'undo': {
       const last = history.pop();
-      if (!last) return { ok: true, say: ru ? 'Отменять нечего' : 'Nothing to undo' };
+      if (!last) {
+        // C-02: the undo stack lives in memory and is gone after a reload, but the journal (WP1.5)
+        // persists — rather than silently claiming "nothing to undo" when something clearly did
+        // happen, say so honestly. This does not actually undo it (the closure is gone for good,
+        // see journal.ts's doc comment) — just makes the failure legible instead of silent.
+        const recent = journalList()[0];
+        if (recent && Date.now() - recent.ts < 5 * 60 * 1000) {
+          return { ok: true, say: ru ? `Не могу отменить после перезагрузки страницы. Последнее: «${recent.said}» — ${recent.reply}` : `Can’t undo after a page reload. Last: “${recent.said}” — ${recent.reply}` };
+        }
+        return { ok: true, say: ru ? 'Отменять нечего' : 'Nothing to undo' };
+      }
       last.undo();
       return { ok: true, say: ru ? 'Отменил последнее действие' : 'Undone' };
     }

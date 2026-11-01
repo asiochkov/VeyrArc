@@ -213,6 +213,10 @@ Branch: `work/dev` (based on `veyrarc-app`). Workflow: commit per WP, confirm wi
 - [x] Fixed both named false-negatives: "i smoked a cigarette" (added EN relapse action-phrasing — EN states the action directly, RU's "relapsed on X" structure doesn't translate) and "create a habit reading 20 minutes" (the habitAdd trigger required bare "habit" with no article — EN needs "a"/"the"). Both now recognized; `habitAdd`'s EN duration/counter type-inference still has its own separate gap (comes out as a counter, not duration — not a trigger-matching issue, a deeper one left open).
   - 2 new tests (118/118 total). `typecheck`/`build` clean.
 
+## C-02 — honest undo failure after reload
+
+- [x] Partial, honest fix: true cross-reload undo is still impossible (closures aren't serializable — needs the `UndoOp` rewrite, WP5, not something to force here). What's fixed: "отмени" after a reload used to say the misleading "Отменять нечего" (nothing to undo) even when something clearly had just happened. Now checks `journal.ts` (WP1.5) and, if a recent exchange exists, says so honestly: what it can't undo and what that last action was. No new tests (behavior only differs post-reload, which the unit harness doesn't model — `understand()`-level parsing is unaffected). `typecheck`/`build` clean, no bundle growth.
+
 ## Notes / deviations from master prompt
 
 - Working branch is `work/dev` off `veyrarc-app`, not `feature/voice-2` off `develop` — per explicit user instruction (user reviews locally before any push).
