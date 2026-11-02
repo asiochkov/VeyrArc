@@ -25,6 +25,9 @@ export function AssistantPanel() {
   const [text, setText] = useState('');
   const [journalOpen, setJournalOpen] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const holdTimer = useRef<ReturnType<typeof setTimeout>>();
+  const pressStartedListening = useRef(false);
+  const suppressClick = useRef(false);
   useEffect(() => { bindNavigate((to) => navigate(to)); return () => bindNavigate(null); }, [navigate]);
   useEffect(() => {
     if (!open) { setTyping(false); setText(''); return; }
@@ -44,9 +47,32 @@ export function AssistantPanel() {
   // back to voice for the rest of the session, even for recoverable causes (network came back, mic
   // permission was granted afterwards). If the mic API exists at all, a tap always gets a real retry.
   const orbTap = () => {
+    if (suppressClick.current) return; // a long-press already handled this interaction (see below)
     if (!voiceSupported()) { setTyping(true); input.current?.focus(); return; }
     if (listening) { stopVoice(); return; }
     startVoice();
+  };
+  /**
+   * §6.13.2: holding the mark ≥350ms records for as long as the finger/pointer stays on it; release
+   * stops. A quick tap (<350ms) falls through to the normal onClick tap-to-toggle above instead —
+   * the hold timer below never fires, so `suppressClick` stays false and `orbTap` runs as usual.
+   * Pointer events (not touch-specific ones) cover mouse and touch the same way.
+   */
+  const endHold = () => {
+    clearTimeout(holdTimer.current);
+    if (pressStartedListening.current && useVoice.getState().state === 'listening') stopVoice();
+    pressStartedListening.current = false;
+    // the browser still synthesizes a click right after pointerup even for a long press; let that
+    // one click go through unacted-on, then re-arm for the next interaction
+    if (suppressClick.current) setTimeout(() => { suppressClick.current = false; }, 0);
+  };
+  const onOrbPointerDown = () => {
+    if (!voiceSupported()) return; // let the click fall through to the typing-mode switch
+    clearTimeout(holdTimer.current);
+    holdTimer.current = setTimeout(() => {
+      suppressClick.current = true;
+      if (useVoice.getState().state !== 'listening') { startVoice(); pressStartedListening.current = true; }
+    }, 350);
   };
   return (
     <div className={s.root} data-look={look} data-rich={!listening && (list.length > 0 || suggest.length > 3 || choices.length > 0)} role="dialog" aria-modal="true" aria-label={t('voice.open')}>
@@ -54,7 +80,9 @@ export function AssistantPanel() {
       <button type="button" className={s.journalBtn} onClick={() => setJournalOpen(true)} aria-label={t('voice.journalOpen')}><Icon name="clipboard" size={16} sw={2} /></button>
       <JournalSheet open={journalOpen} onClose={() => setJournalOpen(false)} />
       <div className={s.stage}>
-        <button type="button" className={s.orb} onClick={orbTap} aria-label={listening ? t('voice.stop') : t('voice.again')}>
+        <button type="button" className={s.orb} onClick={orbTap} aria-label={listening ? t('voice.stop') : t('voice.again')}
+          onPointerDown={onOrbPointerDown} onPointerUp={endHold} onPointerLeave={endHold} onPointerCancel={endHold}
+          onContextMenu={(e) => e.preventDefault()}>
           <i /><i /><i />
           <span className={s.core}>{look === 'done' && <Icon name="check" size={30} sw={2.4} />}</span>
         </button>
