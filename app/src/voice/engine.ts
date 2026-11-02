@@ -1,5 +1,6 @@
 import { useLangStore } from '../i18n';
-import { earconDone, earconError, earconListen } from './earcons';
+import { haptic } from '../lib/haptics';
+import { earconConfirm, earconError, earconListenStart, earconNoResult, earconSuccess } from './earcons';
 import { journalAppend } from './journal';
 import { normalize, similarity, takeTime, understand, type Intent } from './nlu';
 import { decide } from './nlp/decide';
@@ -34,10 +35,11 @@ if (typeof document !== 'undefined') {
 const set = (p: Partial<ReturnType<typeof useVoice.getState>>) => useVoice.setState(p);
 const lang = () => useLangStore.getState().lang as 'ru' | 'en';
 
-function fail(msg: string) {
+/** §6.12: `earcon` defaults to the generic error tone; the no-speech case plays its own distinct one */
+function fail(msg: string, earcon: () => void = earconError) {
   set({ state: 'error', reply: msg, ok: false });
-  earconError();
-  navigator.vibrate?.([20, 40, 20]);
+  earcon();
+  haptic('error');
   clearTimeout(resetTimer);
   resetTimer = setTimeout(() => set({ state: 'idle' }), 4000);
 }
@@ -87,10 +89,12 @@ let closeAfter: ReturnType<typeof setTimeout> | undefined;
 function show(r: Reply) {
   set({ state: 'speaking', reply: r.say, ok: r.ok, list: r.list ?? [], suggest: r.suggest ?? [], choices: r.choices ?? [], canUndo: !!r.undo, pendingSlot: r.ask ?? null });
   journalAppend(useVoice.getState().heard, r.say, r.ok);
-  if (r.ok) earconDone(); else earconError();
-  navigator.vibrate?.(r.ok ? 15 : [20, 40, 20]);
+  // §6.12: a question/confirm gets its own tone, distinct from a plain success
+  const asksSomething = !!(r.choices?.length || r.ask);
+  if (asksSomething) earconConfirm(); else if (r.ok) earconSuccess(); else earconError();
+  haptic(r.ok ? 'check' : 'error');
   // a question (choice or ask-slot): listen for the answer right after it is asked
-  speak(r.say, (r.choices?.length || r.ask) && voiceSupported() ? () => startVoice() : undefined);
+  speak(r.say, asksSomething && voiceSupported() ? () => startVoice() : undefined);
   if (r.close) { clearTimeout(closeAfter); closeAfter = setTimeout(() => closeAssistant(), 900); }
 }
 
@@ -227,12 +231,10 @@ export function startVoice() {
   const asking = useVoice.getState().choices.length > 0;
   const fresh = !useVoice.getState().reply; // just opened: the context hints stay on screen while listening
   set({ state: 'listening', heard: '', ok: true, ...(asking || fresh ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
-  earconListen();
-  navigator.vibrate?.(12);
-  // §6.3: nothing heard at all for NO_SPEECH_MS → stop with the no-speech error
-  silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, NO_SPEECH_MS);
-  // §6.3: a hard cap regardless of anything else — a runaway recognition never keeps the mic open past this
-  maxUtterance = setTimeout(() => { if (rec === r) r.stop(); }, MAX_UTTERANCE_MS);
+  // §6.12: the "listening started" earcon plays before recognition actually starts, with a 120ms
+  // pause so the mic doesn't pick up the tail of its own tone as the first word.
+  earconListenStart();
+  haptic('tap');
   r.onresult = (e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; length: number; [i: number]: { transcript: string; confidence?: number } }> }) => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -276,7 +278,8 @@ export function startVoice() {
     const stillListening = useVoice.getState().state === 'listening' && !useVoice.getState().choices.length;
     if (e.error === 'aborted') { if (stillListening) set({ state: 'idle' }); return; } // the person cancelled — no message needed
     if (e.error === 'no-speech') { // A-01: used to fall into the same silent branch as 'aborted' — no feedback at all
-      if (stillListening) fail(ru ? 'Не расслышал. Нажмите на шар и повторите' : "Didn't catch that. Tap the orb and try again.");
+      // §6.12: "end of recording, no result" gets its own distinct tone, not the generic error one
+      if (stillListening) fail(ru ? 'Не расслышал. Нажмите на шар и повторите' : "Didn't catch that. Tap the orb and try again.", earconNoResult);
       return;
     }
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
@@ -297,7 +300,14 @@ export function startVoice() {
     // `pickBestAlt`/the raw `heard` fallback paths didn't come with a trustworthy per-utterance score.
     if (text) handle(text, finalAlts.length ? finalConfidence : undefined); else set({ state: 'idle' });
   };
-  try { r.start(); } catch { rec = null; fail(ru ? 'Микрофон занят' : 'Microphone is busy'); }
+  setTimeout(() => {
+    if (rec !== r) return; // cancelled during the pre-start pause
+    // §6.3: nothing heard at all for NO_SPEECH_MS → stop with the no-speech error
+    silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, NO_SPEECH_MS);
+    // §6.3: a hard cap regardless of anything else — a runaway recognition never keeps the mic open past this
+    maxUtterance = setTimeout(() => { if (rec === r) r.stop(); }, MAX_UTTERANCE_MS);
+    try { r.start(); } catch { rec = null; fail(ru ? 'Микрофон занят' : 'Microphone is busy'); }
+  }, 120);
 }
 
 /** release / second tap: finish listening and run what was heard */
