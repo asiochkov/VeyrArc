@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { create } from 'zustand';
 import type { Choice, Reply } from './run';
 
@@ -47,4 +48,42 @@ export function closeAssistant() {
   useAssistant.setState({ open: false });
   useVoice.setState({ choices: [], pendingSlot: null });
   engineMod?.onClose(); // nothing to cancel if the engine was never loaded (closed without ever listening)
+}
+
+/**
+ * §6.13.2 / decision #21: holding the mark (the icon that opens the panel — in Sidebar/BottomBar,
+ * not the orb inside the already-open panel) for ≥350ms starts listening immediately, before the
+ * panel's own open animation even finishes; releasing stops it. A plain short tap still just opens
+ * the panel, exactly as before — the hold timer below never fires for one, so `suppressed()` stays
+ * false and the caller's own onClick (open/toggle) runs unchanged.
+ */
+export function useHoldToTalk() {
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const started = useRef(false);
+  const suppress = useRef(false);
+  const onPointerDown = () => {
+    if (!voiceSupported()) return; // no mic API at all — a tap just opens the panel to type instead
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      suppress.current = true;
+      started.current = true;
+      openAssistant({ autoListen: false });
+      loadEngine().then((m) => m.startVoice());
+    }, 350);
+  };
+  const endHold = () => {
+    clearTimeout(timer.current);
+    if (started.current) { loadEngine().then((m) => m.stopVoice()); started.current = false; }
+    // the browser still synthesizes a click right after pointerup even for a long press — let that
+    // one through unacted-on (the caller checks `suppressed()`), then re-arm for the next tap
+    if (suppress.current) setTimeout(() => { suppress.current = false; }, 0);
+  };
+  return {
+    onPointerDown,
+    onPointerUp: endHold,
+    onPointerLeave: endHold,
+    onPointerCancel: endHold,
+    onContextMenu: (e: { preventDefault: () => void }) => e.preventDefault(),
+    suppressed: () => suppress.current,
+  };
 }

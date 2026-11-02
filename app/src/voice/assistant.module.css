@@ -13,9 +13,7 @@
 .root[data-look='done'] .stage, .root[data-look='error'] .stage { flex: .8; }
 .orb { transition: scale 560ms var(--spring), margin 560ms var(--spring); }
 /* the orb: core + three rings that ripple out while listening */
-/* §6.13.2: touch-action/user-select off so a long-press (push-to-talk) doesn't trigger the mobile
-   text-selection magnifier or let the page scroll steal the gesture mid-hold */
-.orb { position: relative; width: 220px; height: 220px; border: none; background: none; padding: 0; display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; animation: orbIn 760ms var(--spring) 80ms both; touch-action: none; user-select: none; -webkit-user-select: none; }
+.orb { position: relative; width: 220px; height: 220px; border: none; background: none; padding: 0; display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; animation: orbIn 760ms var(--spring) 80ms both; }
 @keyframes orbIn { from { transform: scale(.2); opacity: 0; } to { transform: none; opacity: 1; } }
 .orb i { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(110,155,255,.5); opacity: 0; }
 .root[data-look='listening'] .orb i { animation: ring 2.4s ease-out infinite; }

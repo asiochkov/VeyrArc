@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useT } from '../i18n';
 import { Icon } from '../ui/Icon';
 import { AssistantMark } from '../voice/AssistantMark';
-import { closeAssistant, openAssistant, useAssistant, useVoice } from '../voice/shell';
+import { closeAssistant, openAssistant, useAssistant, useHoldToTalk, useVoice } from '../voice/shell';
 import s from './BottomBar.module.css';
 import { NAV, navIdFor } from './nav';
 
@@ -22,6 +22,7 @@ export function BottomBar() {
   const vstate = useVoice((v) => v.state);
   const bar = useRef<HTMLElement>(null);
   const [puck, setPuck] = useState<number | null>(null);
+  const hold = useHoldToTalk();
   useLayoutEffect(() => {
     const el = bar.current?.querySelector<HTMLElement>('[data-active="true"]');
     setPuck(el ? el.offsetLeft : null);
@@ -39,7 +40,8 @@ export function BottomBar() {
         <span className={s.live} data-state={vstate} aria-hidden="true"><i /><i /><i /></span>
       </nav>
       <span className={s.neck} aria-hidden="true" />
-      <button type="button" className={`${s.drop} ${s.glass}`} onClick={open ? closeAssistant : () => openAssistant()}
+      <button type="button" className={`${s.drop} ${s.glass}`} onClick={() => { if (hold.suppressed()) return; open ? closeAssistant() : openAssistant(); }}
+        onPointerDown={hold.onPointerDown} onPointerUp={hold.onPointerUp} onPointerLeave={hold.onPointerLeave} onPointerCancel={hold.onPointerCancel} onContextMenu={hold.onContextMenu}
         aria-label={open ? t('common.close') : t('voice.open')} aria-expanded={open}>
         <AssistantMark size={28} />
       </button>

@@ -8,7 +8,7 @@ import { userEmail, useAuth } from '../lib/auth';
 import { hasBackend } from '../lib/supabase';
 import { useSystem } from '../state/system';
 import { AssistantMark } from '../voice/AssistantMark';
-import { openAssistant } from '../voice/shell';
+import { openAssistant, useHoldToTalk } from '../voice/shell';
 import { Icon } from '../ui/Icon';
 import { Avatar } from '../ui/primitives';
 import { roman } from './AppHeader';
@@ -35,6 +35,7 @@ export function Sidebar({ collapsed, onToggle, drawer = false }: { collapsed: bo
   const session = useAuth((x) => x.session);
   const openPalette = useAdd((x) => x.openPalette);
   const setDrawer = useAdd((x) => x.setDrawer);
+  const hold = useHoldToTalk();
   const [online, setOnline] = useState(onlineManager.isOnline());
   useEffect(() => onlineManager.subscribe(setOnline), []);
   const q = useSystem((r) => ({
@@ -67,7 +68,8 @@ export function Sidebar({ collapsed, onToggle, drawer = false }: { collapsed: bo
         <Icon name="search" size={15} />
         {!mini && <><span className={s.searchText}>{t('nav.search')}</span><kbd className={s.kbd}>⌘K</kbd></>}
       </button>
-      <button type="button" className={`${s.search} ${s.assistant}`} onClick={() => openAssistant()} aria-label={t('voice.open')}>
+      <button type="button" className={`${s.search} ${s.assistant}`} onClick={() => { if (!hold.suppressed()) openAssistant(); }} aria-label={t('voice.open')}
+        onPointerDown={hold.onPointerDown} onPointerUp={hold.onPointerUp} onPointerLeave={hold.onPointerLeave} onPointerCancel={hold.onPointerCancel} onContextMenu={hold.onContextMenu}>
         <AssistantMark size={18} />
         {!mini && <span className={s.searchText}>{t('voice.open')}</span>}
       </button>
