@@ -95,18 +95,33 @@ const NUM: Record<string, number> = {
   первое: 1, второе: 2, третье: 3, четвертое: 4, пятое: 5, шестое: 6, седьмое: 7, восьмое: 8, девятое: 9, десятое: 10,
   одиннадцатое: 11, двенадцатое: 12, тринадцатое: 13, четырнадцатое: 14, пятнадцатое: 15, шестнадцатое: 16, семнадцатое: 17, восемнадцатое: 18, девятнадцатое: 19,
   двадцатое: 20, тридцатое: 30,
+  // §6.5.1: «сто двадцать»→120, «десяток»→10 — десяток is unconditional (always exactly 10);
+  // the hundreds words are combined with a following tens/ones word below, same shape as TENS+ONES.
+  двести: 200, триста: 300, четыреста: 400, пятьсот: 500, шестьсот: 600, семьсот: 700, восемьсот: 800, девятьсот: 900,
+  десяток: 10,
 };
 const TENS = 'двадцать|тридцать|сорок|пятьдесят|twenty|thirty|forty|fifty';
 const ONES = 'один|одна|одну|два|две|три|четыре|пять|шесть|семь|восемь|девять|one|two|three|four|five|six|seven|eight|nine|первое|второе|третье|четвертое|пятое|шестое|седьмое|восьмое|девятое';
+const HUNDREDS = 'сто|двести|триста|четыреста|пятьсот|шестьсот|семьсот|восемьсот|девятьсот';
 
 /** «двадцать пять» → 25, «пять» → 5, «полчаса» → «30 минут», «полтора часа» → «90 минут» */
 export function wordsToDigits(s: string) {
   return s
     .replace(new RegExp(L + '(полчаса|пол часа)' + R, 'g'), '30 минут')
     .replace(new RegExp(L + 'полтора час(?:а|ов)?' + R, 'g'), '90 минут')
+    // §6.5.1: «пару» only means 2 next to the handful of units it's actually idiomatic with — bare
+    // «пару» elsewhere ("на пару слов") doesn't mean exactly two, so this is deliberately not a NUM entry.
+    .replace(new RegExp(L + 'пару\\s+(час(?:а|ов)?|минут[уы]?|стакан[а-я]*|раз)' + R, 'g'), '2 $1')
+    // §6.5.1: «полторы тысячи»→1500 (literal), «N с половиной тысячи»→N·1000+500, «N тысяч»→N·1000
+    .replace(new RegExp(L + 'полторы тысячи' + R, 'g'), '1500')
+    .replace(new RegExp(L + `(\\d+|${ONES})\\s+с половиной тысячи` + R, 'g'), (_, n) => String((Number.isNaN(Number(n)) ? NUM[n] : Number(n)) * 1000 + 500))
+    .replace(new RegExp(L + `(\\d+|${ONES})\\s+тысяч[ауи]?` + R, 'g'), (_, n) => String((Number.isNaN(Number(n)) ? NUM[n] : Number(n)) * 1000))
     .replace(new RegExp(L + '(?:на )?(единиц[ауы]|кол|двойк[ауи]|двоечк[ауи]|тройк[ауи]|троечк[ауи]|трояк|четверк[ауи]|четверочк[ауи]|пятерк[ауи]|пятерочк[ауи])' + R, 'g'),
       (_, g: string) => ' на ' + (/^(?:един|кол)/.test(g) ? 1 : /^дво/.test(g) ? 2 : /^тро/.test(g) ? 3 : /^четв/.test(g) ? 4 : 5))
     .replace(new RegExp(L + `(${TENS})\\s+(${ONES})` + R, 'g'), (_, a, b) => String(NUM[a] + NUM[b]))
+    // §6.5.1: «сто двадцать»→120 — runs after the TENS+ONES pass above so «сто двадцать пять» sees
+    // the already-combined «25» here, not two separate words.
+    .replace(new RegExp(L + `(${HUNDREDS})\\s+(\\d{1,2}|${TENS}|${ONES})` + R, 'g'), (_, h, n) => String(NUM[h] + (Number.isNaN(Number(n)) ? NUM[n] : Number(n))))
     .replace(/[a-zа-я]+/g, (x) => (x in NUM ? String(NUM[x]) : x));
 }
 
@@ -739,7 +754,9 @@ function one(t: string, now: Date): Intent {
     const dur = q.match(/(\d{1,3})\s*(минут[уы]?|мин|час(?:а|ов)?)/);
     const minutes = dur ? Number(dur[1]) * (dur[2].startsWith('час') ? 60 : 1) : null;
     if (dur) q = q.replace(dur[0], ' ');
-    const amountM = q.match(/(?:^|\s)(\d{1,3})(?=\s|$)/);
+    // same \d{1,5} widening as habitAdd's counter — logging "сделал 8000 шагов" for an existing
+    // step-count habit hit the identical 3-digit truncation.
+    const amountM = q.match(/(?:^|\s)(\d{1,5})(?=\s|$)/);
     const amount = amountM ? Number(amountM[1]) : st('ещ[её] (?:один|одну|стакан|раз)|another').test(t) ? 1 : null;
     if (amountM) q = q.replace(amountM[0], ' ');
     q = clean(q.replace(new RegExp(L + '(?:привычк[а-я]*|задач[а-я]*|шаг|как выполненн[а-я]*|выполненн[а-я]*|сделанн[а-я]*|галочку|отметку|раз|раза|еще|ещ[её]|что|я|уже|над|по|на|в|с)' + R, 'g'), ' '));
@@ -787,10 +804,16 @@ function habitAdd(body: string): Intent {
     const name = cap(clean(body.replace(dur[0], ' ').replace(st('в день|ежедневно|каждый день|по|a day|per day|daily'), ' ')));
     return { kind: 'habitAdd', name, type: 'duration', target: null, minutes: Number(dur[1]) * (/^(?:час|hour|hr)/.test(dur[2]) ? 60 : 1), unit: null };
   }
-  const cnt = body.match(/(\d{1,3})\s*([а-я]+)?/);
+  // §6.5.1: step-count habits ("10000 шагов") need more than 3 digits — \d{1,3} silently truncated
+  // "8000" to "800" (wordsToDigits already turns "восемь тысяч" into a real "8000" by this point).
+  const cnt = body.match(/(\d{1,5})\s*([а-я]+)?/);
   if (cnt && Number(cnt[1]) > 1) {
-    const unit = cnt[2] && !/^(?:в|раз)$/.test(cnt[2]) ? cnt[2] : null;
-    const name = cap(clean(body.replace(cnt[0], ' ').replace(st('в день|ежедневно|каждый день|раз|по'), ' '))) || cap(unit ?? '');
+    const isStopword = cnt[2] && /^(?:в|раз)$/.test(cnt[2]);
+    const unit = cnt[2] && !isStopword ? cnt[2] : null;
+    // when the captured "unit" is actually a stopword ("8000 в день" has no real unit before «в»),
+    // only strip the digit itself — leaving the stopword in place for the «в день» cleanup below to
+    // remove as a whole phrase, instead of swallowing just the «в» and stranding «день».
+    const name = cap(clean(body.replace(isStopword ? cnt[1] : cnt[0], ' ').replace(st('в день|ежедневно|каждый день|раз|по'), ' '))) || cap(unit ?? '');
     return { kind: 'habitAdd', name, type: 'counter', target: Number(cnt[1]), minutes: null, unit };
   }
   return { kind: 'habitAdd', name: cap(clean(body.replace(st('каждый день|ежедневно|по утрам|по вечерам'), ' '))), type: 'binary', target: null, minutes: null, unit: null };

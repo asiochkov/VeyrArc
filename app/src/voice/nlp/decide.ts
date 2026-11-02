@@ -1,4 +1,5 @@
 import type { Intent } from '../nlu';
+import { LOW_ASR_CONFIDENCE } from './params';
 import { needsConfirm, riskOf } from './risk';
 
 /*
@@ -16,8 +17,6 @@ import { needsConfirm, riskOf } from './risk';
 export type Decision =
   | { action: 'execute' }
   | { action: 'confirm' };
-
-const LOW_ASR_CONFIDENCE = 0.5;
 
 export function decide(intents: Intent[], asrConfidence?: number): Decision {
   const risky = intents.some((it) => needsConfirm(riskOf(it.kind)));

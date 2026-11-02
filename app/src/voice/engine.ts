@@ -3,6 +3,7 @@ import { earconDone, earconError, earconListen } from './earcons';
 import { journalAppend } from './journal';
 import { normalize, similarity, takeTime, understand, type Intent } from './nlu';
 import { decide } from './nlp/decide';
+import { EARLY_STABLE_CONFIDENCE, EARLY_STABLE_MS, MAX_UTTERANCE_MS, NO_SPEECH_MS, SILENCE_AFTER_FINAL_MS, SILENCE_AFTER_INTERIM_MS, TAIL_INCOMPLETE_MS } from './nlp/params';
 import { usePrefs } from './prefs';
 import { hints, previewTaskDelete, runAll, type Choice, type Reply } from './run';
 import { closeAssistant, useAssistant, useVoice, voiceSupported } from './shell';
@@ -21,6 +22,8 @@ const SR = (): (new () => Rec) | null => (typeof window === 'undefined' ? null :
 let rec: Rec | null = null;
 let resetTimer: ReturnType<typeof setTimeout> | undefined;
 let silence: ReturnType<typeof setTimeout> | undefined;
+let earlyStable: ReturnType<typeof setTimeout> | undefined;
+let maxUtterance: ReturnType<typeof setTimeout> | undefined;
 
 // A-06/§6.1.5: the mic kept recording in a backgrounded tab — nothing ever stopped it.
 // This chunk only loads once the assistant has opened, so registering once at module scope is enough.
@@ -190,15 +193,15 @@ function pickBestAlt(alts: string[]): string {
 }
 
 /**
- * A-03: adaptive endpointing without a VAD/ML model — the two free signals the Web Speech API
- * already gives us for nothing. 1) a phrase ending on a conjunction/preposition/incomplete number
- * word almost never is one — «встреча с», «через», «в половине» all mean more words are coming,
- * so wait longer. 2) when the browser's own ASR confidence for the settled result is low, it's
- * often mid-word or noisy — also worth a longer pause before cutting it off.
+ * A-03 (§6.3): endpointing without a real VAD/ML model — no audio-level signal reaches this code,
+ * only recognizer text events. §6.3's `tailIncomplete`: the normalized text ends on a preposition/
+ * conjunction/particle that's almost never the last word of a finished phrase ("встреча с", "через",
+ * "в половине" all mean more words are coming).
  */
-const TRAILING_OPEN = /(?:^|\s)(и|а|но|что|чтобы|на|в|к|с|у|до|через|без|для|или|как|если|не|это|из|по|за|над|под|со|во|пол|половине)$/i;
-function soundsUnfinished(text: string): boolean {
-  return TRAILING_OPEN.test(text.trim().toLowerCase().replace(/ё/g, 'е'));
+const TAIL_WORDS = 'в|во|на|к|ко|с|со|у|по|до|от|из|за|для|про|и|а|но|или|что|чтобы|потом|ещё|еще|ну|э|эм';
+const TAIL_INCOMPLETE = new RegExp(`(?:^|\\s)(?:${TAIL_WORDS})$`, 'i');
+function tailIncomplete(text: string): boolean {
+  return TAIL_INCOMPLETE.test(text.trim().toLowerCase().replace(/ё/g, 'е'));
 }
 
 export function startVoice() {
@@ -226,8 +229,10 @@ export function startVoice() {
   set({ state: 'listening', heard: '', ok: true, ...(asking || fresh ? {} : { reply: '', list: [], suggest: [], canUndo: false }) });
   earconListen();
   navigator.vibrate?.(12);
-  // nothing heard for 7 s → stop without doing anything; a pause after words ends the phrase
-  silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, 7000);
+  // §6.3: nothing heard at all for NO_SPEECH_MS → stop with the no-speech error
+  silence = setTimeout(() => { if (rec === r && !useVoice.getState().heard) r.stop(); }, NO_SPEECH_MS);
+  // §6.3: a hard cap regardless of anything else — a runaway recognition never keeps the mic open past this
+  maxUtterance = setTimeout(() => { if (rec === r) r.stop(); }, MAX_UTTERANCE_MS);
   r.onresult = (e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; length: number; [i: number]: { transcript: string; confidence?: number } }> }) => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -238,16 +243,27 @@ export function startVoice() {
         finalConfidence = res[0].confidence ?? 1;
       } else interim += res[0].transcript;
     }
-    set({ heard: (final + interim).trim() });
+    const text = (final + interim).trim();
+    set({ heard: text });
     clearTimeout(silence);
-    // A-03: a phrase that still sounds grammatically open, or one the ASR itself is unsure about,
-    // gets extra time before being cut off instead of the same fixed 900/2200 ms for every utterance.
-    const base = final && !interim ? 900 : 2200;
-    const extra = soundsUnfinished(final + interim) || (final && !interim && finalConfidence < 0.5) ? 900 : 0;
-    silence = setTimeout(() => { if (rec === r) r.stop(); }, base + extra);
+    clearTimeout(earlyStable);
+    // §6.3 step 3: a settled, confident, real-looking result that hasn't changed for EARLY_STABLE_MS
+    // ends the phrase immediately instead of waiting out the full silence window. No classifier here,
+    // so "no missing slot" is approximated as "parses to a real intent at all" (not guess/unknown) —
+    // the closest free proxy available.
+    if (final && !interim && finalConfidence >= EARLY_STABLE_CONFIDENCE) {
+      const kind = understand(text)[0]?.kind;
+      if (kind && kind !== 'guess' && kind !== 'unknown') {
+        earlyStable = setTimeout(() => { if (rec === r && useVoice.getState().heard === text) r.stop(); }, EARLY_STABLE_MS);
+      }
+    }
+    // §6.3 steps 4-5: a phrase that still sounds grammatically open waits longer than a settled one;
+    // final vs. interim-only get their own separate silence windows.
+    const wait = tailIncomplete(text) ? TAIL_INCOMPLETE_MS : final && !interim ? SILENCE_AFTER_FINAL_MS : SILENCE_AFTER_INTERIM_MS;
+    silence = setTimeout(() => { if (rec === r) r.stop(); }, wait);
   };
   r.onerror = (e: { error: string }) => {
-    rec = null; clearTimeout(silence);
+    rec = null; clearTimeout(silence); clearTimeout(earlyStable); clearTimeout(maxUtterance);
     // Found live: auto-listen starts in the background on open (420ms delay) — if the person typed
     // a command in the meantime and already got a reply/confirm shown, this (async, can fire well
     // after that) error used to stomp it with a stale mic message. `blocked` still needs to be set
@@ -274,7 +290,7 @@ export function startVoice() {
   };
   r.onend = () => {
     if (rec === r) rec = null;
-    clearTimeout(silence);
+    clearTimeout(silence); clearTimeout(earlyStable); clearTimeout(maxUtterance);
     const text = pickBestAlt(finalAlts) || final.trim() || useVoice.getState().heard.trim();
     if (useVoice.getState().state !== 'listening') return;
     // B-06: only pass the confidence along when we actually heard a final result through the mic —
@@ -286,7 +302,7 @@ export function startVoice() {
 
 /** release / second tap: finish listening and run what was heard */
 export function stopVoice() { try { rec?.stop(); } catch { /* already stopped */ } }
-export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; clearTimeout(silence); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
+export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; clearTimeout(silence); clearTimeout(earlyStable); clearTimeout(maxUtterance); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
 
 /** the shell just set open:true — fill the suggestions and, where supported, start listening */
 export function onOpen(autoListen = true) {

@@ -42,6 +42,14 @@ const cases: C[] = [
   ['запиши встречу с Аней в половине пятого', { kind: 'taskAdd', title: 'Встреча с Аней', time: '04:30' }],
   ['запиши встречу с Аней без пятнадцати шесть', { kind: 'taskAdd', title: 'Встреча с Аней', time: '05:45' }],
   ['запиши встречу с Аней без четверти шесть', { kind: 'taskAdd', title: 'Встреча с Аней', time: '05:45' }],
+  // §6.5.1: number words beyond what the original nlu.ts covered — «пару» (contextual, only next
+  // to час/минута/стакан/раз), «десяток», hundreds/thousands.
+  ['выпил пару стаканов воды', { kind: 'done', amount: 2 }],
+  ['читал пару минут', { kind: 'done', minutes: 2 }],
+  ['добавь привычку приседания десяток раз', { kind: 'habitAdd', name: 'Приседания', type: 'counter', target: 10 }],
+  // \d{1,3} silently truncated 4+ digit counters ("8000" → "800") — step-count habits need more.
+  ['добавь привычку шаги восемь тысяч в день', { kind: 'habitAdd', name: 'Шаги', type: 'counter', target: 8000, unit: null }],
+  ['сделал 8000 шагов', { kind: 'done', amount: 8000 }],
   ['запланируй звонок через две недели', { kind: 'taskAdd', title: 'Звонок', day: '2026-10-28' }],
   ['запланируй звонок в конце месяца', { kind: 'taskAdd', title: 'Звонок', day: '2026-10-31' }],
   // B-05: bare day-of-month ordinals («пятое») weren't in the digit table at all — only the
