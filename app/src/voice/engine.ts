@@ -4,7 +4,7 @@ import { journalAppend } from './journal';
 import { normalize, similarity, takeTime, understand, type Intent } from './nlu';
 import { decide } from './nlp/decide';
 import { usePrefs } from './prefs';
-import { hints, runAll, type Choice, type Reply } from './run';
+import { hints, previewTaskDelete, runAll, type Choice, type Reply } from './run';
 import { closeAssistant, useAssistant, useVoice, voiceSupported } from './shell';
 
 /*
@@ -158,9 +158,14 @@ export function handle(text: string, asrConfidence?: number) {
 /** a risky (R2+) command: ask before doing it (fixes C-05, D-01) */
 function confirmReply(intents: Intent[], said: string, ru2: 'ru' | 'en'): Reply {
   const ru = ru2 === 'ru';
+  // C-01: show the task the fuzzy match actually picked, not the raw phrase — a wrong match used
+  // to stay invisible until after the person had already said yes.
+  const only = intents.length === 1 ? intents[0] : null;
+  const match = only?.kind === 'taskDelete' ? previewTaskDelete(only.query) : null;
+  const say = match ? (ru ? `Точно удалить «${match}»?` : `Delete "${match}"?`) : (ru ? `Точно — «${said}»?` : `Confirm — "${said}"?`);
   return {
     ok: true,
-    say: ru ? `Точно — «${said}»?` : `Confirm — "${said}"?`,
+    say,
     choices: [
       { label: ru ? 'Да' : 'Yes', yes: true, run: () => runAll(intents, ru2) },
       { label: ru ? 'Отмена' : 'Cancel', yes: false, run: () => ({ ok: true, say: ru ? 'Хорошо, отменил' : 'Okay, cancelled' }) },
@@ -243,19 +248,29 @@ export function startVoice() {
   };
   r.onerror = (e: { error: string }) => {
     rec = null; clearTimeout(silence);
-    if (e.error === 'aborted') { set({ state: 'idle' }); return; } // the person cancelled — no message needed
+    // Found live: auto-listen starts in the background on open (420ms delay) — if the person typed
+    // a command in the meantime and already got a reply/confirm shown, this (async, can fire well
+    // after that) error used to stomp it with a stale mic message. `blocked` still needs to be set
+    // either way (that's capability state, not display) — only the visible text/state is guarded,
+    // same pattern as onend's `state !== 'listening'` check below.
+    // Also found live: `show()` auto-restarts listening right after asking a yes/no question (to
+    // hear the answer) — when mic access is blocked, *that* retry's error used to overwrite the
+    // just-asked question with the generic mic message while the Да/Отмена buttons stayed, which
+    // read as nonsensical. A pending question (`choices.length`) is worth more than this message.
+    const stillListening = useVoice.getState().state === 'listening' && !useVoice.getState().choices.length;
+    if (e.error === 'aborted') { if (stillListening) set({ state: 'idle' }); return; } // the person cancelled — no message needed
     if (e.error === 'no-speech') { // A-01: used to fall into the same silent branch as 'aborted' — no feedback at all
-      fail(ru ? 'Не расслышал. Нажмите на шар и повторите' : "Didn't catch that. Tap the orb and try again.");
+      if (stillListening) fail(ru ? 'Не расслышал. Нажмите на шар и повторите' : "Didn't catch that. Tap the orb and try again.");
       return;
     }
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
       set({ blocked: true });
-      fail(ru ? 'Нет доступа к микрофону. Разрешите его в настройках браузера — а пока напишите команду ниже.' : 'No microphone access. Allow it in browser settings — or type below.');
+      if (stillListening) fail(ru ? 'Нет доступа к микрофону. Разрешите его в настройках браузера — а пока напишите команду ниже.' : 'No microphone access. Allow it in browser settings — or type below.');
       return;
     }
-    if (e.error === 'audio-capture') { fail(ru ? 'Микрофон недоступен или занят' : 'The microphone is unavailable or busy'); return; }
+    if (e.error === 'audio-capture') { if (stillListening) fail(ru ? 'Микрофон недоступен или занят' : 'The microphone is unavailable or busy'); return; }
     if (e.error === 'network' || e.error === 'language-not-supported') set({ blocked: true });
-    fail(ru ? (e.error === 'network' ? 'Распознавание речи сейчас недоступно — напишите команду ниже' : 'Что-то пошло не так. Нажмите на шар и повторите') : 'Something went wrong. Tap the orb and try again.');
+    if (stillListening) fail(ru ? (e.error === 'network' ? 'Распознавание речи сейчас недоступно — напишите команду ниже' : 'Что-то пошло не так. Нажмите на шар и повторите') : 'Something went wrong. Tap the orb and try again.');
   };
   r.onend = () => {
     if (rec === r) rec = null;

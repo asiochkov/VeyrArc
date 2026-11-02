@@ -1057,6 +1057,20 @@ function unknown(c: Ctx, text: string): Reply {
   };
 }
 
+/**
+ * C-01: `taskDelete`'s confirm prompt used to echo the raw spoken phrase ("Точно — «удали задачу
+ * купить хлеб»?"), not the task the `0.62` fuzzy match actually picked — so a wrong match stayed
+ * invisible until after the person had already said yes. This mirrors the real matching logic
+ * (same `rank`/`SURE` as the live `taskDelete` case) as a read-only preview, called from
+ * `engine.ts`'s confirm step before anything runs.
+ */
+export function previewTaskDelete(query: string): string | null {
+  const c: Ctx = { ru: true, sys: getSystem(), day: isoDay(new Date()), now: new Date() };
+  const hits = rank(query, openTasks(c, addDays(c.day, -1), addDays(c.day, 60)), (p) => p.title, (p) => (p.day === c.day ? 0.04 : 0));
+  if (!hits.length || hits[0].score < SURE || (hits[1] && hits[0].score - hits[1].score < 0.08)) return null; // ambiguous or no match — the generic prompt is the honest one here
+  return hits[0].name;
+}
+
 /** several intents from one phrase: done one by one, answered together, undone together */
 export function runAll(intents: Intent[], lang: 'ru' | 'en' = useLangStore.getState().lang as 'ru' | 'en'): Reply {
   const now = new Date();
