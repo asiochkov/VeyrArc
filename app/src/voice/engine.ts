@@ -26,6 +26,8 @@ let resetTimer: ReturnType<typeof setTimeout> | undefined;
 let silence: ReturnType<typeof setTimeout> | undefined;
 let earlyStable: ReturnType<typeof setTimeout> | undefined;
 let maxUtterance: ReturnType<typeof setTimeout> | undefined;
+let lastEndedAt = 0; // §6.2.6: a new SpeechRecognition instance within 120ms of the last one's onend throws InvalidStateError
+const REC_COOLDOWN_MS = 120;
 
 // A-06/§6.1.5: the mic kept recording in a backgrounded tab — nothing ever stopped it.
 // This chunk only loads once the assistant has opened, so registering once at module scope is enough.
@@ -48,6 +50,11 @@ function fail(msg: string, earcon: () => void = earconError) {
 /** a voice that sounds natural for the language, if the device has one */
 function pickVoice(code: string) {
   const vs = window.speechSynthesis?.getVoices?.() ?? [];
+  // §6.11.1: a voice chosen in settings wins over the automatic scoring, as long as it's still
+  // in the browser's list (voices can disappear across OS updates/devices)
+  const picked = usePrefs.getState().prefs.voiceURI;
+  const chosen = picked ? vs.find((v) => v.voiceURI === picked) : undefined;
+  if (chosen) return chosen;
   const mine = vs.filter((v) => v.lang?.toLowerCase().startsWith(code));
   return mine.find((v) => /premium|enhanced|natural|milena|yuri|siri|google/i.test(v.name)) ?? mine[0];
 }
@@ -164,6 +171,41 @@ export function handle(text: string, asrConfidence?: number) {
   }
 }
 
+/**
+ * §6.16: a `?say=` link is a less-trusted source than the person's own voice/typing — anyone can
+ * construct one. Only this narrow whitelist (mood/habit-done/focus, the catalog's own examples)
+ * auto-runs, and only with `prefs.allowLinkCommands` (default off) also on; everything else opens
+ * with an explicit "Выполнить «...»?" confirm first. R2+ intents still get their own normal confirm
+ * from `decide()` after that — a trusted-source question and a risk question are different things,
+ * both apply. At most one link command runs every 3 seconds.
+ */
+const LINK_WHITELIST: Intent['kind'][] = ['mood', 'done', 'focus'];
+let lastLinkCommandAt = 0;
+export function handleLink(text: string) {
+  const said = text.trim();
+  if (!said) return;
+  const now = Date.now();
+  if (now - lastLinkCommandAt < 3000) return;
+  lastLinkCommandAt = now;
+  const intents = understand(applyAliases(said));
+  const first = intents[0];
+  if (first && LINK_WHITELIST.includes(first.kind) && usePrefs.getState().prefs.allowLinkCommands) { handle(said); return; }
+  set({ state: 'processing', heard: said });
+  const ru = lang() === 'ru';
+  // the link-trust question and the risk question are separate gates — re-apply decide() here too,
+  // instead of running directly, so an R2+ intent still gets its own "точно?" after this one
+  const runGated = () => (decide(intents).action === 'confirm' ? confirmReply(intents, said, lang()) : runAll(intents, lang()));
+  show({
+    ok: true,
+    say: ru ? `Выполнить «${said}»?` : `Run "${said}"?`,
+    choices: [
+      { label: ru ? 'Да' : 'Yes', yes: true, run: runGated },
+      { label: ru ? 'Всегда для таких ссылок' : 'Always for links like this', run: () => { usePrefs.getState().update({ allowLinkCommands: true }); return runGated(); } },
+      { label: ru ? 'Отмена' : 'Cancel', yes: false, run: () => ({ ok: true, say: ru ? 'Хорошо, отменил' : 'Okay, cancelled' }) },
+    ],
+  });
+}
+
 /** a risky (R2+) command: ask before doing it (fixes C-05, D-01) */
 function confirmReply(intents: Intent[], said: string, ru2: 'ru' | 'en'): Reply {
   const ru = ru2 === 'ru';
@@ -217,6 +259,10 @@ export function startVoice() {
   window.speechSynthesis?.cancel();
   if (!Ctor) { fail(ru ? 'Голосовой ввод не поддерживается в этом браузере. Откройте в Safari или Chrome.' : 'Voice input is not supported in this browser.'); return; }
   if (rec) { stopVoice(); return; }
+  // §6.2.6: a tap right after the previous recognition ended (double-tap, or the auto-restart after
+  // a confirm question) can land inside the 120ms window where a fresh instance throws — wait it out.
+  const sinceEnd = Date.now() - lastEndedAt;
+  if (sinceEnd < REC_COOLDOWN_MS) { setTimeout(startVoice, REC_COOLDOWN_MS - sinceEnd); return; }
   // A-06: every call here is an explicit retry (orb tap or auto-start) — give the blocked flag a
   // fresh chance each time instead of leaving it stuck for the rest of the session. Re-blocks itself
   // in onerror below if this attempt fails again for the same reason.
@@ -267,7 +313,7 @@ export function startVoice() {
     silence = setTimeout(() => { if (rec === r) r.stop(); }, wait);
   };
   r.onerror = (e: { error: string }) => {
-    rec = null; clearTimeout(silence); clearTimeout(earlyStable); clearTimeout(maxUtterance);
+    rec = null; lastEndedAt = Date.now(); clearTimeout(silence); clearTimeout(earlyStable); clearTimeout(maxUtterance);
     // Found live: auto-listen starts in the background on open (420ms delay) — if the person typed
     // a command in the meantime and already got a reply/confirm shown, this (async, can fire well
     // after that) error used to stomp it with a stale mic message. `blocked` still needs to be set
@@ -295,6 +341,7 @@ export function startVoice() {
   };
   r.onend = () => {
     if (rec === r) rec = null;
+    lastEndedAt = Date.now();
     clearTimeout(silence); clearTimeout(earlyStable); clearTimeout(maxUtterance);
     const text = pickBestAlt(finalAlts) || final.trim() || useVoice.getState().heard.trim();
     if (useVoice.getState().state !== 'listening') return;
@@ -314,7 +361,7 @@ export function startVoice() {
 
 /** release / second tap: finish listening and run what was heard */
 export function stopVoice() { try { rec?.stop(); } catch { /* already stopped */ } }
-export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; clearTimeout(silence); clearTimeout(earlyStable); clearTimeout(maxUtterance); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
+export function cancelVoice() { try { rec?.abort(); } catch { /* noop */ } rec = null; lastEndedAt = Date.now(); clearTimeout(silence); clearTimeout(earlyStable); clearTimeout(maxUtterance); window.speechSynthesis?.cancel(); set({ state: 'idle' }); }
 
 /** the shell just set open:true — fill the suggestions and, where supported, start listening */
 export function onOpen(autoListen = true) {

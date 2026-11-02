@@ -1,6 +1,6 @@
 import { config } from '../../config';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useHeader } from '../../data/header';
 import { daysBetween } from '../../data/model';
 import { exportData, startNewArc, setProfile } from '../../data/settings';
@@ -24,7 +24,7 @@ import { InviteCard } from './InviteCard';
 import { useTheme } from '../../lib/theme';
 import { OathSheet } from '../../ui/OathSheet';
 import { roman } from '../../app/AppHeader';
-import { usePrefs, type Tone } from '../../voice/prefs';
+import { usePrefs, type Tone, type VoicePrefs } from '../../voice/prefs';
 import s from './settings.module.css';
 
 /* VeyrArc Settings.dc.html */
@@ -218,6 +218,28 @@ export function Settings() {
               </span>
               <span className={s.track} data-on={prefs.shareText}><span className={s.knob} /></span>
             </button>
+            {/* §6.13.3: care (бережные сообщения) and allowLinkCommands also had no UI — allowLinkCommands
+                in particular is a real security-relevant default (off), not just a convenience toggle:
+                a ?say= link only auto-runs without confirmation if this is on (§6.16). */}
+            <button type="button" role="switch" aria-checked={prefs.care} className={s.row} style={{ cursor: 'pointer' }} onClick={() => updatePrefs({ care: !prefs.care })}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t('settings.voiceCare')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 12px/1.4 var(--font-ui)', color: 'rgba(var(--fg-rgb),.6)', marginTop: 3 }}>{t('settings.voiceCareD')}</span>
+              </span>
+              <span className={s.track} data-on={prefs.care}><span className={s.knob} /></span>
+            </button>
+            <button type="button" role="switch" aria-checked={prefs.allowLinkCommands} className={s.row} style={{ cursor: 'pointer' }} onClick={() => updatePrefs({ allowLinkCommands: !prefs.allowLinkCommands })}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t('settings.voiceLinks')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 12px/1.4 var(--font-ui)', color: 'rgba(var(--fg-rgb),.6)', marginTop: 3 }}>{t('settings.voiceLinksD')}</span>
+              </span>
+              <span className={s.track} data-on={prefs.allowLinkCommands}><span className={s.knob} /></span>
+            </button>
+            <VoicePicker t={t} lang={lang} prefs={prefs} updatePrefs={updatePrefs} />
+            <Row icon="trashPlain" label={t('settings.voiceForget')} onClick={() => {
+              updatePrefs({ aliases: [], macros: [], chains: [], rituals: [], templates: [] });
+              toast.success(t('settings.voiceForgotten'));
+            }}>{chev}</Row>
           </div>
         </div>
       )}
@@ -416,6 +438,45 @@ function DeviceNotif({ t }: { t: T }) {
       </span>
       {state === 'default' && <button type="button" className="pill pill-white pill-sm" onClick={() => { void allow(); }}>{t('settings.dev.allow')}</button>}
       {state === 'granted' && <span style={{ color: 'var(--dot-mint)', display: 'grid' }}><Icon name="check" size={18} sw={2} /></span>}
+    </div>
+  );
+}
+
+/** §6.11.1: voice picker + a "Проверить" test button — speaks directly via SpeechSynthesisUtterance
+ * (not through voice/engine.ts) so Settings' own chunk doesn't pull in the lazy voice pipeline. */
+function VoicePicker({ t, lang, prefs, updatePrefs }: { t: T; lang: Lang; prefs: VoicePrefs; updatePrefs: (p: Partial<VoicePrefs>) => void }) {
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  useEffect(() => {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const load = () => setVoices(synth.getVoices());
+    load();
+    synth.addEventListener('voiceschanged', load);
+    return () => synth.removeEventListener('voiceschanged', load);
+  }, []);
+  const code = lang === 'ru' ? 'ru' : 'en';
+  const mine = voices.filter((v) => v.lang?.toLowerCase().startsWith(code));
+  if (!mine.length) return null;
+  const test = () => {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(t('settings.voiceTestPhrase'));
+    u.lang = lang === 'ru' ? 'ru-RU' : 'en-US';
+    const v = prefs.voiceURI ? mine.find((x) => x.voiceURI === prefs.voiceURI) : undefined;
+    if (v) u.voice = v;
+    u.rate = prefs.rate;
+    synth.speak(u);
+  };
+  return (
+    <div className={s.row} style={{ alignItems: 'center' }}>
+      <span style={{ flex: 1, minWidth: 0 }}>{t('settings.voicePick')}</span>
+      <select value={prefs.voiceURI ?? ''} onChange={(e) => updatePrefs({ voiceURI: e.target.value || null })}
+        style={{ font: 'var(--fw-regular) 13px var(--font-ui)', background: 'transparent', color: 'var(--text-primary)', border: '1px solid rgba(var(--fg-rgb),.2)', borderRadius: 8, padding: '4px 8px', maxWidth: 140 }}>
+        <option value="">{t('settings.voicePickAuto')}</option>
+        {mine.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name}</option>)}
+      </select>
+      <button type="button" className="pill pill-white pill-sm" style={{ marginLeft: 8 }} onClick={test}>{t('settings.voiceTest')}</button>
     </div>
   );
 }

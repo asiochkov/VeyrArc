@@ -95,7 +95,9 @@ function useVoiceShortcuts() {
     const say = p.get('say');
     if (!assistant && !say) return;
     openAssistant(say ? { autoListen: false } : undefined);
-    if (say) import('../voice/engine').then((m) => m.handle(say));
+    // §6.16: a link is a less-trusted source than the person's own voice/typing — handleLink()
+    // only auto-runs a narrow whitelist, and only if they've opted into it; see engine.ts.
+    if (say) import('../voice/engine').then((m) => m.handleLink(say));
     history.replaceState(null, '', location.pathname + location.hash);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

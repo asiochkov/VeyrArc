@@ -17,6 +17,7 @@ export type VoicePrefs = {
   sound: boolean; // earcons (6.12)
   rate: number; // 0.8–1.4 (6.11.5)
   tone: Tone;
+  voiceURI: string | null; // chosen TTS voice (6.11.1) — takes priority over the automatic scoring while it's in the list
   aliases: Alias[];
   macros: Macro[]; // max 30
   chains: Chain[];
@@ -24,6 +25,7 @@ export type VoicePrefs = {
   templates: Template[]; // max 30
   care: boolean; // gentle-tone layer on sensitive topics, default on (6.10.2 #91)
   shareText: boolean; // "помочь улучшить ассистента" — opt-in text telemetry (6.15)
+  allowLinkCommands: boolean; // §6.16: off by default — a ?say= link only auto-runs a narrow whitelist with this on
 };
 
 export const DEFAULT_PREFS: VoicePrefs = {
@@ -31,6 +33,7 @@ export const DEFAULT_PREFS: VoicePrefs = {
   sound: true,
   rate: 1.04, // matches the rate engine.ts hardcoded before it was wired to this pref
   tone: 'neutral',
+  voiceURI: null,
   aliases: [],
   macros: [],
   chains: [],
@@ -38,6 +41,7 @@ export const DEFAULT_PREFS: VoicePrefs = {
   templates: [],
   care: true,
   shareText: false,
+  allowLinkCommands: false,
 };
 
 function persist(p: VoicePrefs) { storeSet(KEYS.prefs, p); }
