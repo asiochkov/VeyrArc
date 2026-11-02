@@ -780,10 +780,12 @@ function nominative(title: string) {
 
 function habitAdd(body: string): Intent {
   // «вода 8 стаканов в день», «читать 20 минут», «отжимания 50 раз»
-  const dur = body.match(/(\d{1,3})\s*(минут[уы]?|мин|час(?:а|ов)?)/);
+  // B-09: only the RU minute/hour markers were recognized here — "reading 20 minutes" fell through
+  // to the counter branch below and came out as a counter named "Reading minutes", not a duration.
+  const dur = body.match(/(\d{1,3})\s*(минут[уы]?|мин|час(?:а|ов)?|minutes?|min|hours?|hr)/);
   if (dur) {
-    const name = cap(clean(body.replace(dur[0], ' ').replace(st('в день|ежедневно|каждый день|по'), ' ')));
-    return { kind: 'habitAdd', name, type: 'duration', target: null, minutes: Number(dur[1]) * (dur[2].startsWith('час') ? 60 : 1), unit: null };
+    const name = cap(clean(body.replace(dur[0], ' ').replace(st('в день|ежедневно|каждый день|по|a day|per day|daily'), ' ')));
+    return { kind: 'habitAdd', name, type: 'duration', target: null, minutes: Number(dur[1]) * (/^(?:час|hour|hr)/.test(dur[2]) ? 60 : 1), unit: null };
   }
   const cnt = body.match(/(\d{1,3})\s*([а-я]+)?/);
   if (cnt && Number(cnt[1]) > 1) {

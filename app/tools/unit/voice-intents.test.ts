@@ -156,7 +156,10 @@ const cases: C[] = [
   ['что я не сделал', { kind: 'ask', what: 'left' }],
   // B-09: EN phrasing that used to fall through entirely
   ['i smoked a cigarette', { kind: 'relapse', query: 'cigarette' }],
-  ['create a habit reading 20 minutes', { kind: 'habitAdd' }], // partial match: the trigger now fires at all (was 'guess'); exact type/target inference for EN duration phrasing is a separate, deeper gap
+  // B-09: EN duration phrasing ("20 minutes") now infers type: 'duration' like RU does — the
+  // markers regex only recognized RU words before, so this used to come out as a counter.
+  ['create a habit reading 20 minutes', { kind: 'habitAdd', name: 'Reading', type: 'duration', minutes: 20 }],
+  ['add a habit workout 1 hour', { kind: 'habitAdd', name: 'Workout', type: 'duration', minutes: 60 }],
   ['что у меня по плану', { kind: 'ask', what: 'plan' }], // must not be hijacked by infoPlan
   ['верни как было', { kind: 'undo' }],
   ['что ты умеешь', { kind: 'help' }],
