@@ -44,6 +44,10 @@ const cases: C[] = [
   ['запиши встречу с Аней без четверти шесть', { kind: 'taskAdd', title: 'Встреча с Аней', time: '05:45' }],
   ['запланируй звонок через две недели', { kind: 'taskAdd', title: 'Звонок', day: '2026-10-28' }],
   ['запланируй звонок в конце месяца', { kind: 'taskAdd', title: 'Звонок', day: '2026-10-31' }],
+  // B-05: bare day-of-month ordinals («пятое») weren't in the digit table at all — only the
+  // genitive time forms («пятого») were — so «на пятое ноября» never had a day to parse.
+  ['записаться к врачу на пятое ноября', { kind: 'taskAdd', title: 'К врачу', day: '2026-11-05' }],
+  ['запиши двадцать второе декабря сходить к стоматологу', { kind: 'taskAdd', title: 'Сходить к стоматологу', day: '2026-12-22' }],
   ['remind me to call John tomorrow at 5 pm', { kind: 'taskAdd', title: 'Call John', time: '17:00' }],
   ['перенеси все задачи на завтра', { kind: 'taskMove', all: true, day: '2026-10-15' }],
   ['сдвинь встречу с Аней на пятницу в 12', { kind: 'taskMove', day: '2026-10-16', time: '12:00' }],

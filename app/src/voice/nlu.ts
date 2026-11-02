@@ -88,9 +88,16 @@ const NUM: Record<string, number> = {
   двадцать: 20, тридцать: 30, сорок: 40, пятьдесят: 50, шестьдесят: 60, девяносто: 90, сто: 100,
   первого: 1, второго: 2, третьего: 3, четвертого: 4, пятого: 5, шестого: 6, седьмого: 7, восьмого: 8, девятого: 9, десятого: 10,
   one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, fifteen: 15, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
+  // B-05: date ordinals («пятое ноября», «двадцать второе декабря») — the genitive forms above
+  // («пятого») are for times («без пяти пятого»); dates use the nominative/accusative neuter
+  // («пятое число», agreeing with «число») which wasn't in this table at all, so takeDay()'s
+  // «\d{1,2} month» pattern never had a digit to match against.
+  первое: 1, второе: 2, третье: 3, четвертое: 4, пятое: 5, шестое: 6, седьмое: 7, восьмое: 8, девятое: 9, десятое: 10,
+  одиннадцатое: 11, двенадцатое: 12, тринадцатое: 13, четырнадцатое: 14, пятнадцатое: 15, шестнадцатое: 16, семнадцатое: 17, восемнадцатое: 18, девятнадцатое: 19,
+  двадцатое: 20, тридцатое: 30,
 };
 const TENS = 'двадцать|тридцать|сорок|пятьдесят|twenty|thirty|forty|fifty';
-const ONES = 'один|одна|одну|два|две|три|четыре|пять|шесть|семь|восемь|девять|one|two|three|four|five|six|seven|eight|nine';
+const ONES = 'один|одна|одну|два|две|три|четыре|пять|шесть|семь|восемь|девять|one|two|three|four|five|six|seven|eight|nine|первое|второе|третье|четвертое|пятое|шестое|седьмое|восьмое|девятое';
 
 /** «двадцать пять» → 25, «пять» → 5, «полчаса» → «30 минут», «полтора часа» → «90 минут» */
 export function wordsToDigits(s: string) {
@@ -372,7 +379,7 @@ const UNDO_V = 'сними (?:отметку|галочку)(?: с| со)?|сн�
 // of venting ("надо отдохнуть", "я должен лучше стараться") with no actual task behind them. Split
 // from the explicit creation verbs: the weak group only creates a task alongside a day/time marker
 // or a task-shaped noun (see the decision below), never on its own.
-const TASK_STRONG = 'задач[ауи]|напомни(?:те)?(?: мне)?|напоминание|запланируй|запланировать|запиши(?: мне)?|занеси|поставь(?: мне)?|добавь(?: мне)?|создай|внеси|remind me(?: to)?|add task|task|schedule';
+const TASK_STRONG = 'задач[ауи]|напомни(?:те)?(?: мне)?|напоминание|запланируй|запланировать|запиши(?: мне)?|занеси|поставь(?: мне)?|добавь(?: мне)?|создай|внеси|записаться|запишите(?: меня)?|remind me(?: to)?|add task|task|schedule';
 const TASK_WEAK = 'не забыть|нужно|надо|необходимо|должен|должна';
 const TASK_V = TASK_STRONG + '|' + TASK_WEAK;
 const TASK_N = 'встреч[ауи]|созвон|звонок|дело|дела|событие|мероприятие|запись к|прием|приём|дедлайн|meeting|call|event';
