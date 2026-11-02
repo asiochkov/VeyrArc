@@ -24,6 +24,7 @@ import { InviteCard } from './InviteCard';
 import { useTheme } from '../../lib/theme';
 import { OathSheet } from '../../ui/OathSheet';
 import { roman } from '../../app/AppHeader';
+import { usePrefs, type Tone } from '../../voice/prefs';
 import s from './settings.module.css';
 
 /* VeyrArc Settings.dc.html */
@@ -34,7 +35,7 @@ const ARCS = [
   { id: 'arc2', n: 2, dates: { ru: '9 сент. – 7 дек.', en: 'Sep 9 – Dec 7' }, pct: '16%', current: true },
 ];
 /* Master Changeset RS-7: seven groups, Notion-like */
-type Group = 'account' | 'appearance' | 'notif' | 'arc' | 'plan' | 'data' | 'about';
+type Group = 'account' | 'appearance' | 'voice' | 'notif' | 'arc' | 'plan' | 'data' | 'about';
 
 export function Settings() {
   const t = useT();
@@ -99,8 +100,9 @@ export function Settings() {
   const setTheme = useTheme((x) => x.setTheme);
   const active = (arcsQ.data ?? []).find((a) => !a.ended_on) ?? null;
 
+  const { prefs, update: updatePrefs } = usePrefs();
   const groups: [Group, string][] = [
-    ['account', t('settings.account')], ['appearance', t('settings.appearance')], ['notif', t('settings.notifications')],
+    ['account', t('settings.account')], ['appearance', t('settings.appearance')], ['voice', t('settings.voice')], ['notif', t('settings.notifications')],
     ['arc', t('settings.arc')], ['plan', t('settings.plan')], ['data', t('settings.dataPrivacy')], ['about', t('settings.about')],
   ].filter(([g]) => !(config.beta && g === 'plan')) as [Group, string][];
   const show = (g: Group) => !isDesktop || group === g;
@@ -176,6 +178,46 @@ export function Settings() {
             <Row icon="drop" label={t('settings.units')}>
               <Segmented variant="units" value={unit} onChange={setUnit} options={[{ id: 'ml', label: t('settings.ml') }, { id: 'oz', label: t('settings.oz') }]} />
             </Row>
+          </div>
+        </div>
+      )}
+      {show('voice') && (
+        <div>
+          <div className={s.groupTitle}>{t('settings.voice')}</div>
+          <div className={s.list}>
+            {/* §6.12/§6.13.3: prefs.muted/sound/rate/tone existed since WP0.4 with no settings UI at
+                all — voice commands (prefsSpeech/prefsStyle/prefsSound) were the only way to change
+                them. This is the first visual control surface for any of them. */}
+            <button type="button" role="switch" aria-checked={!prefs.muted} className={s.row} style={{ cursor: 'pointer' }} onClick={() => updatePrefs({ muted: !prefs.muted })}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t('settings.voiceMute')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 12px/1.4 var(--font-ui)', color: 'rgba(var(--fg-rgb),.6)', marginTop: 3 }}>{t('settings.voiceMuteD')}</span>
+              </span>
+              <span className={s.track} data-on={!prefs.muted}><span className={s.knob} /></span>
+            </button>
+            <button type="button" role="switch" aria-checked={prefs.sound} className={s.row} style={{ cursor: 'pointer' }} onClick={() => updatePrefs({ sound: !prefs.sound })}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t('settings.voiceSound')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 12px/1.4 var(--font-ui)', color: 'rgba(var(--fg-rgb),.6)', marginTop: 3 }}>{t('settings.voiceSoundD')}</span>
+              </span>
+              <span className={s.track} data-on={prefs.sound}><span className={s.knob} /></span>
+            </button>
+            <div className={s.row} style={{ alignItems: 'center' }}>
+              <span style={{ flex: 1, minWidth: 0 }}>{t('settings.voiceRate')}</span>
+              <input type="range" min={0.8} max={1.4} step={0.02} value={prefs.rate} onChange={(e) => updatePrefs({ rate: Number(e.target.value) })} style={{ width: 120 }} />
+              <span style={{ font: 'var(--fw-medium) 12px var(--font-mono)', color: 'var(--text-muted)', width: 34, textAlign: 'right' }}>{prefs.rate.toFixed(2)}</span>
+            </div>
+            <Row icon="spark" label={t('settings.voiceTone')}>
+              <Segmented variant="units" value={prefs.tone} onChange={(v) => updatePrefs({ tone: v as Tone })}
+                options={[{ id: 'soft', label: t('settings.voiceToneSoft') }, { id: 'neutral', label: t('settings.voiceToneNeutral') }, { id: 'strict', label: t('settings.voiceToneStrict') }]} />
+            </Row>
+            <button type="button" role="switch" aria-checked={prefs.shareText} className={s.row} style={{ cursor: 'pointer' }} onClick={() => updatePrefs({ shareText: !prefs.shareText })}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 15px var(--font-ui)' }}>{t('settings.voiceShare')}</span>
+                <span style={{ display: 'block', font: 'var(--fw-regular) 12px/1.4 var(--font-ui)', color: 'rgba(var(--fg-rgb),.6)', marginTop: 3 }}>{t('settings.voiceShareD')}</span>
+              </span>
+              <span className={s.track} data-on={prefs.shareText}><span className={s.knob} /></span>
+            </button>
           </div>
         </div>
       )}
