@@ -8,6 +8,7 @@ import { EARLY_STABLE_CONFIDENCE, EARLY_STABLE_MS, MAX_UTTERANCE_MS, NO_SPEECH_M
 import { usePrefs } from './prefs';
 import { hints, previewTaskDelete, runAll, type Choice, type Reply } from './run';
 import { closeAssistant, useAssistant, useVoice, voiceSupported } from './shell';
+import { speechText } from './speechText';
 
 /*
  * Voice 2.0 — the engine (ТЗ §5.2): speech recognition, NLU, execution and TTS. Loaded lazily
@@ -77,8 +78,9 @@ function speak(text: string, then?: () => void) {
   };
   if (!synth || muted) { set({ state: 'speaking' }); setTimeout(done, 400); return; }
   synth.cancel();
-  // spoken without the list marks and quotes; each sentence becomes its own utterance (C-03)
-  const clean = text.replace(/[«»"“”]/g, '').replace(/ · /g, ', ');
+  // §6.11.4: screen text and spoken text diverge (plural forms, times, brand names, length) —
+  // each sentence of the normalized result becomes its own utterance (C-03)
+  const clean = speechText(text, lang());
   const chunks = clean.split(/(?<=[.!?])\s+/).filter(Boolean);
   speakChunk(synth, chunks.length ? chunks : [clean], 0, done);
   // autoplay policy may keep it silent: the text still shows the answer
