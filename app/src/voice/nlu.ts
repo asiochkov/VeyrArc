@@ -394,7 +394,12 @@ const PAGES: [RegExp, NavTo][] = [
 ];
 
 const DONE_V = 'вычеркни|вычеркнуть|сделал[аи]?|сделано|сделана|выполнил[аи]?|выполнено|выполнена|отметь|отметить|отметил[аи]?|отмечай|закончил[аи]?|закончила|завершил[аи]?|прочитал[аи]?|почитал[аи]?|выпил[аи]?|пробежал[аи]?|побегал[аи]?|позанимал[а-я]*|потренировал[а-я]*|помедитировал[аи]?|сходил[аи]?|погулял[аи]?|поспал[аи]?|принял[аи]?|записал[аи]?|позвонил[аи]?|написал[аи]?|убрал[аи]?с[ья]|приготовил[аи]?|готово|готова|done|did|completed|finished|mark';
-const UNDO_V = 'сними (?:отметку|галочку)(?: с| со)?|сними(?: с| со)?|убери отметку(?: с)?|убери галочку(?: с)?|отмени отметку(?: с)?|не (?:сделал[аи]?|выполнил[аи]?|делал[аи]?)|unmark|uncheck';
+// the same crude past-tense shape doneVerb()'s PAST regex uses below, shared here so «не + any
+// past-tense-shaped verb» (не позанимался, не почитал, не погулял, …) is caught generically instead
+// of only the 3 verbs that used to be hardcoded here — everything else silently fell through to
+// doneVerb(), which has no idea «не» came before it, and got marked done instead of undone.
+const PAST_SUFFIX = '[а-я]{2,}(?:ал|ял|ил|ел|ул|ыл|ол|ался|ился|ялся|ась|илась|алась)(?:а|и|ся|ась|ись|сь)?';
+const UNDO_V = 'сними (?:отметку|галочку)(?: с| со)?|сними(?: с| со)?|убери отметку(?: с)?|убери галочку(?: с)?|отмени отметку(?: с)?|не\\s+' + PAST_SUFFIX + '|unmark|uncheck';
 // B-01: "нужно"/"надо"/"необходимо"/"должен"/"должна" are bare modal words that show up in all kinds
 // of venting ("надо отдохнуть", "я должен лучше стараться") with no actual task behind them. Split
 // from the explicit creation verbs: the weak group only creates a task alongside a day/time marker
@@ -534,7 +539,8 @@ function one(t: string, now: Date): Intent {
 
   // referral.share (§6.10.2) and profile.name (#29: first_name/nickname)
   if (st('реферальн|пригласи друга|поделись ссылкой|пригласительн|referral|invite a friend').test(t)) return { kind: 'referralShare' };
-  const rename = t.match(new RegExp(L + '(?:назови меня|мое имя|измени имя(?: на)?|зови меня|call me|my name is)\\s+(.+)'));
+  // «меня зовут X» is the single most natural RU way to say this and was missing entirely.
+  const rename = t.match(new RegExp(L + '(?:назови меня|мое имя|измени имя(?: на)?|зови меня|меня зовут|call me|my name is)\\s+(.+)'));
   if (rename && clean(rename[1])) return { kind: 'profileName', name: cap(clean(rename[1])) };
 
   // settings.quiet (R2) and settings.notifyOff (R1) — checked in that order: a quiet-hours phrase
@@ -571,7 +577,7 @@ function one(t: string, now: Date): Intent {
   // habit.trend (R0): «какая тенденция по чтению», «растёт ли бег»
   // normalize() already turned «ё» into «е» («растёт» → «растет») and stripped «ли» as a filler
   // word (it's in FILLERS) — neither can appear literally in a trigger regex by this point.
-  const trendQ = t.match(new RegExp(L + '(?:какая тенденция (?:по|у)|как меняется|растет|падает|trend for)\\s+(.+)'));
+  const trendQ = t.match(new RegExp(L + '(?:какая тенденция (?:по|у)|какой тренд (?:по|у)|тренд (?:по|у)|как меняется|растет|падает|trend for)\\s+(.+)'));
   if (trendQ && clean(trendQ[1])) return { kind: 'habitTrend', query: clean(trendQ[1]) };
 
   const cmp = t.match(new RegExp(L + '(?:сравни|compare)\\s+(.+?)\\s+(?:и|с|and|vs)\\s+(.+)'));
@@ -631,6 +637,12 @@ function one(t: string, now: Date): Intent {
   if (st('болит|заболел[аи]?|симптом|температур|давлени[ея]|лекарств|таблетк|диагноз|стоит ли (?:идти )?к врачу|опасно ли|сколько калорий|как похудеть|как сбросить вес|какая диета').test(t)) return { kind: 'unknown', text: 'offtopic-health' };
   // outside the app: said kindly, not guessed into a command
   if (st('погод|курс доллар|курс валют|новост|анекдот|шутк|расскажи сказк|кто такой|кто такая|столиц|weather|news|joke').test(t)) return { kind: 'unknown', text: 'offtopic' };
+  // §6.7.4's required negative-test list, taken literally: a phone/OS action VeyrArc doesn't do
+  // ("поставь будильник на семь") and a plain arithmetic question ("сколько будет двадцать на
+  // пять") — both used to slip into taskAdd below, since «поставь» is a real task-creation verb and
+  // a number word next to "на/в" reads as a time either way. Caught here, before that branch runs.
+  if (st('будильник|alarm').test(t)) return { kind: 'unknown', text: 'offtopic' };
+  if (st('сколько будет\\s+\\d|сколько будет\\s+[а-я]+\\s+(?:плюс|минус|умножить|делить|на)').test(t)) return { kind: 'unknown', text: 'offtopic' };
 
   // questions
   // B-08 (+ same bug found in a task-creation verb, not just done/undone): «поставь ЧТО у меня
@@ -666,7 +678,13 @@ function one(t: string, now: Date): Intent {
   // a slip in a quit: «сорвался с курения», «я покурил», «выпил алкоголь» (quits only)
   // B-09: EN relapse phrasing is usually a direct action ("i smoked a cigarette"), not "relapsed
   // on X" — the RU pattern's structure doesn't translate, needed its own EN alternatives.
-  const slip = t.match(new RegExp(L + '(?:сорвал(?:ся|ась|ись)|срыв|не удержал(?:ся|ась)|relapsed?(?: on)?|slipped(?: on)?|smoked (?:a |one )?|had a cigarette|drank (?:a |some )?)\\s*(?:с|со|по|на|в)?\\s*(.*)'));
+  // «я закурил» / «покурил» — the RU-as-direct-action equivalent of EN's «smoked a cigarette»
+  // (this used to only exist in EN; without it «закурил» fell through to doneVerb()'s crude
+  // past-tense matcher and silently marked a nonexistent habit called «закурил» done instead).
+  // the optional preposition before the object must consume a whole word (a trailing space), not
+  // just its first letter — otherwise «покурил сигарету» loses the с off the front of «сигарету»,
+  // since a bare (?:с|со|...)? with no boundary happily eats one matching letter from any object.
+  const slip = t.match(new RegExp(L + '(?:сорвал(?:ся|ась|ись)|срыв|не удержал(?:ся|ась)|(?:за|по)курил(?:а)?|relapsed?(?: on)?|slipped(?: on)?|smoked (?:a |one )?|had a cigarette|drank (?:a |some )?)\\s*(?:(?:с|со|по|на|в)\\s+)?(.*)'));
   if (slip) return { kind: 'relapse', query: clean(slip[1]) };
 
   // new habit
@@ -737,8 +755,13 @@ function one(t: string, now: Date): Intent {
   }
 
   // unmark
-  const un = t.match(new RegExp('^(?:я )?(?:' + UNDO_V + ')\\s+(.*)'));
-  if (un && clean(un[1])) return { kind: 'undone', query: clean(un[1].replace(st('привычк[а-я]*|задач[а-я]*'), '')) };
+  const un = t.match(new RegExp('^(?:я )?(?:' + UNDO_V + ')(?:\\s+(.*))?$'));
+  if (un) {
+    const obj = clean((un[1] ?? '').replace(st('привычк[а-я]*|задач[а-я]*'), ''));
+    // bare «не позанимался» has no object after the verb — same "the verb itself names the habit"
+    // fallback doneVerb() already uses for a bare DONE_V hit, just on the undone side instead.
+    return { kind: 'undone', query: obj || un[0].replace(/^(?:я\s+)?не\s+/, '') };
+  }
 
   // add a task (with a command word, or a phrase that names a day or a time)
   const taskM = t.match(new RegExp(L + '(?:' + TASK_V + ')(?:\\s+(?:в план(?:ер)?|в календарь|в расписание|в список|задачу|напоминание|мне|что|чтобы))*\\s+(.+)'));
@@ -783,7 +806,7 @@ function one(t: string, now: Date): Intent {
 }
 
 const LEAD = new Set(['я', 'уже', 'только', 'что', 'сегодня', 'сейчас', 'вот', 'тоже', 'наконец', 'утром', 'вечером', 'днем', 'и', 'а', 'все-таки', 'опять', 'снова', 'ещё', 'еще', 'i', 'just', 'already']);
-const PAST = /^[а-я]{2,}(?:ал|ял|ил|ел|ул|ыл|ол|ался|ился|ялся|ась|илась|алась)(?:а|и|ся|ась|ись|сь)?$/;
+const PAST = new RegExp('^' + PAST_SUFFIX + '$');
 // B-07: «напомнил» is a request about the future («хочу чтобы ты напомнил про тренировку»), not a
 // completed habit/task — the generic PAST-tense matcher above was catching it as "done" anyway.
 // «удали» (imperative "delete!") happens to shape-match the same crude suffix as past tense
@@ -793,14 +816,18 @@ const NOT_DONE = /^(?:хотел|хотела|хотели|должен|долж
 function doneVerb(t: string): { verb: string; object: string } | null {
   const toks = t.split(' ');
   const isDone = (x: string) => new RegExp('^(?:' + DONE_V + ')$').test(x) || (PAST.test(x) && !NOT_DONE.test(x));
+  // «не позанимался» — a negated past-tense-shaped verb must never read as "done": this used to
+  // only skip the 3 verbs hardcoded into the old UNDO_V ("не сделал/не выполнил/не делал") and
+  // silently marked anything else ("не позанимался", "не почитал", "не погулял", …) done anyway.
+  const negated = (i: number) => i > 0 && (toks[i - 1] === 'не' || toks[i - 1] === 'нет');
   for (let i = 0; i < Math.min(5, toks.length); i++) {
-    if (isDone(toks[i])) return { verb: toks[i], object: toks.slice(i + 1).join(' ') };
+    if (isDone(toks[i]) && !negated(i)) return { verb: toks[i], object: toks.slice(i + 1).join(' ') };
     // «поставь галочку на чтении»
     if (/^(?:поставь|ставь|поставить)$/.test(toks[i]) && /^(?:галочк|отметк|плюс)/.test(toks[i + 1] ?? '')) return { verb: '', object: toks.slice(i + 2).join(' ') };
     if (!LEAD.has(toks[i])) break;
   }
   const last = toks[toks.length - 1];
-  if (toks.length >= 2 && toks.length <= 5 && isDone(last)) return { verb: last, object: toks.slice(0, -1).join(' ') };
+  if (toks.length >= 2 && toks.length <= 5 && isDone(last) && !negated(toks.length - 1)) return { verb: last, object: toks.slice(0, -1).join(' ') };
   return null;
 }
 
@@ -858,7 +885,14 @@ function restoreCase(it: Intent, raw: string): Intent {
 }
 function understandLower(raw: string, now: Date): Intent[] {
   const t = normalize(raw);
-  const whole = one(t, now);
+  let whole = one(t, now);
+  // §6.7.4's required negative tests include "нужно ли мне сегодня тренироваться" — a yes/no
+  // question (the «ли» particle), not a command. normalize() strips «ли» as a filler word *before*
+  // this point (so taskAdd's trigger regexes never see it — that's deliberate, it's not a real word
+  // to match against), but that also erases the one unambiguous signal that the sentence is a
+  // question, letting taskAdd's bare "has a day/time marker, no verb needed" branch fire on it.
+  // Checked against the ORIGINAL raw text, before normalize() had a chance to remove it.
+  if (whole.kind === 'taskAdd' && /(?:^|\s)ли(?:\s|$)/i.test(raw)) whole = { kind: 'guess', query: t };
   if (!['guess', 'done', 'undone', 'mood'].includes(whole.kind)) return [whole];
   // B-08: «отметь что я позанимался и поставь настроение хорошее» — two different command types
   // joined by «и» used to only split when the *whole* phrase first read as done/undone; extended

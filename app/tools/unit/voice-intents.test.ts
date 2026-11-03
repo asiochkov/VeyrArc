@@ -186,6 +186,21 @@ const cases: C[] = [
   ['у меня болит голова', { kind: 'unknown', text: 'offtopic-health' }],
   ['как похудеть', { kind: 'unknown', text: 'offtopic-health' }],
   ['сегодня погода хорошая', { kind: 'unknown', text: 'offtopic' }], // non-health offtopic unaffected
+  // §6.7.4 required negative tests: a phone/OS action and a math question must not become a task
+  ['поставь будильник на семь', { kind: 'unknown', text: 'offtopic' }],
+  ['сколько будет двадцать на пять', { kind: 'unknown', text: 'offtopic' }],
+  // "ли" (yes/no question particle) must block the bare day/time-marker taskAdd branch
+  ['нужно ли мне сегодня тренироваться', { kind: 'guess' }],
+  // real device testing (2026-11-03): «не X» for any past-tense-shaped verb, not just the 3 that
+  // used to be hardcoded, must read as undone — it was silently marking things done instead
+  ['не позанимался', { kind: 'undone', query: 'позанимался' }],
+  ['не почитал', { kind: 'undone', query: 'почитал' }],
+  // RU direct-action relapse phrasing (parity with the EN "smoked a cigarette" that already worked)
+  ['я закурил', { kind: 'relapse', query: '' }],
+  ['покурил сигарету', { kind: 'relapse', query: 'сигарету' }],
+  // the most natural RU phrasing for profile.name was missing entirely
+  ['меня зовут Арсений', { kind: 'profileName', name: 'Арсений' }],
+  ['тренд по чтению', { kind: 'habitTrend', query: 'чтению' }],
 ];
 let fail = 0;
 // field equality, with array-valued fields (e.g. ritualSave.steps) compared by contents, not reference
