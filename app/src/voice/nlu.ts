@@ -52,6 +52,7 @@ export type Intent =
   | { kind: 'aliasAdd'; alias: string; target: string }
   | { kind: 'macroAdd'; trigger: string; phrases: string[] }
   | { kind: 'exportData' }
+  | { kind: 'accountDelete' }
   | { kind: 'referralShare' }
   | { kind: 'profileName'; name: string }
   | { kind: 'settingsQuiet'; from: string; to: string }
@@ -233,6 +234,10 @@ export function takeTime(text: string, now: Date): { time: string | null; end: s
     const total = ((h * 60 - minsBefore) % (24 * 60) + 24 * 60) % (24 * 60);
     time = hhmm(Math.floor(total / 60), total % 60);
   })
+  // «в час» / «на час дня» = «at one o'clock» — идиома, «час» тут не единица длительности и не
+  // цифра, поэтому generic-regex ниже (который требует \d) его не ловит. «ночи/утра» → 01:00,
+  // «дня/вечера» или без уточнения → 13:00 (working-hours-эвристика, та же, что и «в 5»).
+  || take(new RegExp(L + '(?:в|на|к)\\s+час' + PART + R), (m) => { time = hhmm(m[1] === 'ночи' || m[1] === 'утра' ? 1 : 13, 0); })
   || take(new RegExp(L + '(?:в|к|на|at|около|часов в)\\s+' + T + PART + R), (m) => {
     const h = fixPart(Number(m[1]), m[4]), mi = Number(m[2] ?? m[3] ?? 0);
     if (h > 23 || mi > 59) return false;
@@ -515,10 +520,17 @@ function one(t: string, now: Date): Intent {
     if (phrases.length) return { kind: 'macroAdd', trigger: clean(macroAdd[1]), phrases };
   }
 
-  // export.data (§6.10.2 #233). Deliberately NOT wiring account.delete (R4) by voice — that's an
-  // irreversible, whole-account action and our confirm flow has only one strength of "are you sure",
-  // not the extra R4 safeguard the master prompt calls for (#91). Too risky to ship on a misheard word.
-  if (st('экспортируй (?:мои )?данные|выгрузи (?:мои )?данные|скачай (?:мои )?данные|export my data|export data').test(t)) return { kind: 'exportData' };
+  // export.data (§6.10.2 #233). Deliberately NOT wiring account.delete (R4) *execution* by voice —
+  // that's an irreversible, whole-account action and our confirm flow has only one strength of "are
+  // you sure", not the extra R4 safeguard the master prompt calls for (#91). Too risky to ship on a
+  // misheard word. What IS required (§6.6, §1.1 exception #91 itself): explain where to do it
+  // instead of silently misreading "удали меня" as something else — this used to fall through to
+  // `undone` (trying to unmark a habit literally named "меня") and quietly fail. Must come before
+  // the generic done/undone verb matching below, or it never gets a chance to fire.
+  if (st('удали меня|сотри меня|удали (?:мой )?аккаунт|удали (?:мой )?профиль|сотри (?:мой )?аккаунт|delete my account|delete me|remove my account').test(t)) {
+    return { kind: 'accountDelete' };
+  }
+  if (st('экспортируй (?:мои )?данные|выгрузи (?:мои )?данные|скачай (?:мои )?данные|скачать (?:мои )?данные|export my data|export data').test(t)) return { kind: 'exportData' };
 
   // referral.share (§6.10.2) and profile.name (#29: first_name/nickname)
   if (st('реферальн|пригласи друга|поделись ссылкой|пригласительн|referral|invite a friend').test(t)) return { kind: 'referralShare' };
@@ -621,10 +633,11 @@ function one(t: string, now: Date): Intent {
   if (st('погод|курс доллар|курс валют|новост|анекдот|шутк|расскажи сказк|кто такой|кто такая|столиц|weather|news|joke').test(t)) return { kind: 'unknown', text: 'offtopic' };
 
   // questions
-  // B-08: «отметь ЧТО я позанимался…» — «что» here is the conjunction "that", not the question
-  // word "what". Without this guard the whole phrase (incl. the mood clause later in it) read as
-  // a single question and never reached the multi-clause split below.
-  const reportingThat = new RegExp('^(?:' + DONE_V + '|' + UNDO_V + ')\\s+что' + R).test(t);
+  // B-08 (+ same bug found in a task-creation verb, not just done/undone): «поставь ЧТО у меня
+  // сегодня в час дела» — «что» here is the reporting conjunction "that/what I have", not the
+  // interrogative "what [time is it]". Without this guard the whole phrase misread as a question
+  // and never reached taskAdd at all — the task (and its time) silently never got created.
+  const reportingThat = new RegExp('^(?:' + DONE_V + '|' + UNDO_V + '|' + TASK_STRONG + ')\\s+что' + R).test(t);
   if (!reportingThat && (st('что|чем|какие|какой|какая|какое|каких|который|которое|сколько|как |когда|есть ли|расскажи|напомни что|покажи что|what|how|which|when').test(t) || /\?$/.test(t))) {
     if (st('врем|час' + R + '|который час|сколько времени|time').test(t) && !st('фокус|работал').test(t)) return { kind: 'ask', what: 'time' };
     if (st('число|дата|какой сегодня день|какое сегодня|date|day is it').test(t)) return { kind: 'ask', what: 'date' };
@@ -773,7 +786,9 @@ const LEAD = new Set(['я', 'уже', 'только', 'что', 'сегодня'
 const PAST = /^[а-я]{2,}(?:ал|ял|ил|ел|ул|ыл|ол|ался|ился|ялся|ась|илась|алась)(?:а|и|ся|ась|ись|сь)?$/;
 // B-07: «напомнил» is a request about the future («хочу чтобы ты напомнил про тренировку»), not a
 // completed habit/task — the generic PAST-tense matcher above was catching it as "done" anyway.
-const NOT_DONE = /^(?:хотел|хотела|хотели|должен|должна|забыл|забыла|мог|могла|думал|думала|собирался|собиралась|планировал|сказал|сказала|спросил|просил|начал|начала|стал|стала|был|была|было|устал|устала|напомнил|напомнила|напомнили)$/;
+// «удали» (imperative "delete!") happens to shape-match the same crude suffix as past tense
+// (уд+ал+и) — same false-positive class B-07 already fixed for «напомнил».
+const NOT_DONE = /^(?:хотел|хотела|хотели|должен|должна|забыл|забыла|мог|могла|думал|думала|собирался|собиралась|планировал|сказал|сказала|спросил|просил|начал|начала|стал|стала|был|была|было|устал|устала|напомнил|напомнила|напомнили|удали)$/;
 /** a «did it» verb near the start (or at the very end: «воду выпил») and what it was done to */
 function doneVerb(t: string): { verb: string; object: string } | null {
   const toks = t.split(' ');

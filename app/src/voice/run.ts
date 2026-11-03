@@ -712,6 +712,14 @@ function runOne(it: Intent, c: Ctx): Reply {
       return { ok: true, say: ru ? 'Начал экспорт — файл скачается через пару секунд' : 'Exporting your data — the file will download in a moment' };
     }
 
+    // §1.1 exception #91 / §6.6 account.delete R4: voice is NEVER allowed to delete an account —
+    // there is deliberately no code path here that does it. This only explains where to do it by
+    // hand and opens that screen, so "удали меня" doesn't silently fail or misread as something else.
+    case 'accountDelete': {
+      go('/settings/account');
+      return { ok: true, say: ru ? 'Голосом аккаунт не удаляю — это можно сделать вручную в Настройках → Аккаунт, открыл этот экран' : 'I can’t delete an account by voice — do that by hand in Settings → Account, which I’ve just opened' };
+    }
+
     case 'referralShare': {
       if (!hasBackend) return { ok: false, say: ru ? 'Нужен аккаунт, чтобы поделиться' : 'Sign in to share' };
       db().rpc('my_referral').then(({ data, error }) => {

@@ -23,6 +23,7 @@ check('habitDelete → confirm', decide(understand('удали привычку 
 check('goalComplete → confirm', decide(understand('заверши цель марафон', now)).action === 'confirm');
 check('goalDeadline → confirm', decide(understand('поставь дедлайн цели марафон на 20 ноября', now)).action === 'confirm');
 check('exportData → confirm', decide(understand('экспортируй мои данные', now)).action === 'confirm');
+check('accountDelete → execute (explain-only, never destructive)', decide(understand('удали меня', now)).action === 'execute');
 check('goalDiary → confirm', decide(understand('запиши в дневник цели марафон: сегодня пробежал 5 км', now)).action === 'confirm');
 check('arcOath → confirm', decide(understand('поставь клятву: не сдаваться', now)).action === 'confirm');
 check('settingsTheme → execute', decide(understand('включи тёмную тему', now)).action === 'execute');

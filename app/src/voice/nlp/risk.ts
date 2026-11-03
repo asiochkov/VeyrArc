@@ -55,6 +55,7 @@ const LEVEL: Record<Intent['kind'], Risk> = {
   aliasAdd: 'R1', // §6.6: prefs.alias.add R1
   macroAdd: 'R2', // §6.6: prefs.macro.add R2
   exportData: 'R3', // §6.6: export.data R3
+  accountDelete: 'R0', // explain-only, never executes anything — R4's ban is enforced by not having an execution path at all, not by a confirm tier
   referralShare: 'R1', // §6.6: referral.share R1
   profileName: 'R2', // §6.6: profile.name R2
   settingsQuiet: 'R2', // §6.6: settings.quiet R2

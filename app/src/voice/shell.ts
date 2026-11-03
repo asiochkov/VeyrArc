@@ -59,20 +59,27 @@ export function closeAssistant() {
  */
 export function useHoldToTalk() {
   const timer = useRef<ReturnType<typeof setTimeout>>();
-  const started = useRef(false);
+  const holding = useRef(false); // true from the 350ms mark until release, regardless of whether startVoice() has actually run yet
+  const started = useRef(false); // true only once startVoice() has actually run
   const suppress = useRef(false);
   const onPointerDown = () => {
     if (!voiceSupported()) return; // no mic API at all — a tap just opens the panel to type instead
+    holding.current = false;
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       suppress.current = true;
-      started.current = true;
+      holding.current = true;
       openAssistant({ autoListen: false });
-      loadEngine().then((m) => m.startVoice());
+      // the engine chunk is lazy (H12) — on a slow connection it can still be loading when the
+      // finger lifts. Without this guard, a quick hold-and-release could end up calling stopVoice()
+      // on a recognizer that hadn't started yet, then startVoice() fires moments later and keeps
+      // listening with nothing left to ever stop it. Only actually start if still held once loaded.
+      loadEngine().then((m) => { if (holding.current) { m.startVoice(); started.current = true; } });
     }, 350);
   };
   const endHold = () => {
     clearTimeout(timer.current);
+    holding.current = false;
     if (started.current) { loadEngine().then((m) => m.stopVoice()); started.current = false; }
     // the browser still synthesizes a click right after pointerup even for a long press — let that
     // one through unacted-on (the caller checks `suppressed()`), then re-arm for the next tap

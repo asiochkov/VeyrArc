@@ -139,6 +139,14 @@ const cases: C[] = [
   ['сделай макрос утро: сделал зарядку, фокус 25', { kind: 'macroAdd', trigger: 'утро', phrases: ['сделал зарядку', 'фокус 25'] }],
   ['сохрани ритуал утро: зарядка, вода', { kind: 'ritualSave', name: 'Утро', steps: ['зарядка', 'вода'] }], // must not be hijacked by macroAdd
   ['экспортируй мои данные', { kind: 'exportData' }],
+  ['скачать мои данные', { kind: 'exportData' }],
+  ['удали меня', { kind: 'accountDelete' }],
+  ['удали мой аккаунт', { kind: 'accountDelete' }],
+  ['поставь встречу в час', { kind: 'taskAdd', title: 'Встреча', time: '13:00' }],
+  ['поставь встречу на час дня', { kind: 'taskAdd', title: 'Встреча', time: '13:00' }],
+  ['поставь встречу на час ночи', { kind: 'taskAdd', title: 'Встреча', time: '01:00' }],
+  ['поставь что у меня сегодня в час дела', { kind: 'taskAdd', title: 'Дела', time: '13:00' }],
+  ['удали', { kind: 'guess', query: 'удали' }],
   ['пригласи друга', { kind: 'referralShare' }],
   ['назови меня Арсений', { kind: 'profileName', name: 'Арсений' }],
   ['моё имя Арсений', { kind: 'profileName', name: 'Арсений' }], // «моё» → «мое» via normalize()'s ё→е pass
