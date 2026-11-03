@@ -142,8 +142,11 @@ const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 const pad = (n: number) => String(n).padStart(2, '0');
 export const isoOf = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const MONTHS = ['январ', 'феврал', 'март', 'апрел', 'ма[йя]', 'июн', 'июл', 'август', 'сентябр', 'октябр', 'ноябр', 'декабр'];
+// endings cover accusative/genitive/dative ("в пятницу", "до пятницы", "к пятнице") — dative («к
+// X») was missing entirely for everything here, so "к пятнице"/"к среде"/etc silently failed to
+// match (only "до X" happened to work, by genitive coincidence).
 const WD: [string, number][] = [
-  ['понедельник|monday', 1], ['вторник|tuesday', 2], ['сред[ауы]|wednesday', 3], ['четверг|thursday', 4], ['пятниц[ауы]|friday', 5], ['суббот[ауы]|saturday', 6], ['воскресенье|sunday', 0],
+  ['понедельник(?:у)?|monday', 1], ['вторник(?:у)?|tuesday', 2], ['сред[ауые]|wednesday', 3], ['четверг(?:у)?|thursday', 4], ['пятниц[ауые]|friday', 5], ['суббот[ауые]|saturday', 6], ['воскресень[ея]|sunday', 0],
 ];
 
 /** day words → ISO date, and the text without them; null when the text names no day */
@@ -164,10 +167,19 @@ export function takeDay(text: string, now: Date): { day: string | null; rest: st
     || hit(w('через (?:1 )?неделю|in a week'), () => d.setDate(d.getDate() + 7))
     // B-05: «через две недели» — wordsToDigits already turned «две» into 2 by the time this runs
     || hit(w('через (\\d+) недел[а-я]*|in (\\d+) weeks?'), (m) => d.setDate(d.getDate() + Number(m[1] ?? m[2]) * 7))
+    // §6.5.3: «через месяц» — had no handler at all (only weeks/days did)
+    || hit(w('через (?:1 )?месяц(?!а|ев)|in a month'), () => d.setMonth(d.getMonth() + 1))
+    || hit(w('через (\\d+) месяц[а-я]*|in (\\d+) months?'), (m) => d.setMonth(d.getMonth() + Number(m[1] ?? m[2])))
     || hit(w('(?:на )?следующей неделе|next week'), () => d.setDate(d.getDate() + (((8 - d.getDay()) % 7) || 7)))
     || hit(w('(?:на |в )?выходн(?:ые|ых)|weekend'), () => d.setDate(d.getDate() + (((6 - d.getDay()) + 7) % 7 || 7)))
+    // §6.5.3: «в конце недели» = the nearest Friday (distinct from the weekend/Saturday case above)
+    || hit(w('в конце недели|at the end of the week'), () => d.setDate(d.getDate() + (((5 - d.getDay()) + 7) % 7 || 7)))
     // B-05: «в конце месяца» — last day of the current month (day 0 of next month)
     || hit(w('в конце месяца|at the end of the month'), () => d.setMonth(d.getMonth() + 1, 0))
+    // §6.5.3: «в начале/середине месяца» — if that part of the month has already passed, roll to
+    // next month's (same rule the end-of-month case already follows for its own boundary).
+    || hit(w('в начале месяца|at the start of the month'), () => { if (d.getDate() > 5) d.setMonth(d.getMonth() + 1, 1); else d.setDate(1); })
+    || hit(w('в середине месяца|in the middle of the month'), () => { if (d.getDate() > 15) d.setMonth(d.getMonth() + 1, 15); else d.setDate(15); })
     || hit(new RegExp(L + '(?:на |к )?(\\d{1,2})(?:-?(?:е|го|ое))? (' + MONTHS.join('|') + ')[а-я]*' + R), (m) => {
       const mon = MONTHS.findIndex((x) => new RegExp('^' + x).test(m[2]));
       d.setMonth(mon, Number(m[1]));
@@ -181,8 +193,10 @@ export function takeDay(text: string, now: Date): { day: string | null; rest: st
     });
   if (found) return { day: isoOf(d), rest: text };
   for (const [re, wd] of WD) {
-    if (hit(new RegExp(L + '(?:в |во |на |к |on )?(?:следующ[а-я]+ |эт[а-я]+ )?(?:' + re + ')' + R), () => {
-      d.setDate(d.getDate() + (((wd - d.getDay() + 7) % 7) || 7));
+    // «следующую пятницу» must mean one week past the nearest Friday, not the same nearest Friday
+    // «в пятницу» already means — the word was matched but the distinction was never used.
+    if (hit(new RegExp(L + '(?:в |во |на |к |on )?(следующ[а-я]+ )?(?:эт[а-я]+ )?(?:' + re + ')' + R), (m) => {
+      d.setDate(d.getDate() + (((wd - d.getDay() + 7) % 7) || 7) + (m[1] ? 7 : 0));
     })) return { day: isoOf(d), rest: text };
   }
   return { day: null, rest: text };
@@ -217,32 +231,51 @@ export function takeTime(text: string, now: Date): { time: string | null; end: s
     if (h1 > 23 || h2 > 23 || m1 > 59 || m2 > 59) return false;
     time = hhmm(h1, m1); end = hhmm(h2 < h1 && h2 + 12 <= 23 ? h2 + 12 : h2, m2);
   })
-  // B-05: «в половине пятого» → 04:30 (wordsToDigits already turned «пятого» into 5)
-  || take(new RegExp(L + 'в\\s+половине\\s+(\\d{1,2})' + R), (m) => {
-    const h = Number(m[1]);
-    if (h < 1 || h > 12) return false;
-    time = hhmm(h === 1 ? 0 : h - 1, 30);
+  // B-05: «в половине пятого» → 16:30 (wordsToDigits already turned «пятого» into 5). This used to
+  // never apply the same "bare hour → PM" working-hours guess the digit rule below gets, nor read
+  // an explicit утра/вечера — "в половине девятого утра" only came out right by coincidence (8am
+  // needed no adjustment anyway); "в половине пятого"/"в половине седьмого вечера" came out as AM.
+  || take(new RegExp(L + 'в\\s+половине\\s+(\\d{1,2})' + PART + R), (m) => {
+    const h0 = Number(m[1]);
+    if (h0 < 1 || h0 > 12) return false;
+    const h = h0 === 1 ? 0 : h0 - 1;
+    // an explicit part (вечера/утра/…) always wins via fixPart; only guess PM when none was said
+    time = hhmm(m[2] ? fixPart(h, m[2]) : (h >= 1 && h <= 7 ? h + 12 : h), 30);
   })
-  // B-05: «без пятнадцати шесть» / «без четверти шесть» → 05:45. Genitive minute-words
+  // B-05: «без пятнадцати шесть» / «без четверти шесть» → 17:45. Genitive minute-words
   // («пятнадцати», «двадцати пяти») aren't in NUM (only the nominative forms are), so they're
   // matched here directly rather than relying on wordsToDigits to have already converted them.
-  || take(new RegExp(L + 'без\\s+(четверти|пятнадцати|двадцати\\s+пяти|двадцати|десяти|пяти|\\d{1,2})\\s+(\\d{1,2})' + R), (m) => {
+  // Same missing-PM-guess bug as «в половине» above — fixed the same way.
+  || take(new RegExp(L + 'без\\s+(четверти|пятнадцати|двадцати\\s+пяти|двадцати|десяти|пяти|\\d{1,2})\\s+(\\d{1,2})' + PART + R), (m) => {
     const MIN: Record<string, number> = { четверти: 15, пятнадцати: 15, 'двадцати пяти': 25, двадцати: 20, десяти: 10, пяти: 5 };
     const minsBefore = MIN[m[1]] ?? Number(m[1]);
-    const h = Number(m[2]);
-    if (h < 1 || h > 23 || minsBefore >= 60) return false;
-    const total = ((h * 60 - minsBefore) % (24 * 60) + 24 * 60) % (24 * 60);
-    time = hhmm(Math.floor(total / 60), total % 60);
+    const h0 = Number(m[2]);
+    if (h0 < 1 || h0 > 23 || minsBefore >= 60) return false;
+    const total = ((h0 * 60 - minsBefore) % (24 * 60) + 24 * 60) % (24 * 60);
+    const h = Math.floor(total / 60);
+    // an explicit part wins via fixPart; only guess PM from the *spoken* hour (h0) when none was said
+    time = hhmm(m[3] ? fixPart(h, m[3]) : (h0 >= 1 && h0 <= 7 ? (h + 12) % 24 : h), total % 60);
   })
-  // «в час» / «на час дня» = «at one o'clock» — идиома, «час» тут не единица длительности и не
-  // цифра, поэтому generic-regex ниже (который требует \d) его не ловит. «ночи/утра» → 01:00,
-  // «дня/вечера» или без уточнения → 13:00 (working-hours-эвристика, та же, что и «в 5»).
-  || take(new RegExp(L + '(?:в|на|к)\\s+час' + PART + R), (m) => { time = hhmm(m[1] === 'ночи' || m[1] === 'утра' ? 1 : 13, 0); })
-  || take(new RegExp(L + '(?:в|к|на|at|около|часов в)\\s+' + T + PART + R), (m) => {
+  // «в час» = «at one o'clock» — идиома, «час» тут не единица длительности и не цифра, поэтому
+  // generic-regex ниже (который требует \d) его не ловит. «на час» деliberately НЕ входит сюда:
+  // «на» — это ещё и предлог длительности («на час» = «for an hour»), и без явной части суток
+  // («на час дня») бare «на час» почти всегда значит длительность, не время (регрессия, пойманная
+  // тестами: «на час» в фокусе/задаче раньше значило 60 минут, стало 13:00 и ломало length-rule ниже).
+  || take(new RegExp(L + '(?:в|к)\\s+час' + PART + R), (m) => { time = hhmm(m[1] === 'ночи' || m[1] === 'утра' ? 1 : 13, 0); })
+  || take(new RegExp(L + 'на\\s+час\\s*(утра|дня|вечера|ночи|am|pm)' + R), (m) => { time = hhmm(m[1] === 'ночи' || m[1] === 'утра' ? 1 : 13, 0); })
+  // same ambiguity for any bare digit: «на 2 часа» (for 2 hours, duration) vs «в 2 часа» (at 2
+  // o'clock). «на» only reads as clock time here with an explicit minute (HH:MM) or part-of-day —
+  // a bare «на N (час)?» falls through to the length-extraction rule near the end of this function.
+  || take(new RegExp(L + '(?:в|к|at|около|часов в)\\s+' + T + PART + R), (m) => {
     const h = fixPart(Number(m[1]), m[4]), mi = Number(m[2] ?? m[3] ?? 0);
     if (h > 23 || mi > 59) return false;
     // «в 5» with no part of day: a working-hours guess (5 → 17:00)
     time = hhmm(!m[4] && h >= 1 && h <= 7 ? h + 12 : h, mi);
+  })
+  || take(new RegExp(L + 'на\\s+' + T + PART + R), (m) => {
+    const h = fixPart(Number(m[1]), m[4]), mi = Number(m[2] ?? m[3] ?? 0);
+    if (h > 23 || mi > 59 || (!m[2] && !m[3] && !m[4])) return false; // needs :MM or a part-of-day — otherwise it's a duration, not a time
+    time = hhmm(h, mi);
   })
   || take(new RegExp(L + '(\\d{1,2}):(\\d{2})' + R), (m) => {
     const h = Number(m[1]), mi = Number(m[2]);

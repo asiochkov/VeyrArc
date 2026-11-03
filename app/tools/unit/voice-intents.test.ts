@@ -1,4 +1,4 @@
-import { similarity, understand } from '../../src/voice/nlu';
+import { normalize, similarity, takeDay, takeTime, understand } from '../../src/voice/nlu';
 
 // run: npx tsx tools/unit/voice-intents.test.ts
 const now = new Date(2026, 9, 14, 10, 0); // среда, 14 октября 2026, 10:00
@@ -39,9 +39,11 @@ const cases: C[] = [
   ['в понедельник в восемь вечера тренировка на полтора часа', { kind: 'taskAdd', day: '2026-10-19', time: '20:00', end: '21:30' }],
   ['через 2 часа забрать посылку', { kind: 'taskAdd', time: '12:00' }],
   // B-05: natural RU time/date idioms that used to be silently dropped
-  ['запиши встречу с Аней в половине пятого', { kind: 'taskAdd', title: 'Встреча с Аней', time: '04:30' }],
-  ['запиши встречу с Аней без пятнадцати шесть', { kind: 'taskAdd', title: 'Встреча с Аней', time: '05:45' }],
-  ['запиши встречу с Аней без четверти шесть', { kind: 'taskAdd', title: 'Встреча с Аней', time: '05:45' }],
+  // these 3 used to assert the AM reading — that was the bug (master prompt's own §6.5.2 table says
+  // PM: "в половине пятого"→16:30, "без пятнадцати/четверти шесть"→17:45), fixed 2026-11-03
+  ['запиши встречу с Аней в половине пятого', { kind: 'taskAdd', title: 'Встреча с Аней', time: '16:30' }],
+  ['запиши встречу с Аней без пятнадцати шесть', { kind: 'taskAdd', title: 'Встреча с Аней', time: '17:45' }],
+  ['запиши встречу с Аней без четверти шесть', { kind: 'taskAdd', title: 'Встреча с Аней', time: '17:45' }],
   // §6.5.1: number words beyond what the original nlu.ts covered — «пару» (contextual, only next
   // to час/минута/стакан/раз), «десяток», hundreds/thousands.
   ['выпил пару стаканов воды', { kind: 'done', amount: 2 }],
@@ -216,5 +218,35 @@ const sims: [string, string, boolean][] = [
   ['душ', 'Холодный душ', true], ['зарядку', 'Чтение', false],
 ];
 for (const [a, b, yes] of sims) { const v = similarity(a, b); if ((v >= 0.45) !== yes) { fail++; console.log('✗ similarity', a, b, v.toFixed(2)); } }
-console.log(fail ? `${fail} failed of ${cases.length + sims.length}` : `all ${cases.length + sims.length} passed`);
+
+// §6.5.2/§6.5.3's own tables, checked directly against takeTime/takeDay (2026-11-03 audit) — now =
+// среда 28.10.2026 15:00, matching the master prompt's own reference point for these tables.
+const dayNow = new Date(2026, 9, 28, 15, 0);
+const timeChecks: [string, string | null][] = [
+  // real-device regression: «на час»/«на N час(ов)» is a DURATION ("for an hour"), not a clock
+  // time — a prior fix for "на час дня" wrongly made bare "на час" read as 13:00 and broke this
+  ['на час', null], ['на 2 часа', null], ['на пару часов', null],
+  ['в половине седьмого вечера', '18:30'], ['без десяти семь вечера', '18:50'], ['без четверти восемь вечера', '19:45'],
+  ['поставь встречу на час дня', '13:00'], ['поставь встречу в час', '13:00'], ['поставь встречу на час ночи', '01:00'],
+];
+for (const [p, exp] of timeChecks) {
+  const got = takeTime(normalize(p), dayNow).time;
+  if (got !== exp) { fail++; console.log('✗ takeTime', p, '→', got, 'want', exp); }
+}
+const durationChecks: [string, number | null][] = [['на час', 60], ['на 2 часа', 120], ['на пару часов', 120]];
+for (const [p, exp] of durationChecks) {
+  const got = takeTime(normalize(p), dayNow).minutes;
+  if (got !== exp) { fail++; console.log('✗ takeTime minutes', p, '→', got, 'want', exp); }
+}
+const dayChecks: [string, string | null][] = [
+  ['через месяц', '2026-11-28'], ['в следующую пятницу', '2026-11-06'], ['к пятнице', '2026-10-30'],
+  ['в начале месяца', '2026-11-01'], ['в середине месяца', '2026-11-15'], ['в конце недели', '2026-10-30'],
+];
+for (const [p, exp] of dayChecks) {
+  const got = takeDay(normalize(p), dayNow).day;
+  if (got !== exp) { fail++; console.log('✗ takeDay', p, '→', got, 'want', exp); }
+}
+const tdCount = timeChecks.length + durationChecks.length + dayChecks.length;
+
+console.log(fail ? `${fail} failed of ${cases.length + sims.length + tdCount}` : `all ${cases.length + sims.length + tdCount} passed`);
 if (fail) process.exit(1);
